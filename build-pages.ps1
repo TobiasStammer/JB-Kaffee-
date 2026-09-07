@@ -883,7 +883,7 @@ function Store-Html {
   }) -join '<br>'
   $badge = if ($SD.juraBadgeUrl) { "<img src=`"$($SD.juraBadgeUrl)`" alt=`"Autorisierte JURA Servicestelle und Fachh&auml;ndler`" style=`"width:112px;height:auto;display:block;flex-shrink:0`">" } else { '' }
   $bs   = "display:inline-flex;align-items:center;justify-content:center;padding:11px 20px;border-radius:5px;font-family:$FONT_HEAD;font-size:13.5px;font-weight:700;text-decoration:none"
-  $btn  = "<div style=`"display:flex;flex-wrap:wrap;gap:10px`">" +
+  $btn  = "<div style=`"display:flex;flex-wrap:wrap;justify-content:center;gap:10px`">" +
           "<a href=`"$MAPS_G`" target=`"_blank`" rel=`"noopener`" style=`"$bs;background:$($C.accent);color:#fff`">Route mit Google Maps</a>" +
           "<a href=`"$MAPS_A`" target=`"_blank`" rel=`"noopener`" style=`"$bs;background:$($C.accent);color:#fff`">Route mit Apple Karten</a>" +
           "<a href=`"$base$($SD.storeButton.url)`" style=`"$bs;background:transparent;color:$($C.accent);border:1px solid #ccd1d8`">$($SD.storeButton.label)</a>" +
@@ -898,7 +898,7 @@ $(Sec-Head $SD.storeEyebrow $SD.storeTitle '')
       <div style="flex:1 1 260px">$paras</div>
       $badge
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:18px;border-top:1px solid $($C.line);padding-top:16px;margin-top:8px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,max-content));justify-content:center;gap:18px 48px;border-top:1px solid $($C.line);padding-top:16px;margin-top:8px;text-align:center">
       <div>
         <div style="font-family:$FONT_HEAD;color:$($C.accent);font-weight:700;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px">$($SD.storeAddrTitle)</div>
         <div style="font-size:14px;line-height:1.7;color:$($C.text)">$addr</div>
