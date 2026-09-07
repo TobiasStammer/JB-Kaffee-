@@ -1,0 +1,91 @@
+﻿<style>
+html{overflow-x:clip}
+header.wp-block-template-part{display:contents}
+.shbwrap{background:#ffffff}
+.shb{max-width:1200px;margin:0 auto;padding:13px 24px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px 18px;font-family:'Source Sans 3', 'Source Sans Pro', system-ui, sans-serif}
+.shb .ph{font-size:13px;color:#333;white-space:nowrap;display:flex;flex-direction:column;gap:3px}
+.shb .ph span{color:#666}
+.shb .ph .tel a{color:#1f1f1f;text-decoration:none;font-weight:700;letter-spacing:.02em}
+.shb .ph .bk{color:#666;text-decoration:none;font-size:12px;font-weight:400;display:inline-flex;align-items:center;gap:5px}
+.shb .ph .bk:hover{color:#334155;text-decoration:underline}
+.shb .lg{justify-self:center;display:inline-flex}
+.shb .lg img{display:block;height:52px;width:auto}
+.shb .rt{justify-self:end;display:flex;align-items:center;gap:6px}
+.shb form{display:flex;align-items:center}
+.shb input[type=search]{width:160px;max-width:30vw;padding:7px 10px;border:1px solid #cfcfcf;border-radius:6px 0 0 6px;font-size:13px;font-family:'Source Sans 3', 'Source Sans Pro', system-ui, sans-serif}
+.shb .sbtn{border:1px solid #334155;background:#334155;color:#fff;padding:7px 11px;border-radius:0 6px 6px 0;cursor:pointer;display:inline-flex}
+.shb .ic{display:inline-flex;padding:6px;color:#444;text-decoration:none}
+.shb .ic:hover{color:#000}
+.shnav-wrap{background:#4a4a4a;position:sticky;top:0;z-index:90}
+.shnav-box{max-width:1200px;margin:0 auto}
+.shnav-toggle{display:none}
+.shnav{max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:2px;font-family:Tahoma,Arial,sans-serif;list-style:none;padding:0}
+.shnav a{display:block;color:#c9c9c9;font-size:14px;line-height:1.2;padding:11px 15px;text-decoration:none;white-space:nowrap}
+.shnav a:hover{color:#ffffff}
+.shnav a.is-active{color:#ffffff;font-weight:700}
+@media(max-width:760px){
+  .shb{grid-template-columns:minmax(0,1fr);justify-items:center;row-gap:11px}
+  .shb .lg{order:-1}
+  .shb .lg img{height:42px}
+  .shb .ph{order:1;align-items:center;text-align:center}
+  .shb .rt{order:2;width:100%;justify-self:stretch;justify-content:center;flex-wrap:wrap;gap:8px}
+  .shb form{flex:1 1 200px;min-width:0}
+  .shb input[type=search]{flex:1;max-width:none;min-width:0}
+  .shnav-toggle{display:flex;align-items:center;justify-content:center;gap:11px;width:100%;background:transparent;border:0;color:#ffffff;font-family:Tahoma,Arial,sans-serif;font-size:15px;font-weight:700;letter-spacing:.04em;padding:11px 4px;cursor:pointer}
+  .shnav-toggle .bg{position:relative;display:block;width:22px;height:2px;background:currentColor}
+  .shnav-toggle .bg::before,.shnav-toggle .bg::after{content:"";position:absolute;left:0;width:22px;height:2px;background:currentColor;transition:transform .2s}
+  .shnav-toggle .bg::before{top:-7px}
+  .shnav-toggle .bg::after{top:7px}
+  .shnav-toggle[aria-expanded="true"] .bg{background:transparent}
+  .shnav-toggle[aria-expanded="true"] .bg::before{transform:translateY(7px) rotate(45deg)}
+  .shnav-toggle[aria-expanded="true"] .bg::after{transform:translateY(-7px) rotate(-45deg)}
+  .shnav{display:none;flex-direction:column;align-items:stretch;width:100%;gap:0;border-top:1px solid #5a5a5a;max-height:78vh;overflow-y:auto;padding-bottom:6px}
+  .shnav.is-open{display:flex}
+  .shnav li{width:100%;border-top:1px solid #5a5a5a}
+  .shnav li:first-child{border-top:0}
+  .shnav a{padding:12px 4px;text-align:center;font-size:14px}
+}
+</style>
+<script>
+(function(){
+  function init(){
+    var t=document.querySelector('.shnav-toggle'), n=document.getElementById('shnav');
+    if(!t||!n||t.dataset.b) return; t.dataset.b='1';
+    t.addEventListener('click',function(){
+      var o=n.classList.toggle('is-open');
+      t.setAttribute('aria-expanded',o?'true':'false');
+    });
+  }
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);}else{init();}
+})();
+</script>
+<div class="shbwrap"><div class="shb">
+  <div class="ph">
+    <span class="tel"><span>Rufen Sie uns an:</span> <a href="tel:+4961922004363">06192 2004363</a></span>
+  </div>
+  <a class="lg" href="https://new.kaffeetechniker.de/" aria-label="Startseite"><img src="https://new.kaffeetechniker.de/wp-content/uploads/2026/08/jb-logo-kaffeemaschinen-scaled.png" alt="JB Kaffeemaschinen Service &amp; Verkauf"></a>
+  <div class="rt">
+    <form role="search" method="get" action="https://new.kaffeetechniker.de/">
+      <input type="search" name="s" placeholder="Im Shop suchen&hellip;" aria-label="Im Shop suchen">
+      <input type="hidden" name="post_type" value="product">
+      <button class="sbtn" type="submit" aria-label="Suchen">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>
+      </button>
+    </form>
+    <a class="ic" href="https://new.kaffeetechniker.de/my-account/" aria-label="Mein Konto" title="Mein Konto"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></a>
+    <a class="ic" href="https://new.kaffeetechniker.de/cart/" aria-label="Warenkorb" title="Warenkorb"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg></a>
+  </div>
+</div></div>
+<nav class="shnav-wrap"><div class="shnav-box">
+    <button class="shnav-toggle" type="button" aria-expanded="false" aria-controls="shnav"><span class="bg" aria-hidden="true"></span>Men&uuml;</button>
+    <ul class="shnav" id="shnav">
+      <li><a href="https://new.kaffeetechniker.de/">Start</a></li>
+      <li><a href="https://new.kaffeetechniker.de/jura/">JURA-Shop</a></li>
+      <li><a href="https://new.kaffeetechniker.de/jura-kaffeevollautomaten/">Kaffeevollautomaten</a></li>
+      <li><a href="https://new.kaffeetechniker.de/jura-professional/">Professional</a></li>
+      <li><a href="https://new.kaffeetechniker.de/jura-zubehoer/">Zubeh&ouml;r</a></li>
+      <li><a href="https://new.kaffeetechniker.de/jura-pflegeprodukte/">Pflegeprodukte</a></li>
+      <li><a href="https://new.kaffeetechniker.de/unser-kaffee/">Unser Kaffee &amp; Tee</a></li>
+    </ul>
+  </div></nav>
+

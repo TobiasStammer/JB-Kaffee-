@@ -1,0 +1,1203 @@
+{
+  "_note": "Vorzüge + Technische Daten je JURA-Haushaltsgerät, von de.jura.com (2026-08). Basis für enrich-shop.ps1.",
+  "_tpl": {
+    "hVorzuege": "Vorzüge",
+    "hTechnik": "Technische Daten",
+    "hZubehoer": "Passendes Zubehör",
+    "hPflege": "Pflegeprodukte",
+    "zubehoerText": "Milchbehälter, Glaskaraffe, JURA Smart Connect, Tassenwärmer und weiteres Original-Zubehör führen wir für Sie. Wir zeigen Ihnen im Geschäft, was zu Ihrem Gerät passt.",
+    "zubehoerLink": "Alles Zubehör ansehen",
+    "pflegeText": "Für dieses Gerät empfehlen wir: CLARIS Smart+ Wasserfilter, JURA 3-Phasen-Reinigungstabletten und 2-Phasen-Entkalkungstabletten. Bei Milchspezialitäten zusätzlich JURA Milchsystem-Reiniger.",
+    "pflegeLink": "Pflegeprodukte ansehen",
+    "markenLink": "Zur JURA Markenseite",
+    "beratung": "Persönliche Beratung und Vorführung in unserem Geschäft in Hofheim-Langenhain oder telefonisch unter 06192 2004363. Verkauf, Service und Reparatur als autorisierter JURA-Fachhändler und JURA-Servicestelle aus einer Hand.",
+    "shortSuffix": "Verkauf, Beratung und Vorführung durch Ihre autorisierte JURA-Servicestelle in Hofheim-Langenhain.",
+    "footer": "JURA® und die genannten Technologiebezeichnungen sind Marken der JURA Elektroapparate AG (Schweiz). Abbildungen: JURA. Änderungen und Irrtümer vorbehalten."
+  },
+  "15478": {
+    "spez": "35 Kaffeespezialitäten",
+    "vorzuege": [
+      "35 Kaffeespezialitäten – von Ristretto bis Latte macchiato",
+      "Zwei Keramik-Scheibenmahlwerke für zwei verschiedene Bohnensorten",
+      "Cold Extraction Process: alle Spezialitäten auch als Cold Brew",
+      "6,7\" Panorama Coffee Panel mit Touch-Bedienung",
+      "Kaltwasser-Bypass für erweiterte Barista-Spezialitäten",
+      "Zwei Thermoblock-Heizsysteme für parallelen Bezug",
+      "WLAN und J.O.E.® App-Steuerung"
+    ],
+    "techdaten": [
+      {
+        "k": "Spezialitäten",
+        "v": "35"
+      },
+      {
+        "k": "Mahlwerk",
+        "v": "2 × elektronisch verstellbares Keramik-Scheibenmahlwerk"
+      },
+      {
+        "k": "Bohnenbehälter",
+        "v": "2 × 280 g"
+      },
+      {
+        "k": "Wassertank",
+        "v": "2,6 l"
+      },
+      {
+        "k": "Kaffeesatzbehälter",
+        "v": "max. 20 Portionen"
+      },
+      {
+        "k": "Display",
+        "v": "6,7\" Panorama Coffee Panel (Touch)"
+      },
+      {
+        "k": "Pumpendruck",
+        "v": "15 bar"
+      },
+      {
+        "k": "Milchsystem",
+        "v": "HP3 / CX3, auswechselbarer Auslauf"
+      },
+      {
+        "k": "Maße (B × H × T)",
+        "v": "32 × 41,5 × 49,6 cm"
+      },
+      {
+        "k": "Gewicht",
+        "v": "18 kg"
+      },
+      {
+        "k": "Leistung",
+        "v": "2300 W"
+      },
+      {
+        "k": "Spannung",
+        "v": "230 V ~"
+      },
+      {
+        "k": "Wasserfilter",
+        "v": "CLARIS Smart+ (automatische Erkennung)"
+      },
+      {
+        "k": "Artikelnummer",
+        "v": "15478"
+      },
+      {
+        "k": "EAN",
+        "v": "7610917154784"
+      }
+    ]
+  },
+  "15609": {
+    "spez": "51 Spezialitäten in vier Genusswelten",
+    "vorzuege": [
+      "51 Spezialitäten in vier Genusswelten (Hot, Cold, Light, Sweet)",
+      "Intuitive Bedienung über 4,3\" Touchscreen-Farbdisplay",
+      "Product Recognising Grinder P.R.G.2+ mit automatischer Mahlgradanpassung",
+      "Coffee Timer: Zubereitung bis 16 Stunden vorausplanbar",
+      "Koffeinregler in drei Stufen",
+      "Milk Assistant und Quality Assistant für komfortable Pflege",
+      "WLAN-Verbindung und J.O.E.® App"
+    ],
+    "techdaten": [
+      {
+        "k": "Spezialitäten",
+        "v": "51"
+      },
+      {
+        "k": "Mahlwerk",
+        "v": "P.R.G.2+ (Product Recognising Grinder)"
+      },
+      {
+        "k": "Bohnenbehälter",
+        "v": "280 g"
+      },
+      {
+        "k": "Wassertank",
+        "v": "2,4 l"
+      },
+      {
+        "k": "Kaffeesatzbehälter",
+        "v": "max. 20 Portionen"
+      },
+      {
+        "k": "Display",
+        "v": "4,3\" Touchscreen-Farbdisplay"
+      },
+      {
+        "k": "Pumpendruck",
+        "v": "15 bar"
+      },
+      {
+        "k": "Milchsystem",
+        "v": "HP3 / CX3"
+      },
+      {
+        "k": "Maße (B × H × T)",
+        "v": "32 × 36,3 × 47 cm"
+      },
+      {
+        "k": "Gewicht",
+        "v": "12,3 kg"
+      },
+      {
+        "k": "Leistung",
+        "v": "1450 W"
+      },
+      {
+        "k": "Spannung",
+        "v": "230 V ~"
+      },
+      {
+        "k": "Wasserfilter",
+        "v": "CLARIS Smart+"
+      },
+      {
+        "k": "Artikelnummer",
+        "v": "15609"
+      },
+      {
+        "k": "EAN",
+        "v": "7610917156092"
+      }
+    ]
+  },
+  "15615": {
+    "spez": "51 Spezialitäten in vier Genusswelten",
+    "vorzuege": [
+      "51 Spezialitäten in vier Genusswelten (Hot, Cold, Light, Sweet)",
+      "Antippen und Swipen: dynamische Menüführung über Touchscreen",
+      "Bis zu vier persönliche Profile",
+      "Coffee Timer: Vorausplanung bis 16 Stunden über die J.O.E.® App",
+      "Koffeinregler in drei Stufen",
+      "P.R.G.2+ Mahlwerk mit automatischer Anpassung von Mahlgrad und -menge",
+      "Zeitloses Wellendesign der Z-Linie"
+    ],
+    "techdaten": [
+      {
+        "k": "Spezialitäten",
+        "v": "51"
+      },
+      {
+        "k": "Mahlwerk",
+        "v": "P.R.G.2+ (Product Recognising Grinder)"
+      },
+      {
+        "k": "Bohnenbehälter",
+        "v": "280 g"
+      },
+      {
+        "k": "Wassertank",
+        "v": "2,4 l"
+      },
+      {
+        "k": "Kaffeesatzbehälter",
+        "v": "max. 20 Portionen"
+      },
+      {
+        "k": "Display",
+        "v": "4,3\" Touchscreen-Farbdisplay"
+      },
+      {
+        "k": "Pumpendruck",
+        "v": "15 bar"
+      },
+      {
+        "k": "Milchsystem",
+        "v": "HP3 / CX3"
+      },
+      {
+        "k": "Maße (B × H × T)",
+        "v": "32 × 36,3 × 47 cm"
+      },
+      {
+        "k": "Gewicht",
+        "v": "12 kg"
+      },
+      {
+        "k": "Leistung",
+        "v": "1450 W"
+      },
+      {
+        "k": "Spannung",
+        "v": "230 V ~"
+      },
+      {
+        "k": "Wasserfilter",
+        "v": "CLARIS Smart+"
+      },
+      {
+        "k": "Artikelnummer",
+        "v": "15615"
+      },
+      {
+        "k": "EAN",
+        "v": "7610917156153"
+      }
+    ]
+  },
+  "15706": {
+    "spez": "46 Spezialitäten",
+    "vorzuege": [
+      "Zwei Mahlwerke für zwei verschiedene Kaffeesorten",
+      "Cold Extraction Process für echte Cold-Brew-Spezialitäten",
+      "6,7\" Panorama Coffee Panel mit Touch-Bedienung",
+      "Zwei P.A.G.3+ Mahlwerke mit aktiver Mahlgradüberwachung",
+      "Sweet-Foam-Funktion für subtil gesüßten Milchschaum",
+      "Kompaktes Design der J-Linie mit hochwertigen Materialien"
+    ],
+    "techdaten": [
+      {
+        "k": "Spezialitäten",
+        "v": "46"
+      },
+      {
+        "k": "Mahlwerk",
+        "v": "2 × P.A.G.3+"
+      },
+      {
+        "k": "Bohnenbehälter",
+        "v": "2 × 180 g"
+      },
+      {
+        "k": "Wassertank",
+        "v": "1,9 l"
+      },
+      {
+        "k": "Kaffeesatzbehälter",
+        "v": "max. 16 Portionen"
+      },
+      {
+        "k": "Display",
+        "v": "6,7\" Panorama Coffee Panel (Touch)"
+      },
+      {
+        "k": "Pumpendruck",
+        "v": "15 bar"
+      },
+      {
+        "k": "Milchsystem",
+        "v": "HP3 / CX3"
+      },
+      {
+        "k": "Maße (B × H × T)",
+        "v": "31 × 36 × 44,6 cm"
+      },
+      {
+        "k": "Gewicht",
+        "v": "11,5 kg"
+      },
+      {
+        "k": "Leistung",
+        "v": "1450 W"
+      },
+      {
+        "k": "Spannung",
+        "v": "230 V ~"
+      },
+      {
+        "k": "Wasserfilter",
+        "v": "CLARIS Smart+"
+      },
+      {
+        "k": "Artikelnummer",
+        "v": "15706"
+      },
+      {
+        "k": "EAN",
+        "v": "7610917157068"
+      }
+    ]
+  },
+  "15562": {
+    "spez": "42 Spezialitäten",
+    "vorzuege": [
+      "42 Spezialitäten inkl. echter Cold-Brew-Getränke",
+      "Cold Extraction Process für Cold Brew auf Knopfdruck",
+      "Sweet-Foam-Funktion: subtil gesüßter Milchschaum",
+      "Präzisionsmahlwerk P.A.G.2+ mit aktiver Aroma-Kontrolle",
+      "4,3\" Touchscreen, Coffee Eye Tassensensor, One-Touch-Milchsystemreinigung",
+      "Klares, symmetrisches Design der J-Linie"
+    ],
+    "techdaten": [
+      {
+        "k": "Spezialitäten",
+        "v": "42"
+      },
+      {
+        "k": "Mahlwerk",
+        "v": "P.A.G.2+"
+      },
+      {
+        "k": "Bohnenbehälter",
+        "v": "280 g"
+      },
+      {
+        "k": "Wassertank",
+        "v": "1,9 l"
+      },
+      {
+        "k": "Kaffeesatzbehälter",
+        "v": "max. 16 Portionen"
+      },
+      {
+        "k": "Display",
+        "v": "4,3\" Touchscreen-Farbdisplay"
+      },
+      {
+        "k": "Pumpendruck",
+        "v": "15 bar"
+      },
+      {
+        "k": "Milchsystem",
+        "v": "HP3 / CX3"
+      },
+      {
+        "k": "Maße (B × H × T)",
+        "v": "31,8 × 34,8 × 44,6 cm"
+      },
+      {
+        "k": "Gewicht",
+        "v": "10,4 kg"
+      },
+      {
+        "k": "Leistung",
+        "v": "1450 W"
+      },
+      {
+        "k": "Spannung",
+        "v": "230 V ~"
+      },
+      {
+        "k": "Wasserfilter",
+        "v": "CLARIS Smart+"
+      },
+      {
+        "k": "Artikelnummer",
+        "v": "15562"
+      },
+      {
+        "k": "EAN",
+        "v": "7610917155620"
+      }
+    ]
+  },
+  "15483": {
+    "spez": "27 Spezialitäten",
+    "vorzuege": [
+      "27 Spezialitäten inkl. Sweet-Varianten",
+      "Sweet-Foam-Funktion: aromatisierter Milchschaum bei der Zubereitung",
+      "Professionelles Aroma-Mahlwerk P.A.G.2",
+      "3D-Brüheinheit der 8. Generation",
+      "4,3\" Touchscreen mit Grafiken und Animationen",
+      "Skulpturales Design mit Premium-Materialien"
+    ],
+    "techdaten": [
+      {
+        "k": "Spezialitäten",
+        "v": "27"
+      },
+      {
+        "k": "Mahlwerk",
+        "v": "P.A.G.2"
+      },
+      {
+        "k": "Bohnenbehälter",
+        "v": "280 g"
+      },
+      {
+        "k": "Wassertank",
+        "v": "1,9 l"
+      },
+      {
+        "k": "Kaffeesatzbehälter",
+        "v": "max. 16 Portionen"
+      },
+      {
+        "k": "Display",
+        "v": "4,3\" Touchscreen-Farbdisplay"
+      },
+      {
+        "k": "Pumpendruck",
+        "v": "15 bar"
+      },
+      {
+        "k": "Milchsystem",
+        "v": "HP3 / CX3"
+      },
+      {
+        "k": "Maße (B × H × T)",
+        "v": "28 × 34,8 × 44,6 cm"
+      },
+      {
+        "k": "Gewicht",
+        "v": "9,8 kg"
+      },
+      {
+        "k": "Leistung",
+        "v": "1450 W"
+      },
+      {
+        "k": "Spannung",
+        "v": "230 V ~"
+      },
+      {
+        "k": "Wasserfilter",
+        "v": "CLARIS Smart+"
+      },
+      {
+        "k": "Artikelnummer",
+        "v": "15483"
+      },
+      {
+        "k": "EAN",
+        "v": "7610917154838"
+      }
+    ]
+  },
+  "15743": {
+    "spez": "36 Spezialitäten in vier Genusswelten",
+    "vorzuege": [
+      "36 Spezialitäten in vier Genusswelten",
+      "Cold Brew und Light Brew: kalt extrahiert bzw. mild bei ca. 60 °C",
+      "Sweet-Foam-Funktion für subtil gesüßten Milchschaum",
+      "Coffee Timer und J.O.E.® für Zeitvorwahl und Fernsteuerung",
+      "P.A.G.2+ Mahlwerk mit spezialitätengenauer Aroma-Kontrolle",
+      "Quality Assistant für ressourcenschonende, hygienische Pflege",
+      "Kompakt: nur 27 cm breit"
+    ],
+    "techdaten": [
+      {
+        "k": "Spezialitäten",
+        "v": "36"
+      },
+      {
+        "k": "Mahlwerk",
+        "v": "P.A.G.2+"
+      },
+      {
+        "k": "Bohnenbehälter",
+        "v": "280 g"
+      },
+      {
+        "k": "Wassertank",
+        "v": "1,9 l"
+      },
+      {
+        "k": "Kaffeesatzbehälter",
+        "v": "max. 16 Portionen"
+      },
+      {
+        "k": "Display",
+        "v": "3,5\" Farb-Tasten-Display"
+      },
+      {
+        "k": "Pumpendruck",
+        "v": "15 bar"
+      },
+      {
+        "k": "Milchsystem",
+        "v": "HP3 / CX3"
+      },
+      {
+        "k": "Maße (B × H × T)",
+        "v": "27 × 34,8 × 44,6 cm"
+      },
+      {
+        "k": "Gewicht",
+        "v": "10 kg"
+      },
+      {
+        "k": "Leistung",
+        "v": "1450 W"
+      },
+      {
+        "k": "Spannung",
+        "v": "230 V ~"
+      },
+      {
+        "k": "Wasserfilter",
+        "v": "CLARIS Smart+"
+      },
+      {
+        "k": "Artikelnummer",
+        "v": "15743"
+      },
+      {
+        "k": "EAN",
+        "v": "7610917157433"
+      }
+    ]
+  },
+  "15712": {
+    "spez": "27 Spezialitäten",
+    "vorzuege": [
+      "27 Spezialitäten in drei Genusswelten (Hot, Light, Sweet)",
+      "Coffee Timer und J.O.E.® für automatische Zubereitung",
+      "Quality Assistant für ressourcenschonende Pflege",
+      "3,5\" Farbdisplay mit seitlichen Tasten",
+      "Präzises Mahlwerk P.A.G.2",
+      "Automatische Erkennung und Spülung der CLARIS Smart+ Filterpatrone"
+    ],
+    "techdaten": [
+      {
+        "k": "Spezialitäten",
+        "v": "27"
+      },
+      {
+        "k": "Mahlwerk",
+        "v": "P.A.G.2"
+      },
+      {
+        "k": "Bohnenbehälter",
+        "v": "280 g"
+      },
+      {
+        "k": "Wassertank",
+        "v": "1,9 l"
+      },
+      {
+        "k": "Kaffeesatzbehälter",
+        "v": "max. 16 Portionen"
+      },
+      {
+        "k": "Display",
+        "v": "3,5\" Tasten-Farbdisplay"
+      },
+      {
+        "k": "Pumpendruck",
+        "v": "15 bar"
+      },
+      {
+        "k": "Milchsystem",
+        "v": "HP3 / CX3"
+      },
+      {
+        "k": "Maße (B × H × T)",
+        "v": "27 × 34,8 × 44,6 cm"
+      },
+      {
+        "k": "Gewicht",
+        "v": "10 kg"
+      },
+      {
+        "k": "Leistung",
+        "v": "1450 W"
+      },
+      {
+        "k": "Spannung",
+        "v": "230 V ~"
+      },
+      {
+        "k": "Wasserfilter",
+        "v": "CLARIS Smart+"
+      },
+      {
+        "k": "Artikelnummer",
+        "v": "15712"
+      },
+      {
+        "k": "EAN",
+        "v": "7610917157129"
+      }
+    ]
+  },
+  "15828": {
+    "spez": "17 Spezialitäten",
+    "vorzuege": [
+      "17 Spezialitäten in zwei Genusswelten (Hot Brew, Light Brew)",
+      "Präzisionsmahlwerk P.A.G.2",
+      "Easy-Cappuccino-Funktion für automatischen Milchschaum",
+      "3,5\" Farbdisplay mit klarer Menüführung",
+      "J.O.E.® App-Steuerung mit Coffee Timer bis 16 Stunden vorausplanbar"
+    ],
+    "techdaten": [
+      {
+        "k": "Spezialitäten",
+        "v": "17"
+      },
+      {
+        "k": "Mahlwerk",
+        "v": "P.A.G.2"
+      },
+      {
+        "k": "Bohnenbehälter",
+        "v": "280 g"
+      },
+      {
+        "k": "Wassertank",
+        "v": "1,9 l"
+      },
+      {
+        "k": "Kaffeesatzbehälter",
+        "v": "max. 16 Portionen"
+      },
+      {
+        "k": "Display",
+        "v": "3,5\" Farb-Tasten-Display"
+      },
+      {
+        "k": "Pumpendruck",
+        "v": "15 bar"
+      },
+      {
+        "k": "Milchsystem",
+        "v": "HP1 / CX3"
+      },
+      {
+        "k": "Maße (B × H × T)",
+        "v": "27 × 34,8 × 44,6 cm"
+      },
+      {
+        "k": "Gewicht",
+        "v": "9,7 kg"
+      },
+      {
+        "k": "Leistung",
+        "v": "1450 W"
+      },
+      {
+        "k": "Spannung",
+        "v": "230 V ~"
+      },
+      {
+        "k": "Wasserfilter",
+        "v": "CLARIS Smart+"
+      },
+      {
+        "k": "Artikelnummer",
+        "v": "15828"
+      },
+      {
+        "k": "EAN",
+        "v": "7610917158287"
+      }
+    ]
+  },
+  "15435": {
+    "spez": "5 Spezialitäten (Schwarzkaffee)",
+    "vorzuege": [
+      "Bedienung über nur einen Tastendruck",
+      "Professional Aroma Grinder (P.A.G.) – 12,2 % mehr Aroma",
+      "3D-Brühprozess mit variabler Brüheinheit (5–16 g)",
+      "Heißwasserfunktion bis 3 dl per Drehschalter",
+      "Reduziertes Design in Piano Black mit Chrom-Akzenten"
+    ],
+    "techdaten": [
+      {
+        "k": "Spezialitäten",
+        "v": "5 (Espresso, Kaffee, Heißwasser)"
+      },
+      {
+        "k": "Mahlwerk",
+        "v": "Professional Aroma Grinder (P.A.G.)"
+      },
+      {
+        "k": "Bohnenbehälter",
+        "v": "280 g"
+      },
+      {
+        "k": "Wassertank",
+        "v": "1,9 l"
+      },
+      {
+        "k": "Kaffeesatzbehälter",
+        "v": "max. 16 Portionen"
+      },
+      {
+        "k": "Display",
+        "v": "Symboldisplay"
+      },
+      {
+        "k": "Pumpendruck",
+        "v": "15 bar"
+      },
+      {
+        "k": "Maße (B × H × T)",
+        "v": "28 × 34,6 × 44,4 cm"
+      },
+      {
+        "k": "Gewicht",
+        "v": "9,8 kg"
+      },
+      {
+        "k": "Leistung",
+        "v": "1450 W"
+      },
+      {
+        "k": "Spannung",
+        "v": "230 V ~"
+      },
+      {
+        "k": "Wasserfilter",
+        "v": "CLARIS Smart+"
+      },
+      {
+        "k": "Artikelnummer",
+        "v": "15435"
+      },
+      {
+        "k": "EAN",
+        "v": "7610917154357"
+      }
+    ]
+  },
+  "15753": {
+    "spez": "17 Kaffeespezialitäten",
+    "vorzuege": [
+      "17 Kaffeespezialitäten inkl. Flat White, Cortado, Espresso macchiato",
+      "Zwei Genusswelten: Hot Brew und Light Brew",
+      "Professionelles Aroma-Mahlwerk mit drei Brühprozessen",
+      "Full-Size-Brüheinheit für vollmundige Qualität",
+      "Puls-Extraktionsprozess P.E.P.® für optimale Aromaentfaltung",
+      "Kompaktes Design mit konvex-konkaver Front"
+    ],
+    "techdaten": [
+      {
+        "k": "Spezialitäten",
+        "v": "17"
+      },
+      {
+        "k": "Mahlwerk",
+        "v": "Professional Aroma Grinder (P.A.G.)"
+      },
+      {
+        "k": "Bohnenbehälter",
+        "v": "200 g"
+      },
+      {
+        "k": "Wassertank",
+        "v": "1,6 l"
+      },
+      {
+        "k": "Kaffeesatzbehälter",
+        "v": "max. 16 Portionen"
+      },
+      {
+        "k": "Display",
+        "v": "2,8\" Tasten-Farbdisplay"
+      },
+      {
+        "k": "Pumpendruck",
+        "v": "15 bar"
+      },
+      {
+        "k": "Milchsystem",
+        "v": "HP1 / CX1"
+      },
+      {
+        "k": "Maße (B × H × T)",
+        "v": "26 × 32,5 × 43,7 cm"
+      },
+      {
+        "k": "Gewicht",
+        "v": "9,5 kg"
+      },
+      {
+        "k": "Leistung",
+        "v": "1450 W"
+      },
+      {
+        "k": "Spannung",
+        "v": "230 V ~"
+      },
+      {
+        "k": "Wasserfilter",
+        "v": "CLARIS Smart+"
+      },
+      {
+        "k": "Artikelnummer",
+        "v": "15753"
+      },
+      {
+        "k": "EAN",
+        "v": "7610917157532"
+      }
+    ]
+  },
+  "15599": {
+    "spez": "4 Spezialitäten (Schwarzkaffee)",
+    "vorzuege": [
+      "Spezialisiert auf charaktervolle Schwarzkaffee-Spezialitäten",
+      "Kompaktes Wellendesign, inspiriert von der Premium-Klasse",
+      "Puls-Extraktionsprozess P.E.P.® für dichte, samtige Crema",
+      "Easy Control Panel mit nur vier Tasten",
+      "J.O.E.® App zur individuellen Programmierung",
+      "Full-Size-Brüheinheit mit professionellem Mahlwerk"
+    ],
+    "techdaten": [
+      {
+        "k": "Spezialitäten",
+        "v": "4 (2 × Espresso, 2 × Kaffee)"
+      },
+      {
+        "k": "Mahlwerk",
+        "v": "Professional Aroma Grinder (P.A.G.)"
+      },
+      {
+        "k": "Bohnenbehälter",
+        "v": "200 g"
+      },
+      {
+        "k": "Wassertank",
+        "v": "1,6 l"
+      },
+      {
+        "k": "Kaffeesatzbehälter",
+        "v": "max. 16 Portionen"
+      },
+      {
+        "k": "Display",
+        "v": "Easy Control Panel"
+      },
+      {
+        "k": "Pumpendruck",
+        "v": "15 bar"
+      },
+      {
+        "k": "Maße (B × H × T)",
+        "v": "26 × 32,5 × 43,7 cm"
+      },
+      {
+        "k": "Gewicht",
+        "v": "8,8 kg"
+      },
+      {
+        "k": "Leistung",
+        "v": "1450 W"
+      },
+      {
+        "k": "Spannung",
+        "v": "230 V ~"
+      },
+      {
+        "k": "Wasserfilter",
+        "v": "CLARIS Smart+"
+      },
+      {
+        "k": "Artikelnummer",
+        "v": "15599"
+      },
+      {
+        "k": "EAN",
+        "v": "7610917155996"
+      }
+    ]
+  },
+  "15493": {
+    "spez": "15 Spezialitäten",
+    "vorzuege": [
+      "15 Spezialitäten – Schwarzkaffee und Milchspezialitäten",
+      "Professional Aroma Grinder (P.A.G.) – 12,2 % mehr Aroma",
+      "Feinschaum-Technologie für Cappuccino, Flat White & Latte macchiato",
+      "Zweitassenfunktion für Schwarzkaffee",
+      "TÜV-zertifizierte Milchsystemreinigung",
+      "Kompakt: nur 27,1 cm breit, 2,8\" Touchscreen"
+    ],
+    "techdaten": [
+      {
+        "k": "Spezialitäten",
+        "v": "15"
+      },
+      {
+        "k": "Mahlwerk",
+        "v": "Professional Aroma Grinder (P.A.G.)"
+      },
+      {
+        "k": "Bohnenbehälter",
+        "v": "125 g"
+      },
+      {
+        "k": "Wassertank",
+        "v": "1,1 l"
+      },
+      {
+        "k": "Kaffeesatzbehälter",
+        "v": "max. 10 Portionen"
+      },
+      {
+        "k": "Display",
+        "v": "2,8\" Touchscreen"
+      },
+      {
+        "k": "Pumpendruck",
+        "v": "15 bar"
+      },
+      {
+        "k": "Milchsystem",
+        "v": "HP1 / CX1"
+      },
+      {
+        "k": "Maße (B × H × T)",
+        "v": "27,1 × 32,3 × 44,5 cm"
+      },
+      {
+        "k": "Gewicht",
+        "v": "9,4 kg"
+      },
+      {
+        "k": "Leistung",
+        "v": "1450 W"
+      },
+      {
+        "k": "Spannung",
+        "v": "230 V ~"
+      },
+      {
+        "k": "Wasserfilter",
+        "v": "CLARIS Smart+"
+      },
+      {
+        "k": "Artikelnummer",
+        "v": "15493"
+      },
+      {
+        "k": "EAN",
+        "v": "7610917154937"
+      }
+    ]
+  },
+  "15696": {
+    "spez": "6 Spezialitäten (Schwarzkaffee)",
+    "vorzuege": [
+      "Drei Brühprozesse: Hot Brew, Cold Brew und Light Brew",
+      "Hot Brew mit P.E.P.® für intensiven Espresso und Kaffee",
+      "Cold Brew: vollautomatische Kaltextraktion mit fruchtigen Noten",
+      "Light Brew: bei ca. 60 °C gebrüht, leicht und aromatisch",
+      "Kompakte Bauweise, 2,8\" Touchscreen-Farbdisplay",
+      "Individuelle Programmiermöglichkeiten"
+    ],
+    "techdaten": [
+      {
+        "k": "Spezialitäten",
+        "v": "6"
+      },
+      {
+        "k": "Mahlwerk",
+        "v": "Professional Aroma Grinder (P.A.G.)"
+      },
+      {
+        "k": "Bohnenbehälter",
+        "v": "125 g"
+      },
+      {
+        "k": "Wassertank",
+        "v": "1,1 l"
+      },
+      {
+        "k": "Kaffeesatzbehälter",
+        "v": "max. 10 Portionen"
+      },
+      {
+        "k": "Display",
+        "v": "2,8\" Touchscreen-Farbdisplay"
+      },
+      {
+        "k": "Pumpendruck",
+        "v": "15 bar"
+      },
+      {
+        "k": "Maße (B × H × T)",
+        "v": "27,1 × 32,3 × 44,5 cm"
+      },
+      {
+        "k": "Gewicht",
+        "v": "8,7 kg"
+      },
+      {
+        "k": "Leistung",
+        "v": "1450 W"
+      },
+      {
+        "k": "Spannung",
+        "v": "230 V ~"
+      },
+      {
+        "k": "Wasserfilter",
+        "v": "CLARIS Smart+"
+      },
+      {
+        "k": "Artikelnummer",
+        "v": "15696"
+      },
+      {
+        "k": "EAN",
+        "v": "7610917156962"
+      }
+    ]
+  },
+  "15501": {
+    "spez": "4 Spezialitäten (Schwarzkaffee)",
+    "vorzuege": [
+      "Frisch gemahlen statt gekapselt, mit intelligentem P.E.P.®",
+      "Professional Aroma Grinder für intensive Geschmacksentfaltung",
+      "Bedienung mit einem Tastendruck und Vorwahlfunktionen",
+      "Kompaktes Design, nur 27,1 cm breit",
+      "Integriertes Spül-, Reinigungs- und Entkalkungsprogramm",
+      "JURA-Hygiene nach TÜV-Standard",
+      "Energiesparmodus und Zero-Energy Switch"
+    ],
+    "techdaten": [
+      {
+        "k": "Spezialitäten",
+        "v": "4 (Espresso, Kaffee, Espresso doppio, Caffè doppio)"
+      },
+      {
+        "k": "Mahlwerk",
+        "v": "Professional Aroma Grinder (P.A.G.)"
+      },
+      {
+        "k": "Bohnenbehälter",
+        "v": "125 g"
+      },
+      {
+        "k": "Wassertank",
+        "v": "1,1 l"
+      },
+      {
+        "k": "Kaffeesatzbehälter",
+        "v": "max. 10 Portionen"
+      },
+      {
+        "k": "Display",
+        "v": "Symboldisplay"
+      },
+      {
+        "k": "Pumpendruck",
+        "v": "15 bar"
+      },
+      {
+        "k": "Maße (B × H × T)",
+        "v": "27,1 × 32,3 × 44,5 cm"
+      },
+      {
+        "k": "Gewicht",
+        "v": "8,4 kg"
+      },
+      {
+        "k": "Leistung",
+        "v": "1450 W"
+      },
+      {
+        "k": "Spannung",
+        "v": "230 V ~"
+      },
+      {
+        "k": "Wasserfilter",
+        "v": "CLARIS Smart+"
+      },
+      {
+        "k": "Artikelnummer",
+        "v": "15501"
+      },
+      {
+        "k": "EAN",
+        "v": "7610917155019"
+      }
+    ]
+  },
+  "15736": {
+    "spez": "18 Kaffeespezialitäten",
+    "vorzuege": [
+      "18 Kaffeespezialitäten – von Espresso bis Flat White, klassisch (Hot Brew) und mild-fruchtig (Light Brew)",
+      "Mit nur 19 cm Breite der schmalste Full-Size-Kaffeevollautomat von JURA",
+      "Professionelles Präzisionsmahlwerk P.A.G.3 mit werkzeugloser Mahlgradverstellung",
+      "Variable Full-Size-Brüheinheit für 5 bis 16 g Kaffee mit Puls-Extraktionsprozess (P.E.P.)",
+      "One-Touch-Milchsystem mit automatischer Reinigung auf Knopfdruck",
+      "2,8\"-Tasten-Farbdisplay, Coffee Timer und Steuerung per App J.O.E. (WLAN)"
+    ],
+    "techdaten": [
+      {
+        "k": "Spezialitäten",
+        "v": "18"
+      },
+      {
+        "k": "Mahlwerk",
+        "v": "Professional Aroma Grinder 3 (P.A.G.3)"
+      },
+      {
+        "k": "Brüheinheit",
+        "v": "variabel, 5 – 16 g"
+      },
+      {
+        "k": "Bohnenbehälter",
+        "v": "140 g"
+      },
+      {
+        "k": "Wassertank",
+        "v": "0,8 l"
+      },
+      {
+        "k": "Kaffeesatzbehälter",
+        "v": "max. 8 Portionen"
+      },
+      {
+        "k": "Display",
+        "v": "2,8\" Tasten-Farbdisplay"
+      },
+      {
+        "k": "Milchsystem",
+        "v": "HP4 / CX4, auswechselbarer Milchauslauf"
+      },
+      {
+        "k": "Pumpendruck",
+        "v": "15 bar"
+      },
+      {
+        "k": "Breite",
+        "v": "19 cm"
+      },
+      {
+        "k": "Gewicht",
+        "v": "8,9 kg"
+      },
+      {
+        "k": "Leistung",
+        "v": "1450 W"
+      },
+      {
+        "k": "Spannung",
+        "v": "230 V ~"
+      },
+      {
+        "k": "Wasserfilter",
+        "v": "CLARIS Smart+"
+      },
+      {
+        "k": "Konnektivität",
+        "v": "WLAN, App J.O.E."
+      },
+      {
+        "k": "Artikelnummer",
+        "v": "15736"
+      },
+      {
+        "k": "EAN",
+        "v": "7610917157365"
+      }
+    ]
+  },
+  "15775": {
+    "spez": "Kaffeespezialitäten aus vier Genusswelten",
+    "vorzuege": [
+      "Neue S-Linie von JURA mit vier Genusswelten: Hot, Light, Cold und Sweet",
+      "Premium-Design mit großem Farbdisplay",
+      "Derzeit als Vorbestellung – Preis und Liefertermin auf Anfrage",
+      "Beratung und Vorführung in unserem Geschäft in Hofheim-Langenhain"
+    ],
+    "techdaten": [
+      {
+        "k": "Baureihe",
+        "v": "S-Linie (2026)"
+      },
+      {
+        "k": "Artikelnummer",
+        "v": "15775"
+      },
+      {
+        "k": "Verfügbarkeit",
+        "v": "Vorbestellung – sprechen Sie uns an"
+      }
+    ]
+  }
+}

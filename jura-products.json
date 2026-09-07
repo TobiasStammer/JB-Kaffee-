@@ -1,0 +1,158 @@
+{
+  "categories": {
+    "parent": {
+      "name": "JURA",
+      "slug": "jura"
+    },
+    "haushalt": {
+      "name": "Kaffeevollautomaten Haushalt",
+      "slug": "jura-kaffeevollautomaten"
+    },
+    "zubehoer": {
+      "name": "Zubehör",
+      "slug": "jura-zubehoer"
+    },
+    "pflege": {
+      "name": "Pflegeprodukte",
+      "slug": "jura-pflegeprodukte"
+    }
+  },
+  "haushalt": [
+    {
+      "sku": "15478",
+      "name": "JURA GIGA 10 (Diamond Black)",
+      "price": "2999.00",
+      "line": "GIGA",
+      "url": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/giga-10-diamond-black-ea-15478",
+      "img": "https://api.jura.com/media/global/images/home-products/giga-line/giga-10/giga_10_diamond_black_ea_overview.jpg"
+    },
+    {
+      "sku": "15609",
+      "name": "JURA Z10 (Aluminium Black)",
+      "price": "2499.00",
+      "line": "Z",
+      "url": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/z10-aluminium-black-eb-15609",
+      "img": "https://api.jura.com/media/global/images/home-products/z-line-2025/Z10-EB-SB/Z10-EB-SB-Aluminium-Black/Z10_eb_sb_ab_overview.jpg"
+    },
+    {
+      "sku": "15615",
+      "name": "JURA Z10 (Diamond Black)",
+      "price": "2299.00",
+      "line": "Z",
+      "url": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/z10diamond-black-eb-15615",
+      "img": "https://api.jura.com/media/global/images/home-products/z-line-2025/Z10-EB-SB/Z10-EB-SB-Diamond-Black/Overview_Z10_DB.jpg"
+    },
+    {
+      "sku": "15706",
+      "name": "JURA J10 twin (Diamond Onyx)",
+      "price": "2249.00",
+      "line": "J",
+      "url": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/j10twin-diamond-onyx-ea-15706",
+      "img": "https://api.jura.com/media/global/images/home-products/j-line-2025/j10-twin-ea-diamond-onyx/J10_twin_Diamond_Onyx_EA_Overview_960x1200px.jpg"
+    },
+    {
+      "sku": "15562",
+      "name": "JURA J10 (Piano Black)",
+      "price": "1849.00",
+      "line": "J",
+      "url": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/j10-piano-black-ea-15562",
+      "img": "https://api.jura.com/media/global/images/home-products/j-line-2024/j10-piano-black-ea/J10_pb_ea_overview.jpg"
+    },
+    {
+      "sku": "15483",
+      "name": "JURA S8 (Platin)",
+      "price": "1679.00",
+      "line": "S",
+      "url": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/s8platin-eb-15483",
+      "img": "https://api.jura.com/media/global/images/home-products/s-line-2024/S8-Platin-EB-SB/S8_Platin_eb_sb_Overview.jpg"
+    },
+    {
+      "sku": "15743",
+      "name": "JURA E10 (Onyx Grey)",
+      "price": "1399.00",
+      "line": "E",
+      "url": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/e10-onyx-grey-ea-15743",
+      "img": "https://api.jura.com/media/global/images/home-products/e-line-2026/e10-ea-onyx-grey/e10_ea_onyx_grey_overview.jpg"
+    },
+    {
+      "sku": "15712",
+      "name": "JURA E8 (Midnight Silver)",
+      "price": "1249.00",
+      "line": "E",
+      "url": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/e8-midnight-silver-ed-15712",
+      "img": "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-midnight-silver/e8_ed_midnightsilver_overview_packshot.jpg"
+    },
+    {
+      "sku": "15828",
+      "name": "JURA E6 (Dark Inox)",
+      "price": "979.00",
+      "line": "E",
+      "url": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/e6-dark-inox-ed-15828",
+      "img": "https://api.jura.com/media/global/images/home-products/e-line-2026/e6-ed-dark-inox/e6_ed_darkinox_overview.jpg"
+    },
+    {
+      "sku": "15435",
+      "name": "JURA E4 (Piano Black)",
+      "price": "749.00",
+      "line": "E",
+      "url": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/e4-piano-black-ea-15435",
+      "img": "https://api.jura.com/media/global/images/home-products/e-line-2021/e4/e4-piano-black-ea-15435/E4_bl_Template_Overview_Carousel_HD.jpg"
+    },
+    {
+      "sku": "15753",
+      "name": "JURA C9 (Piano Black)",
+      "price": "899.00",
+      "line": "C",
+      "url": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/c9-piano-black-ea-15753",
+      "img": "https://api.jura.com/media/global/images/home-products/c-line-2025/C9-EA-SA-Piano-Black/c9_ea_sa_pb_overview.jpg"
+    },
+    {
+      "sku": "15599",
+      "name": "JURA C3 (Piano Black)",
+      "price": "699.00",
+      "line": "C",
+      "url": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/c3-piano-black-ea-15599",
+      "img": "https://api.jura.com/media/global/images/home-products/c-line-2025/C3-EA-SA-Piano-Black/c3_ea_sa_pb_overview.jpg"
+    },
+    {
+      "sku": "15493",
+      "name": "JURA ENA 8 (Full Metropolitan Black)",
+      "price": "1049.00",
+      "line": "ENA",
+      "url": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/ena-8-full-metropolitan-black-ec-15493",
+      "img": "https://api.jura.com/media/global/images/home-products/ena-line-2022/ena-8-ec-sc/ena-8-full-metropolitan-black-ec-sc/ena_8_fmb_overview.jpg"
+    },
+    {
+      "sku": "15696",
+      "name": "JURA ENA 5 (Night Inox)",
+      "price": "999.00",
+      "line": "ENA",
+      "url": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/ena-5-night-inox-ea-15696",
+      "img": "https://api.jura.com/media/global/images/home-products/ena-line-2024/ENA-5-Night-Inox-EA-SA/ena_5_ea_sa_night_inox_overview.jpg"
+    },
+    {
+      "sku": "15501",
+      "name": "JURA ENA 4 (Full Metropolitan Black)",
+      "price": "649.00",
+      "line": "ENA",
+      "url": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/ena-4-full-metropolitan-black-eb-15501",
+      "img": "https://api.jura.com/media/global/images/home-products/ena-line-2022/ena-4-eb-sb/ena-4-full-metropolitan-black-eb-sb/ENA4_bl_Template_Overview_Carousel_HD.jpg"
+    },
+    {
+      "sku": "15736",
+      "name": "JURA A8 (Piano Black)",
+      "price": "999.00",
+      "line": "A",
+      "url": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/a8-piano-black-ea-15736",
+      "img": "https://api.jura.com/media/global/images/home-products/a-line-2026/A8-EA/A8-Piano-Black-EA/a8_ea_sa_pb_packshot_front.jpg"
+    },
+    {
+      "sku": "15775",
+      "name": "JURA S10 (Obsidian Black)",
+      "price": "",
+      "line": "S",
+      "url": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/s10-obsidian-black-ea-15775",
+      "img": "https://api.jura.com/media/global/images/home-products/s-line-2026/S10-Obsidian-Black-EA-SA-15775/s10_ob_ea_packshot.jpg"
+    }
+  ]
+}

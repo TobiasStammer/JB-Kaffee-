@@ -1,0 +1,24 @@
+# Textdateien im Repo einheitlich als LF speichern, beim Auschecken
+# betriebssystem-typisch (CRLF auf Windows, LF auf Mac).
+* text=auto
+
+# PowerShell/JSON/HTML sind Text
+*.ps1  text
+*.psm1 text
+*.json text
+*.html text
+*.md   text
+*.txt  text
+*.css  text
+*.js   text
+
+# Binaerdateien nie anfassen
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.JPG  binary
+*.gif  binary
+*.pdf  binary
+*.ico  binary
+*.woff binary
+*.woff2 binary

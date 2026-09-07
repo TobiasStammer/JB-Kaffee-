@@ -1,0 +1,90 @@
+{
+  "categories": {
+    "parent":    { "name": "NIVONA", "slug": "nivona" },
+    "haushalt":  { "name": "NIVONA Kaffeevollautomaten", "slug": "nivona-kaffeevollautomaten" }
+  },
+  "shortHtml": "<p>Kaffeevollautomat der Marke NIVONA. Verkauf, Beratung, Vorf&uuml;hrung und Service durch die Joachim Bl&ouml;chle Elektro-Service GmbH in Hofheim-Langenhain. Alle Preise inkl. MwSt.</p>",
+  "machines": [
+    {
+      "sku": "nivona-cube-4",
+      "name": "NIVONA CUBE 4'",
+      "line": "CUBE",
+      "price": "479.00",
+      "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_cube4_schwarz-Jp6dpHzD.webp",
+      "url": "https://nivona.com/de/product/cube4",
+      "tx": "Der kompakte Einstieg: nur 19,5 cm breit, One-Touch-Zubereitung und herausnehmbare Br&uuml;heinheit. Ideal, wo wenig Platz ist."
+    },
+    {
+      "sku": "nivona-5er",
+      "name": "NIVONA 5er-Serie",
+      "line": "5er",
+      "price": "549.00",
+      "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_5series_schwarz-DBTpwHlk.webp",
+      "url": "https://nivona.com/de/product/5series",
+      "tx": "Solide Grundausstattung mit gro&szlig;em Wassertank und einfacher Bedienung &uuml;ber Tasten &ndash; der unkomplizierte Alltagsautomat."
+    },
+    {
+      "sku": "nivona-6er",
+      "name": "NIVONA 6er-Serie",
+      "line": "6er",
+      "price": "699.00",
+      "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_6series_titan-CGm7EHsw.webp",
+      "url": "https://nivona.com/de/product/6series",
+      "tx": "Mit Milchsystem f&uuml;r Cappuccino und Latte macchiato auf Knopfdruck sowie Aroma-Vorbr&uuml;hung f&uuml;r vollen Geschmack."
+    },
+    {
+      "sku": "nivona-7er",
+      "name": "NIVONA 7er-Serie",
+      "line": "7er",
+      "price": "777.00",
+      "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_7series_schwarz-DouxMlEN.webp",
+      "url": "https://nivona.com/de/product/7series",
+      "tx": "Farb-TFT-Display, individuelle Profile und feine Einstellm&ouml;glichkeiten f&uuml;r anspruchsvolle Kaffeetrinker."
+    },
+    {
+      "sku": "nivona-nivo-7000",
+      "name": "NIVONA NIVO 7000",
+      "line": "NIVO",
+      "price": "999.00",
+      "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_nivo7000_schwarz-Bxa38DUQ.webp",
+      "url": "https://nivona.com/de/product/nivo7000",
+      "tx": "Die neue NIVO-Generation: gro&szlig;es Touch-Display, App-Steuerung (NIVONA App) und ausgezeichnetes Design (Red Dot 2026)."
+    },
+    {
+      "sku": "nivona-nivo-8000",
+      "name": "NIVONA NIVO 8000",
+      "line": "NIVO",
+      "price": "1199.00",
+      "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_nivo8000_schwarz-DcF_cUXS.webp",
+      "url": "https://nivona.com/de/product/nivo8000",
+      "tx": "Mehr Spezialit&auml;ten, hochwertiger Milchbeh&auml;lter und noch komfortablere Reinigungsprogramme."
+    },
+    {
+      "sku": "nivona-nivo-9000",
+      "name": "NIVONA NIVO 9000",
+      "line": "NIVO",
+      "price": "1649.00",
+      "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_nivo9000_schwarz-DgfhSzcc.webp",
+      "url": "https://nivona.com/de/product/nivo9000",
+      "tx": "Das Spitzenmodell der NIVO-Reihe: gr&ouml;&szlig;ter Funktionsumfang, Premium-Materialien und maximale Individualisierung."
+    },
+    {
+      "sku": "nivona-10er",
+      "name": "NIVONA 10er-Serie (NICR 1040)",
+      "line": "NIVO",
+      "price": "2149.00",
+      "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_10series_titan-ZgfRjqri.webp",
+      "url": "https://nivona.com/de/product/10series",
+      "tx": "Vollausstattung mit zwei Bohnenbeh&auml;ltern und getrennten Mahlwerken f&uuml;r zwei Kaffeesorten parallel."
+    },
+    {
+      "sku": "nivona-nivo-8141-pro",
+      "name": "NIVONA NIVO 8000 Pro (8141)",
+      "line": "NIVO",
+      "price": "1549.00",
+      "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_nivo8141pro_schwarz-CHeH5-lp.webp",
+      "url": "https://nivona.com/de/product/nivo8141pro",
+      "tx": "Die Pro-Variante f&uuml;r hohe Bezugsmengen im B&uuml;ro &ndash; robuster ausgelegt f&uuml;r den Dauereinsatz."
+    }
+  ]
+}

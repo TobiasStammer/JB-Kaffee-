@@ -1,0 +1,14 @@
+# Zugangsdaten – niemals committen
+kaffeetechniker-integration.env
+*.env
+
+# lokale Arbeitskopien von Server-Dateien
+/_serverfiles/
+
+# Betriebssystem-Kram
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# generierte Vorschau (wird jederzeit neu gebaut)
+vorschau.html

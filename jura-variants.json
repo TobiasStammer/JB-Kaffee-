@@ -1,0 +1,56 @@
+{
+  "_note": "JURA Haushalt: Produktvideo (YouTube) je Modell + Farbvarianten (Name/Art-Nr/Packshot) für die Modelle mit mehreren Ausführungen. Daten von de.jura.com 2026-09. imgBase = https://api.jura.com/media/global/images/home-products/",
+  "video": {
+    "15478": "-3EEgWq70s4",
+    "15609": "EnN5vPUmt30",
+    "15615": "EnN5vPUmt30",
+    "15706": "RM8pMsMhOj4",
+    "15562": "unzl6vNQZpE",
+    "15483": "nxdg1fh3Y-w",
+    "15743": "LYJq254MA70",
+    "15712": "6PBDql3sMXk",
+    "15828": "j-Q3NILJAfE",
+    "15435": "KAWUv_H2oy0",
+    "15753": "IeJOo8rJkmo",
+    "15599": "Pot_3iPzpdg",
+    "15493": "-3e-ZUugkqU",
+    "15696": "PhBk7sEWCyk",
+    "15501": "fywqvQjmJXg"
+  },
+  "colors": {
+    "15609": [
+      { "name": "Aluminium Black", "art": "15609", "img": "https://api.jura.com/media/global/images/home-products/z-line-2025/Z10-EB-SB/Z10-EB-SB-Aluminium-Black/Z10_eb_sb_ab_packshot.jpg" },
+      { "name": "Aluminium White", "art": "15613", "img": "https://api.jura.com/media/global/images/home-products/z-line-2025/Z10-EB-SB/Z10-EB-SB-Aluminium-White/Z10_eb_sb_aw_packshot.jpg" }
+    ],
+    "15615": [
+      { "name": "Diamond Black", "art": "15615", "img": "https://api.jura.com/media/global/images/home-products/z-line-2025/Z10-EB-SB/Z10-EB-SB-Diamond-Black/Z10_eb_sb_db_packshot.jpg" },
+      { "name": "Diamond White", "art": "15619", "img": "https://api.jura.com/media/global/images/home-products/z-line-2025/Z10-EB-SB/Z10-EB-SB-Diamond-White/Z10_eb_sb_dw_packshot.jpg" }
+    ],
+    "15483": [
+      { "name": "Platin", "art": "15483", "img": "https://api.jura.com/media/global/images/home-products/s-line-2024/S8-Platin-EB-SB/s8_platin_eb_packshot.jpg" },
+      { "name": "Piano Black", "art": "15482", "img": "https://api.jura.com/media/global/images/home-products/s-line-2024/S8-Piano-Black-EB-SB/s8_pianoblack_eb_packshot.jpg" }
+    ],
+    "15712": [
+      { "name": "Midnight Silver", "art": "15712", "img": "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-midnight-silver/e8_ed_midnightsilver_packshot.jpg" },
+      { "name": "Cosmic Black", "art": "15749", "img": "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-cosmic-black/e8_ed_cosmicblack_packshot.jpg" },
+      { "name": "Piano Black", "art": "15745", "img": "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-piano-black/e8_ed_pb_packshot.jpg" },
+      { "name": "Piano White", "art": "15747", "img": "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-piano-white/e8_ed_pianowhite_packshot.jpg" }
+    ],
+    "15828": [
+      { "name": "Dark Inox", "art": "15828", "img": "https://api.jura.com/media/global/images/home-products/e-line-2026/e6-ed-dark-inox/e6_ed_darkinox_packshot.jpg" },
+      { "name": "Piano Black", "art": "15642", "img": "https://api.jura.com/media/global/images/home-products/e-line-2026/e6-ed-piano-black/e6_ed_pb_packshot.jpg" }
+    ],
+    "15435": [
+      { "name": "Piano Black", "art": "15435", "img": "https://api.jura.com/media/global/images/home-products/e-line-2021/e4/e4-piano-black-ea-15435/e4_ea_pianoblack_packshot.jpg" },
+      { "name": "Piano White", "art": "15433", "img": "https://api.jura.com/media/global/images/home-products/e-line-2021/e4/e4-piano-white-ea-15433/e4_ea_pianowhite_packshot.jpg" }
+    ],
+    "15753": [
+      { "name": "Piano Black", "art": "15753", "img": "https://api.jura.com/media/global/images/home-products/c-line-2025/C9-EA-SA-Piano-Black/c9_ea_sa_pb_overview.jpg" },
+      { "name": "Piano White", "art": "15810", "img": "https://api.jura.com/media/global/images/home-products/c-line-2025/C9-EA-SA-Piano-White/c9_ea_sa_pw_packshot.jpg" }
+    ],
+    "15493": [
+      { "name": "Full Metropolitan Black", "art": "15493", "img": "https://api.jura.com/media/global/images/home-products/ena-line-2022/ena-8-ec-sc/ena-8-full-metropolitan-black-ec-sc/ena8_fmb_ec_sc_packshot.jpg" },
+      { "name": "Full Nordic White", "art": "15491", "img": "https://api.jura.com/media/global/images/home-products/ena-line-2022/ena-8-ec-sc/ena-8-full-nordic-white-ec-sc/ena8_fnw_nac_packshot.jpg" }
+    ]
+  }
+}

@@ -1,0 +1,380 @@
+{
+  "_note": "FAQ / Hilfe – einzelne Symptom- und Pflegeseiten. Wird von build-pages.ps1 in data.pages gemerged. Struktur wie pages[] in pages-content.json (Sub-Content). Der Hub (hilfethemen) verlinkt die Gruppen.",
+  "hub": {
+    "slug": "hilfethemen",
+    "intro": "Kleinere Probleme lassen sich mit etwas Know-how oft selbst lösen. Hier finden Sie die häufigsten Störungsbilder, Pflege-Anleitungen und Hintergrundwissen aus unserer täglichen Werkstattpraxis. Führen die Erste-Hilfe-Schritte nicht zum Erfolg, bringen Sie Ihr Gerät zu uns.",
+    "groups": [
+      { "title": "Häufige Störungen", "anchor": "stoerungen", "nav": "Störung selbst beheben", "slugs": ["stoerung-kein-wasser", "stoerung-kaffee-langsam", "stoerung-bruehgruppe", "stoerung-abtropfschale", "stoerung-wassertank-meldung", "stoerung-entlueften", "stoerung-undicht", "stoerung-kaffeesatz-nass", "stoerung-milchschaum", "stoerung-kaffee-kalt", "jura-fehlercodes"] },
+      { "title": "Reinigung & Pflege", "anchor": "reinigung-pflege", "nav": "Reinigung &amp; Pflege", "slugs": ["pflege-entkalken", "pflege-wasserfilter", "pflege-milchsystem", "pflege-bruehgruppe"] },
+      { "title": "Rund um den Kaffeevollautomaten", "anchor": "ratgeber", "nav": "Reparieren, kaufen, vergleichen", "slugs": ["ratgeber-reparieren-lohnt-sich", "ratgeber-kaufberatung", "ratgeber-systeme-vergleich", "ratgeber-siebtraeger"] }
+    ]
+  },
+  "pages": [
+    {
+      "slug": "stoerung-kein-wasser",
+      "faqGroup": "Häufige Störungen",
+      "menu": "Kein Wasser, kein Kaffee",
+      "title": "Kein Wasser, kein Kaffee",
+      "excerpt": "Die Maschine zieht kein Wasser mehr an – mögliche Ursachen und was Sie selbst prüfen können.",
+      "blocks": [
+        { "t": "p", "x": "Wenn kein Wasser mehr durch das Gerät läuft, hört man das meist an der Pumpe: Sie ist entweder auffällig laut oder auffällig leise." },
+        { "t": "h", "lvl": 2, "x": "Pumpe ist sehr laut" },
+        { "t": "p", "x": "Die Pumpe bekommt kein Wasser. Häufige Gründe: ein verstopfter oder falsch eingesetzter Wasserfilter, ein nicht richtig sitzender Wassertank oder Luft im System. Prüfen Sie zuerst den Sitz von Tank und Filter und beziehen Sie über die Heißwasser- oder Dampfdüse etwa 100 ml Wasser, um das System zu füllen." },
+        { "t": "p", "x": "Läuft danach weiterhin nichts und ist kein Filter eingesetzt, liegt mit hoher Wahrscheinlichkeit ein technischer Defekt vor (z. B. Pumpe oder Ventil). Dann muss das Gerät zur Diagnose in die Werkstatt." },
+        { "t": "h", "lvl": 2, "x": "Pumpe ist sehr leise" },
+        { "t": "p", "x": "Eine sehr leise Pumpe deutet auf eine Verstopfung hin – meist durch Kalk oder Ablagerungen. Das ist auch dann der Fall, wenn über die Heißwasserfunktion kein Wasser mehr kommt. Ein Entkalken kann helfen; kommt danach immer noch nichts, ist die Brühgruppe oder ein Ventil betroffen und das Gerät muss geöffnet werden." },
+        { "t": "h", "lvl": 2, "x": "Wann in die Werkstatt" },
+        { "t": "p", "x": "Wenn Tank- und Filterprüfung, Entlüften und ein Entkalkungsversuch nicht helfen. Bringen Sie das Gerät während der Öffnungszeiten vorbei – wir finden die Ursache." }
+      ]
+    },
+    {
+      "slug": "stoerung-kaffee-langsam",
+      "faqGroup": "Häufige Störungen",
+      "menu": "Kaffee läuft langsam",
+      "title": "Kaffee läuft nur langsam oder tropft",
+      "excerpt": "Der Kaffee kommt zu langsam, tropft oder die Crema stimmt nicht – was dahintersteckt.",
+      "blocks": [
+        { "t": "p", "x": "Läuft der Kaffee nur noch tropfenweise, ist der Widerstand im Brühweg zu hoch. In den meisten Fällen liegt es an Kalk, an Kaffeefett in der Brühgruppe oder am Mahlgrad." },
+        { "t": "h", "lvl": 2, "x": "Das können Sie selbst tun" },
+        { "t": "ul", "x": [
+          "Gerät gründlich entkalken (mit korrekt eingestelltem Wasserhärtegrad)",
+          "Reinigungsprogramm mit einer Reinigungstablette durchführen",
+          "Herausnehmbare Brühgruppe entnehmen und unter warmem Wasser abspülen – ohne Spülmittel, nicht in die Spülmaschine",
+          "Bohnen prüfen: sehr ölige, dunkle Bohnen verkleben Mahlwerk und Brühgruppe schneller"
+        ] },
+        { "t": "h", "lvl": 2, "x": "Finger weg vom Mahlgrad" },
+        { "t": "p", "x": "Nicht am Mahlgrad drehen, um einen langsamen Durchlauf auszugleichen – das verschleppt das eigentliche Problem und kann zu Verstopfung führen. Der Mahlgrad darf nur bei laufendem Mahlwerk und in kleinen Schritten verändert werden." },
+        { "t": "h", "lvl": 2, "x": "Wann in die Werkstatt" },
+        { "t": "p", "x": "Wenn Entkalken und Reinigen nicht helfen. Dann sind meist Dichtungen, Sieb oder Brühkolben verschlissen – das erledigen wir im Zuge einer Wartung." }
+      ]
+    },
+    {
+      "slug": "stoerung-bruehgruppe",
+      "faqGroup": "Häufige Störungen",
+      "menu": "Brühgruppe lässt sich nicht einsetzen",
+      "title": "Brühgruppe lässt sich nicht einsetzen oder entnehmen",
+      "excerpt": "Die herausnehmbare Brühgruppe klemmt – so bringen Sie das Getriebe wieder in Grundstellung.",
+      "blocks": [
+        { "t": "p", "x": "Betrifft Geräte mit herausnehmbarer Brühgruppe (z. B. Saeco, Philips, Melitta, De Longhi). Lässt sie sich nicht einsetzen, steht das Getriebe im Gerät nicht in der richtigen Position." },
+        { "t": "h", "lvl": 2, "x": "So geht es meistens wieder" },
+        { "t": "ul", "x": [
+          "Satzschublade und Abtropfschale einsetzen, Servicetür schließen",
+          "Gerät ohne eingesetzte Brühgruppe aus- und wieder einschalten",
+          "Nach einem kurzen, hörbaren Motorengeräusch steht das Getriebe in Grundstellung",
+          "Jetzt lässt sich die Brühgruppe einsetzen – auf übereinstimmende Markierungen und geöffnete Verriegelungshaken achten"
+        ] },
+        { "t": "h", "lvl": 2, "x": "Brühgruppe reinigen" },
+        { "t": "p", "x": "Nur unter warmem Wasser abspülen, kein Spülmittel, nicht in die Spülmaschine. Bewegliche Teile sparsam mit einem lebensmittelechten Fett schmieren (im Fachhandel als „Brühgruppen-Fett“)." },
+        { "t": "h", "lvl": 2, "x": "Wann in die Werkstatt" },
+        { "t": "p", "x": "Wenn sich das Getriebe nicht in Grundstellung bringen lässt oder die Brühgruppe beschädigt ist. Ein festsitzendes Getriebe ist ein häufiger Reparaturfall." }
+      ]
+    },
+    {
+      "slug": "stoerung-abtropfschale",
+      "faqGroup": "Häufige Störungen",
+      "menu": "Abtropfschale klemmt",
+      "title": "Abtropfschale oder Satzbehälter lässt sich nicht einsetzen",
+      "excerpt": "Die Schale passt nicht mehr ins Gerät – meist ein einfaches Positionsproblem.",
+      "blocks": [
+        { "t": "p", "x": "Häufig steht ein Bauteil im Weg oder ein Sensor-Hebel ist verklemmt." },
+        { "t": "h", "lvl": 2, "x": "Prüfen Sie der Reihe nach" },
+        { "t": "ul", "x": [
+          "Satzbehälter richtig in die Abtropfschale einsetzen – die Kombination wird als Einheit eingeschoben",
+          "Restwasser aus der Schale gießen; ein Schwimmer oder Metallplättchen darf frei liegen",
+          "Die Servicetür muss geschlossen sein, bevor die Schale einrastet",
+          "Bei Geräten mit Brühgruppe: sitzt diese korrekt in Grundstellung?"
+        ] },
+        { "t": "h", "lvl": 2, "x": "Wann in die Werkstatt" },
+        { "t": "p", "x": "Wenn ein Führungssteg gebrochen ist oder ein Mikroschalter defekt ist. Ersatzteile für Abtropfschalen und Satzbehälter haben wir für die gängigen Modelle vorrätig." }
+      ]
+    },
+    {
+      "slug": "stoerung-wassertank-meldung",
+      "faqGroup": "Häufige Störungen",
+      "menu": "„Wassertank füllen“ trotz vollem Tank",
+      "title": "Meldung „Wassertank füllen“ – obwohl der Tank voll ist",
+      "excerpt": "Der Schwimmer im Tank hängt fest oder ist undicht – so prüfen Sie es.",
+      "blocks": [
+        { "t": "p", "x": "Im Wassertank sitzt ein Schwimmer, der den Füllstand meldet. Setzt er sich durch Ablagerungen fest, meldet das Gerät „Wassertank füllen“, obwohl Wasser drin ist." },
+        { "t": "h", "lvl": 2, "x": "Das können Sie selbst tun" },
+        { "t": "ul", "x": [
+          "Tank leeren und mehrmals kräftig hin und her schütteln, damit sich der Schwimmer wieder frei bewegt",
+          "Tank kurz mit Entkalkerlösung ausspülen und gut nachspülen",
+          "Kontakte am Gerät und am Tankboden trocken abwischen"
+        ] },
+        { "t": "h", "lvl": 2, "x": "Bleibt die Meldung" },
+        { "t": "p", "x": "Dann ist der Schwimmer undicht und mit Wasser vollgelaufen – er sinkt nicht mehr auf. Je nach Modell wird der Schwimmer einzeln oder der komplette Wassertank ersetzt. Das ist ein kurzer Werkstatttermin." }
+      ]
+    },
+    {
+      "slug": "stoerung-entlueften",
+      "faqGroup": "Häufige Störungen",
+      "menu": "„Entlüften“ / „System füllen“",
+      "title": "Meldung „Entlüften“, „System füllen“ oder „Kaffee zu fein gemahlen“",
+      "excerpt": "Luft im Wassersystem oder zu geringer Durchfluss – die schnelle Abhilfe.",
+      "blocks": [
+        { "t": "p", "x": "Diese Meldungen (bei De Longhi oft „Kaffee zu fein gemahlen“) bedeuten: Das Wassersystem enthält Luft oder der Durchfluss ist zu gering." },
+        { "t": "h", "lvl": 2, "x": "Sofortmaßnahme" },
+        { "t": "p", "x": "Über die Heißwasser- oder Dampfdüse ca. 100–150 ml Wasser beziehen, bis die Meldung erlischt. Meist läuft das Gerät danach normal weiter." },
+        { "t": "h", "lvl": 2, "x": "Wenn es häufiger auftritt" },
+        { "t": "p", "x": "Dann ist der Durchfluss dauerhaft zu gering – das Gerät sollte entkalkt und die Brühgruppe gereinigt werden. Bitte nicht am Mahlgrad drehen, das verschlimmert das Problem meist." },
+        { "t": "h", "lvl": 2, "x": "Wann in die Werkstatt" },
+        { "t": "p", "x": "Wenn die Meldung trotz Entlüften und Entkalken immer wiederkommt. Häufig sind dann Ventile oder die Pumpe verkalkt." }
+      ]
+    },
+    {
+      "slug": "stoerung-undicht",
+      "faqGroup": "Häufige Störungen",
+      "menu": "Undichtigkeit, Wasser unter dem Gerät",
+      "title": "Undichtigkeit – Wasser unter oder im Gerät",
+      "excerpt": "Wo Kaffeevollautomaten typischerweise undicht werden und was das bedeutet.",
+      "blocks": [
+        { "t": "p", "x": "Wasser unter dem Gerät hat meist eine von wenigen Ursachen. Wichtig: Ziehen Sie bei stärkerem Wasseraustritt den Netzstecker." },
+        { "t": "h", "lvl": 2, "x": "Häufige Stellen" },
+        { "t": "ul", "x": [
+          "Wassertank oder Tankventil undicht – Tank prüfen, Dichtung am Auslauf ansehen",
+          "Übervolle oder falsch eingesetzte Abtropfschale",
+          "Verkalkter oder gerissener Schlauch, poröse Dichtungen an Pumpe, Durchlauferhitzer oder Brühgruppe",
+          "Bei Milchspezialitäten: undichter Milchschlauch oder Aufschäumer"
+        ] },
+        { "t": "h", "lvl": 2, "x": "Wann in die Werkstatt" },
+        { "t": "p", "x": "Innere Undichtigkeiten (Pumpe, Heizung, Brühgruppe) lassen sich nur mit geöffnetem Gerät beheben. Da Wasser und Strom hier eng beieinanderliegen, sollte das zügig geschehen. Bringen Sie das Gerät vorbei – wir dichten alle betroffenen Stellen im Zuge der Wartung ab." }
+      ]
+    },
+    {
+      "slug": "stoerung-kaffeesatz-nass",
+      "faqGroup": "Häufige Störungen",
+      "menu": "Kaffeesatz zu nass",
+      "title": "Kaffeesatz ist zu nass oder zerfällt",
+      "excerpt": "Der Trester sollte einen festen Puck bilden – tut er das nicht, stimmt etwas mit der Brühgruppe.",
+      "blocks": [
+        { "t": "p", "x": "Ein gut gepresster, leicht feuchter Kaffee-Puck ist normal. Sehr nasser, zerfallender oder pudriger Satz deutet auf ein Problem im Brühbereich hin." },
+        { "t": "h", "lvl": 2, "x": "Mögliche Ursachen" },
+        { "t": "ul", "x": [
+          "Brühgruppe verschmutzt oder verklebt – reinigen (siehe „Brühgruppe & Kaffeeweg reinigen“)",
+          "Brühkolben-Dichtung oder Sieb verschlissen",
+          "Zu wenig Kaffeepulver pro Bezug (Menge/Stärke am Gerät erhöhen)",
+          "Sehr feiner Mahlgrad in Kombination mit öligen Bohnen"
+        ] },
+        { "t": "h", "lvl": 2, "x": "Wann in die Werkstatt" },
+        { "t": "p", "x": "Wenn Reinigung und eine höhere Kaffeemenge nichts ändern. Meist sind Dichtungen und Sieb der Brühgruppe fällig – Teil unserer Grundwartung." }
+      ]
+    },
+    {
+      "slug": "stoerung-milchschaum",
+      "faqGroup": "Häufige Störungen",
+      "menu": "Milchschaum gelingt nicht",
+      "title": "Milchschaum gelingt nicht mehr",
+      "excerpt": "Aufschäumer zerlegen und reinigen, Milch und Dampf prüfen – die häufigsten Punkte.",
+      "blocks": [
+        { "t": "p", "x": "Schäumt die Maschine nicht mehr richtig auf, sind fast immer verstopfte Kanäle oder zu wenig Dampf schuld." },
+        { "t": "h", "lvl": 2, "x": "Aufschäumer reinigen" },
+        { "t": "ul", "x": [
+          "Alle Teile des Aufschäumers zerlegen und von Milch- und Kalkresten befreien",
+          "Alle Regulierkanäle und Öffnungen müssen frei sein – auch die feine Austrittsöffnung der abschraubbaren Dampfdüse",
+          "Wöchentlich mit einem Milchsystem-Reiniger durchspülen",
+          "Teile auf festen Sitz, Dichtigkeit und Verschleiß prüfen und bei Bedarf ersetzen"
+        ] },
+        { "t": "h", "lvl": 2, "x": "Milch und Dampf" },
+        { "t": "p", "x": "Für feinporigen Schaum ist kühle, frische Kuhmilch mit ausreichend Eiweiß am besten. Milchkaraffen aus Kunststoff gehören nicht in die Spülmaschine. Wenn das Gerät zu wenig Dampf produziert, kann der Durchlauferhitzer verkalkt sein." },
+        { "t": "h", "lvl": 2, "x": "Wann in die Werkstatt" },
+        { "t": "p", "x": "Wenn trotz gründlicher Reinigung kein Schaum entsteht oder das Gerät keinen Dampf mehr aufbaut." }
+      ]
+    },
+    {
+      "slug": "stoerung-kaffee-kalt",
+      "faqGroup": "Häufige Störungen",
+      "menu": "Kaffee zu kalt / schmeckt nicht",
+      "title": "Kaffee ist zu kalt oder schmeckt nicht mehr",
+      "excerpt": "Tassen vorwärmen, Temperatur einstellen, entkalken – und wann die Elektronik dran ist.",
+      "blocks": [
+        { "t": "p", "x": "Kaffeevollautomaten brühen bei rund 90 °C, in der Tasse kommen davon je nach Weg und Tassentemperatur einige Grad weniger an. „Zu kalt“ ist deshalb oft eine Kombination mehrerer Kleinigkeiten." },
+        { "t": "h", "lvl": 2, "x": "Das können Sie selbst tun" },
+        { "t": "ul", "x": [
+          "Tassen vorwärmen (kurz Heißwasser hineinlaufen lassen oder Tassenwärmer nutzen)",
+          "Brühtemperatur am Gerät auf die höchste Stufe stellen",
+          "Gerät entkalken – Kalk am Durchlauferhitzer senkt die Temperatur spürbar",
+          "Kurzen Vorlauf (Spülung) vor dem ersten Kaffee des Tages abwarten"
+        ] },
+        { "t": "h", "lvl": 2, "x": "Geschmack lässt nach" },
+        { "t": "p", "x": "Meist liegt es an alten Bohnen, einem überfälligen Reinigungs- oder Entkalkungsprogramm oder an Kaffeefett in der Brühgruppe. Eine Grundwartung stellt den ursprünglichen Geschmack in den allermeisten Fällen wieder her." },
+        { "t": "h", "lvl": 2, "x": "Wann in die Werkstatt" },
+        { "t": "p", "x": "Wenn die Temperatur trotz Entkalken und richtiger Einstellung deutlich zu niedrig bleibt – dann sind Heizung, Temperaturfühler oder Elektronik zu prüfen." }
+      ]
+    },
+    {
+      "slug": "jura-fehlercodes",
+      "faqGroup": "Häufige Störungen",
+      "menu": "JURA-Fehlermeldungen",
+      "title": "JURA-Fehlermeldungen und -Codes",
+      "excerpt": "Was JURA-Fehlermeldungen grob bedeuten – und warum die Diagnose ins Gerät gehört.",
+      "blocks": [
+        { "t": "p", "x": "JURA-Geräte zeigen bei einer Störung eine Meldung oder – bei älteren Modellen – einen blinkenden Code (Fehler 1 bis 8) an. Die Codes grenzen den Bereich ein, ersetzen aber keine Untersuchung." },
+        { "t": "h", "lvl": 2, "x": "Grobe Richtung der Codes" },
+        { "t": "ul", "x": [
+          "Meldungen rund um Wasser/Entlüften: Luft im System, verstopfter Filter, Ventil oder Pumpe",
+          "Meldungen rund um die Brühgruppe/Antrieb: Getriebe, Motor, Endschalter",
+          "Temperatur-/Heizungsfehler: Durchlauferhitzer oder Fühler",
+          "Allgemeine Fehler: Elektronik, Verkabelung, Sensorik"
+        ] },
+        { "t": "h", "lvl": 2, "x": "Erste Schritte" },
+        { "t": "p", "x": "Gerät aus- und nach einer Minute wieder einschalten, Wassersystem über die Dampfdüse entlüften, Filter prüfen. Bleibt die Meldung, notieren Sie sich den genauen Wortlaut bzw. die Code-Nummer und bringen das Gerät zu uns. Als autorisierte JURA-Servicestelle haben wir Diagnosegerät, Schaltpläne und Ersatzteile vorrätig." }
+      ]
+    },
+    {
+      "slug": "pflege-entkalken",
+      "faqGroup": "Reinigung & Pflege",
+      "menu": "Richtig entkalken",
+      "title": "Richtig entkalken und Wasserhärte einstellen",
+      "excerpt": "Warum der Wasserhärtegrad am Gerät entscheidend ist – und wie Sie ihn ermitteln.",
+      "blocks": [
+        { "t": "p", "x": "Voraussetzung für eine sinnvolle Entkalkung ist die korrekte Einstellung des Wasserhärtegrades am Gerät. Daraus berechnet die Elektronik anhand der verbrauchten Wassermenge den richtigen Zeitpunkt für das Entkalkungsprogramm." },
+        { "t": "h", "lvl": 2, "x": "Wasserhärte ermitteln" },
+        { "t": "p", "x": "Mit einem Teststreifen oder über die Angabe Ihres Wasserversorgers. Härtebereich 1 = 0–7 °dH, Bereich 2 = 8–14 °dH, Bereich 3 = 15–21 °dH, Bereich 4 = 22–28 °dH. Werkseitig ist meist ein hoher Wert voreingestellt – stellen Sie ihn auf Ihre tatsächliche Wasserhärte um." },
+        { "t": "h", "lvl": 2, "x": "Wichtig" },
+        { "t": "ul", "x": [
+          "Ist der Härtegrad zu niedrig eingestellt, kommt die Aufforderung zu spät und es droht Verstopfung",
+          "Ist er zu hoch eingestellt, entkalkt man unnötig oft",
+          "Nur den vom Hersteller freigegebenen Entkalker verwenden – keine Hausmittel wie Essig oder Zitronensäure",
+          "Kalkschäden sind nicht von der Herstellergarantie abgedeckt"
+        ] },
+        { "t": "h", "lvl": 2, "x": "Mit Wasserfilter" },
+        { "t": "p", "x": "Setzen Sie einen Original-Wasserfilter ein und aktivieren ihn am Gerät, muss in der Regel nicht mehr entkalkt werden – dafür wird der Filter nach Wasserhärte und Zeit gewechselt." }
+      ]
+    },
+    {
+      "slug": "pflege-wasserfilter",
+      "faqGroup": "Reinigung & Pflege",
+      "menu": "Wasserfilter verwenden",
+      "title": "Wasserfilter richtig verwenden",
+      "excerpt": "Original-Markenfilter, Aktivierung am Gerät und Wechselintervall.",
+      "blocks": [
+        { "t": "p", "x": "Ein Wasserfilter verbessert die Wasserqualität, schützt vor Verkalkung und verlängert die Lebensdauer des Geräts. Die Hersteller empfehlen den jeweiligen Markenfilter." },
+        { "t": "h", "lvl": 2, "x": "Warum Original-Filter" },
+        { "t": "p", "x": "Nach unserer Werkstatterfahrung verursachen No-Name-Filter deutlich mehr Funktionsprobleme als Originalfilter – schlechter Sitz, falscher Durchfluss, fehlende Erkennung. Wir führen die passenden Original-Filter für JURA (CLARIS), Saeco (AquaClean, Intenza) und BSH." },
+        { "t": "h", "lvl": 2, "x": "Einsetzen und aktivieren" },
+        { "t": "ul", "x": [
+          "Nach dem Einsetzen das Aktivierungsprogramm am Gerät starten oder den Filter manuell mit Wasser fluten",
+          "Beim ersten Mal kann der Entlüftungsvorgang etwas länger dauern",
+          "Die Maschine erinnert automatisch an den nächsten Wechsel; alternativ nach Wasserhärte und Zeit wechseln",
+          "Filter nicht länger als drei Monate im Gerät lassen, auch wenn wenig Wasser durchgelaufen ist"
+        ] }
+      ]
+    },
+    {
+      "slug": "pflege-milchsystem",
+      "faqGroup": "Reinigung & Pflege",
+      "menu": "Milchsystem reinigen",
+      "title": "Milchsystem reinigen",
+      "excerpt": "Tägliche Spülung, wöchentliche Reinigung und was in die Spülmaschine darf.",
+      "blocks": [
+        { "t": "p", "x": "Milchreste sind ein Hygienethema und die häufigste Ursache für schlechten Milchschaum. Ein festes Reinigungsritual hält das System frei." },
+        { "t": "h", "lvl": 2, "x": "Täglich" },
+        { "t": "ul", "x": [
+          "Nach dem letzten Milchgetränk das Spülprogramm für das Milchsystem starten",
+          "Milchbehälter und Schlauch mit klarem Wasser ausspülen",
+          "Milch im Kühlschrank aufbewahren, nicht im Behälter am Gerät stehen lassen"
+        ] },
+        { "t": "h", "lvl": 2, "x": "Wöchentlich" },
+        { "t": "ul", "x": [
+          "Milchsystem mit einem geeigneten Milchsystem-Reiniger durchlaufen lassen",
+          "Aufschäumer/Kombiauslauf zerlegen und alle Einzelteile reinigen",
+          "Feine Luftansaugöffnungen mit einer weichen Bürste freimachen"
+        ] },
+        { "t": "h", "lvl": 2, "x": "Spülmaschine" },
+        { "t": "p", "x": "Glasbehälter und Edelstahlteile sind meist spülmaschinenfest. Kunststoff-Milchkaraffen und Dichtungen gehören nicht in die Spülmaschine – sie verfärben und verspröden." }
+      ]
+    },
+    {
+      "slug": "pflege-bruehgruppe",
+      "faqGroup": "Reinigung & Pflege",
+      "menu": "Brühgruppe & Kaffeeweg reinigen",
+      "title": "Brühgruppe und Kaffeeweg reinigen",
+      "excerpt": "Reinigungsprogramm, herausnehmbare Brühgruppe und der Restwasserkanal.",
+      "blocks": [
+        { "t": "p", "x": "Kaffeefett und Pulverreste setzen sich mit der Zeit in der Brühgruppe und im Kaffeeweg ab. Das kostet Aroma und Durchfluss." },
+        { "t": "h", "lvl": 2, "x": "Reinigungsprogramm" },
+        { "t": "p", "x": "Führen Sie das geräteeigene Reinigungsprogramm mit einer Reinigungstablette durch, sobald das Gerät dazu auffordert – bei Vielnutzung eher öfter. Das löst Kaffeefett im gesamten Brühweg." },
+        { "t": "h", "lvl": 2, "x": "Herausnehmbare Brühgruppe" },
+        { "t": "ul", "x": [
+          "Entnehmen und unter warmem Wasser abspülen – ohne Spülmittel, nicht in die Spülmaschine",
+          "Gut trocknen lassen, bewegliche Teile sparsam mit lebensmittelechtem Fett schmieren",
+          "Etwa alle ein bis zwei Wochen"
+        ] },
+        { "t": "h", "lvl": 2, "x": "Kaffeeauslauf und Restwasserkanal" },
+        { "t": "p", "x": "Den Auslauf regelmäßig abnehmen und reinigen. Bei einigen Saeco-Modellen verstopft der Ablauf-/Restwasserkanal – hier hilft nur Zerlegen. Bei fest eingebauten Brühgruppen (z. B. JURA) übernimmt die gründliche Innenreinigung die Werkstatt im Zuge der Wartung." }
+      ]
+    },
+    {
+      "slug": "ratgeber-reparieren-lohnt-sich",
+      "faqGroup": "Rund um den Kaffeevollautomaten",
+      "menu": "Reparieren lohnt sich",
+      "title": "Reparieren lohnt sich",
+      "excerpt": "Warum sich die Reparatur eines Kaffeevollautomaten in den meisten Fällen rechnet.",
+      "blocks": [
+        { "t": "p", "x": "„Lohnt sich die Reparatur?“ – diese Frage hören wir oft, und in den allermeisten Fällen lautet die Antwort: Ja. Bei den meisten Kaffeevollautomaten steht mit fortschreitendem Alter irgendwann eine Reparatur an, etwa der Austausch von Durchlauferhitzer oder Pumpe." },
+        { "t": "p", "x": "Kein anderes Haushaltsgerät muss so hohe Belastungen aus Temperatur, Wasserdruck und Mechanik aushalten. Die Grundtechnik – Schwingankerpumpe, Thermoblock, Brühgruppe, Mahlwerk – hat sich über die Jahre kaum verändert; bewährte Bauteile arbeiten alle nach ähnlichen Prinzipien." },
+        { "t": "h", "lvl": 2, "x": "Was in die Entscheidung einfließt" },
+        { "t": "ul", "x": [
+          "Reparaturkosten im Verhältnis zum Neupreis",
+          "Alter, Zählerstand und Gesamtzustand",
+          "Bietet das alte Gerät alle gewünschten Funktionen, oder leistet ein neues mehr?",
+          "Wie zufrieden waren Sie bisher mit Qualität und Bedienung?"
+        ] },
+        { "t": "p", "x": "Ökologisch ist Reparieren fast immer sinnvoll – es vermeidet Elektroschrott und schont Ressourcen. Bei nennenswerten Reparaturkosten am Altgerät oder schlechtem Gesamtzustand beraten wir Sie offen zur Neuanschaffung." }
+      ]
+    },
+    {
+      "slug": "ratgeber-kaufberatung",
+      "faqGroup": "Rund um den Kaffeevollautomaten",
+      "menu": "Kaufberatung Kaffeevollautomat",
+      "title": "Kaufberatung Kaffeevollautomat",
+      "excerpt": "Worauf es beim Kauf ankommt – aus Sicht der Werkstatt.",
+      "blocks": [
+        { "t": "p", "x": "Ein Kaffeevollautomat steht für große Kaffeevielfalt auf Knopfdruck. Damit Sie lange Freude daran haben, achten wir bei der Beratung auf mehr als die Getränkeauswahl." },
+        { "t": "h", "lvl": 2, "x": "Worauf es ankommt" },
+        { "t": "ul", "x": [
+          "Solide Verarbeitung und gute Ersatzteilversorgung",
+          "Zugänglicher, herausnehmbarer oder gut wartbarer Brühmechanismus",
+          "Leises, justierbares Mahlwerk",
+          "Ausreichende, einstellbare Brühtemperatur",
+          "Gut zu reinigendes Milchsystem"
+        ] },
+        { "t": "h", "lvl": 2, "x": "Vor dem Kauf überlegen" },
+        { "t": "p", "x": "Welche Getränke trinken Sie wirklich? Wie viele Tassen pro Tag? Wie viel Pflegeaufwand ist für Sie in Ordnung? Wir führen JURA und Nivona vor Ort vor und begleiten Sie danach mit Service und Reparatur aus einer Hand." }
+      ]
+    },
+    {
+      "slug": "ratgeber-systeme-vergleich",
+      "faqGroup": "Rund um den Kaffeevollautomaten",
+      "menu": "Systeme im Vergleich",
+      "title": "Kaffeemaschinen-Systeme im Vergleich",
+      "excerpt": "Vollautomat, Kapsel, Pad, Filter oder Siebträger – Stärken und Schwächen.",
+      "blocks": [
+        { "t": "p", "x": "Vollautomat, Kapsel, Pad, Filtermaschine oder Siebträger – jedes System hat seine Stärken. Entscheidend sind Kosten pro Tasse, Aufwand in Bedienung und Reinigung sowie die Umweltbilanz." },
+        { "t": "h", "lvl": 2, "x": "Kurz gefasst" },
+        { "t": "ul", "x": [
+          "Vollautomat: größte Kaffeevielfalt auf Knopfdruck, moderate Kosten pro Tasse, wenig Verpackungsmüll – dafür regelmäßige Pflege",
+          "Kapsel/Pad: bequem und schnell, aber hohe Kosten pro Tasse und viel Verpackung",
+          "Filtermaschine: günstig und einfach, aber wenig Vielfalt",
+          "Siebträger: höchste Qualität und Kontrolle, verlangt Zeit, Übung und Zubehör"
+        ] },
+        { "t": "p", "x": "Für die meisten Haushalte ist der Vollautomat der beste Kompromiss aus Vielfalt, Kosten und Aufwand. Bei Fragen beraten wir Sie gerne persönlich." }
+      ]
+    },
+    {
+      "slug": "ratgeber-siebtraeger",
+      "faqGroup": "Rund um den Kaffeevollautomaten",
+      "menu": "Siebträger & Espresso",
+      "title": "Siebträger und Espresso",
+      "excerpt": "Espresso mit dem Siebträger ist ein Handwerk – und wir reparieren ECM, Profitec und La Pavoni.",
+      "blocks": [
+        { "t": "p", "x": "Espresso mit dem Siebträger oder der Handhebelmaschine ist ein kleines Handwerk: Mahlgrad, Menge, Tampen und Brühzeit spielen zusammen. Das Ergebnis lässt sich mit etwas Übung sehr fein steuern – dafür braucht es mehr Zeit und Aufmerksamkeit als beim Vollautomaten." },
+        { "t": "h", "lvl": 2, "x": "Was wir reparieren" },
+        { "t": "p", "x": "Wir warten und reparieren Siebträger- und Handhebelmaschinen der Firmen ECM und Profitec (E61-Gruppe) sowie La Pavoni Handhebel, außerdem Sage-Siebträger. Die aktuellen Kategorien und Preise finden Sie unter „Reparaturkosten“." },
+        { "t": "h", "lvl": 2, "x": "Pflege" },
+        { "t": "p", "x": "Regelmäßig rückspülen (Blindsieb + Reiniger), Brühgruppe und Duschsieb sauber halten, Wasser aufbereiten und je nach Gebrauch entkalken. Wir beraten Sie gern zu Einstellung und Pflege." }
+      ]
+    }
+  ]
+}

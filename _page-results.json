@@ -1,0 +1,488 @@
+﻿[
+    {
+        "menu":  "Start",
+        "titel":  "Wartung von Kaffeevollautomaten in der Taunus Region",
+        "id":  19,
+        "slug":  "start",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Reparatur",
+        "titel":  "Reparatur von Kaffeemaschinen und Siebträgermaschinen im Rhein-Main-Gebiet",
+        "id":  20,
+        "slug":  "reparatur",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/reparatur/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Marken",
+        "titel":  "Marken",
+        "id":  21,
+        "slug":  "marken",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/marken/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Reparaturablauf",
+        "titel":  "Reparaturablauf",
+        "id":  22,
+        "slug":  "reparaturablauf",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/reparaturablauf/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Reparaturdauer",
+        "titel":  "Reparaturdauer",
+        "id":  23,
+        "slug":  "reparaturdauer",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/reparaturdauer/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Dauer \u0026 Kosten",
+        "titel":  "Reparatur: Dauer und Kosten",
+        "id":  24,
+        "slug":  "reparaturkosten",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/reparaturkosten/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Gewährleistung",
+        "titel":  "Gewährleistung auf Reparaturen",
+        "id":  25,
+        "slug":  "gewaehrleistung",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/gewaehrleistung/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Hinweise nach der Reparatur",
+        "titel":  "Hinweise nach der Reparatur",
+        "id":  942,
+        "slug":  "hinweise-nach-der-reparatur",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/hinweise-nach-der-reparatur/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Mietgerät für die Reparaturzeit",
+        "titel":  "Mietgerät für die Reparaturzeit",
+        "id":  28,
+        "slug":  "leihgeraete",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/leihgeraete/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Wartung",
+        "titel":  "Wartung",
+        "id":  27,
+        "slug":  "wartung",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/wartung/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Wartungserinnerung",
+        "titel":  "Wartungserinnerung – alle zwei Jahre rechtzeitig erinnert",
+        "id":  2685,
+        "slug":  "wartungserinnerung",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/wartungserinnerung/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Reparatur-Check",
+        "titel":  "Reparatur-Check – Ursache, Kostenrahmen und Einschätzung",
+        "id":  2627,
+        "slug":  "reparatur-check",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/reparatur-check/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "WERTGARANTIE Reparaturschutz",
+        "titel":  "WERTGARANTIE – Reparaturschutz für Ihre Kaffeemaschine",
+        "id":  110,
+        "slug":  "wertgarantie",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/wertgarantie/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Neue Kaffeemaschinen",
+        "titel":  "Neue Kaffeemaschinen von JURA und Nivona",
+        "id":  111,
+        "slug":  "kaffeemaschinen-kaufen",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/kaffeemaschinen-kaufen/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Mieten \u0026 Leasen",
+        "titel":  "Kaffeemaschine mieten oder leasen",
+        "id":  112,
+        "slug":  "kaffeemaschine-mieten",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/kaffeemaschine-mieten/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Kaffeemaschine leasen",
+        "titel":  "Kaffeemaschine leasen",
+        "id":  113,
+        "slug":  "kaffeemaschine-leasen",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/kaffeemaschine-leasen/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Pflegemittel \u0026 Zubehör",
+        "titel":  "Pflegemittel und Zubehör für Kaffeemaschinen",
+        "id":  114,
+        "slug":  "pflegemittel",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/pflegemittel/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Unser Kaffee \u0026 Tee",
+        "titel":  "Unser Kaffee \u0026#038; Tee – eigene Röstung und lose Teemischungen",
+        "id":  115,
+        "slug":  "unser-kaffee",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/unser-kaffee/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Kaffee: Herkunft \u0026 Röstung",
+        "titel":  "Unser Kaffee – eigene Röstung für Ihren Kaffeevollautomaten",
+        "id":  915,
+        "slug":  "unser-kaffee-wissen",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/unser-kaffee-wissen/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "JURA Online-Shop",
+        "titel":  "JURA Online-Shop – Kaffeevollautomaten vom Fachhändler",
+        "id":  508,
+        "slug":  "jura",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/jura/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "JURA Kaffeevollautomaten",
+        "titel":  "JURA Kaffeevollautomaten für den Haushalt",
+        "id":  509,
+        "slug":  "jura-kaffeevollautomaten",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/jura-kaffeevollautomaten/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "JURA Zubehör",
+        "titel":  "JURA Zubehör für Kaffeevollautomaten",
+        "id":  716,
+        "slug":  "jura-zubehoer",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/jura-zubehoer/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "JURA Pflegeprodukte",
+        "titel":  "JURA Pflegeprodukte – Filter, Reinigung, Entkalkung",
+        "id":  717,
+        "slug":  "jura-pflegeprodukte",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/jura-pflegeprodukte/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "JURA Professional",
+        "titel":  "JURA Professional – Kaffeevollautomaten für Büro und Gastronomie",
+        "id":  766,
+        "slug":  "jura-professional",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/jura-professional/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "NIVONA Online-Shop",
+        "titel":  "NIVONA Online-Shop – Kaffeevollautomaten vom Fachhändler",
+        "id":  1073,
+        "slug":  "nivona",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/nivona/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "NIVONA Kaffeevollautomaten",
+        "titel":  "NIVONA Kaffeevollautomaten",
+        "id":  1074,
+        "slug":  "nivona-kaffeevollautomaten",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/nivona-kaffeevollautomaten/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Hilfe \u0026 Wissen",
+        "titel":  "Hilfe \u0026#038; Wissen rund um den Kaffeevollautomaten",
+        "id":  116,
+        "slug":  "hilfethemen",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/hilfethemen/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Das Unternehmen",
+        "titel":  "Über uns – Joachim Blöchle Elektro-Service GmbH",
+        "id":  117,
+        "slug":  "ueber-uns",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/ueber-uns/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Anfahrt \u0026 Standort",
+        "titel":  "Anfahrt \u0026#038; Standort",
+        "id":  118,
+        "slug":  "anfahrt",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/anfahrt/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Jobs \u0026 Karriere",
+        "titel":  "Wir suchen DICH! – Servicetechniker (m/w/d)",
+        "id":  119,
+        "slug":  "jobs",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/jobs/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Kontakt",
+        "titel":  "Kontakt",
+        "id":  120,
+        "slug":  "kontakt",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/kontakt/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Impressum",
+        "titel":  "Impressum",
+        "id":  121,
+        "slug":  "impressum",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/impressum/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Datenschutz",
+        "titel":  "Datenschutzerklärung",
+        "id":  122,
+        "slug":  "datenschutz",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/datenschutz/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "AGB",
+        "titel":  "Allgemeine Geschäftsbedingungen",
+        "id":  123,
+        "slug":  "agb",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/agb/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Widerrufsbelehrung",
+        "titel":  "Widerrufsbelehrung",
+        "id":  124,
+        "slug":  "widerruf",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/widerruf/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Kein Wasser, kein Kaffee",
+        "titel":  "Kein Wasser, kein Kaffee",
+        "id":  999,
+        "slug":  "stoerung-kein-wasser",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/stoerung-kein-wasser/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Kaffee läuft langsam",
+        "titel":  "Kaffee läuft nur langsam oder tropft",
+        "id":  1000,
+        "slug":  "stoerung-kaffee-langsam",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/stoerung-kaffee-langsam/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Brühgruppe lässt sich nicht einsetzen",
+        "titel":  "Brühgruppe lässt sich nicht einsetzen oder entnehmen",
+        "id":  1001,
+        "slug":  "stoerung-bruehgruppe",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/stoerung-bruehgruppe/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Abtropfschale klemmt",
+        "titel":  "Abtropfschale oder Satzbehälter lässt sich nicht einsetzen",
+        "id":  1002,
+        "slug":  "stoerung-abtropfschale",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/stoerung-abtropfschale/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "„Wassertank füllen“ trotz vollem Tank",
+        "titel":  "Meldung „Wassertank füllen“ – obwohl der Tank voll ist",
+        "id":  1003,
+        "slug":  "stoerung-wassertank-meldung",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/stoerung-wassertank-meldung/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "„Entlüften“ / „System füllen“",
+        "titel":  "Meldung „Entlüften“, „System füllen“ oder „Kaffee zu fein gemahlen“",
+        "id":  1004,
+        "slug":  "stoerung-entlueften",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/stoerung-entlueften/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Undichtigkeit, Wasser unter dem Gerät",
+        "titel":  "Undichtigkeit – Wasser unter oder im Gerät",
+        "id":  1005,
+        "slug":  "stoerung-undicht",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/stoerung-undicht/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Kaffeesatz zu nass",
+        "titel":  "Kaffeesatz ist zu nass oder zerfällt",
+        "id":  1006,
+        "slug":  "stoerung-kaffeesatz-nass",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/stoerung-kaffeesatz-nass/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Milchschaum gelingt nicht",
+        "titel":  "Milchschaum gelingt nicht mehr",
+        "id":  1007,
+        "slug":  "stoerung-milchschaum",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/stoerung-milchschaum/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Kaffee zu kalt / schmeckt nicht",
+        "titel":  "Kaffee ist zu kalt oder schmeckt nicht mehr",
+        "id":  1008,
+        "slug":  "stoerung-kaffee-kalt",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/stoerung-kaffee-kalt/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "JURA-Fehlermeldungen",
+        "titel":  "JURA-Fehlermeldungen und -Codes",
+        "id":  1009,
+        "slug":  "jura-fehlercodes",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/jura-fehlercodes/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Richtig entkalken",
+        "titel":  "Richtig entkalken und Wasserhärte einstellen",
+        "id":  1010,
+        "slug":  "pflege-entkalken",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/pflege-entkalken/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Wasserfilter verwenden",
+        "titel":  "Wasserfilter richtig verwenden",
+        "id":  1011,
+        "slug":  "pflege-wasserfilter",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/pflege-wasserfilter/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Milchsystem reinigen",
+        "titel":  "Milchsystem reinigen",
+        "id":  1012,
+        "slug":  "pflege-milchsystem",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/pflege-milchsystem/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Brühgruppe \u0026 Kaffeeweg reinigen",
+        "titel":  "Brühgruppe und Kaffeeweg reinigen",
+        "id":  1013,
+        "slug":  "pflege-bruehgruppe",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/pflege-bruehgruppe/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Reparieren lohnt sich",
+        "titel":  "Reparieren lohnt sich",
+        "id":  1014,
+        "slug":  "ratgeber-reparieren-lohnt-sich",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/ratgeber-reparieren-lohnt-sich/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Kaufberatung Kaffeevollautomat",
+        "titel":  "Kaufberatung Kaffeevollautomat",
+        "id":  1015,
+        "slug":  "ratgeber-kaufberatung",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/ratgeber-kaufberatung/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Systeme im Vergleich",
+        "titel":  "Kaffeemaschinen-Systeme im Vergleich",
+        "id":  1016,
+        "slug":  "ratgeber-systeme-vergleich",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/ratgeber-systeme-vergleich/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
+        "menu":  "Siebträger \u0026 Espresso",
+        "titel":  "Siebträger und Espresso",
+        "id":  1017,
+        "slug":  "ratgeber-siebtraeger",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/ratgeber-siebtraeger/",
+        "aktion":  "aktualisiert (publish)"
+    }
+]
