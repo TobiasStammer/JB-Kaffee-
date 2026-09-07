@@ -20,6 +20,10 @@
       "url": "tel:+4961922004363"
     },
     "auftragsscheinUrl": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/rep-auftrag-2026.pdf",
+    "announce": {
+      "enabled": true,
+      "text": "Betriebsferien 10.09.&ndash;10.10.2026 &ndash; ab dem 10.10. sind wir wieder f&uuml;r Sie da. Danke f&uuml;r Ihr Verst&auml;ndnis!"
+    },
     "shopPromo": {
       "enabled": true,
       "eyebrow": "Neu im Sortiment",

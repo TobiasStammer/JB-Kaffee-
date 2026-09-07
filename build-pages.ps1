@@ -597,10 +597,19 @@ $navCss
       $navList
 </nav>
 "@
+  # optionaler Hinweis-Banner direkt unter dem Menue (z.B. Betriebsferien);
+  # ueber $chrome.announce.enabled in pages-content.json an/aus. Nicht im Shop-Kopf.
+  $announce = ''
+  if ($chrome.announce -and $chrome.announce.enabled -and $chrome.announce.text) {
+    $announce = "`n`n" + (Zone '#f7e6c4' '9px' '9px' (Html-Block (
+      "<p style=`"max-width:$MAXW;margin:0 auto;text-align:center;font-family:$FONT_BODY;font-size:13.5px;line-height:1.5;color:#5b4a24`">$($chrome.announce.text)</p>"
+    )))
+  }
+
   # weisser Logo-Balken, direkt darunter das dunkle Menueband (wie www.kaffeetechniker.de)
   # Menueband bleibt beim Scrollen oben kleben
   (Zone '#ffffff' '16px' '16px' (Html-Block $whiteBar)) + "`n`n" +
-  (Zone $C.dark1 '4px' '4px' (Html-Block $navBand) 'position:sticky;top:0;z-index:90')
+  (Zone $C.dark1 '4px' '4px' (Html-Block $navBand) 'position:sticky;top:0;z-index:90') + $announce
 }
 
 # ---------- eigene Kopfzeile fuer den JURA-Shop-Bereich ----------
