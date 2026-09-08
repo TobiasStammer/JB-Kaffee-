@@ -113,7 +113,7 @@
       "Keine Pauschalpreise &ndash; wir kalkulieren individuell nach Zeitaufwand und tatsächlich benötigten Ersatzteilen.",
       "Wir berücksichtigen Ihre Wünsche bei der Reparatur und stimmen den Umfang vorher mit Ihnen ab.",
       "Wir nehmen uns Zeit für Ihr Anliegen &ndash; für Beratung und Diagnose, nicht nur für den reinen Teiletausch.",
-      "Kostenvoranschlag vorab: Sie entscheiden in Ruhe, ob und in welchem Umfang wir reparieren.",
+      "Nach der Prüfung besprechen wir Umfang und Kosten mit Ihnen &ndash; repariert wird erst mit Ihrer Freigabe.",
       "Regelmäßige Fort- und Weiterbildung unserer Mitarbeiter, auch zu neuen Modellreihen und Techniken."
     ],
 
@@ -135,9 +135,8 @@
     },
 
     "contactEyebrow": "Kontakt",
-    "contactTitle": "Kontakt & Kostenvoranschlag",
-    "contactIntro": "Beschreiben Sie kurz Ihr Gerät und das Problem &ndash; wir melden uns zurück. Oder rufen Sie uns einfach an: 06192 2004363.",
-    "contactFormHtml": "<div id=\"kontakt\"></div>\n<form class=\"kt-kontaktformular\" action=\"mailto:info@kaffeetechniker.de\" method=\"post\" enctype=\"text/plain\" style=\"display:grid;gap:0.9rem;max-width:640px;margin:0 auto;font-family:'Source Sans 3','Source Sans Pro',sans-serif\">\n  <label>Name*<br><input type=\"text\" name=\"Name\" required style=\"width:100%;padding:0.55rem;border:1px solid #bbbbbb\"></label>\n  <label>E-Mail*<br><input type=\"email\" name=\"Email\" required style=\"width:100%;padding:0.55rem;border:1px solid #bbbbbb\"></label>\n  <label>Telefon*<br><input type=\"tel\" name=\"Telefon\" required style=\"width:100%;padding:0.55rem;border:1px solid #bbbbbb\"></label>\n  <label>Hersteller<br><select name=\"Hersteller\" style=\"width:100%;padding:0.55rem;border:1px solid #bbbbbb\"><option value=\"\">Bitte w&auml;hlen</option><option>AEG</option><option>Bosch</option><option>De Longhi</option><option>ECM</option><option>Gaggia</option><option>JURA</option><option>La Pavoni</option><option>Melitta</option><option>Miele</option><option>Nivona</option><option>Philips</option><option>Profitec</option><option>Saeco</option><option>SAGE</option><option>Siemens</option><option>Spidem</option></select></label>\n  <label>Modell<br><input type=\"text\" name=\"Modell\" style=\"width:100%;padding:0.55rem;border:1px solid #bbbbbb\"></label>\n  <label>Nachricht<br><textarea name=\"Nachricht\" rows=\"5\" style=\"width:100%;padding:0.55rem;border:1px solid #bbbbbb\"></textarea></label>\n  <button type=\"submit\" style=\"background:#919191;color:#463939;border:1px solid #919191;padding:14px 28px;font-family:Tahoma,Arial,sans-serif;font-weight:700;letter-spacing:.02em;border-radius:2px;cursor:pointer;justify-self:center\">Absenden</button>\n  <small style=\"color:#555555\">Das Formular &ouml;ffnet Ihr E-Mail-Programm. Alternativ erreichen Sie uns telefonisch unter 06192 2004363 oder per E-Mail an info@kaffeetechniker.de.</small>\n</form>"
+    "contactTitle": "Schreiben Sie uns",
+    "contactIntro": "Beschreiben Sie kurz Ihr Gerät und das Problem &ndash; wir melden uns zurück. Oder rufen Sie uns direkt an: 06192 2004363."
   },
   "jura": {
     "shopSlug": "jura",
