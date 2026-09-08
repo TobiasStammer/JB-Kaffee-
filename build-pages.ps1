@@ -923,11 +923,10 @@ function Store-Html {
     elseif ($_ -match 'Telefon\s*(.+)') { "Telefon <a href=`"tel:+4961922004363`" style=`"color:$($C.accent);text-decoration:none;font-weight:600`">$($matches[1])</a>" }
     else { $_ }
   }) -join '<br>')
-  # Tage: Uhrzeit in die naechste Zeile, eingerueckt ("mit Tab"); "geschlossen" bleibt inline
+  # Tage: Wert immer in die naechste Zeile, eingerueckt ("mit Tab") - auch "geschlossen"
   $hours = ($SD.storeHours | ForEach-Object {
     if ($_ -is [string]) { $_ }
-    elseif ($_.t -match '\d') { "$($_.d):<br><span style=`"display:inline-block;padding-left:1.6em`">$($_.t)</span>" }
-    else { "$($_.d): $($_.t)" }
+    else { "$($_.d):<br><span style=`"display:inline-block;padding-left:1.6em`">$($_.t)</span>" }
   }) -join '<br>'
   $badge = if ($SD.juraBadgeUrl) { "<img src=`"$($SD.juraBadgeUrl)`" alt=`"Autorisierte JURA Servicestelle und Fachh&auml;ndler`" style=`"width:112px;height:auto;display:block;flex-shrink:0`">" } else { '' }
   $bs   = "display:inline-flex;align-items:center;justify-content:center;padding:11px 20px;border-radius:5px;font-family:$FONT_HEAD;font-size:13.5px;font-weight:700;text-decoration:none"
@@ -946,14 +945,14 @@ $(Sec-Head $SD.storeEyebrow $SD.storeTitle '')
       <div style="flex:1 1 260px">$paras</div>
       $badge
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,max-content));justify-content:center;gap:18px 48px;border-top:1px solid $($C.line);padding-top:16px;margin-top:8px;text-align:center">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));max-width:520px;justify-content:center;align-items:center;gap:22px 40px;border-top:1px solid $($C.line);padding-top:18px;margin:10px auto 0;text-align:center">
       <div>
-        <div style="font-family:$FONT_HEAD;color:$($C.accent);font-weight:700;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px">$($SD.storeAddrTitle)</div>
-        <div style="font-size:14px;line-height:1.7;color:$($C.text)">$addr</div>
+        <div style="font-family:$FONT_HEAD;color:$($C.accent);font-weight:700;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:7px">$($SD.storeAddrTitle)</div>
+        <div style="font-size:14px;line-height:1.9;color:$($C.text)">$addr</div>
       </div>
       <div>
-        <div style="font-family:$FONT_HEAD;color:$($C.accent);font-weight:700;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px">$($SD.storeHoursTitle)</div>
-        <div style="font-size:14px;line-height:1.7;color:$($C.text)">$hours</div>
+        <div style="font-family:$FONT_HEAD;color:$($C.accent);font-weight:700;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:7px">$($SD.storeHoursTitle)</div>
+        <div style="font-size:14px;line-height:1.9;color:$($C.text)">$hours</div>
       </div>
     </div>
     <div style="margin-top:20px">$btn</div>
@@ -998,7 +997,7 @@ function Benefits-Html {
 "@ }) -join "`n    "
   @"
 $(Sec-Head $SD.benefitsEyebrow $SD.benefitsTitle '')
-<div style="max-width:820px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px 40px;font-family:$FONT_BODY">
+<div style="max-width:840px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px 44px;font-family:$FONT_BODY">
     $checks
 </div>
 "@

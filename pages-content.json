@@ -74,8 +74,8 @@
       { "t": "Mietgerät", "x": "Damit Sie während der Reparatur nicht auf Kaffee verzichten müssen: ein passendes Mietgerät schon ab 40 € für die gesamte Reparaturdauer.", "url": "/leihgeraete/", "cta": "Mehr erfahren" }
     ],
 
-    "storeEyebrow": "Unser Geschäft",
-    "storeTitle": "Besuchen Sie uns in Hofheim-Langenhain",
+    "storeEyebrow": "Kaffee erleben",
+    "storeTitle": "Mit allen fünf Sinnen &ndash; bei uns in Hofheim-Langenhain",
     "storeText": [
       "In unserem Geschäft in Hofheim-Langenhain finden Sie eine JURA-Ausstellung zum Ausprobieren, persönliche Beratung sowie den Verkauf von Geräten, Zubehör, Ersatzteilen, Pflegeprodukten und unserem eigenen Kaffee.",
       "Als autorisierter JURA-Fachhändler und autorisierte JURA-Servicestelle betreuen wir Ihr Gerät von der Beratung über den Kauf bis zu Wartung und Reparatur."
@@ -102,18 +102,19 @@
 
     "brandsEyebrow": "Marken",
     "brandsTitle": "Diese Marken reparieren wir",
-    "brands": ["Jura", "De Longhi", "Philips", "Siemens", "AEG", "Bosch", "Spidem", "Gaggia", "Saeco", "Nivona", "Miele", "Melitta", "ECM", "Profitec", "La Pavoni"],
+    "brands": ["Jura", "De Longhi", "Philips", "Siemens", "AEG", "Bosch", "Spidem", "Gaggia", "Saeco", "Nivona", "Miele", "Melitta", "ECM", "Profitec", "La Pavoni", "Sage"],
 
     "benefitsEyebrow": "Warum wir",
     "benefitsTitle": "Warum Kunden uns vertrauen",
     "benefits": [
-      "Seit 1997 auf Kaffeevollautomaten spezialisiert – Erfahrung mit allen gängigen Marken",
-      "Reparaturen in eigener Werkstatt",
-      "Umfangreiches Ersatzteillager",
-      "Keine Pauschalpreise &ndash; individuelle Kalkulation nach Zeitaufwand und Ersatzteilen",
-      "Wir berücksichtigen Ihre Wünsche bei der Reparatur",
-      "Wir nehmen uns Zeit für Sie",
-      "Regelmäßige Fort- und Weiterbildung unserer Mitarbeiter"
+      "Seit 1997 auf Kaffeevollautomaten spezialisiert &ndash; mit Erfahrung aus allen gängigen Marken und Gerätegenerationen.",
+      "Reparaturen führen wir vollständig in unserer eigenen Werkstatt in Hofheim-Langenhain aus &ndash; nichts wird eingeschickt.",
+      "Umfangreiches Ersatzteillager für gängige Modelle &ndash; das verkürzt die Reparaturzeit spürbar.",
+      "Keine Pauschalpreise &ndash; wir kalkulieren individuell nach Zeitaufwand und tatsächlich benötigten Ersatzteilen.",
+      "Wir berücksichtigen Ihre Wünsche bei der Reparatur und stimmen den Umfang vorher mit Ihnen ab.",
+      "Wir nehmen uns Zeit für Ihr Anliegen &ndash; für Beratung und Diagnose, nicht nur für den reinen Teiletausch.",
+      "Kostenvoranschlag vorab: Sie entscheiden in Ruhe, ob und in welchem Umfang wir reparieren.",
+      "Regelmäßige Fort- und Weiterbildung unserer Mitarbeiter, auch zu neuen Modellreihen und Techniken."
     ],
 
     "googleReviews": {
@@ -386,7 +387,8 @@
           "siebtraeger": [
             { "name": "ECM",       "models": "Casa, Classica, Mechanika, Technika, Elektronika, Synchronika, Compact, Barista, Controvento sowie Espressomühlen." },
             { "name": "Profitec",  "models": "Pro 300, Pro 400, Pro 500, Pro 600, Pro 700, Pro 800, GO (Einkreiser, Wärmetauscher und Dualboiler mit E61-Gruppe)." },
-            { "name": "La Pavoni", "models": "Europiccola, Professional, Gran Caffè (Handhebel- und Siebträgermodelle)." }
+            { "name": "La Pavoni", "models": "Europiccola, Professional, Gran Caffè (Handhebel- und Siebträgermodelle)." },
+            { "name": "Sage",      "models": "the Bambino, the Barista Express, the Barista Pro und the Barista Touch (SES 4xx&ndash;8xx) sowie the Dual Boiler (SES 920)." }
           ]
         } },
         { "t": "p", "x": "Nicht gelistete Hersteller und Modelle reparieren wir nicht. Bei Unsicherheit kontaktieren Sie uns bitte vorab." },
