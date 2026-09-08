@@ -571,9 +571,10 @@ html{overflow-x:clip}
   .ktnav>li.has-sub>a::after{display:inline-block;margin-left:8px;transition:transform .2s;border-top-color:currentColor}
   .ktnav>li.has-sub.is-open>a::after{transform:rotate(180deg)}
   .ktnav .sub{position:static;opacity:1;visibility:visible;transform:none;border:0;box-shadow:none;background:transparent;padding:0;max-height:0;overflow:hidden;transition:max-height .28s ease}
-  .ktnav>li.has-sub.is-open>.sub{max-height:640px;padding:2px 0 10px}
-  .ktnav .sub li{border-top:0}
-  .ktnav .sub li a{padding:8px 4px;text-align:center;color:#a6a6a6}
+  .ktnav>li.has-sub.is-open>.sub{max-height:640px;padding:4px 0 12px;background:#333333;box-shadow:inset 0 6px 8px -8px rgba(0,0,0,.6)}
+  .ktnav .sub li{border-top:0;list-style:none}
+  .ktnav .sub li a{display:block;width:100%;padding:11px 12px;text-align:center;text-indent:0;font-size:14px;line-height:1.35;color:$($C.onDark2)}
+  .ktnav .sub li a:hover,.ktnav .sub li a:focus{background:#4a4a4a;color:#ffffff}
 }
 </style>
 <script>
