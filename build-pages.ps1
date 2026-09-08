@@ -571,6 +571,7 @@ html{overflow-x:clip}
   .ktnav>li.has-sub>a::after{display:inline-block;margin-left:8px;transition:transform .2s;border-top-color:currentColor}
   .ktnav>li.has-sub.is-open>a::after{transform:rotate(180deg)}
   .ktnav .sub{position:static;left:auto;right:auto;min-width:0;width:100%;box-sizing:border-box;opacity:1;visibility:visible;transform:none;border:0;box-shadow:none;background:transparent;padding:0;margin:0;max-height:0;overflow:hidden;transition:max-height .28s ease;text-align:center}
+  .ktnav li.has-sub:hover>.sub,.ktnav li.has-sub:focus-within>.sub{position:static;left:auto;right:auto;transform:none;width:100%;min-width:0}
   .ktnav>li.has-sub.is-open>.sub{max-height:640px;padding:4px 0 12px;background:#333333;box-shadow:inset 0 6px 8px -8px rgba(0,0,0,.6)}
   .ktnav .sub li{border-top:0;list-style:none;width:100%;margin:0;padding:0;text-align:center}
   .ktnav .sub li a{display:block;width:100%;box-sizing:border-box;margin:0;padding:11px 14px;text-align:center;text-indent:0;white-space:normal;overflow-wrap:anywhere;font-size:14px;line-height:1.35;color:$($C.onDark2)}
