@@ -295,7 +295,7 @@
       "excerpt": "Reparatur von Kaffeevollautomaten und Siebträgermaschinen aller gängigen Marken – schnell, zuverlässig und in eigener Werkstatt.",
       "facts": [
         { "k": "Dauer", "v": "in der Regel 3–8 Arbeitstage" },
-        { "k": "Wartungspreis", "v": "Festpreis je Gerätekategorie – <a href=\"/reparaturkosten/\">alle Preise ansehen</a>" },
+        { "k": "Wartungspreis", "v": "Richtwerte je Gerätekategorie – <a href=\"/reparaturkosten/\">alle Werte ansehen</a>" },
         { "k": "Gewährleistung", "v": "12 Monate auf eingebaute Ersatzteile" },
         { "k": "Herstellergarantie", "v": "JURA-Garantiefälle wickeln wir ab.<br>Andere Hersteller nur außerhalb der Garantie." }
       ],
@@ -446,8 +446,8 @@
       "excerpt": "Wie lange dauert die Reparatur einer Kaffeemaschine und was kostet sie? In der Regel 3–8 Arbeitstage, individuelle Kalkulation statt Pauschalpreisen.",
       "facts": [
         { "k": "Dauer", "v": "in der Regel 3–8 Arbeitstage" },
-        { "k": "Wartung Haushaltsgerät", "v": "160 € inkl. Grundwartung und Verschleißteilen" },
-        { "k": "Größerer Defekt", "v": "immer mit Kostenvoranschlag" },
+        { "k": "Wartung Haushaltsgerät", "v": "Richtwert rund 160 €, wenn kein größerer Defekt vorliegt" },
+        { "k": "Größerer Defekt", "v": "individuelle Kalkulation, immer mit Kostenvoranschlag" },
         { "k": "Prüfpauschale", "v": "bei abgelehntem KV: 80 € (Kaffeevollautomat) / 100 € (Siebträger)" },
         { "k": "Express", "v": "innerhalb 24 Std. gegen Aufschlag" },
         { "k": "Gewährleistung", "v": "12 Monate (privat) / 6 Monate (gewerblich) auf Ersatzteile" }
@@ -456,17 +456,17 @@
         { "t": "h", "lvl": 2, "icon": "clock", "x": "Wie lange dauert die Reparatur?" },
         { "t": "p", "x": "In der Regel dauert die Reparatur 3 bis 8 Arbeitstage. Wir bearbeiten die Geräte in der Reihenfolge ihres Eingangs. Bei selten benötigten Ersatzteilen kann sich die Bearbeitung durch längere Lieferzeiten verzögern. Kleine Probleme, die sich in wenigen Minuten ohne Öffnen des Geräts beheben lassen, erledigen wir nach Möglichkeit sofort. Wenn es schnell gehen muss, ist auf Wunsch eine Express-Bearbeitung innerhalb von 24 Stunden gegen Aufschlag möglich – sprechen Sie uns bei der Abgabe darauf an." },
         { "t": "h", "lvl": 2, "icon": "euro", "x": "Was kostet eine Reparatur?" },
-        { "t": "p", "x": "Wir unterscheiden zwei Fälle: Zeigt Ihr Gerät bei der Prüfung keinen größeren Defekt, führen wir eine komplette Wartung zum Festpreis nach Gerätekategorie durch. Wird ein größerer Fehler festgestellt, erstellen wir grundsätzlich einen Kostenvoranschlag – Sie entscheiden dann, ob die Reparatur ausgeführt wird. Einen Kostenvoranschlag ohne Untersuchung des Geräts können wir nicht geben." },
-        { "t": "h", "lvl": 2, "icon": "euro", "x": "Wartungspreise nach Gerätekategorie" },
-        { "t": "table", "head": ["Gerätekategorie", "Preis"], "rows": [
-          ["Kaffeevollautomat Haushalt (Jura, Saeco, Philips, Melitta, Nivona, Bosch, Siemens, Miele, De Longhi, AEG, Gaggia)", "160 €"],
-          ["Jura Gastro – X, XS, XJ, XF, W, WE und GIGA Serie", "250 €"],
-          ["Siebträger – ECM / Profitec (E61-Gruppe)", "400 €"],
-          ["Siebträger – La Pavoni Handhebel", "180 €"],
-          ["Siebträger – Sage SES 4er, 5er und 8er Serie", "180 €"],
-          ["Siebträger – Sage SES 9er Dual Boiler", "250 €"],
+        { "t": "p", "x": "Feste Preise können wir nicht nennen – jedes Gerät ist anders. Zeigt Ihr Gerät bei der Prüfung keinen größeren Defekt, führen wir eine komplette Wartung durch; die Werte in der Tabelle unten sind grobe Richtwerte nach Gerätekategorie. Wird ein größerer Fehler festgestellt, kalkulieren wir individuell und erstellen einen Kostenvoranschlag – Sie entscheiden dann, ob die Reparatur ausgeführt wird. Einen Kostenvoranschlag ohne Untersuchung des Geräts können wir nicht geben." },
+        { "t": "h", "lvl": 2, "icon": "euro", "x": "Richtwerte für die Wartung nach Gerätekategorie" },
+        { "t": "table", "head": ["Gerätekategorie", "Richtwert"], "rows": [
+          ["Kaffeevollautomat Haushalt (Jura, Saeco, Philips, Melitta, Nivona, Bosch, Siemens, Miele, De Longhi, AEG, Gaggia)", "ca. 160 €"],
+          ["Jura Gastro – X, XS, XJ, XF, W, WE und GIGA Serie", "ca. 250 €"],
+          ["Siebträger – ECM / Profitec (E61-Gruppe)", "ca. 400 €"],
+          ["Siebträger – La Pavoni Handhebel", "ca. 180 €"],
+          ["Siebträger – Sage SES 4er, 5er und 8er Serie", "ca. 180 €"],
+          ["Siebträger – Sage SES 9er Dual Boiler", "ca. 250 €"],
           ["Einbaugeräte", "derzeit kein Service"]
-        ], "caption": "Wartungspreise inkl. MwSt. Enthalten: Grundwartung, Reinigung, Verschleiß- und Dichtungsteile. Stand 2026." },
+        ], "caption": "Grobe Richtwerte inkl. MwSt. für Geräte ohne größeren Defekt. Enthalten: Grundwartung, Reinigung, Verschleiß- und Dichtungsteile. Der genaue Preis ergibt sich nach Prüfung des Geräts. Stand 2026." },
         { "t": "p", "x": "Werden bei der Wartung zusätzlich Ersatzteile für einen Defekt benötigt, kommen diese hinzu – dann erhalten Sie vorab einen Kostenvoranschlag." },
         { "t": "h", "lvl": 3, "x": "Geräte, die wir nicht bearbeiten" },
         { "t": "ul", "x": [
@@ -602,7 +602,7 @@
         ] },
         { "t": "h", "lvl": 2, "icon": "euro", "x": "Was kostet die Wartung?" },
         { "t": "ul", "x": [
-          "Fester Wartungspreis je Gerätekategorie – z. B. 160 € für Haushalts-Kaffeevollautomaten",
+          "Richtwert je Gerätekategorie, wenn kein größerer Defekt vorliegt – z. B. rund 160 € für Haushalts-Kaffeevollautomaten",
           "Werden zusätzlich Ersatzteile für einen Defekt nötig, erhalten Sie vorab einen Kostenvoranschlag",
           "Alle Preise und Dauer: <a href=\"/reparaturkosten/\">Dauer &amp; Kosten</a>"
         ] }
