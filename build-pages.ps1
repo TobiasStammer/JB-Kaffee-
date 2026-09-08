@@ -32,6 +32,7 @@ $C = @{
 $FONT_HEAD = "Tahoma, 'Tahoma Fallback', Arial, sans-serif"
 $FONT_BODY = "'Source Sans 3', 'Source Sans Pro', system-ui, sans-serif"
 $MAXW      = '1200px'
+$SECW      = '980px'   # einheitliche Inhaltsbreite der Startseiten-Abschnitte
 
 # Text -> Anker-Slug (deutsche Umlaute, Satzzeichen raus)
 function Slugify($t) {
@@ -365,7 +366,7 @@ function Brand-Slug($name) { ($name -replace '[^A-Za-z0-9]+','-').Trim('-').ToLo
 # einheitliches Logo-Raster; Marke mit Datei = Logo (grau, bei Hover voll), sonst Text-Kachel
 $BRANDS_CSS = @"
 <style>
-.kt-brands{max-width:$MAXW;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:1px;background:#dddddd;border:1px solid #dddddd}
+.kt-brands{max-width:$SECW;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:1px;background:#dddddd;border:1px solid #dddddd}
 .kt-brands>div,.kt-brands>a{background:#ffffff;display:flex;align-items:center;justify-content:center;padding:18px 14px;min-height:76px;transition:background .15s;text-decoration:none}
 .kt-brands>div:hover,.kt-brands>a:hover{background:#ececec}
 .kt-brands img{max-height:42px;max-width:80%;width:auto;object-fit:contain}
@@ -891,7 +892,7 @@ function Stats-Html {
     </div>
 "@ }) -join "`n    "
   @"
-<div style="max-width:840px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;font-family:$FONT_BODY">
+<div style="max-width:$SECW;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;font-family:$FONT_BODY">
     $cells
 </div>
 "@
@@ -907,7 +908,7 @@ function Services-Html {
 "@ }) -join "`n    "
   @"
 $(Sec-Head $SD.servicesEyebrow $SD.servicesTitle '')
-<div style="max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;font-family:$FONT_BODY">
+<div style="max-width:$SECW;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;font-family:$FONT_BODY">
     $cards
 </div>
 "@
@@ -943,7 +944,7 @@ function Store-Html {
   $img   = if ($SD.storeImageUrl) { "<img src=`"$($SD.storeImageUrl)`" alt=`"$($SD.storeImageAlt)`" style=`"width:100%;height:auto;display:block`">" } else { '' }
   @"
 $(Sec-Head $SD.storeEyebrow $SD.storeTitle '')
-<div style="max-width:960px;margin:0 auto;border:1px solid #e2e2e2;border-radius:8px;overflow:hidden;background:#ffffff;font-family:$FONT_BODY">
+<div style="max-width:$SECW;margin:0 auto;border:1px solid #e2e2e2;border-radius:8px;overflow:hidden;background:#ffffff;font-family:$FONT_BODY">
   $img
   <div style="padding:28px 30px">
     <div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
@@ -989,7 +990,7 @@ function Shop-Html {
 "@ }) -join "`n    "
   @"
 $(Sec-Head $SD.shopEyebrow $SD.shopTitle $SD.shopLead)
-<div style="max-width:960px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;font-family:$FONT_BODY">
+<div style="max-width:$SECW;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;font-family:$FONT_BODY">
     $tiles
 </div>
 "@
@@ -1004,7 +1005,7 @@ function Benefits-Html {
 "@ }) -join "`n    "
   @"
 $(Sec-Head $SD.benefitsEyebrow $SD.benefitsTitle '')
-<div style="max-width:840px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px 44px;font-family:$FONT_BODY">
+<div style="max-width:$SECW;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:18px 44px;font-family:$FONT_BODY">
     $checks
 </div>
 "@
@@ -1036,7 +1037,7 @@ function Reviews-Html {
   $sum = if ($r.rating) { "<div class=`"kt-rev-sum`"><span class=`"kt-rev-st big`">&#9733;&#9733;&#9733;&#9733;&#9733;</span> <b>$($r.rating)</b>$(if ($r.count) { " <span>&middot; $($r.count) Bewertungen auf Google</span>" })</div>" } else { '' }
   @"
 <style>
-.kt-revs{max-width:$MAXW;margin:0 auto;font-family:$FONT_BODY}
+.kt-revs{max-width:$SECW;margin:0 auto;font-family:$FONT_BODY}
 .kt-rev-sum{text-align:center;margin:0 0 22px;font-size:15px;color:$($C.text)}
 .kt-rev-sum b{font-family:$FONT_HEAD;font-size:17px;color:$($C.head)}
 .kt-rev-sum span{color:#6b7178}
