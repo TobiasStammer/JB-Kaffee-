@@ -448,15 +448,18 @@
         { "k": "Dauer", "v": "in der Regel 3–8 Arbeitstage" },
         { "k": "Wartung Haushaltsgerät", "v": "Richtwert rund 160 €, wenn kein größerer Defekt vorliegt" },
         { "k": "Größerer Defekt", "v": "individuelle Kalkulation, immer mit Kostenvoranschlag" },
-        { "k": "Prüfpauschale", "v": "bei abgelehntem KV: 80 € (Kaffeevollautomat) / 100 € (Siebträger)" },
+        { "k": "Prüfpauschale", "v": "bei abgelehntem Kostenvoranschlag: 80 € (Kaffeevollautomat), 100 € (Siebträger)" },
         { "k": "Express", "v": "innerhalb 24 Std. gegen Aufschlag" },
         { "k": "Gewährleistung", "v": "12 Monate (privat) / 6 Monate (gewerblich) auf Ersatzteile" }
       ],
       "blocks": [
         { "t": "h", "lvl": 2, "icon": "clock", "x": "Wie lange dauert die Reparatur?" },
-        { "t": "p", "x": "In der Regel dauert die Reparatur 3 bis 8 Arbeitstage. Wir bearbeiten die Geräte in der Reihenfolge ihres Eingangs. Bei selten benötigten Ersatzteilen kann sich die Bearbeitung durch längere Lieferzeiten verzögern. Kleine Probleme, die sich in wenigen Minuten ohne Öffnen des Geräts beheben lassen, erledigen wir nach Möglichkeit sofort. Wenn es schnell gehen muss, ist auf Wunsch eine Express-Bearbeitung innerhalb von 24 Stunden gegen Aufschlag möglich – sprechen Sie uns bei der Abgabe darauf an." },
+        { "t": "p", "x": "In der Regel 3 bis 8 Arbeitstage. Wir bearbeiten die Geräte in der Reihenfolge ihres Eingangs; bei selten benötigten Ersatzteilen kann es durch Lieferzeiten etwas länger dauern." },
+        { "t": "p", "x": "Kleine Probleme, die sich in wenigen Minuten ohne Öffnen des Geräts beheben lassen, erledigen wir nach Möglichkeit sofort." },
+        { "t": "p", "x": "Wenn es schnell gehen muss: Auf Wunsch ist eine Express-Bearbeitung innerhalb von 24 Stunden gegen Aufschlag möglich – sprechen Sie uns bei der Abgabe darauf an." },
         { "t": "h", "lvl": 2, "icon": "euro", "x": "Was kostet eine Reparatur?" },
-        { "t": "p", "x": "Feste Preise können wir nicht nennen – jedes Gerät ist anders. Zeigt Ihr Gerät bei der Prüfung keinen größeren Defekt, führen wir eine komplette Wartung durch; die Werte in der Tabelle unten sind grobe Richtwerte nach Gerätekategorie. Wird ein größerer Fehler festgestellt, kalkulieren wir individuell und erstellen einen Kostenvoranschlag – Sie entscheiden dann, ob die Reparatur ausgeführt wird. Einen Kostenvoranschlag ohne Untersuchung des Geräts können wir nicht geben." },
+        { "t": "p", "x": "Feste Preise können wir nicht nennen – jedes Gerät ist anders. Zeigt Ihr Gerät bei der Prüfung keinen größeren Defekt, führen wir eine komplette Wartung durch; die Werte in der Tabelle unten sind grobe Richtwerte nach Gerätekategorie." },
+        { "t": "p", "x": "Wird ein größerer Fehler festgestellt, kalkulieren wir individuell und erstellen einen Kostenvoranschlag – Sie entscheiden dann, ob die Reparatur ausgeführt wird. Einen Kostenvoranschlag ohne Untersuchung des Geräts können wir nicht geben." },
         { "t": "h", "lvl": 2, "icon": "euro", "x": "Richtwerte für die Wartung nach Gerätekategorie" },
         { "t": "table", "head": ["Gerätekategorie", "Richtwert"], "rows": [
           ["Kaffeevollautomat Haushalt (Jura, Saeco, Philips, Melitta, Nivona, Bosch, Siemens, Miele, De Longhi, AEG, Gaggia)", "ca. 160 €"],
@@ -476,11 +479,27 @@
           "Einbaugeräte von Bosch/Siemens, AEG, Miele, Gaggenau, Küppersbusch, Neff, Gorenje, KitchenAid"
         ] },
         { "t": "h", "lvl": 2, "icon": "quote", "x": "Kostenvoranschlag" },
-        { "t": "p", "x": "Bei größeren Defekten prüfen wir das Gerät und erstellen einen Kostenvoranschlag, den wir mit Ihnen per Telefon oder E-Mail besprechen. Wird die Reparatur daraufhin nicht beauftragt, berechnen wir eine Prüfpauschale von 80 € bei Kaffeevollautomaten bzw. 100 € bei Siebträgermaschinen. Wir empfehlen, vorab einen Kostenrahmen freizugeben, bis zu dem wir ohne Rückfrage reparieren." },
+        { "t": "p", "x": "Bei größeren Defekten prüfen wir das Gerät, erstellen einen Kostenvoranschlag und besprechen ihn mit Ihnen per Telefon oder E-Mail. Dann haben Sie die Wahl:" },
+        { "t": "ul", "x": [
+          "Sie beauftragen die Reparatur – wir führen sie aus.",
+          "Sie lehnen ab – es fällt eine Prüfpauschale an: 80 € bei Kaffeevollautomaten, 100 € bei Siebträgermaschinen."
+        ] },
+        { "t": "p", "x": "Tipp: Geben Sie vorab einen Kostenrahmen frei, bis zu dem wir ohne Rückfrage reparieren. Das erspart eine Warteschleife." },
         { "t": "h", "lvl": 2, "icon": "info", "x": "Nicht enthalten" },
-        { "t": "p", "x": "Ausgeschlossen sind unter anderem: spezielle Elektronik- und Logikmodule, Wasser- und Überspannungsschäden, Sturz- und Bruchschäden, rein optische Reparaturen, Gehäuse- und Zubehörteile (auf Wunsch separat) sowie Verbrauchsmaterial. Bei Fremdeingriffen (auch bereits das Öffnen des Geräts) erstellen wir keine Diagnose; es fällt die Prüfpauschale an (80 € Kaffeevollautomat, 100 € Siebträgermaschine)." },
+        { "t": "p", "x": "Nicht in Wartung oder Reparatur enthalten sind unter anderem:" },
+        { "t": "ul", "x": [
+          "spezielle Elektronik- und Logikmodule",
+          "Wasser- und Überspannungsschäden",
+          "Sturz- und Bruchschäden",
+          "rein optische Reparaturen",
+          "Gehäuse- und Zubehörteile (auf Wunsch separat)",
+          "Verbrauchsmaterial"
+        ] },
+        { "t": "p", "x": "Bei Fremdeingriffen – dazu zählt schon das Öffnen des Geräts – erstellen wir keine Diagnose; es fällt die Prüfpauschale an (80 € Kaffeevollautomat, 100 € Siebträgermaschine)." },
         { "t": "h", "lvl": 2, "icon": "shield", "x": "Gewährleistung auf die Reparatur" },
-        { "t": "p", "x": "Auf eingebaute Ersatzteile und deren korrekten Einbau gewähren wir 12 Monate Gewährleistung bei privater Nutzung und 6 Monate bei gewerblichem Gebrauch. Die Frist beginnt mit der Abholung und gilt nur für die tatsächlich durchgeführte Reparatur bzw. die verbauten Teile – andere Komponenten und Verschleiß sind ausgeschlossen. Sollte ein Fehler nicht vollständig behoben sein oder erneut auftreten, melden Sie sich bitte umgehend bei uns; wir suchen dann nach einer kulanten Lösung. Manche Fehler zeigen sich erst nach mehrtägigem Testbetrieb." },
+        { "t": "p", "x": "Auf eingebaute Ersatzteile und deren korrekten Einbau gewähren wir 12 Monate Gewährleistung bei privater Nutzung, 6 Monate bei gewerblichem Gebrauch. Die Frist beginnt mit der Abholung." },
+        { "t": "p", "x": "Sie gilt nur für die tatsächlich durchgeführte Reparatur bzw. die verbauten Teile – andere Komponenten und Verschleiß sind ausgeschlossen. Manche Fehler zeigen sich erst nach mehrtägigem Testbetrieb." },
+        { "t": "p", "x": "Sollte ein Fehler nicht vollständig behoben sein oder erneut auftreten, melden Sie sich bitte umgehend bei uns – wir suchen dann nach einer kulanten Lösung." },
         { "t": "h", "lvl": 2, "icon": "shield", "x": "Vor teuren Reparaturen absichern" },
         { "t": "p", "x": "Mit dem WERTGARANTIE Reparaturschutz sichern Sie sich gegen künftige Reparaturkosten ab, die nach der Gewährleistung oder durch unsachgemäßen Gebrauch entstehen." },
         { "t": "btns", "keep": true, "x": [ { "label": "WERTGARANTIE Reparaturschutz", "url": "/wertgarantie/" } ] }
