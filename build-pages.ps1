@@ -923,11 +923,16 @@ function Store-Html {
     elseif ($_ -match 'Telefon\s*(.+)') { "Telefon <a href=`"tel:+4961922004363`" style=`"color:$($C.accent);text-decoration:none;font-weight:600`">$($matches[1])</a>" }
     else { $_ }
   }) -join '<br>')
-  # Tage: Wert immer in die naechste Zeile, eingerueckt ("mit Tab") - auch "geschlossen"
-  $hours = ($SD.storeHours | ForEach-Object {
-    if ($_ -is [string]) { $_ }
-    else { "$($_.d):<br><span style=`"display:inline-block;padding-left:1.6em`">$($_.t)</span>" }
-  }) -join '<br>'
+  # Oeffnungszeiten als sauber ausgerichtetes 2-Spalten-Raster (Tag | Zeit)
+  $hoursRows = ($SD.storeHours | ForEach-Object {
+    if ($_ -is [string]) { "<span style=`"grid-column:1 / -1`">$_</span>" }
+    else {
+      $tv = if ($_.t -match '\d') { $_.t } else { "<span style=`"color:#8a8a8a`">$($_.t)</span>" }
+      "<span>$($_.d)</span><span style=`"white-space:nowrap`">$tv</span>"
+    }
+  }) -join "`n          "
+  $iconPin   = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'
+  $iconClock = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 1.7"/></svg>'
   $badge = if ($SD.juraBadgeUrl) { "<img src=`"$($SD.juraBadgeUrl)`" alt=`"Autorisierte JURA Servicestelle und Fachh&auml;ndler`" style=`"width:112px;height:auto;display:block;flex-shrink:0`">" } else { '' }
   $bs   = "display:inline-flex;align-items:center;justify-content:center;padding:11px 20px;border-radius:5px;font-family:$FONT_HEAD;font-size:13.5px;font-weight:700;text-decoration:none"
   $btn  = "<div style=`"display:flex;flex-wrap:wrap;justify-content:center;gap:10px`">" +
@@ -945,14 +950,16 @@ $(Sec-Head $SD.storeEyebrow $SD.storeTitle '')
       <div style="flex:1 1 260px">$paras</div>
       $badge
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));max-width:520px;justify-content:center;align-items:center;gap:22px 40px;border-top:1px solid $($C.line);padding-top:18px;margin:10px auto 0;text-align:center">
-      <div>
-        <div style="font-family:$FONT_HEAD;color:$($C.accent);font-weight:700;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:7px">$($SD.storeAddrTitle)</div>
-        <div style="font-size:14px;line-height:1.9;color:$($C.text)">$addr</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;border-top:1px solid $($C.line);padding-top:22px;margin-top:22px">
+      <div style="background:$($C.soft);border-radius:8px;padding:16px 20px 18px">
+        <div style="display:flex;align-items:center;gap:8px;color:$($C.accent);font-family:$FONT_HEAD;font-weight:700;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;padding-bottom:9px;margin-bottom:10px;border-bottom:1px solid $($C.line)">$iconPin $($SD.storeAddrTitle)</div>
+        <div style="font-size:14px;line-height:1.85;color:$($C.text)">$addr</div>
       </div>
-      <div>
-        <div style="font-family:$FONT_HEAD;color:$($C.accent);font-weight:700;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:7px">$($SD.storeHoursTitle)</div>
-        <div style="font-size:14px;line-height:1.9;color:$($C.text)">$hours</div>
+      <div style="background:$($C.soft);border-radius:8px;padding:16px 20px 18px">
+        <div style="display:flex;align-items:center;gap:8px;color:$($C.accent);font-family:$FONT_HEAD;font-weight:700;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;padding-bottom:9px;margin-bottom:10px;border-bottom:1px solid $($C.line)">$iconClock $($SD.storeHoursTitle)</div>
+        <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 18px;font-size:14px;line-height:1.5;color:$($C.text)">
+          $hoursRows
+        </div>
       </div>
     </div>
     <div style="margin-top:20px">$btn</div>
