@@ -184,7 +184,7 @@
     "katTitle": "JURA Kaffeevollautomaten für den Haushalt",
     "katIntro": "Alle Modelle, die wir als autorisierter JURA-Fachhändler führen. Nach Serie filtern oder bis zu drei Geräte vergleichen. Alle Preise inkl. MwSt. Persönliche Vorführung in unserem Geschäft in Hofheim-Langenhain.",
     "katNote": "Unsicher, welches Modell passt? Rufen Sie uns an: 06192 2004363 – oder kommen Sie zur Vorführung vorbei.",
-    "seriesOrder": ["ENA", "A", "C", "E", "S", "J", "Z", "GIGA"],
+    "seriesOrder": ["GIGA", "Z", "S", "J", "E", "C", "A", "ENA"],
     "seriesBlurb": {
       "ENA": "Besonders schmal und kompakt – volle Kaffeequalität auf kleinstem Raum.",
       "A": "Die neue schmale Full-Size-Klasse: nur 19 cm breit, mit voller Brüheinheit.",
