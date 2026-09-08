@@ -422,6 +422,42 @@ $NAVTREE = @(
 $ICON_CART = '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>'
 $ICON_USER = '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>'
 
+# Zaehler-Blase am Warenkorb-Icon. Die Seiten sind statisch gecacht, daher
+# wird die Anzahl per WooCommerce Store-API (Cookie-Session) nachgeladen.
+$CART_BADGE = '<span class="kt-cartn" data-cart-badge hidden aria-hidden="true"></span>'
+$CART_BADGE_JS = @"
+<style>
+a.kt-ic,a.ic{position:relative}
+.kt-cartn{position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;padding:0 4px;border-radius:9px;background:#c0392b;color:#fff;font:700 11px/16px $FONT_BODY;text-align:center;white-space:nowrap;box-shadow:0 0 0 2px #fff;pointer-events:none}
+</style>
+<script>
+(function(){
+  var U='$base/wp-json/wc/store/v1/cart';
+  function paint(n){
+    var e=document.querySelectorAll('[data-cart-badge]'),i;
+    for(i=0;i<e.length;i++){
+      if(n>0){e[i].textContent=n>99?'99+':(''+n);e[i].hidden=false;}
+      else{e[i].hidden=true;}
+    }
+  }
+  function refresh(){
+    try{
+      fetch(U,{credentials:'include',cache:'no-store',headers:{'Accept':'application/json'}})
+        .then(function(r){return r.ok?r.json():null;})
+        .then(function(d){if(d&&d.items_count!=null)paint(d.items_count);})
+        .catch(function(){});
+    }catch(e){}
+  }
+  refresh();
+  window.addEventListener('pageshow',function(ev){if(ev.persisted)refresh();});
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)refresh();});
+  document.addEventListener('wc-blocks_added_to_cart',refresh);
+  document.addEventListener('wc-blocks_removed_from_cart',refresh);
+  if(window.jQuery){window.jQuery(document.body).on('added_to_cart removed_from_cart updated_cart_totals',refresh);}
+})();
+</script>
+"@
+
 # Icons fuer Ablauf-Schritte (Feather-Stil, faerben ueber currentColor)
 $STEP_ICONS = @{
   box   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg>'
@@ -478,7 +514,7 @@ function Header-Zone($activeSlug) {
   <div class="kt-phone"><span style="color:#666666">$($t.phoneLabel)</span> <a href="$($t.phoneUrl)">$($t.phone)</a></div>
   <a class="kt-logo" href="$($linkOf['start'])" aria-label="Startseite"><img src="$logo" alt="$($b.logoAlt)"></a>
   <div class="kt-icons">
-    <a class="kt-ic" href="$base/cart/" aria-label="Warenkorb" title="Warenkorb">$ICON_CART</a>
+    <a class="kt-ic" href="$base/cart/" aria-label="Warenkorb" title="Warenkorb">$ICON_CART$CART_BADGE</a>
     <a class="kt-ic" href="$base/my-account/" aria-label="Mein Konto" title="Mein Konto">$ICON_USER</a>
   </div>
 </div>
@@ -608,7 +644,7 @@ $navCss
 
   # weisser Logo-Balken, direkt darunter das dunkle Menueband (wie www.kaffeetechniker.de)
   # Menueband bleibt beim Scrollen oben kleben
-  (Zone '#ffffff' '16px' '16px' (Html-Block $whiteBar)) + "`n`n" +
+  (Zone '#ffffff' '16px' '16px' (Html-Block ($whiteBar + "`n" + $CART_BADGE_JS))) + "`n`n" +
   (Zone $C.dark1 '4px' '4px' (Html-Block $navBand) 'position:sticky;top:0;z-index:90') + $announce
 }
 
@@ -715,9 +751,10 @@ function Shop-Bar-White {
       </button>
     </form>
     <a class="ic" href="$base/my-account/" aria-label="Mein Konto" title="Mein Konto">$ICON_USER</a>
-    <a class="ic" href="$base/cart/" aria-label="Warenkorb" title="Warenkorb">$ICON_CART</a>
+    <a class="ic" href="$base/cart/" aria-label="Warenkorb" title="Warenkorb">$ICON_CART$CART_BADGE</a>
   </div>
 </div></div>
+$CART_BADGE_JS
 "@
 }
 # <ul class="shnav"> mit den Shop-Links
