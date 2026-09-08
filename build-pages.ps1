@@ -1219,25 +1219,33 @@ $JURA_CSS = @"
 .jkl-nav a.is-off span{opacity:.4;text-decoration:line-through}
 .jkl-nav .fx{width:15px;height:15px;flex:0 0 auto;accent-color:$($C.accent);cursor:pointer}
 .jkl-reset{margin-top:12px;width:100%;background:transparent;border:1px solid #cfcfcf;border-radius:6px;padding:8px;font-family:$FONT_HEAD;font-weight:700;font-size:12px;color:$($C.accent);cursor:pointer}
-.jsec{scroll-margin-top:64px;margin:0 0 12px}
-.jsec.is-hidden{display:none}
-.jsec-hd{display:flex;align-items:center;gap:20px;background:#fff;border:1px solid #e2e2e2;border-radius:10px;padding:16px 20px;cursor:pointer;transition:border-color .12s,box-shadow .12s}
-.jsec-hd:hover{border-color:#c2c2c2}
-.jsec.is-open>.jsec-hd{border-color:$($C.accent);box-shadow:inset 0 0 0 1px $($C.accent);border-bottom-left-radius:0;border-bottom-right-radius:0}
-.jsec-hd .txt{flex:1;min-width:0}
-.jsec-hd h2{font-family:$FONT_HEAD;font-size:18px !important;line-height:1.2 !important;color:$($C.head);margin:0 0 5px;border:0;padding:0}
-.jsec-hd h2 .cnt{font-family:$FONT_BODY;font-size:12px;font-weight:400;color:#9a9a9a;letter-spacing:0;margin-left:8px}
-.jsec-hd p{font-size:13.5px;line-height:1.55;color:$($C.text);margin:0}
-.jsec-hd img{width:112px;height:76px;object-fit:contain;flex:0 0 auto}
-.jsec-hd .chev{flex:0 0 auto;width:11px;height:11px;border-right:2px solid #999;border-bottom:2px solid #999;transform:rotate(45deg);transition:transform .18s;margin:0 2px 3px 0}
-.jsec.is-open>.jsec-hd .chev{transform:rotate(225deg);margin-bottom:-3px;border-color:$($C.accent)}
-.jsec>.jgrid{margin:0;max-width:none;border:1px solid $($C.accent);border-top:0;border-radius:0 0 10px 10px;padding:18px;background:$($C.bg)}
-.jsec:not(.is-open)>.jgrid{display:none}
+.jkl-farb{list-style:none;margin:0 0 18px;padding:0;max-height:186px;overflow:auto}
+.jkl-farb li{margin:0 0 6px}
+.jkl-farb label{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#444;cursor:pointer;line-height:1.25}
+.jkl-farb input{width:14px;height:14px;flex:0 0 auto;accent-color:$($C.accent)}
+/* Serien als Karten (wie /jura/), Modell-Sektionen darunter */
+.jsercards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:0 0 10px}
+.jsercard{display:flex;flex-direction:column;background:#fff;border:1px solid #e2e2e2;border-radius:8px;overflow:hidden;text-decoration:none;cursor:pointer;transition:border-color .12s,box-shadow .12s}
+.jsercard:hover{border-color:#b6b6b6;box-shadow:0 2px 14px rgba(0,0,0,.07)}
+.jsercard.is-open{border-color:$($C.accent);box-shadow:inset 0 0 0 2px $($C.accent)}
+.jsercard.is-hidden{display:none}
+.jsercard .pic{height:116px;background:#f5f5f3 center center no-repeat;background-size:auto 86px}
+.jsercard .bd{display:flex;flex-direction:column;flex:1;padding:13px 15px 14px}
+.jsercard .bd b{font-family:$FONT_HEAD;color:$($C.head);font-size:15px;margin-bottom:5px}
+.jsercard .bd .tx{font-size:12.5px;line-height:1.5;color:$($C.text);flex:1}
+.jsercard .bd em{font-style:normal;font-family:$FONT_HEAD;color:$($C.accent);font-weight:700;font-size:11.5px;margin-top:11px;display:flex;align-items:center;gap:7px}
+.jsercard .bd em .cv{width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);transition:transform .18s}
+.jsercard.is-open .bd em .cv{transform:rotate(225deg)}
+.jsec{scroll-margin-top:64px;margin:0 0 26px}
+.jsec.is-hidden,.jsec:not(.is-open){display:none}
+.jsec>h2{font-family:$FONT_HEAD;font-size:18px !important;line-height:1.25 !important;color:$($C.head);margin:24px 0 4px;padding:0;border:0}
+.jsec>h2 .cnt{font-family:$FONT_BODY;font-size:12px;font-weight:400;color:#9a9a9a;margin-left:8px}
+.jsec>p.jsl{font-size:13.5px;line-height:1.55;color:$($C.text);margin:0 0 16px;max-width:640px}
+.jsec>.jgrid{margin:0;max-width:none}
+.jprod.is-hidden{display:none}
 @media(max-width:900px){
   .jkl{grid-template-columns:1fr;gap:0}
   .jkl-side{position:static;margin:0 0 22px}
-  .jsec-hd{gap:14px}
-  .jsec-hd img{width:78px;height:58px}
 }
 @media(max-width:640px){.jabout{grid-template-columns:1fr}.jbanner{grid-template-columns:1fr}}
 </style>
@@ -1374,9 +1382,12 @@ $JURA_KAT_JS = @'
 (function(){
   var main=document.getElementById('jklmain'); if(!main) return;
   var secs=[].slice.call(main.querySelectorAll('.jsec'));
+  var serCards=[].slice.call(document.querySelectorAll('#jsercards .jsercard'));
   var navLinks=[].slice.call(document.querySelectorAll('#jklnav a'));
   var cards=[].slice.call(main.querySelectorAll('.jprod'));
   var origOrder=cards.slice();
+  function secOf(s){ return document.getElementById('s-'+s); }
+  function cardOf(s){ for(var i=0;i<serCards.length;i++){ if(serCards[i].getAttribute('data-s')===s) return serCards[i]; } return null; }
 
   main.addEventListener('click',function(e){
     if(e.target.closest('a,input,label,.cmp')) return;
@@ -1384,23 +1395,26 @@ $JURA_KAT_JS = @'
     var u=c.getAttribute('data-url'); if(u) location.href=u;
   });
 
-  function setOpen(sec,open){
+  function setOpen(s,open,scroll){
+    var sec=secOf(s), card=cardOf(s); if(!sec) return;
     sec.classList.toggle('is-open',open);
-    var hd=sec.querySelector('.jsec-hd'); if(hd) hd.setAttribute('aria-expanded',open?'true':'false');
+    if(card) card.classList.toggle('is-open',open);
+    if(open) { if(scroll) sec.scrollIntoView({behavior:'smooth',block:'start'}); }
   }
-  secs.forEach(function(sec){
-    var hd=sec.querySelector('.jsec-hd');
-    hd.addEventListener('click',function(){ setOpen(sec,!sec.classList.contains('is-open')); });
-    hd.addEventListener('keydown',function(e){
-      if(e.key===' '||e.key==='Enter'){ e.preventDefault(); setOpen(sec,!sec.classList.contains('is-open')); }
+  serCards.forEach(function(card){
+    card.addEventListener('click',function(e){
+      e.preventDefault();
+      var s=card.getAttribute('data-s');
+      var willOpen=!card.classList.contains('is-open');
+      setOpen(s,willOpen,willOpen);
     });
   });
   var xall=document.getElementById('jklxall');
   if(xall) xall.addEventListener('click',function(){
     var expand=xall.getAttribute('aria-pressed')!=='true';
-    secs.forEach(function(sec){ setOpen(sec,expand); });
+    secs.forEach(function(sec){ setOpen(sec.getAttribute('data-s'),expand,false); });
     xall.setAttribute('aria-pressed',expand?'true':'false');
-    xall.textContent=expand?'Alle einklappen':'Alle aufklappen';
+    xall.textContent=expand?'Alle ausblenden':'Alle anzeigen';
   });
 
   var sortSel=document.getElementById('jsort');
@@ -1415,6 +1429,8 @@ $JURA_KAT_JS = @'
           if(!pa) pa=(m==='asc')?9e9:-1; if(!pb) pb=(m==='asc')?9e9:-1;
           return (m==='asc')?pa-pb:pb-pa;
         });
+      } else if(m==='az'){
+        arr.sort(function(a,b){ return a.getAttribute('data-name').localeCompare(b.getAttribute('data-name')); });
       } else {
         arr.sort(function(a,b){ return origOrder.indexOf(a)-origOrder.indexOf(b); });
       }
@@ -1423,14 +1439,34 @@ $JURA_KAT_JS = @'
   }
   if(sortSel) sortSel.addEventListener('change',applySort);
 
+  var cfBoxes=[].slice.call(document.querySelectorAll('#jfarb .cf'));
+  function applyFarbe(){
+    var on=cfBoxes.filter(function(b){return b.checked;}).map(function(b){return b.value;});
+    cards.forEach(function(c){
+      var f=(c.getAttribute('data-farben')||'').split('|');
+      var hit = !on.length || on.some(function(x){ return f.indexOf(x)>-1; });
+      c.classList.toggle('is-hidden',!hit);
+    });
+    secs.forEach(function(sec){
+      var vis=[].slice.call(sec.querySelectorAll('.jprod')).some(function(c){return !c.classList.contains('is-hidden');});
+      var card=cardOf(sec.getAttribute('data-s'));
+      sec.classList.toggle('is-empty',!vis);
+      if(!vis){ sec.classList.remove('is-open'); if(card) card.classList.remove('is-open'); }
+      if(card) card.classList.toggle('is-hidden',!vis && on.length>0);
+    });
+  }
+  cfBoxes.forEach(function(b){ b.addEventListener('change',applyFarbe); });
+
   var reset=document.getElementById('jklreset');
   function syncFilter(){
     var anyOff=false;
     navLinks.forEach(function(a){
-      var s=a.getAttribute('data-s'), on=a.querySelector('.fx').checked;
-      if(!on) anyOff=true;
-      a.classList.toggle('is-off',!on);
-      secs.forEach(function(sec){ if(sec.getAttribute('data-s')===s) sec.classList.toggle('is-hidden',!on); });
+      var s=a.getAttribute('data-s'), onx=a.querySelector('.fx').checked;
+      if(!onx) anyOff=true;
+      a.classList.toggle('is-off',!onx);
+      var sec=secOf(s), card=cardOf(s);
+      if(sec) sec.classList.toggle('is-hidden',!onx);
+      if(card) card.classList.toggle('is-hidden',!onx);
     });
     if(reset) reset.hidden=!anyOff;
   }
@@ -1441,8 +1477,8 @@ $JURA_KAT_JS = @'
     a.addEventListener('click',function(e){
       if(e.target===cb) return;
       e.preventDefault();
-      var sec=document.getElementById('s-'+a.getAttribute('data-s'));
-      if(sec){ if(sec.classList.contains('is-hidden')){ cb.checked=true; syncFilter(); } setOpen(sec,true); sec.scrollIntoView({behavior:'smooth',block:'start'}); }
+      var s=a.getAttribute('data-s'), sec=secOf(s);
+      if(sec){ if(sec.classList.contains('is-hidden')){ cb.checked=true; syncFilter(); } setOpen(s,true,true); }
     });
   });
   if(reset) reset.addEventListener('click',function(){
@@ -1457,7 +1493,7 @@ $JURA_KAT_JS = @'
           navLinks.forEach(function(a){ a.classList.toggle('is-active', a.getAttribute('data-s')===s); });
         }
       });
-    },{rootMargin:'-45% 0px -50% 0px'});
+    },{rootMargin:'-40% 0px -55% 0px'});
     secs.forEach(function(sec){ io.observe(sec); });
   }
 
@@ -1500,19 +1536,32 @@ function Jura-Kategorie-Content($p, $brandKey = 'jura') {
   $extra   = @($prods.serie | Select-Object -Unique | Where-Object { $_ -and ($present -notcontains $_) })
   $order   = @($present) + @($extra)
 
+  $allFarben = @($prods | ForEach-Object { $_.farben } | Where-Object { $_ } | Select-Object -Unique | Sort-Object)
+  $farbRows = if ($allFarben.Count -gt 1) {
+    ($allFarben | ForEach-Object { "<li><label><input type=`"checkbox`" class=`"cf`" value=`"$_`">$_</label></li>" }) -join "`n        "
+  } else { '' }
+
   $navRows = ($order | ForEach-Object {
     $s = $_
     $cnt = @($prods | Where-Object { $_.serie -eq $s }).Count
     "<li><a href=`"#s-$s`" data-s=`"$s`"><input type=`"checkbox`" class=`"fx`" checked aria-label=`"$s$sfx anzeigen`"><span>$s$sfx</span><b>$cnt</b></a></li>"
   }) -join "`n        "
 
+  $serCards = ($order | ForEach-Object {
+    $s = $_
+    $items = @($prods | Where-Object { $_.serie -eq $s })
+    $cntLabel = "$($items.Count) Modell$(if ($items.Count -ne 1) {'e'})"
+    $blurb = [string]$J.seriesBlurb.$s
+    $pic = if ($items[0].img) { " style=`"background-image:url('$($items[0].img)')`"" } else { '' }
+    "<a class=`"jsercard`" data-s=`"$s`" href=`"#s-$s`"><span class=`"pic`"$pic></span><span class=`"bd`"><b>$s$sfx</b><span class=`"tx`">$blurb</span><em>$cntLabel ansehen <span class=`"cv`"></span></em></span></a>"
+  }) -join "`n      "
+
   $secs = ($order | ForEach-Object {
     $s = $_
     $items = @($prods | Where-Object { $_.serie -eq $s })
     $cntLabel = "$($items.Count) Modell$(if ($items.Count -ne 1) {'e'})"
     $blurb = [string]$J.seriesBlurb.$s
-    $blurbHtml = if ($blurb) { "<p>$blurb</p>" } else { '' }
-    $heroImg = if ($items[0].img) { "<img src=`"$($items[0].img)`" alt=`"$bn $s`">" } else { '' }
+    $blurbHtml = if ($blurb) { "<p class=`"jsl`">$blurb</p>" } else { '' }
     $cards = ($items | ForEach-Object {
       $b2 = [string]$J.seriesBlurb.$($_.serie)
       $img = if ($_.img) { "<img src=`"$($_.img)`" alt=`"$($_.name)`">" } else { '' }
@@ -1520,8 +1569,9 @@ function Jura-Kategorie-Content($p, $brandKey = 'jura') {
       $farbLine = if ($farbCount -gt 1) { "<div class=`"jfarb`">$farbCount Ausf&uuml;hrungen: $(@($_.farben) -join ', ')</div>" }
                   elseif ($farbCount -eq 1) { "<div class=`"jfarb`">$(@($_.farben)[0])</div>" }
                   else { '' }
+      $farbData = (@($_.farben) -join '|')
       @"
-<article class="jprod" data-s="$s" data-name="$($_.name)" data-serie="$($_.serie)$sfx" data-price="$($_.priceStr)" data-pnum="$([int]$_.price)" data-blurb="$b2" data-url="$($_.url)">
+<article class="jprod" data-s="$s" data-name="$($_.name)" data-serie="$($_.serie)$sfx" data-price="$($_.priceStr)" data-pnum="$([int]$_.price)" data-farben="$farbData" data-blurb="$b2" data-url="$($_.url)">
   <div class="pic">$img</div>
   <div class="body">
     <span class="serie">$($_.serie)$sfx</span>
@@ -1535,17 +1585,16 @@ function Jura-Kategorie-Content($p, $brandKey = 'jura') {
     }) -join "`n"
     @"
 <section class="jsec" id="s-$s" data-s="$s">
-  <div class="jsec-hd" role="button" tabindex="0" aria-expanded="false" aria-controls="g-$s">
-    <div class="txt"><h2>$s$sfx <span class="cnt">$cntLabel</span></h2>$blurbHtml</div>
-    $heroImg
-    <span class="chev" aria-hidden="true"></span>
-  </div>
+  <h2>$s$sfx <span class="cnt">$cntLabel</span></h2>
+  $blurbHtml
   <div class="jgrid" id="g-$s">
 $cards
   </div>
 </section>
 "@
   }) -join "`n"
+
+  $farbBlock = if ($farbRows) { "<p class=`"jkl-h`">Farbe</p>`n      <ul class=`"jkl-farb`" id=`"jfarb`">`n        $farbRows`n      </ul>" } else { '' }
 
   $body = @"
 $JURA_CSS
@@ -1562,15 +1611,20 @@ $JURA_CSS
         <option value="serie">Serie (GIGA &rarr; ENA)</option>
         <option value="asc">Preis: aufsteigend</option>
         <option value="desc">Preis: absteigend</option>
+        <option value="az">Name: A&ndash;Z</option>
       </select>
-      <div class="jkl-h jkl-hrow"><span>Serien</span><button type="button" class="jkl-xall" id="jklxall" aria-pressed="false">Alle aufklappen</button></div>
+      $farbBlock
+      <div class="jkl-h jkl-hrow"><span>Serien</span><button type="button" class="jkl-xall" id="jklxall" aria-pressed="false">Alle anzeigen</button></div>
       <ul class="jkl-nav" id="jklnav">
         $navRows
       </ul>
-      <button class="jkl-reset" id="jklreset" hidden>Alle Serien anzeigen</button>
+      <button class="jkl-reset" id="jklreset" hidden>Alle Serien einblenden</button>
     </div>
   </aside>
   <div class="jkl-main" id="jklmain">
+    <div class="jsercards" id="jsercards">
+      $serCards
+    </div>
 $secs
   </div>
 </div>
