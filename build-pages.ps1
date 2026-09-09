@@ -1237,14 +1237,14 @@ $JURA_CSS = @"
 .jmodal .close{float:right;cursor:pointer;color:#999;font-size:22px;line-height:1}
 /* Kategorie 2026: Serien-Karten oben, klebende Filterleiste, 2er-Grid */
 .jk2{max-width:$MAXW;margin:0 auto;font-family:$FONT_BODY}
-.jk2-series{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:8px;margin:0 0 4px}
-.jk2-serie{display:flex;flex-direction:column;align-items:center;gap:3px;padding:11px 5px 9px;background:#fff;border:1px solid #e2e2e2;border-radius:8px;text-decoration:none;cursor:pointer;transition:border-color .12s,box-shadow .12s}
+.jk2-series{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:0 auto 4px;max-width:1000px}
+.jk2-serie{flex:0 0 auto;width:112px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:11px 5px 9px;background:#fff;border:1px solid #e2e2e2;border-radius:8px;text-decoration:none;cursor:pointer;transition:border-color .12s,box-shadow .12s}
 .jk2-serie:hover{border-color:#b6b6b6}
 .jk2-serie.is-on{border-color:$($C.accent);box-shadow:inset 0 0 0 2px $($C.accent)}
 .jk2-serie .pic{width:100%;height:44px;background:center center no-repeat;background-size:contain}
 .jk2-serie b{font-family:$FONT_HEAD;font-size:12px;color:$($C.head)}
 .jk2-serie i{font-style:normal;font-size:9.5px;color:#9a9a9a}
-.jk2-bar{position:sticky;top:40px;z-index:60;display:flex;flex-wrap:wrap;align-items:center;gap:10px 22px;background:$($C.bg);border-top:1px solid #e2e2e2;border-bottom:1px solid #e2e2e2;padding:11px 2px;margin:16px 0 22px}
+.jk2-bar{position:sticky;top:40px;z-index:60;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px 22px;background:$($C.bg);border-top:1px solid #e2e2e2;border-bottom:1px solid #e2e2e2;padding:11px 2px;margin:16px 0 22px}
 .jk2-bar .grp{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
 .jk2-bar .lbl{font-family:$FONT_HEAD;font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:#8a8a8a}
 .jk2-bar select{padding:7px 9px;border:1px solid #cfcfcf;border-radius:6px;font-size:12.5px;font-family:$FONT_BODY;background:#fff}
