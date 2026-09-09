@@ -1278,7 +1278,19 @@
         },
         {
           "t": "p",
-          "x": "Die Anzahl der Mietgeräte ist begrenzt – wir empfehlen, ein Gerät vor der Reparatur zu reservieren."
+          "x": "Die Anzahl der Mietgeräte ist begrenzt – reservieren Sie am besten schon vor der Reparatur. Kurz das Formular ausfüllen, wir prüfen die Verfügbarkeit und bestätigen den Termin."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "icon": "calendar",
+          "id": "reservieren",
+          "x": "Jetzt reservieren"
+        },
+        {
+          "t": "form",
+          "id": 3,
+          "anchor": "reservieren-form"
         },
         {
           "t": "p",

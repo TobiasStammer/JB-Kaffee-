@@ -68,7 +68,7 @@ function Native-Blocks($blocks) {
         "<!-- wp:heading $j -->`n<$tag$idAttr class=`"$hcls`" style=`"color:$($C.head);font-family:$FONT_HEAD`">$hico$($b.x)</$tag>`n<!-- /wp:heading -->"
       }
       'p'  { "<!-- wp:paragraph -->`n<p>$($b.x)</p>`n<!-- /wp:paragraph -->" }
-      'form' { Form-Block }
+      'form' { if ($b.id) { Form-Block ([int]$b.id) $b.anchor } else { Form-Block } }
       'ul' {
         $li = ($b.x | ForEach-Object { "<!-- wp:list-item -->`n<li>$_</li>`n<!-- /wp:list-item -->" }) -join "`n"
         "<!-- wp:list -->`n<ul class=`"wp-block-list`">`n$li`n</ul>`n<!-- /wp:list -->"
@@ -296,8 +296,10 @@ $FORM_CSS = @"
   padding:12px 14px;border-radius:6px;margin-top:12px}
 </style>
 "@
-function Form-Block {
-  "<!-- wp:html -->`n$FORM_CSS`n<div id=`"kontakt`"></div>`n<div class=`"kt-formwrap`">`n<!-- /wp:html -->`n`n<!-- wp:shortcode -->`n$FORM_SHORTCODE`n<!-- /wp:shortcode -->`n`n<!-- wp:html -->`n</div>`n<!-- /wp:html -->"
+function Form-Block($formId = $null, $anchor = 'kontakt') {
+  $sc  = if ($formId) { "[fluentform id=`"$formId`"]" } else { $FORM_SHORTCODE }
+  $anc = if ($anchor) { $anchor } else { 'kontakt' }
+  "<!-- wp:html -->`n$FORM_CSS`n<div id=`"$anc`"></div>`n<div class=`"kt-formwrap`">`n<!-- /wp:html -->`n`n<!-- wp:shortcode -->`n$sc`n<!-- /wp:shortcode -->`n`n<!-- wp:html -->`n</div>`n<!-- /wp:html -->"
 }
 
 # alle Farbzonen einer Seite in EIN zentriertes "Blatt" (weiss, weiche Schatten,
