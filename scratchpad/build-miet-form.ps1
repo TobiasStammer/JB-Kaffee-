@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 . "$root\wp-lib.ps1" | Out-Null
-$u=[char]0x00FC; $a=[char]0x00E4; $o=[char]0x00F6; $s=[char]0x00DF; $U=[char]0x00DC
+$u=[char]0x00FC; $a=[char]0x00E4; $o=[char]0x00F6; $s=[char]0x00DF
 
 function TextField($name,$label,$ph,$req,$help='') {
   [pscustomobject]@{

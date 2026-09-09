@@ -1255,26 +1255,8 @@
           "x": "Damit Sie auch während der Reparatur nicht auf Ihren Kaffee verzichten müssen, stellen wir Ihnen auf Wunsch ein passendes Mietgerät gegen Gebühr zur Verfügung – der Preis gilt für die gesamte Reparaturdauer, nicht pro Tag."
         },
         {
-          "t": "table",
-          "head": [
-            "Mietgerät",
-            "Preis für die Reparaturdauer"
-          ],
-          "rows": [
-            [
-              "Jura E6 (ohne Milchspezialitäten)",
-              "40 €"
-            ],
-            [
-              "Jura E8 (mit Milchspezialitäten)",
-              "50 €"
-            ],
-            [
-              "Jura X8 (Gastro, bis 80 Tassen/Tag)",
-              "100 €"
-            ]
-          ],
-          "caption": "Preise inkl. MwSt. Modell je nach Verfügbarkeit."
+          "t": "html",
+          "x": "<style>.kt-miet{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:14px 0 4px}@media(max-width:620px){.kt-miet{grid-template-columns:1fr}}.kt-miet-c{border:1px solid #e2e2e2;border-radius:10px;background:#ffffff;padding:16px 18px 15px;display:flex;flex-direction:column}.kt-miet-c b{font-family:Tahoma,Arial,sans-serif;font-size:15px;color:#1c1c1c}.kt-miet-c small{font-size:12.5px;color:#777777;margin:3px 0 14px;line-height:1.45}.kt-miet-c .pr{font-family:Tahoma,Arial,sans-serif;font-size:22px;font-weight:700;color:#334155;margin-top:auto;line-height:1.15}.kt-miet-c .pr span{font-size:11.5px;font-weight:400;color:#8a8a8a;display:block;letter-spacing:0;margin-top:2px}.kt-miet-note{font-size:12.5px;color:#777777;margin:6px 0 0}</style><div class=\"kt-miet\"><div class=\"kt-miet-c\"><b>Jura E6</b><small>ohne Milchspezialitäten</small><div class=\"pr\">40&nbsp;€<span>für die gesamte Reparaturdauer</span></div></div><div class=\"kt-miet-c\"><b>Jura E8</b><small>mit Milchspezialitäten</small><div class=\"pr\">50&nbsp;€<span>für die gesamte Reparaturdauer</span></div></div><div class=\"kt-miet-c\"><b>Jura X8</b><small>Gastro, bis 80&nbsp;Tassen/Tag</small><div class=\"pr\">100&nbsp;€<span>für die gesamte Reparaturdauer</span></div></div></div><p class=\"kt-miet-note\">Preise inkl. MwSt. Modell je nach Verfügbarkeit – bitte vorher reservieren.</p>"
         },
         {
           "t": "p",
