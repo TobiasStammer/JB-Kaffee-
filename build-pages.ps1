@@ -108,51 +108,31 @@ function Native-Blocks($blocks) {
         "<!-- wp:html -->`n$(Brands-Grid $names)`n<!-- /wp:html -->"
       }
       'brandmodels' {
-        # Marken als Karten: Logo-Kopf + Modellliste. Quick-Nav-Kacheln oben
-        # springen per #brand-<slug> zur jeweiligen Karte (CSS :target hebt sie hervor).
-        $groups = @(
-          @{ h = 'Kaffeevollautomaten';     items = @($b.x.vollautomaten) }
+        $grps = @(
+          @{ h = 'Kaffeevollautomaten'; items = @($b.x.vollautomaten) }
           @{ h = 'Siebtr&auml;germaschinen'; items = @($b.x.siebtraeger) }
         )
-        $allItems = @($groups | ForEach-Object { $_.items } | Where-Object { $_ })
-        $navTiles = ($allItems | ForEach-Object {
+        # Logo-Raster oben (wie Startseite), jede Kachel springt zur Marken-Sektion
+        $allItems = @($grps | ForEach-Object { $_.items } | Where-Object { $_ })
+        $gridTiles = ($allItems | ForEach-Object {
           $slug = Brand-Slug $_.name
           $u = $brandMedia[$slug]
-          $inner = if ($u) { "<img src=`"$u`" alt=`"$($_.name)`" loading=`"lazy`">" } else { "<span>$($_.name)</span>" }
-          "<a class=`"kt-bmnav-t`" href=`"#brand-$slug`">$inner</a>"
+          $inner = if ($u) { "<img src=`"$u`" alt=`"$($_.name)`">" } else { "<span class=`"kt-brandtxt`">$($_.name)</span>" }
+          "<a href=`"#brand-$slug`">$inner</a>"
         }) -join "`n    "
-        $sections = foreach ($g in $groups) {
+        $grid = "$BRANDS_CSS`n<div class=`"kt-brands kt-brands-link`">`n    $gridTiles`n</div>"
+        $blocks2 = foreach ($g in $grps) {
           if (-not $g.items.Count) { continue }
-          $cards = ($g.items | ForEach-Object {
+          $rows = ($g.items | ForEach-Object {
             $slug = Brand-Slug $_.name
             $u = $brandMedia[$slug]
-            $logo = if ($u) { "<img src=`"$u`" alt=`"$($_.name)`" loading=`"lazy`">" }
-                    else    { "<span class=`"kt-bmc-txt`">$($_.name)</span>" }
-            "<article class=`"kt-bmc`" id=`"brand-$slug`"><div class=`"kt-bmc-h`">$logo</div><p class=`"kt-bmc-m`">$($_.models)</p></article>"
-          }) -join "`n      "
-          "<h3 class=`"kt-bm-h`">$($g.h)</h3>`n<div class=`"kt-bmgrid`">`n      $cards`n</div>"
+            $logo = if ($u) { "<img src=`"$u`" alt=`"$($_.name)`" style=`"max-height:32px;max-width:108px;width:auto;object-fit:contain`">" }
+                    else    { "<span style=`"font-family:$FONT_HEAD;font-weight:700;font-size:14px;color:$($C.head)`">$($_.name)</span>" }
+            "<div id=`"brand-$slug`" style=`"scroll-margin-top:90px;display:grid;grid-template-columns:120px 1fr;gap:20px;align-items:baseline;padding:15px 0;border-top:1px solid #e6e6e6`"><div style=`"font-family:$FONT_HEAD;font-weight:700;font-size:13.5px;color:$($C.head);display:flex;align-items:center;min-height:20px`">$logo</div><div style=`"font-size:14px;line-height:1.65;color:$($C.text)`">$($_.models)</div></div>"
+          }) -join "`n"
+          "<h3 style=`"font-family:$FONT_HEAD;color:$($C.head);font-weight:700;font-size:15px;margin:26px 0 4px`">$($g.h)</h3>`n<div style=`"font-family:$FONT_BODY`">`n$rows`n</div>"
         }
-        $bmCss = @"
-<style>
-.kt-bmnav{max-width:$SECW;margin:0 auto 6px;display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
-.kt-bmnav-t{display:flex;align-items:center;justify-content:center;height:54px;padding:8px 10px;background:#fff;border:1px solid $($C.line);border-radius:8px;text-decoration:none;transition:border-color .12s,box-shadow .12s,transform .12s}
-.kt-bmnav-t:hover{border-color:$($C.accent);box-shadow:0 3px 12px rgba(0,0,0,.07);transform:translateY(-2px)}
-.kt-bmnav-t img{max-height:24px;max-width:84%;width:auto;object-fit:contain;filter:grayscale(1);opacity:.7;transition:filter .12s,opacity .12s}
-.kt-bmnav-t:hover img{filter:none;opacity:1}
-.kt-bmnav-t span{font-family:$FONT_HEAD;font-weight:700;font-size:12.5px;color:$($C.head);text-align:center;line-height:1.2}
-.kt-bm-h{font-family:$FONT_HEAD;color:$($C.head);font-weight:700;font-size:15px;margin:28px 0 12px}
-.kt-bmgrid{max-width:$SECW;margin:0 auto;column-width:264px;column-gap:14px}
-.kt-bmc{scroll-margin-top:96px;break-inside:avoid;-webkit-column-break-inside:avoid;margin:0 0 14px;background:#fff;border:1px solid $($C.line);border-radius:10px;padding:15px 17px 16px;transition:border-color .12s,box-shadow .12s}
-.kt-bmc:hover{border-color:#cfcfcf;box-shadow:0 4px 16px rgba(0,0,0,.06)}
-.kt-bmc:target{border-color:$($C.accent);box-shadow:0 0 0 3px rgba(51,65,85,.13)}
-.kt-bmc-h{height:34px;display:flex;align-items:center;margin-bottom:11px;padding-bottom:11px;border-bottom:1px solid $($C.line)}
-.kt-bmc-h img{max-height:28px;max-width:150px;width:auto;object-fit:contain}
-.kt-bmc-txt{font-family:$FONT_HEAD;font-weight:700;font-size:15px;color:$($C.head)}
-.kt-bmc-m{margin:0;font-size:13px;line-height:1.62;color:#5b6068}
-@media(max-width:560px){.kt-bmgrid{column-width:auto;column-count:1}}
-</style>
-"@
-        "<!-- wp:html -->`n$bmCss`n<div class=`"kt-bmnav`">`n    $navTiles`n</div>`n" + ($sections -join "`n") + "`n<!-- /wp:html -->"
+        "<!-- wp:html -->`n$grid`n" + ($blocks2 -join "`n") + "`n<!-- /wp:html -->"
       }
       'steps' {
         $items = ($b.x | ForEach-Object {
