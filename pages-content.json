@@ -149,7 +149,7 @@
     "heroImage": "",
     "heroEyebrow": "Autorisierter JURA-Fachhändler &amp; JURA-Servicestelle",
     "heroTitle": "JURA Online-Shop",
-    "heroText": "Kaffeevollautomaten von JURA – frisch gemahlen statt gekapselt, auf Knopfdruck. Als autorisierter JURA-Fachhändler beraten wir Sie persönlich, führen jedes Modell vor und übernehmen später Wartung und Reparatur in eigener Werkstatt.",
+    "heroText": "Als autorisierter JURA-Fachhändler beraten wir Sie persönlich, führen jedes Modell vor und übernehmen Wartung und Reparatur in eigener Werkstatt.",
     "heroButtons": [
       { "label": "Kaffeevollautomaten ansehen", "url": "/jura-kaffeevollautomaten/", "style": "solid" },
       { "label": "Vorführung im Geschäft", "url": "/anfahrt/", "style": "outline" }

@@ -1300,10 +1300,6 @@ function Jura-Marke-Content($p, $brandKey = 'jura') {
   <div class="jhero">
     $(Eyebrow $J.heroEyebrow)
     <h1>$($J.heroTitle)</h1>
-    <p>$($J.heroText)</p>
-    <div class="jbtns">
-      $btns
-    </div>
   </div>
 </div>
 $herofig
@@ -1328,6 +1324,12 @@ $(Sec-Head $bn $J.aboutTitle '')
 $(Sec-Head $J.categoriesTitle 'Was Sie bei uns bekommen' '')
 <div class="jstore"><div class="jcats">
     $cats
+</div></div>
+<div class="jstore"><div class="jhero" style="margin-top:30px">
+    <p>$($J.heroText)</p>
+    <div class="jbtns">
+      $btns
+    </div>
 </div></div>
 "@
   $tech = ($J.tech | ForEach-Object {
