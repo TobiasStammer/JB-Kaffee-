@@ -1139,6 +1139,7 @@ function Jura-Products($catSlug = 'jura-kaffeevollautomaten') {
 
     [pscustomobject]@{
       name       = $_.name
+      sku        = "$($_.sku)"
       serie      = if ($serie) { "$serie" } else { '' }
       art        = (($_.attributes | Where-Object { $_.name -eq 'Art' }).options | Select-Object -First 1)
       price      = if ($pnum) { $pnum } else { [decimal]0 }
@@ -1248,8 +1249,8 @@ $JURA_CSS = @"
 .jk2-bar .grp{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
 .jk2-bar .lbl{font-family:$FONT_HEAD;font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:#8a8a8a}
 .jk2-bar select{padding:7px 9px;border:1px solid #cfcfcf;border-radius:6px;font-size:12.5px;font-family:$FONT_BODY;background:#fff}
-.jk2-chip{font-size:12px;padding:5px 11px;border:1px solid #cfcfcf;border-radius:999px;background:#fff;color:#555;cursor:pointer;font-family:$FONT_BODY}
-.jk2-chip.is-on{background:$($C.accent);border-color:$($C.accent);color:#fff}
+.jk2-chip,.jk2-feat{font-size:12px;padding:5px 11px;border:1px solid #cfcfcf;border-radius:999px;background:#fff;color:#555;cursor:pointer;font-family:$FONT_BODY}
+.jk2-chip.is-on,.jk2-feat.is-on{background:$($C.accent);border-color:$($C.accent);color:#fff}
 .jk2-fdot{width:19px;height:19px;border-radius:50%;border:1px solid rgba(0,0,0,.28);cursor:pointer;padding:0}
 .jk2-fdot.is-on{box-shadow:0 0 0 2px $($C.bg),0 0 0 4px $($C.accent)}
 .jk2-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
@@ -1261,6 +1262,8 @@ $JURA_CSS = @"
 .jp2-bd{padding:15px 17px 16px;display:flex;flex-direction:column;min-width:0}
 .jp2-serie{font-family:$FONT_HEAD;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:$($C.accent);font-weight:700}
 .jp2-bd h3{font-size:16px !important;line-height:1.25 !important;margin:3px 0 6px;color:$($C.head)}
+.jp2-fx{list-style:none;margin:0 0 9px;padding:0;display:flex;flex-wrap:wrap;gap:5px 6px}
+.jp2-fx li{font-size:11px;line-height:1;color:#4a4a4a;background:$($C.soft);border-radius:4px;padding:5px 8px;font-family:$FONT_BODY;white-space:nowrap}
 .jp2-tx{font-size:12.5px;line-height:1.5;color:#6b6b6b;margin:0 0 10px}
 .jp2-sw{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 12px}
 .jp2-sw button{width:18px;height:18px;border-radius:50%;border:1px solid rgba(0,0,0,.28);cursor:pointer;padding:0}
@@ -1412,10 +1415,12 @@ $JURA_KAT_JS = @'
   var serTiles=[].slice.call(document.querySelectorAll('#jk2series .jk2-serie'));
   var serChips=[].slice.call(document.querySelectorAll('#jk2bar .jk2-chip'));
   var fdots=[].slice.call(document.querySelectorAll('#jk2bar .jk2-fdot'));
+  var featBtns=[].slice.call(document.querySelectorAll('#jk2bar .jk2-feat'));
   var sortSel=document.getElementById('jsort');
   var emptyMsg=document.getElementById('jk2empty');
   var activeSerie='*';
   var activeFarben=[];
+  var activeFeat=[];
 
   grid.addEventListener('click',function(e){
     if(e.target.closest('a,input,label,button,.cmp')) return;
@@ -1429,7 +1434,9 @@ $JURA_KAT_JS = @'
       var okS=(activeSerie==='*'||c.getAttribute('data-s')===activeSerie);
       var f=(c.getAttribute('data-farben')||'').split('|');
       var okF=(!activeFarben.length||activeFarben.some(function(x){return f.indexOf(x)>-1;}));
-      var show=okS && okF;
+      var ft=(c.getAttribute('data-feat')||'').split(' ');
+      var okA=(!activeFeat.length||activeFeat.every(function(x){return ft.indexOf(x)>-1;}));
+      var show=okS && okF && okA;
       c.classList.toggle('is-hidden',!show);
       if(show) vis++;
     });
@@ -1449,6 +1456,14 @@ $JURA_KAT_JS = @'
       var c=d.getAttribute('data-c'), i=activeFarben.indexOf(c);
       if(i>-1) activeFarben.splice(i,1); else activeFarben.push(c);
       d.classList.toggle('is-on',activeFarben.indexOf(c)>-1);
+      apply();
+    });
+  });
+  featBtns.forEach(function(b){
+    b.addEventListener('click',function(){
+      var k=b.getAttribute('data-f'), i=activeFeat.indexOf(k);
+      if(i>-1) activeFeat.splice(i,1); else activeFeat.push(k);
+      b.classList.toggle('is-on',activeFeat.indexOf(k)>-1);
       apply();
     });
   });
@@ -1537,6 +1552,24 @@ function Jura-Kategorie-Content($p, $brandKey = 'jura') {
 
   $allFarben = @($prods | ForEach-Object { $_.variants } | ForEach-Object { $_.color } | Where-Object { $_ } | Select-Object -Unique)
 
+  # technische Kurzdaten je SKU (nur JURA)
+  $SPEC = @{}
+  $specFile = "$root\$brandKey-specs.json"
+  if (Test-Path $specFile) {
+    $sp = Get-Content $specFile -Raw -Encoding UTF8 | ConvertFrom-Json
+    foreach ($pn in $sp.PSObject.Properties) { if ($pn.Name -notmatch '^_') { $SPEC[$pn.Name] = $pn.Value } }
+  }
+  function SpecOf($sku) { if ($sku -and $SPEC.ContainsKey("$sku")) { $SPEC["$sku"] } else { $null } }
+  function Td($spec, $rx) { if ($spec) { ([string](($spec.techdaten | Where-Object { $_.k -match $rx }).v | Select-Object -First 1)) } else { '' } }
+  function ShortDisplay($v) {
+    if (-not $v) { return '' }
+    $sz = if ($v -match '(\d+[.,]\d+)') { $matches[1] + '&Prime; ' } else { '' }
+    if ($v -match 'Touch')       { $sz + 'Touch' }
+    elseif ($v -match 'Farbdisplay|Farb-Display') { $sz + 'Farbdisplay' }
+    elseif ($v -match 'Klartext|Text') { 'Textdisplay' }
+    else { ($sz + 'Anzeige').Trim() }
+  }
+
   $serTiles = "<a class=`"jk2-serie is-on`" data-s=`"*`"><span class=`"pic`"></span><b>Alle</b><i>$($prods.Count)</i></a>" + (($order | ForEach-Object {
     $s = $_
     $items = @($prods | Where-Object { $_.serie -eq $s })
@@ -1567,12 +1600,35 @@ function Jura-Kategorie-Content($p, $brandKey = 'jura') {
            elseif ($vs[0].color) { $vs[0].color }
            else { [string]$J.seriesBlurb.$($pr.serie) }
     $cData = (@($vs | ForEach-Object { $_.color }) -join '|')
+
+    # Kurz-Steckbrief + Ausstattungs-Merkmale aus den Spezifikationen
+    $sp = SpecOf $pr.sku
+    $spez = Td $sp 'Spezialit'
+    $disp = Td $sp 'Display'
+    $tank = Td $sp 'Wassertank'
+    $milch = Td $sp 'Milchsystem'
+    $mahl = Td $sp 'Mahlwerk'
+    $vz = if ($sp -and $sp.vorzuege) { [string]::Join(' ', @($sp.vorzuege)) } else { '' }
+    $facts = @()
+    if ($spez) { $facts += "$spez Spezialit&auml;ten" }
+    $sd = ShortDisplay $disp
+    if ($sd)   { $facts += $sd }
+    if ($tank) { $facts += "$tank Tank" }
+    $factHtml = if ($facts.Count) { "<ul class=`"jp2-fx`">" + (($facts | Select-Object -First 3 | ForEach-Object { "<li>$_</li>" }) -join '') + "</ul>" } else { '' }
+
+    $feat = @()
+    if ($milch -or $vz -match 'Milch(schaum|system|spezialit)') { $feat += 'milch' }
+    if ($disp -match 'Touch|Farbdisplay') { $feat += 'display' }
+    if ($vz -match 'J\.O\.E\.|WLAN|WiFi|App') { $feat += 'app' }
+    if ($mahl -match '^\s*2|Zwei|2 ' -or $vz -match 'zwei (Mahlwerke|Keramik|verschiedene)') { $feat += 'mahl2' }
+    $featData = ($feat -join ' ')
     @"
-<article class="jp2" data-s="$($pr.serie)" data-name="$shortName" data-serie="$($pr.serie)$sfx" data-price="$($pr.priceStr)" data-pnum="$([int]$pr.price)" data-farben="$cData" data-blurb="$([string]$J.seriesBlurb.$($pr.serie))" data-url="$($pr.url)">
+<article class="jp2" data-s="$($pr.serie)" data-name="$shortName" data-serie="$($pr.serie)$sfx" data-price="$($pr.priceStr)" data-pnum="$([int]$pr.price)" data-farben="$cData" data-feat="$featData" data-blurb="$([string]$J.seriesBlurb.$($pr.serie))" data-url="$($pr.url)">
   <div class="jp2-pic"><img src="$($pr.displayImg)" alt="$shortName"></div>
   <div class="jp2-bd">
     <span class="jp2-serie">$($pr.serie)$sfx</span>
     <h3>$shortName</h3>
+    $factHtml
     <p class="jp2-tx">$txt</p>
     <div class="jp2-sw">$sw</div>
     <div class="jp2-price">$($pr.priceStr)</div>
@@ -1583,6 +1639,16 @@ function Jura-Kategorie-Content($p, $brandKey = 'jura') {
   }) -join "`n"
 
   $farbBar = if ($farbDots) { "<div class=`"grp`"><span class=`"lbl`">Farbe</span>$farbDots</div>" } else { '' }
+
+  $featBar = if ($SPEC.Count) {
+    $fd = @(
+      @{ k='milch';   t='Milchsystem' }
+      @{ k='display'; t='Farbdisplay / Touch' }
+      @{ k='app';     t='App-Steuerung' }
+      @{ k='mahl2';   t='Zwei Mahlwerke' }
+    ) | ForEach-Object { "<button class=`"jk2-feat`" data-f=`"$($_.k)`">$($_.t)</button>" }
+    "<div class=`"grp`"><span class=`"lbl`">Ausstattung</span>$($fd -join '')</div>"
+  } else { '' }
 
   $body = @"
 $JURA_CSS
@@ -1606,6 +1672,7 @@ $JURA_CSS
       </select>
     </div>
     $farbBar
+    $featBar
   </div>
   <div class="jk2-grid" id="jk2grid">
 $cards

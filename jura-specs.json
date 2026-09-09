@@ -1,4 +1,4 @@
-{
+﻿{
   "_note": "Vorzüge + Technische Daten je JURA-Haushaltsgerät, von de.jura.com (2026-08). Basis für enrich-shop.ps1.",
   "_tpl": {
     "hVorzuege": "Vorzüge",
@@ -1189,6 +1189,14 @@
       {
         "k": "Baureihe",
         "v": "S-Linie (2026)"
+      },
+      {
+        "k": "Display",
+        "v": "großes Farbdisplay"
+      },
+      {
+        "k": "Milchsystem",
+        "v": "ja"
       },
       {
         "k": "Artikelnummer",
