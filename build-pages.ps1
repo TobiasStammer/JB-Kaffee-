@@ -1814,6 +1814,7 @@ $PROSE_CSS = @"
 .kt-page:not(.has-rail) .kt-main{max-width:none}
 .kt-main>h1{font-family:$FONT_HEAD;color:$($C.head);font-weight:700;font-size:23px;line-height:1.25;margin:0 0 10px}
 .kt-lead{font-size:16px;line-height:1.6;color:$($C.text);margin:0;max-width:620px}
+.kt-lead.kt-lead-wide{max-width:none}
 .kt-sub{font-size:14px;line-height:1.55;color:#666666;margin:8px 0 0}
 .kt-prose{margin-top:26px}
 .kt-prose h3{font-family:$FONT_HEAD !important;color:#6d6d6d !important;font-weight:700;font-size:11.5px !important;text-transform:uppercase;letter-spacing:.09em;margin:16px 0 5px}
@@ -1850,7 +1851,8 @@ function Sub-Content($p) {
   $blocks = @($p.blocks)
   $heroP = ''
   if ($blocks.Count -gt 0 -and $blocks[0].t -eq 'p') {
-    $heroP = "<p class=`"kt-lead`">$($blocks[0].x)</p>"
+    $leadCls = if ($p.leadWide) { 'kt-lead kt-lead-wide' } else { 'kt-lead' }
+    $heroP = "<p class=`"$leadCls`">$($blocks[0].x)</p>"
     $blocks = @($blocks[1..($blocks.Count-1)])
   }
   # Excerpt nur als sichtbare Unterzeile zeigen, wenn KEIN Intro-Absatz da ist -

@@ -687,6 +687,7 @@
       "menu": "Marken",
       "title": "Marken",
       "excerpt": "Diese Kaffeevollautomaten und Siebträgermaschinen reparieren wir für Sie – Hersteller- und Modellübersicht.",
+      "leadWide": true,
       "blocks": [
         {
           "t": "p",
