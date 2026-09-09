@@ -770,12 +770,9 @@
           "x": "Nicht gelistete Hersteller und Modelle reparieren wir nicht. Bei Unsicherheit kontaktieren Sie uns bitte vorab."
         },
         {
-          "t": "h",
-          "lvl": 3,
-          "x": "Ausdrücklich kein Service"
-        },
-        {
-          "t": "ul",
+          "t": "callout",
+          "variant": "warn",
+          "title": "Ausdrücklich kein Service",
           "x": [
             "Saeco: New Royal, Aulika, Aurora",
             "Bosch: Serie 2 VeroCafe",
