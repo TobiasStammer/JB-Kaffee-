@@ -1093,6 +1093,15 @@ function Jura-Products($catSlug = 'jura-kaffeevollautomaten') {
   if (-not $cat) { return @() }
   $itemsResp = wc GET "products?per_page=100&status=publish&category=$($cat.id)"
   $items = @($itemsResp)
+  if ($items.Count -eq 1 -and $items[0].Count -gt 1) { $items = @($items[0]) }
+  # helle Farbe zuerst, "Black" zuletzt - damit die Uebersicht nicht nur schwarz ist
+  $farbRank = {
+    param($n)
+    if ($n -match 'White|Weiss|Weiß') { 0 }
+    elseif ($n -match 'Inox|Silver|Silber|Grey|Grau|Alu|Chrome|Metropolitan') { 1 }
+    elseif ($n -match 'Black|Schwarz|Onyx|Obsidian') { 3 }
+    else { 2 }
+  }
   $items | ForEach-Object {
     $serie = (($_.attributes | Where-Object { $_.name -eq 'Serie' }).options | Select-Object -First 1)
     $farben = @(($_.attributes | Where-Object { $_.name -eq 'Farbe' }).options)
@@ -1104,15 +1113,39 @@ function Jura-Products($catSlug = 'jura-kaffeevollautomaten') {
                $f = ([decimal]$pnum).ToString('N2', $de) + ' &euro;'
                if ($isVar) { "ab $f" } else { $f }
              } else { 'Preis auf Anfrage' }
+    $mainImg = if ($_.images -and $_.images[0]) { $_.images[0].src } else { '' }
+
+    # Farbvarianten (color -> Bild)
+    $variants = @()
+    if ($isVar) {
+      $vResp = wc GET "products/$($_.id)/variations?per_page=30"
+      $vs = @($vResp); if ($vs.Count -eq 1 -and $vs[0].Count -gt 1) { $vs = @($vs[0]) }
+      foreach ($v in $vs) {
+        $vc = ($v.attributes | Where-Object { $_.name -eq 'Farbe' }).option
+        if ($vc) {
+          $variants += [pscustomobject]@{ color = "$vc"; img = if ($v.image -and $v.image.src) { $v.image.src } else { $mainImg } }
+        }
+      }
+    }
+    if (-not $variants -or $variants.Count -eq 0) {
+      $c0 = if ($farben.Count -ge 1) { $farben[0] } else { '' }
+      $variants = @([pscustomobject]@{ color = "$c0"; img = $mainImg })
+    }
+    # nach Helligkeit sortieren, hellstes zuerst -> Standardbild
+    $variants = @($variants | Sort-Object @{ Expression = { & $farbRank $_.color } }, color)
+    $displayImg = if ($variants[0].img) { $variants[0].img } else { $mainImg }
+
     [pscustomobject]@{
-      name     = $_.name
-      serie    = if ($serie) { "$serie" } else { '' }
-      art      = (($_.attributes | Where-Object { $_.name -eq 'Art' }).options | Select-Object -First 1)
-      price    = if ($pnum) { $pnum } else { [decimal]0 }
-      priceStr = $pstr
-      url      = $_.permalink
-      img      = if ($_.images -and $_.images[0]) { $_.images[0].src } else { '' }
-      farben   = $farben
+      name       = $_.name
+      serie      = if ($serie) { "$serie" } else { '' }
+      art        = (($_.attributes | Where-Object { $_.name -eq 'Art' }).options | Select-Object -First 1)
+      price      = if ($pnum) { $pnum } else { [decimal]0 }
+      priceStr   = $pstr
+      url        = $_.permalink
+      img        = $mainImg
+      displayImg = $displayImg
+      farben     = $farben
+      variants   = $variants
     }
   } | Sort-Object price
 }
@@ -1200,53 +1233,42 @@ $JURA_CSS = @"
 .jmodal th,.jmodal td{text-align:left;padding:9px 12px;border-bottom:1px solid #eee;vertical-align:top}
 .jmodal th{font-family:$FONT_HEAD;color:#8a8a8a;font-size:11px;text-transform:uppercase;letter-spacing:.06em;width:110px}
 .jmodal .close{float:right;cursor:pointer;color:#999;font-size:22px;line-height:1}
-/* Kategorie: Serien-Sektionen + klebende Seitenspalte */
-.jkl{max-width:$MAXW;margin:0 auto;display:grid;grid-template-columns:236px minmax(0,1fr);gap:34px;align-items:start}
-.jkl-side{position:sticky;top:54px}
-.jkl-side-in{border:1px solid #e2e2e2;border-radius:9px;background:#fff;padding:16px 16px 14px;font-family:$FONT_BODY}
-.jkl-h{font-family:$FONT_HEAD;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:#8a8a8a;margin:0 0 8px}
-.jkl-hrow{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
-.jkl-xall{background:none;border:0;padding:0;font-family:$FONT_BODY;font-size:11.5px;letter-spacing:0;text-transform:none;color:$($C.accent);cursor:pointer}
-.jkl-xall:hover{text-decoration:underline}
-.jkl-side select{width:100%;padding:8px 10px;border:1px solid #cfcfcf;border-radius:6px;font-size:13.5px;font-family:$FONT_BODY;background:#fff;color:#333;margin:0 0 18px}
-.jkl-nav{list-style:none;margin:0;padding:0}
-.jkl-nav li{border-top:1px solid #ececec}
-.jkl-nav li:first-child{border-top:0}
-.jkl-nav a{display:flex;align-items:center;gap:8px;padding:9px 2px;font-size:13.5px;color:#444;text-decoration:none;line-height:1.2}
-.jkl-nav a:hover{color:$($C.accent)}
-.jkl-nav a.is-active{color:$($C.head);font-weight:700}
-.jkl-nav a b{margin-left:auto;font-family:$FONT_HEAD;font-weight:700;font-size:11px;color:#9a9a9a}
-.jkl-nav a.is-off span{opacity:.4;text-decoration:line-through}
-.jkl-nav .fx{width:15px;height:15px;flex:0 0 auto;accent-color:$($C.accent);cursor:pointer}
-.jkl-reset{margin-top:12px;width:100%;background:transparent;border:1px solid #cfcfcf;border-radius:6px;padding:8px;font-family:$FONT_HEAD;font-weight:700;font-size:12px;color:$($C.accent);cursor:pointer}
-.jkl-farb{list-style:none;margin:0 0 18px;padding:0;max-height:186px;overflow:auto}
-.jkl-farb li{margin:0 0 6px}
-.jkl-farb label{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#444;cursor:pointer;line-height:1.25}
-.jkl-farb input{width:14px;height:14px;flex:0 0 auto;accent-color:$($C.accent)}
-/* Serien als Karten (wie /jura/), Modell-Sektionen darunter */
-.jsercards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:0 0 10px}
-.jsercard{display:flex;flex-direction:column;background:#fff;border:1px solid #e2e2e2;border-radius:8px;overflow:hidden;text-decoration:none;cursor:pointer;transition:border-color .12s,box-shadow .12s}
-.jsercard:hover{border-color:#b6b6b6;box-shadow:0 2px 14px rgba(0,0,0,.07)}
-.jsercard.is-open{border-color:$($C.accent);box-shadow:inset 0 0 0 2px $($C.accent)}
-.jsercard.is-hidden{display:none}
-.jsercard .pic{height:116px;background:#f5f5f3 center center no-repeat;background-size:auto 86px}
-.jsercard .bd{display:flex;flex-direction:column;flex:1;padding:13px 15px 14px}
-.jsercard .bd b{font-family:$FONT_HEAD;color:$($C.head);font-size:15px;margin-bottom:5px}
-.jsercard .bd .tx{font-size:12.5px;line-height:1.5;color:$($C.text);flex:1}
-.jsercard .bd em{font-style:normal;font-family:$FONT_HEAD;color:$($C.accent);font-weight:700;font-size:11.5px;margin-top:11px;display:flex;align-items:center;gap:7px}
-.jsercard .bd em .cv{width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);transition:transform .18s}
-.jsercard.is-open .bd em .cv{transform:rotate(225deg)}
-.jsec{scroll-margin-top:64px;margin:0 0 26px}
-.jsec.is-hidden,.jsec:not(.is-open){display:none}
-.jsec>h2{font-family:$FONT_HEAD;font-size:18px !important;line-height:1.25 !important;color:$($C.head);margin:24px 0 4px;padding:0;border:0}
-.jsec>h2 .cnt{font-family:$FONT_BODY;font-size:12px;font-weight:400;color:#9a9a9a;margin-left:8px}
-.jsec>p.jsl{font-size:13.5px;line-height:1.55;color:$($C.text);margin:0 0 16px;max-width:640px}
-.jsec>.jgrid{margin:0;max-width:none}
-.jprod.is-hidden{display:none}
-@media(max-width:900px){
-  .jkl{grid-template-columns:1fr;gap:0}
-  .jkl-side{position:static;margin:0 0 22px}
-}
+/* Kategorie 2026: Serien-Karten oben, klebende Filterleiste, 2er-Grid */
+.jk2{max-width:$MAXW;margin:0 auto;font-family:$FONT_BODY}
+.jk2-series{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:8px;margin:0 0 4px}
+.jk2-serie{display:flex;flex-direction:column;align-items:center;gap:3px;padding:11px 5px 9px;background:#fff;border:1px solid #e2e2e2;border-radius:8px;text-decoration:none;cursor:pointer;transition:border-color .12s,box-shadow .12s}
+.jk2-serie:hover{border-color:#b6b6b6}
+.jk2-serie.is-on{border-color:$($C.accent);box-shadow:inset 0 0 0 2px $($C.accent)}
+.jk2-serie .pic{width:100%;height:44px;background:center center no-repeat;background-size:contain}
+.jk2-serie b{font-family:$FONT_HEAD;font-size:12px;color:$($C.head)}
+.jk2-serie i{font-style:normal;font-size:9.5px;color:#9a9a9a}
+.jk2-bar{position:sticky;top:40px;z-index:60;display:flex;flex-wrap:wrap;align-items:center;gap:10px 22px;background:$($C.bg);border-top:1px solid #e2e2e2;border-bottom:1px solid #e2e2e2;padding:11px 2px;margin:16px 0 22px}
+.jk2-bar .grp{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.jk2-bar .lbl{font-family:$FONT_HEAD;font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:#8a8a8a}
+.jk2-bar select{padding:7px 9px;border:1px solid #cfcfcf;border-radius:6px;font-size:12.5px;font-family:$FONT_BODY;background:#fff}
+.jk2-chip{font-size:12px;padding:5px 11px;border:1px solid #cfcfcf;border-radius:999px;background:#fff;color:#555;cursor:pointer;font-family:$FONT_BODY}
+.jk2-chip.is-on{background:$($C.accent);border-color:$($C.accent);color:#fff}
+.jk2-fdot{width:19px;height:19px;border-radius:50%;border:1px solid rgba(0,0,0,.28);cursor:pointer;padding:0}
+.jk2-fdot.is-on{box-shadow:0 0 0 2px $($C.bg),0 0 0 4px $($C.accent)}
+.jk2-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media(max-width:680px){.jk2-grid{grid-template-columns:1fr}}
+.jp2{display:grid;grid-template-columns:186px minmax(0,1fr);background:#fff;border:1px solid #e2e2e2;border-radius:10px;overflow:hidden}
+.jp2.is-hidden{display:none}
+.jp2-pic{background:#fafafa;display:flex;align-items:center;justify-content:center;padding:15px;border-right:1px solid #eee}
+.jp2-pic img{max-width:100%;max-height:196px;object-fit:contain}
+.jp2-bd{padding:15px 17px 16px;display:flex;flex-direction:column;min-width:0}
+.jp2-serie{font-family:$FONT_HEAD;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:$($C.accent);font-weight:700}
+.jp2-bd h3{font-size:16px !important;line-height:1.25 !important;margin:3px 0 6px;color:$($C.head)}
+.jp2-tx{font-size:12.5px;line-height:1.5;color:#6b6b6b;margin:0 0 10px}
+.jp2-sw{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 12px}
+.jp2-sw button{width:18px;height:18px;border-radius:50%;border:1px solid rgba(0,0,0,.28);cursor:pointer;padding:0}
+.jp2-sw button.is-on{box-shadow:0 0 0 2px #fff,0 0 0 4px $($C.accent)}
+.jp2-price{font-family:$FONT_HEAD;font-weight:700;font-size:15.5px;color:$($C.head);margin-top:auto}
+.jp2-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px}
+.jp2-row a{font-family:$FONT_HEAD;font-size:12.5px;font-weight:700;color:$($C.accent);text-decoration:none;white-space:nowrap}
+.jp2-row .cmp{font-size:11.5px;color:#777;display:flex;gap:5px;align-items:center;cursor:pointer;user-select:none}
+@media(max-width:520px){.jp2{grid-template-columns:1fr}.jp2-pic{border-right:0;border-bottom:1px solid #eee}}
+.jk2-empty{padding:40px 10px;text-align:center;color:#8a8a8a;font-size:14px}
 @media(max-width:640px){.jabout{grid-template-columns:1fr}.jbanner{grid-template-columns:1fr}}
 </style>
 "@
@@ -1382,127 +1404,86 @@ $techJs
 $JURA_KAT_JS = @'
 <script>
 (function(){
-  var main=document.getElementById('jklmain'); if(!main) return;
-  var secs=[].slice.call(main.querySelectorAll('.jsec'));
-  var serCards=[].slice.call(document.querySelectorAll('#jsercards .jsercard'));
-  var navLinks=[].slice.call(document.querySelectorAll('#jklnav a'));
-  var cards=[].slice.call(main.querySelectorAll('.jprod'));
+  var grid=document.getElementById('jk2grid'); if(!grid) return;
+  var cards=[].slice.call(grid.querySelectorAll('.jp2'));
   var origOrder=cards.slice();
-  function secOf(s){ return document.getElementById('s-'+s); }
-  function cardOf(s){ for(var i=0;i<serCards.length;i++){ if(serCards[i].getAttribute('data-s')===s) return serCards[i]; } return null; }
+  var serTiles=[].slice.call(document.querySelectorAll('#jk2series .jk2-serie'));
+  var serChips=[].slice.call(document.querySelectorAll('#jk2bar .jk2-chip'));
+  var fdots=[].slice.call(document.querySelectorAll('#jk2bar .jk2-fdot'));
+  var sortSel=document.getElementById('jsort');
+  var emptyMsg=document.getElementById('jk2empty');
+  var activeSerie='*';
+  var activeFarben=[];
 
-  main.addEventListener('click',function(e){
-    if(e.target.closest('a,input,label,.cmp')) return;
-    var c=e.target.closest('.jprod'); if(!c) return;
+  grid.addEventListener('click',function(e){
+    if(e.target.closest('a,input,label,button,.cmp')) return;
+    var c=e.target.closest('.jp2'); if(!c) return;
     var u=c.getAttribute('data-url'); if(u) location.href=u;
   });
 
-  function setOpen(s,open,scroll){
-    var sec=secOf(s), card=cardOf(s); if(!sec) return;
-    sec.classList.toggle('is-open',open);
-    if(card) card.classList.toggle('is-open',open);
-    if(open) { if(scroll) sec.scrollIntoView({behavior:'smooth',block:'start'}); }
-  }
-  serCards.forEach(function(card){
-    card.addEventListener('click',function(e){
-      e.preventDefault();
-      var s=card.getAttribute('data-s');
-      var willOpen=!card.classList.contains('is-open');
-      setOpen(s,willOpen,willOpen);
+  function apply(){
+    var vis=0;
+    cards.forEach(function(c){
+      var okS=(activeSerie==='*'||c.getAttribute('data-s')===activeSerie);
+      var f=(c.getAttribute('data-farben')||'').split('|');
+      var okF=(!activeFarben.length||activeFarben.some(function(x){return f.indexOf(x)>-1;}));
+      var show=okS && okF;
+      c.classList.toggle('is-hidden',!show);
+      if(show) vis++;
     });
-  });
-  var xall=document.getElementById('jklxall');
-  if(xall) xall.addEventListener('click',function(){
-    var expand=xall.getAttribute('aria-pressed')!=='true';
-    secs.forEach(function(sec){ setOpen(sec.getAttribute('data-s'),expand,false); });
-    xall.setAttribute('aria-pressed',expand?'true':'false');
-    xall.textContent=expand?'Alle ausblenden':'Alle anzeigen';
+    if(emptyMsg) emptyMsg.hidden=(vis>0);
+  }
+  function setSerie(s){
+    activeSerie=s;
+    serTiles.forEach(function(t){ t.classList.toggle('is-on',t.getAttribute('data-s')===s); });
+    serChips.forEach(function(t){ t.classList.toggle('is-on',t.getAttribute('data-s')===s); });
+    apply();
+  }
+  serTiles.forEach(function(t){ t.addEventListener('click',function(e){ e.preventDefault(); setSerie(t.getAttribute('data-s')); grid.scrollIntoView({behavior:'smooth',block:'start'}); }); });
+  serChips.forEach(function(t){ t.addEventListener('click',function(){ setSerie(t.getAttribute('data-s')); }); });
+
+  fdots.forEach(function(d){
+    d.addEventListener('click',function(){
+      var c=d.getAttribute('data-c'), i=activeFarben.indexOf(c);
+      if(i>-1) activeFarben.splice(i,1); else activeFarben.push(c);
+      d.classList.toggle('is-on',activeFarben.indexOf(c)>-1);
+      apply();
+    });
   });
 
-  var sortSel=document.getElementById('jsort');
   function applySort(){
     var m=sortSel.value;
-    secs.forEach(function(sec){
-      var grid=sec.querySelector('.jgrid');
-      var arr=[].slice.call(grid.querySelectorAll('.jprod'));
-      if(m==='asc'||m==='desc'){
-        arr.sort(function(a,b){
-          var pa=+a.getAttribute('data-pnum')||0, pb=+b.getAttribute('data-pnum')||0;
-          if(!pa) pa=(m==='asc')?9e9:-1; if(!pb) pb=(m==='asc')?9e9:-1;
-          return (m==='asc')?pa-pb:pb-pa;
-        });
-      } else if(m==='az'){
-        arr.sort(function(a,b){ return a.getAttribute('data-name').localeCompare(b.getAttribute('data-name')); });
-      } else {
-        arr.sort(function(a,b){ return origOrder.indexOf(a)-origOrder.indexOf(b); });
-      }
-      arr.forEach(function(c){ grid.appendChild(c); });
-    });
+    var arr=cards.slice();
+    if(m==='asc'||m==='desc'){
+      arr.sort(function(a,b){
+        var pa=+a.getAttribute('data-pnum')||0, pb=+b.getAttribute('data-pnum')||0;
+        if(!pa) pa=(m==='asc')?9e9:-1; if(!pb) pb=(m==='asc')?9e9:-1;
+        return (m==='asc')?pa-pb:pb-pa;
+      });
+    } else if(m==='az'){
+      arr.sort(function(a,b){ return a.getAttribute('data-name').localeCompare(b.getAttribute('data-name')); });
+    } else {
+      arr.sort(function(a,b){ return origOrder.indexOf(a)-origOrder.indexOf(b); });
+    }
+    arr.forEach(function(c){ grid.appendChild(c); });
   }
   if(sortSel) sortSel.addEventListener('change',applySort);
 
-  var cfBoxes=[].slice.call(document.querySelectorAll('#jfarb .cf'));
-  function applyFarbe(){
-    var on=cfBoxes.filter(function(b){return b.checked;}).map(function(b){return b.value;});
-    cards.forEach(function(c){
-      var f=(c.getAttribute('data-farben')||'').split('|');
-      var hit = !on.length || on.some(function(x){ return f.indexOf(x)>-1; });
-      c.classList.toggle('is-hidden',!hit);
-    });
-    secs.forEach(function(sec){
-      var vis=[].slice.call(sec.querySelectorAll('.jprod')).some(function(c){return !c.classList.contains('is-hidden');});
-      var card=cardOf(sec.getAttribute('data-s'));
-      sec.classList.toggle('is-empty',!vis);
-      if(!vis){ sec.classList.remove('is-open'); if(card) card.classList.remove('is-open'); }
-      if(card) card.classList.toggle('is-hidden',!vis && on.length>0);
-    });
-  }
-  cfBoxes.forEach(function(b){ b.addEventListener('change',applyFarbe); });
-
-  var reset=document.getElementById('jklreset');
-  function syncFilter(){
-    var anyOff=false;
-    navLinks.forEach(function(a){
-      var s=a.getAttribute('data-s'), onx=a.querySelector('.fx').checked;
-      if(!onx) anyOff=true;
-      a.classList.toggle('is-off',!onx);
-      var sec=secOf(s), card=cardOf(s);
-      if(sec) sec.classList.toggle('is-hidden',!onx);
-      if(card) card.classList.toggle('is-hidden',!onx);
-    });
-    if(reset) reset.hidden=!anyOff;
-  }
-  navLinks.forEach(function(a){
-    var cb=a.querySelector('.fx');
-    cb.addEventListener('click',function(e){ e.stopPropagation(); });
-    cb.addEventListener('change',syncFilter);
-    a.addEventListener('click',function(e){
-      if(e.target===cb) return;
-      e.preventDefault();
-      var s=a.getAttribute('data-s'), sec=secOf(s);
-      if(sec){ if(sec.classList.contains('is-hidden')){ cb.checked=true; syncFilter(); } setOpen(s,true,true); }
-    });
-  });
-  if(reset) reset.addEventListener('click',function(){
-    navLinks.forEach(function(a){ a.querySelector('.fx').checked=true; }); syncFilter();
-  });
-
-  if('IntersectionObserver' in window){
-    var io=new IntersectionObserver(function(ents){
-      ents.forEach(function(en){
-        if(en.isIntersecting){
-          var s=en.target.getAttribute('data-s');
-          navLinks.forEach(function(a){ a.classList.toggle('is-active', a.getAttribute('data-s')===s); });
-        }
+  cards.forEach(function(card){
+    var img=card.querySelector('.jp2-pic img');
+    [].slice.call(card.querySelectorAll('.jsw')).forEach(function(sw){
+      sw.addEventListener('click',function(){
+        var src=sw.getAttribute('data-img'); if(src && img) img.src=src;
+        [].slice.call(card.querySelectorAll('.jsw')).forEach(function(x){ x.classList.remove('is-on'); });
+        sw.classList.add('is-on');
       });
-    },{rootMargin:'-40% 0px -55% 0px'});
-    secs.forEach(function(sec){ io.observe(sec); });
-  }
+    });
+  });
 
   var sel=[], bar=document.getElementById('jbar'), cnt=document.getElementById('jcnt');
   function sync(){ bar.classList.toggle('show', sel.length>0); cnt.textContent=sel.length+' von 3'; }
   cards.forEach(function(card){
-    var b=card.querySelector('.cmpbox');
+    var b=card.querySelector('.cmpbox'); if(!b) return;
     b.addEventListener('change',function(){
       if(b.checked){ if(sel.length>=3){b.checked=false;return;} sel.push(card); }
       else{ sel=sel.filter(function(x){return x!==card;}); }
@@ -1510,7 +1491,7 @@ $JURA_KAT_JS = @'
     });
   });
   document.getElementById('jclr').addEventListener('click',function(){
-    sel=[]; cards.forEach(function(c){c.querySelector('.cmpbox').checked=false;}); sync();
+    sel=[]; cards.forEach(function(c){var b=c.querySelector('.cmpbox'); if(b) b.checked=false;}); sync();
   });
   function cell(fn){ return sel.map(function(c){return '<td>'+fn(c)+'</td>';}).join(''); }
   document.getElementById('jgo').addEventListener('click',function(){
@@ -1538,65 +1519,68 @@ function Jura-Kategorie-Content($p, $brandKey = 'jura') {
   $extra   = @($prods.serie | Select-Object -Unique | Where-Object { $_ -and ($present -notcontains $_) })
   $order   = @($present) + @($extra)
 
-  $allFarben = @($prods | ForEach-Object { $_.farben } | Where-Object { $_ } | Select-Object -Unique | Sort-Object)
-  $farbRows = if ($allFarben.Count -gt 1) {
-    ($allFarben | ForEach-Object { "<li><label><input type=`"checkbox`" class=`"cf`" value=`"$_`">$_</label></li>" }) -join "`n        "
-  } else { '' }
+  $HEX = @{
+    'Piano Black'='#1a1a1a'; 'Piano White'='#f0f0ee'; 'Diamond Black'='#151210'; 'Diamond White'='#e9e6df';
+    'Aluminium Black'='#2b2b2d'; 'Aluminium White'='#d9d9db'; 'Dark Inox'='#4b4b4b'; 'Night Inox'='#3a3a3c';
+    'Midnight Silver'='#9a9ea3'; 'Cosmic Black'='#232327'; 'Onyx Grey'='#6d6d70'; 'Full Metropolitan Black'='#1b1b1b';
+    'Obsidian Black'='#141416'; 'Chrome'='#c9ccce'
+  }
+  function FbHex($n) {
+    $k = "$n"
+    if ($HEX.ContainsKey($k)) { $HEX[$k] }
+    elseif ($k -match 'White|Weiss') { '#ededea' }
+    elseif ($k -match 'Inox|Silver|Silber|Grey|Grau|Alu|Chrome') { '#8b8b8d' }
+    else { '#212121' }
+  }
 
-  $navRows = ($order | ForEach-Object {
-    $s = $_
-    $cnt = @($prods | Where-Object { $_.serie -eq $s }).Count
-    "<li><a href=`"#s-$s`" data-s=`"$s`"><input type=`"checkbox`" class=`"fx`" checked aria-label=`"$s$sfx anzeigen`"><span>$s$sfx</span><b>$cnt</b></a></li>"
-  }) -join "`n        "
+  $allFarben = @($prods | ForEach-Object { $_.variants } | ForEach-Object { $_.color } | Where-Object { $_ } | Select-Object -Unique)
 
-  $serCards = ($order | ForEach-Object {
-    $s = $_
-    $items = @($prods | Where-Object { $_.serie -eq $s })
-    $cntLabel = "$($items.Count) Modell$(if ($items.Count -ne 1) {'e'})"
-    $blurb = [string]$J.seriesBlurb.$s
-    $pic = if ($items[0].img) { " style=`"background-image:url('$($items[0].img)')`"" } else { '' }
-    "<a class=`"jsercard`" data-s=`"$s`" href=`"#s-$s`"><span class=`"pic`"$pic></span><span class=`"bd`"><b>$s$sfx</b><span class=`"tx`">$blurb</span><em>$cntLabel ansehen <span class=`"cv`"></span></em></span></a>"
-  }) -join "`n      "
-
-  $secs = ($order | ForEach-Object {
+  $serTiles = "<a class=`"jk2-serie is-on`" data-s=`"*`"><span class=`"pic`"></span><b>Alle</b><i>$($prods.Count)</i></a>" + (($order | ForEach-Object {
     $s = $_
     $items = @($prods | Where-Object { $_.serie -eq $s })
-    $cntLabel = "$($items.Count) Modell$(if ($items.Count -ne 1) {'e'})"
-    $blurb = [string]$J.seriesBlurb.$s
-    $blurbHtml = if ($blurb) { "<p class=`"jsl`">$blurb</p>" } else { '' }
-    $cards = ($items | ForEach-Object {
-      $b2 = [string]$J.seriesBlurb.$($_.serie)
-      $img = if ($_.img) { "<img src=`"$($_.img)`" alt=`"$($_.name)`">" } else { '' }
-      $farbCount = @($_.farben).Count
-      $farbLine = if ($farbCount -gt 1) { "<div class=`"jfarb`">$farbCount Ausf&uuml;hrungen: $(@($_.farben) -join ', ')</div>" }
-                  elseif ($farbCount -eq 1) { "<div class=`"jfarb`">$(@($_.farben)[0])</div>" }
-                  else { '' }
-      $farbData = (@($_.farben) -join '|')
-      @"
-<article class="jprod" data-s="$s" data-name="$($_.name)" data-serie="$($_.serie)$sfx" data-price="$($_.priceStr)" data-pnum="$([int]$_.price)" data-farben="$farbData" data-blurb="$b2" data-url="$($_.url)">
-  <div class="pic">$img</div>
-  <div class="body">
-    <span class="serie">$($_.serie)$sfx</span>
-    <h3>$($_.name)</h3>
-    $farbLine
-    <div class="price">$($_.priceStr)</div>
-    <div class="row"><a href="$($_.url)">Details &rarr;</a><label class="cmp"><input type="checkbox" class="cmpbox"> Vergleichen</label></div>
+    $pic = if ($items[0].displayImg) { " style=`"background-image:url('$($items[0].displayImg)')`"" } else { '' }
+    "<a class=`"jk2-serie`" data-s=`"$s`"><span class=`"pic`"$pic></span><b>$s$sfx</b><i>$($items.Count)</i></a>"
+  }) -join "`n      ")
+
+  $serChips = "<button class=`"jk2-chip is-on`" data-s=`"*`">Alle</button>" + (($order | ForEach-Object {
+    "<button class=`"jk2-chip`" data-s=`"$_`">$_$sfx</button>"
+  }) -join '')
+
+  $farbDots = ($allFarben | ForEach-Object {
+    "<button class=`"jk2-fdot`" data-c=`"$_`" title=`"$_`" aria-label=`"$_`" style=`"background:$(FbHex $_)`"></button>"
+  }) -join ''
+
+  $ranked = @()
+  foreach ($s in $order) { $ranked += @($prods | Where-Object { $_.serie -eq $s } | Sort-Object price) }
+
+  $cards = ($ranked | ForEach-Object {
+    $pr = $_
+    $shortName = ($pr.name -replace '\s*\([^)]*\)\s*$','')
+    $vs = @($pr.variants)
+    $sw = ($vs | ForEach-Object {
+      $on = if ($_.img -eq $pr.displayImg) { ' is-on' } else { '' }
+      "<button class=`"jsw$on`" data-img=`"$($_.img)`" data-c=`"$($_.color)`" title=`"$($_.color)`" aria-label=`"$($_.color)`" style=`"background:$(FbHex $_.color)`"></button>"
+    }) -join ''
+    $txt = if ($vs.Count -gt 1) { "$($vs.Count) Farben &middot; " + ((@($vs | ForEach-Object { $_.color })) -join ', ') }
+           elseif ($vs[0].color) { $vs[0].color }
+           else { [string]$J.seriesBlurb.$($pr.serie) }
+    $cData = (@($vs | ForEach-Object { $_.color }) -join '|')
+    @"
+<article class="jp2" data-s="$($pr.serie)" data-name="$shortName" data-serie="$($pr.serie)$sfx" data-price="$($pr.priceStr)" data-pnum="$([int]$pr.price)" data-farben="$cData" data-blurb="$([string]$J.seriesBlurb.$($pr.serie))" data-url="$($pr.url)">
+  <div class="jp2-pic"><img src="$($pr.displayImg)" alt="$shortName"></div>
+  <div class="jp2-bd">
+    <span class="jp2-serie">$($pr.serie)$sfx</span>
+    <h3>$shortName</h3>
+    <p class="jp2-tx">$txt</p>
+    <div class="jp2-sw">$sw</div>
+    <div class="jp2-price">$($pr.priceStr)</div>
+    <div class="jp2-row"><a href="$($pr.url)">Details ansehen &rarr;</a><label class="cmp"><input type="checkbox" class="cmpbox"> Vergleichen</label></div>
   </div>
 </article>
 "@
-    }) -join "`n"
-    @"
-<section class="jsec" id="s-$s" data-s="$s">
-  <h2>$s$sfx <span class="cnt">$cntLabel</span></h2>
-  $blurbHtml
-  <div class="jgrid" id="g-$s">
-$cards
-  </div>
-</section>
-"@
   }) -join "`n"
 
-  $farbBlock = if ($farbRows) { "<p class=`"jkl-h`">Farbe</p>`n      <ul class=`"jkl-farb`" id=`"jfarb`">`n        $farbRows`n      </ul>" } else { '' }
+  $farbBar = if ($farbDots) { "<div class=`"grp`"><span class=`"lbl`">Farbe</span>$farbDots</div>" } else { '' }
 
   $body = @"
 $JURA_CSS
@@ -1605,30 +1589,26 @@ $JURA_CSS
   <h1>$($J.katTitle)</h1>
   <p class="lead">$($J.katIntro)</p>
 </div>
-<div class="jkl">
-  <aside class="jkl-side">
-    <div class="jkl-side-in">
-      <p class="jkl-h">Sortieren nach</p>
+<div class="jk2">
+  <div class="jk2-series" id="jk2series">
+      $serTiles
+  </div>
+  <div class="jk2-bar" id="jk2bar">
+    <div class="grp"><span class="lbl">Serie</span>$serChips</div>
+    <div class="grp"><span class="lbl">Sortieren</span>
       <select id="jsort">
         <option value="serie">Serie (GIGA &rarr; ENA)</option>
-        <option value="asc">Preis: aufsteigend</option>
-        <option value="desc">Preis: absteigend</option>
-        <option value="az">Name: A&ndash;Z</option>
+        <option value="asc">Preis aufsteigend</option>
+        <option value="desc">Preis absteigend</option>
+        <option value="az">Name A&ndash;Z</option>
       </select>
-      $farbBlock
-      <div class="jkl-h jkl-hrow"><span>Serien</span><button type="button" class="jkl-xall" id="jklxall" aria-pressed="false">Alle anzeigen</button></div>
-      <ul class="jkl-nav" id="jklnav">
-        $navRows
-      </ul>
-      <button class="jkl-reset" id="jklreset" hidden>Alle Serien einblenden</button>
     </div>
-  </aside>
-  <div class="jkl-main" id="jklmain">
-    <div class="jsercards" id="jsercards">
-      $serCards
-    </div>
-$secs
+    $farbBar
   </div>
+  <div class="jk2-grid" id="jk2grid">
+$cards
+  </div>
+  <p class="jk2-empty" id="jk2empty" hidden>Keine Modelle f&uuml;r diese Auswahl.</p>
 </div>
 <div class="jstore"><p class="jnote" style="text-align:left;max-width:720px;margin-top:26px">$($J.katNote)</p>
 <p class="jnote" style="text-align:left;max-width:720px">$($J.footerNote)</p></div>
