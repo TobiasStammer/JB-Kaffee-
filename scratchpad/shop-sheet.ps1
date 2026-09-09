@@ -112,6 +112,44 @@ body.product_cat-jura-pflegeprodukte div.product .wp-block-woocommerce-product-i
 body.product_cat-jura-pflegeprodukte div.product .woocommerce-product-gallery,
 body.product_cat-jura-pflegeprodukte div.product div.images { max-width: 260px !important; }
 
+/* ----- WooCommerce Kategorie-Archiv an das Shop-Design angleichen ----- */
+body.woocommerce-page.archive .wp-site-blocks > .wp-block-group {
+  padding: clamp(28px,3.5vw,50px) clamp(16px,4vw,44px) !important;
+}
+body.woocommerce-page.archive .wp-block-query-title,
+body.woocommerce-page.archive .woocommerce-products-header__title {
+  font-size: 24px !important; line-height: 1.25 !important; margin: 0 0 6px !important;
+}
+body.woocommerce-page.archive .woocommerce-result-count { font-size: 12.5px !important; color: #8a8a8a !important; }
+body.woocommerce-page.archive .woocommerce-ordering select,
+body.woocommerce-page.archive select.orderby {
+  font-size: 12.5px !important; padding: 7px 9px !important; border: 1px solid #cfcfcf !important; border-radius: 6px !important;
+}
+body.woocommerce-page.archive .wc-block-product-template,
+body.woocommerce-page.archive ul.products {
+  max-width: 1040px !important; margin-left: auto !important; margin-right: auto !important;
+}
+body.woocommerce-page.archive .wc-block-product .wp-block-post-title,
+body.woocommerce-page.archive .wc-block-product h3,
+body.tax-product_cat .wc-block-grid__product-title,
+body.tax-product_cat h2.woocommerce-loop-product__title,
+body.tax-product_cat li.product h2 {
+  font-size: 15.5px !important; font-weight: 500 !important; line-height: 1.3 !important; margin: 9px 0 3px !important;
+}
+body.woocommerce-page.archive .wc-block-product .wp-block-post-title a { font-weight: 500 !important; }
+body.tax-product_cat .wc-block-components-product-price,
+body.tax-product_cat li.product .price {
+  font-size: 15px !important; font-weight: 700 !important;
+}
+body.woocommerce-page.archive .wc-block-product img,
+body.tax-product_cat li.product img {
+  max-height: 210px !important; object-fit: contain !important;
+}
+body.woocommerce-page.archive .wc-block-product .wp-block-button__link,
+body.woocommerce-page.archive .wc-block-product a.button {
+  font-size: 12.5px !important; padding: 8px 14px !important;
+}
+
 /* ----- Einzel-Produktseite: Bild + Text mittig, engere Breite, Schrift wie Homepage ----- */
 body.single-product .wc-block-breadcrumbs,
 body.single-product .kt-pback,
