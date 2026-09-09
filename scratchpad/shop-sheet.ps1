@@ -112,6 +112,38 @@ body.product_cat-jura-pflegeprodukte div.product .wp-block-woocommerce-product-i
 body.product_cat-jura-pflegeprodukte div.product .woocommerce-product-gallery,
 body.product_cat-jura-pflegeprodukte div.product div.images { max-width: 260px !important; }
 
+/* ----- Einzel-Produktseite: Bild + Text mittig, engere Breite, Schrift wie Homepage ----- */
+body.single-product .wc-block-breadcrumbs,
+body.single-product .kt-pback,
+body.single-product .wc-block-store-notices,
+body.single-product div.product .wp-block-columns.alignwide,
+body.single-product .wp-block-woocommerce-product-details {
+  max-width: 860px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+body.single-product div.product .wp-block-columns.alignwide {
+  gap: 44px !important;
+  align-items: flex-start !important;
+}
+body.single-product .wp-block-post-title,
+body.single-product .product_title {
+  font-size: 21px !important;
+  line-height: 1.3 !important;
+  margin: 0 0 8px !important;
+}
+body.single-product .wc-block-components-product-price,
+body.single-product div.product p.price,
+body.single-product .summary .price .woocommerce-Price-amount {
+  font-size: 17px !important;
+  font-weight: 700 !important;
+}
+body.single-product .wc-block-components-product-price.has-medium-font-size { --wp--preset--font-size--medium: 17px; }
+body.single-product .wp-block-woocommerce-product-summary,
+body.single-product .entry-summary,
+body.single-product .wc-block-components-product-summary { font-size: 15px !important; line-height: 1.6 !important; }
+body.single-product .wp-block-woocommerce-product-details h2:first-child { display: none !important; }
+
 /* ----- Warenkorb / Kasse: Schriftgroessen an die Seite angleichen ----- */
 body.woocommerce-cart .wc-block-components-checkout-step__title,
 body.woocommerce-checkout .wc-block-components-checkout-step__title,
