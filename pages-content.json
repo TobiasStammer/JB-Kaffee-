@@ -1738,92 +1738,186 @@
     {
       "slug": "unser-kaffee-wissen",
       "menu": "Kaffee: Herkunft & Röstung",
-      "title": "Unser Kaffee – eigene Röstung für Ihren Kaffeevollautomaten",
-      "excerpt": "Zwei eigene Sorten – Caffè Crema und Espresso – schonend im Trommelröstverfahren in kleinen Mengen geröstet.",
+      "title": "Unser Kaffee – Herkunft, Röstung und eigene Sorten",
+      "excerpt": "Von Arabica und Robusta über Aufbereitung und Röstgrade bis zur richtigen Lagerung – plus unsere zwei eigenen Trommelröstungen für den Kaffeevollautomaten.",
       "blocks": [
         {
           "t": "p",
-          "x": "Auch der beste Kaffeevollautomat kann aus den Bohnen nicht mehr Geschmack herausholen als drinsteckt. Weil es schwierig ist, aus dem großen Angebot die richtige Marke und Sorte zu finden, haben wir unseren eigenen Kaffee kreiert – in kleinen Mengen schonend im Trommelröstverfahren geröstet, sodass wir immer frisch gerösteten Kaffee anbieten können."
+          "x": "Ein Kaffeevollautomat kann aus einer Bohne nur herausholen, was in ihr steckt. Deshalb lohnt der Blick auf Herkunft, Aufbereitung und Röstung – und darauf, wie Sie den Kaffee zu Hause behandeln. Wir rösten selbst: in kleinen Mengen, schonend in der Trommel, damit immer frische Ware im Regal steht."
         },
         {
           "t": "image",
           "src": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-unser-kaffee-beutel.jpg",
           "alt": "Unser Kaffee – eigene Röstung im 1000-g-Beutel mit Aromaventil",
-          "max": "700px"
+          "max": "620px"
         },
         {
           "t": "h",
           "lvl": 2,
           "icon": "coffee",
-          "x": "Eine gute Bohne ist das Ergebnis einer langen Kette"
-        },
-        {
-          "t": "ul",
-          "x": [
-            "Anbaubedingungen",
-            "Kaffeesorte",
-            "Mischung",
-            "optimale Röstung",
-            "möglichst kurze Lagerzeit",
-            "schonende Mahlung",
-            "passendes Brühsystem"
-          ]
-        },
-        {
-          "t": "h",
-          "lvl": 2,
-          "icon": "coffee",
-          "x": "Zwei Sorten"
-        },
-        {
-          "t": "h",
-          "lvl": 3,
-          "x": "Caffè Crema"
-        },
-        {
-          "t": "ul",
-          "x": [
-            "60 % Arabica- und 40 % Robustabohnen",
-            "nussig, schokoladig",
-            "mildes bis kräftiges Aroma",
-            "ideal für Kaffeevollautomaten"
-          ]
-        },
-        {
-          "t": "h",
-          "lvl": 3,
-          "x": "Espresso"
-        },
-        {
-          "t": "ul",
-          "x": [
-            "80 % Arabica- und 20 % Robustabohnen",
-            "nussig, röstig",
-            "kräftiges Aroma",
-            "ideal für Kaffeevollautomaten und Siebträgermaschinen"
-          ]
+          "x": "Warum die Bohne über den Kaffee entscheidet"
         },
         {
           "t": "p",
-          "x": "Frisch geröstet und mit einem Aroma-Ventil geschützt, im 1000-g-Beutel."
+          "x": "Guter Kaffee ist das Ergebnis einer langen Kette: Anbaubedingungen, Kaffeesorte, Mischung, Röstung, eine kurze Lagerzeit, die passende Mahlung und ein gutes Brühsystem. Jedes Glied kann das Ergebnis heben oder drücken."
+        },
+        {
+          "t": "p",
+          "x": "Die ersten Glieder beeinflussen wir mit Auswahl und Röstung. Die letzten liegen bei Ihnen zu Hause – frische Bohnen, richtige Lagerung, passender Mahlgrad und eine saubere, entkalkte Maschine."
         },
         {
           "t": "h",
           "lvl": 2,
           "icon": "map",
-          "x": "Wo Sie „Unser Kaffee“ bekommen"
+          "x": "Von der Kirsche in die Tasse"
+        },
+        {
+          "t": "p",
+          "x": "Kaffee ist die Frucht eines Strauchs. Was zwischen Blüte und Röstung passiert, legt Süße, Säure und Körper im fertigen Getränk fest – lange bevor die Maschine ins Spiel kommt."
+        },
+        {
+          "t": "html",
+          "x": "<style>\n.kw{font-family:'Source Sans 3','Source Sans Pro',system-ui,sans-serif}\n.kw-tx{font-size:14px;line-height:1.62;color:#40372f;margin:0}\n.kw-tx+.kw-tx{margin-top:8px}\n.kw-journey{position:relative;margin:4px 0 2px}\n.kw-journey::before{content:\"\";position:absolute;left:21px;top:24px;bottom:38px;width:2px;background:#e7ddd0}\n.kw-st{display:grid;grid-template-columns:44px 1fr;gap:16px;padding:15px 0;border-top:1px solid #efe9e0}\n.kw-st:first-child{border-top:0;padding-top:2px}\n.kw-st-ic{width:44px;height:44px;border-radius:50%;background:#f3ece3;color:#6f4e37;display:flex;align-items:center;justify-content:center;position:relative;z-index:1}\n.kw-st-ic svg{width:21px;height:21px}\n.kw-st-h{display:flex;align-items:center;gap:9px;font-family:Tahoma,Arial,sans-serif;font-weight:700;font-size:14.5px;color:#2b2b2b;margin:9px 0 5px}\n.kw-st-n{flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:#6f4e37;color:#fff;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}\n.kw-vs{margin:6px 0 2px}\n.kw-vs-head{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}\n.kw-vs-head div{background:#6f4e37;color:#fff;font-family:Tahoma,Arial,sans-serif;font-weight:700;font-size:13px;text-align:center;padding:8px 6px;border-radius:6px}\n.kw-vs-row{display:grid;grid-template-columns:1fr 1fr;gap:3px 10px;padding:10px 0;border-top:1px solid #efe9e0}\n.kw-vs-k{grid-column:1 / -1;font-family:Tahoma,Arial,sans-serif;font-weight:700;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#9a8a78}\n.kw-vs-v{font-size:13.5px;line-height:1.5;color:#3a3a3a}\n.kw-roast{margin:6px 0 2px}\n.kw-roast-bar{height:14px;border-radius:7px;background:linear-gradient(90deg,#cda67d 0%,#a5733f 50%,#552f1c 100%)}\n.kw-roast-marks{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0 4px}\n.kw-roast-m b{display:block;font-family:Tahoma,Arial,sans-serif;font-size:13px;color:#2b2b2b;margin-bottom:2px}\n.kw-roast-m span{display:block;font-size:12px;line-height:1.45;color:#6b6257}\n.kw-sorts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:4px 0 2px}\n.kw-sort{border:1px solid #e7ddd0;border-radius:10px;padding:16px 18px;background:#fcfaf6}\n.kw-sort-h{font-family:Tahoma,Arial,sans-serif;font-weight:700;font-size:16px;color:#2b2b2b;margin-bottom:11px}\n.kw-blendrow{display:flex;justify-content:space-between;font-family:Tahoma,Arial,sans-serif;font-size:11px;font-weight:700;margin-bottom:5px}\n.kw-blendrow .a{color:#8b5e3c}\n.kw-blendrow .r{color:#a9793f}\n.kw-blend{display:flex;height:12px;border-radius:6px;overflow:hidden}\n.kw-blend i{display:block;font-style:normal}\n.kw-blend .a{background:#8b5e3c}\n.kw-blend .r{background:#c8a27a;flex:1}\n.kw-tags{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 10px}\n.kw-tags span{font-size:11.5px;background:#f0e7dc;color:#6f4e37;border-radius:999px;padding:4px 10px}\n.kw-sort-for{font-size:12.5px;color:#6b6257}\n.kw-buy{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:4px 0 2px}\n.kw-buy-c{border:1px solid #e6e6e6;border-radius:10px;padding:15px 17px}\n.kw-buy-h{display:flex;align-items:center;gap:8px;font-family:Tahoma,Arial,sans-serif;font-weight:700;font-size:13.5px;color:#2b2b2b;margin-bottom:9px}\n.kw-buy-h svg{width:16px;height:16px;color:#6f4e37;flex:0 0 auto}\n.kw-buy ul{margin:0;padding:0;list-style:none}\n.kw-buy li{position:relative;padding:4px 0 4px 15px;font-size:13px;line-height:1.5;color:#40372f}\n.kw-buy li::before{content:\"\";position:absolute;left:0;top:11px;width:5px;height:5px;border-radius:50%;background:#c8a27a}\n@media(max-width:560px){\n  .kw-sorts,.kw-buy{grid-template-columns:1fr}\n  .kw-roast-marks{grid-template-columns:1fr;gap:8px}\n}\n</style>\n<div class=\"kw kw-journey\">\n<div class=\"kw-st\"><div class=\"kw-st-ic\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1\"/></svg></div><div><div class=\"kw-st-h\"><span class=\"kw-st-n\">1</span>Anbau</div><div class=\"kw-tx\">Kaffee w&auml;chst im &bdquo;Bohneng&uuml;rtel&ldquo; rund um den &Auml;quator. Arabica braucht H&ouml;henlagen von 900 bis 2000&nbsp;Metern &ndash; k&uuml;hler, langsamere Reifung, mehr Aroma. Robusta gedeiht tiefer, w&auml;rmer und ist widerstandsf&auml;higer gegen Krankheiten.</div></div></div>\n<div class=\"kw-st\"><div class=\"kw-st-ic\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"8\" cy=\"16\" r=\"4\"/><circle cx=\"16\" cy=\"16\" r=\"4\"/><path d=\"M8 12c0-5 4-7 9-7\"/></svg></div><div><div class=\"kw-st-h\"><span class=\"kw-st-n\">2</span>Ernte</div><div class=\"kw-tx\">Reife, rote Kirschen werden von Hand gepfl&uuml;ckt oder maschinell abgestreift. Nur vollreife Fr&uuml;chte geben einen sauberen, s&uuml;&szlig;en Geschmack.</div></div></div>\n<div class=\"kw-st\"><div class=\"kw-st-ic\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 3s6 6.7 6 11a6 6 0 0 1-12 0C6 9.7 12 3 12 3z\"/></svg></div><div><div class=\"kw-st-h\"><span class=\"kw-st-n\">3</span>Aufbereitung</div><div class=\"kw-tx\">Fruchtfleisch und Schleim m&uuml;ssen weg. &bdquo;Gewaschen&ldquo; wird die Tasse klar und s&auml;urebetont, &bdquo;natural&ldquo; (in der Kirsche getrocknet) fruchtig und vollmundig, &bdquo;honey&ldquo; liegt dazwischen. Danach trocknet der Rohkaffee auf rund 11&nbsp;% Restfeuchte.</div></div></div>\n<div class=\"kw-st\"><div class=\"kw-st-ic\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z\"/><path d=\"M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12\"/></svg></div><div><div class=\"kw-st-h\"><span class=\"kw-st-n\">4</span>Rohkaffee &amp; Transport</div><div class=\"kw-tx\">Der gr&uuml;ne Rohkaffee wird verlesen, nach Gr&ouml;&szlig;e sortiert und in S&auml;cken verschifft. Er h&auml;lt Monate &ndash; das Aroma entsteht erst beim R&ouml;sten.</div></div></div>\n<div class=\"kw-st\"><div class=\"kw-st-ic\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 22a7 7 0 0 0 7-7c0-3-2-5-3.5-7C14 6 12 2 12 2S10 6 8.5 8C7 10 5 12 5 15a7 7 0 0 0 7 7z\"/></svg></div><div><div class=\"kw-st-h\"><span class=\"kw-st-n\">5</span>Trommelr&ouml;stung</div><div class=\"kw-tx\">12 bis 20&nbsp;Minuten bei 180 bis 220&nbsp;&deg;C dreht sich die Trommel. Zucker karamellisiert, S&auml;uren bauen sich ab, &Ouml;le treten aus. Beim &bdquo;First Crack&ldquo; knackt die Bohne h&ouml;rbar &ndash; ab hier entscheidet sich der R&ouml;stgrad.</div></div></div>\n<div class=\"kw-st\"><div class=\"kw-st-ic\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M18 8h1a4 4 0 0 1 0 8h-1\"/><path d=\"M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z\"/><line x1=\"6\" y1=\"1\" x2=\"6\" y2=\"4\"/><line x1=\"10\" y1=\"1\" x2=\"10\" y2=\"4\"/><line x1=\"14\" y1=\"1\" x2=\"14\" y2=\"4\"/></svg></div><div><div class=\"kw-st-h\"><span class=\"kw-st-n\">6</span>Mahlen &amp; Br&uuml;hen</div><div class=\"kw-tx\">Erst kurz vor dem Bezug mahlen. Im Vollautomaten presst die Pumpe hei&szlig;es Wasser mit rund 9&nbsp;bar in 25 bis 30&nbsp;Sekunden durch das Kaffeemehl. Mahlgrad, Menge und Wasser bestimmen, was in der Tasse ankommt.</div></div></div>\n</div>"
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "icon": "compare",
+          "x": "Arabica und Robusta – zwei Bohnen, zwei Charaktere"
+        },
+        {
+          "t": "p",
+          "x": "Fast der gesamte Welthandel besteht aus diesen zwei Arten. Sie unterscheiden sich in Geschmack, Koffein und Anbau deutlich."
+        },
+        {
+          "t": "html",
+          "x": "<div class=\"kw kw-vs\">\n<div class=\"kw-vs-head\"><div>Arabica</div><div>Robusta</div></div>\n<div class=\"kw-vs-row\"><span class=\"kw-vs-k\">Geschmack</span><span class=\"kw-vs-v\">fein, aromatisch, oft fruchtig oder blumig</span><span class=\"kw-vs-v\">kr&auml;ftig, erdig, nussig, mehr Bitterkeit</span></div><div class=\"kw-vs-row\"><span class=\"kw-vs-k\">Koffein</span><span class=\"kw-vs-v\">ca. 1,2&nbsp;%</span><span class=\"kw-vs-v\">ca. 2,2&nbsp;%</span></div><div class=\"kw-vs-row\"><span class=\"kw-vs-k\">Anbauh&ouml;he</span><span class=\"kw-vs-v\">900&ndash;2000&nbsp;m</span><span class=\"kw-vs-v\">200&ndash;800&nbsp;m</span></div><div class=\"kw-vs-row\"><span class=\"kw-vs-k\">S&auml;ure</span><span class=\"kw-vs-v\">h&ouml;her, lebendiger</span><span class=\"kw-vs-v\">niedrig, mild</span></div><div class=\"kw-vs-row\"><span class=\"kw-vs-k\">Crema</span><span class=\"kw-vs-v\">fein, hell</span><span class=\"kw-vs-v\">dicht, stabil, dunkler</span></div><div class=\"kw-vs-row\"><span class=\"kw-vs-k\">Anteil Weltmarkt</span><span class=\"kw-vs-v\">rund 60&nbsp;%</span><span class=\"kw-vs-v\">rund 40&nbsp;%</span></div><div class=\"kw-vs-row\"><span class=\"kw-vs-k\">Preis</span><span class=\"kw-vs-v\">h&ouml;her</span><span class=\"kw-vs-v\">g&uuml;nstiger</span></div>\n</div>"
+        },
+        {
+          "t": "p",
+          "x": "Die meisten Röstungen – auch unsere – sind Mischungen. Mehr Robusta bringt Körper, eine dichtere Crema und einen kräftigen, röstigen Ton. Mehr Arabica macht die Tasse feiner, süßer und aromatischer."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "icon": "coffee",
+          "x": "Röstung: warum wir langsam in der Trommel rösten"
+        },
+        {
+          "t": "p",
+          "x": "In der Trommel wird die Bohne über Kontakt- und Umluftwärme gleichmäßig durchgeröstet – anders als bei industrieller Heißluftröstung, die in rund 90&nbsp;Sekunden durch ist und außen dunkel, innen unfertig bleiben kann. Wir rösten 12 bis 20&nbsp;Minuten und in kleinen Chargen, damit immer frisch gerösteter Kaffee ins Regal kommt."
+        },
+        {
+          "t": "html",
+          "x": "<div class=\"kw kw-roast\">\n<div class=\"kw-roast-bar\"></div>\n<div class=\"kw-roast-marks\"><div class=\"kw-roast-m\"><b>Hell</b><span>Zimt- bis Filterr&ouml;stung: viel S&auml;ure, floral-fruchtig, kaum Bitterstoffe, trockene Oberfl&auml;che.</span></div><div class=\"kw-roast-m\"><b>Mittel</b><span>z.&nbsp;B. unser Caff&egrave; Crema: ausgewogen, Karamell und Nuss, moderate S&auml;ure.</span></div><div class=\"kw-roast-m\"><b>Dunkel</b><span>Espresso- bis italienische R&ouml;stung: kr&auml;ftige R&ouml;staromen, Bitterschokolade, sichtbare &Ouml;le.</span></div></div>\n<div class=\"kw-tx\">Unsere beiden R&ouml;stungen liegen im Bereich mittel bis mittel-dunkel &ndash; abgestimmt auf den Bezug aus dem Vollautomaten.</div>\n</div>"
+        },
+        {
+          "t": "p",
+          "x": "Frisch aus der Trommel braucht Kaffee ein paar Tage Ruhe, um Röstgase abzugeben. Sein Aroma-Optimum hält dann etwa zwei bis vier Wochen – danach wird die Tasse flacher."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "icon": "coffee",
+          "x": "Unsere zwei Sorten"
+        },
+        {
+          "t": "html",
+          "x": "<div class=\"kw kw-sorts\">\n<div class=\"kw-sort\"><div class=\"kw-sort-h\">Caff&egrave; Crema</div><div class=\"kw-blendrow\"><span class=\"a\">60&nbsp;% Arabica</span><span class=\"r\">40&nbsp;% Robusta</span></div><div class=\"kw-blend\"><i class=\"a\" style=\"width:60%\"></i><i class=\"r\"></i></div><div class=\"kw-tags\"><span>nussig</span><span>schokoladig</span><span>mild bis kr&auml;ftig</span></div><div class=\"kw-sort-for\">Ideal f&uuml;r Kaffeevollautomaten</div></div>\n<div class=\"kw-sort\"><div class=\"kw-sort-h\">Espresso</div><div class=\"kw-blendrow\"><span class=\"a\">80&nbsp;% Arabica</span><span class=\"r\">20&nbsp;% Robusta</span></div><div class=\"kw-blend\"><i class=\"a\" style=\"width:80%\"></i><i class=\"r\"></i></div><div class=\"kw-tags\"><span>nussig</span><span>r&ouml;stig</span><span>kr&auml;ftig</span></div><div class=\"kw-sort-for\">Ideal f&uuml;r Vollautomaten &amp; Siebtr&auml;germaschinen</div></div>\n</div>"
+        },
+        {
+          "t": "p",
+          "x": "Beide gibt es frisch geröstet im 1000-g-Beutel mit Aromaventil. Das Ventil lässt Röstgase entweichen, ohne Sauerstoff hereinzulassen."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "icon": "check",
+          "x": "So schmeckt Ihr Kaffee zu Hause am besten"
+        },
+        {
+          "t": "p",
+          "x": "Die letzten Schritte entscheiden mit. Ein paar Punkte, die im Vollautomaten den größten Unterschied machen:"
         },
         {
           "t": "ul",
           "x": [
-            "Direkt bei uns im Geschäft",
-            "In unserem Online-Shop deutschlandweit",
-            "EDEKA Buch (Chinoncenter Hofheim)",
-            "Sonnenhof Rübsamen (Langenhain)",
-            "Bäckerei Schwenk (Langenhain und Wallau)",
-            "Nahkauf Paolo (Diedenbergen)",
-            "Nahkauf Box Paolo 24/7 (Langenhain)"
+            "Mahlgrad: schmeckt der Kaffee dünn und sauer, feiner mahlen. Wird er bitter und die Ausgabe stockt, gröber stellen – in kleinen Schritten und erst nach ein, zwei Bezügen bewerten.",
+            "Kaffeemenge: 7 bis 11&nbsp;Gramm pro Tasse. Mehr Pulver bringt Körper und Crema, weniger macht die Tasse leichter.",
+            "Wasser: die Tasse besteht zu über 98&nbsp;% aus Wasser. Weiches oder gefiltertes Wasser schmeckt sauberer und schützt die Maschine vor Kalk.",
+            "Temperatur: 90 bis 96&nbsp;°C. Zu heiß wird bitter, zu kühl bleibt es sauer und dünn.",
+            "Frische: Bohnen innerhalb von zwei bis vier Wochen nach der Röstung verbrauchen, offene Beutel zügig leeren."
           ]
+        },
+        {
+          "t": "callout",
+          "icon": "coffee",
+          "title": "Bohnen richtig lagern",
+          "intro": "Aroma verliert Kaffee vor allem durch Sauerstoff, Wärme, Licht und Feuchtigkeit.",
+          "x": [
+            "kühl, dunkel und luftdicht lagern – die Originaltüte mit Aromaventil und Clip genügt",
+            "nicht in den Kühlschrank oder das Gefrierfach: Kondenswasser und fremde Gerüche schaden mehr, als die Kühle nützt",
+            "nur so viel kaufen, wie in zwei bis vier Wochen getrunken wird",
+            "den Bohnenbehälter der Maschine nicht auf Vorrat randvoll füllen"
+          ]
+        },
+        {
+          "t": "callout",
+          "variant": "warn",
+          "title": "Typische Fehler – was Aroma und Maschine kostet",
+          "x": [
+            "Kaffee auf Monate im Voraus kaufen – das Aroma ist dann längst verflogen",
+            "Bohnen im Kühl- oder Gefrierschrank lagern",
+            "stark geölte, sehr dunkle Espressobohnen im Vollautomaten – sie verkleben Mahlwerk und Brühgruppe",
+            "die Maschine nicht regelmäßig entkalken und reinigen – Kalk und altes Kaffeefett drücken den Geschmack spürbar",
+            "das Mahlwerk extrem fein stellen – die Ausgabe stockt und der Antrieb arbeitet dauerhaft gegen den Widerstand"
+          ]
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "icon": "shop",
+          "x": "Wo Sie unseren Kaffee bekommen"
+        },
+        {
+          "t": "html",
+          "x": "<div class=\"kw kw-buy\">\n<div class=\"kw-buy-c\"><div class=\"kw-buy-h\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.3 4.6a1 1 0 0 0 .9 1.4H19\"/><circle cx=\"9\" cy=\"20\" r=\"1\"/><circle cx=\"17\" cy=\"20\" r=\"1\"/></svg> Direkt bei uns</div><ul><li>Im Gesch&auml;ft in Hofheim-Langenhain</li><li>Im Online-Shop &ndash; deutschlandweit</li></ul></div>\n<div class=\"kw-buy-c\"><div class=\"kw-buy-h\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z\"/><circle cx=\"12\" cy=\"10\" r=\"3\"/></svg> Regionale Partner</div><ul><li>EDEKA Buch &ndash; Chinoncenter Hofheim</li><li>Sonnenhof R&uuml;bsamen &ndash; Langenhain</li><li>B&auml;ckerei Schwenk &ndash; Langenhain &amp; Wallau</li><li>Nahkauf Paolo &ndash; Diedenbergen</li><li>Nahkauf Box Paolo 24/7 &ndash; Langenhain</li></ul></div>\n</div>"
+        },
+        {
+          "t": "btns",
+          "keep": true,
+          "x": [
+            {
+              "label": "Unser Kaffee &amp; Tee",
+              "url": "/unser-kaffee/"
+            },
+            {
+              "label": "Im Geschäft vorbeikommen",
+              "url": "/anfahrt/"
+            }
+          ]
+        }
+      ],
+      "facts": [
+        {
+          "k": "Röstung",
+          "v": "Trommelröstung, schonend, kleine Chargen"
+        },
+        {
+          "k": "Sorten",
+          "v": "Caffè Crema &middot; Espresso"
+        },
+        {
+          "k": "Gebinde",
+          "v": "1000 g mit Aromaventil"
+        },
+        {
+          "k": "Frische",
+          "v": "am besten binnen 2–4 Wochen nach Röstung"
+        },
+        {
+          "k": "Bezug",
+          "v": "Geschäft, Online-Shop, regionale Partner"
         }
       ]
     },
