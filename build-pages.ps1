@@ -2018,30 +2018,87 @@ function Faq-Hub-Content($p) {
       if (-not $sp) { return }
       "<a class=`"kt-fq`" href=`"$base/$_/`"><b>$($sp.menu)</b><span>$($sp.excerpt)</span><em>Ansehen &rarr;</em></a>"
     }) -join "`n    "
-    $aid = if ($_.anchor) { " id=`"$($_.anchor)`" style=`"scroll-margin-top:20px`"" } else { '' }
-    "<h2 class=`"wp-block-heading`"$aid>$($_.title)</h2>`n<div class=`"kt-fqs`">`n    $cards`n</div>"
+    $aid = if ($_.anchor) { " id=`"$($_.anchor)`"" } else { '' }
+    "<section class=`"kt-fqg`"$aid>`n<h2 class=`"wp-block-heading`">$($_.title)</h2>`n<div class=`"kt-fqs`">`n    $cards`n</div>`n</section>"
   }) -join "`n"
   $css = @"
 <style>
 .kt-hub{max-width:1000px;margin:0 auto;font-family:$FONT_BODY;color:$($C.text)}
 .kt-hub>h1{font-family:$FONT_HEAD;color:$($C.head);font-weight:700;font-size:22px;margin:0 0 10px}
-.kt-hub>.lead{font-size:16px;line-height:1.62;max-width:720px;margin:0 0 30px;color:$($C.text)}
-.kt-hub h2{font-family:$FONT_HEAD;color:$($C.head);font-weight:700;font-size:16px;margin:30px 0 12px;padding:0;border:0}
-.kt-fqs{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:8px}
-.kt-fq{display:flex;flex-direction:column;background:#fff;border:1px solid #e2e2e2;border-radius:6px;padding:15px 17px;text-decoration:none;transition:border-color .12s}
+.kt-hub>.lead{font-size:15.5px;line-height:1.6;max-width:660px;margin:0 0 20px;color:$($C.text)}
+.kt-hub-find{position:relative;max-width:440px;margin:0 0 8px}
+.kt-hub-find .ic{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:#8a8a8a;pointer-events:none}
+.kt-hub-find input{width:100%;box-sizing:border-box;padding:11px 40px;border:1px solid #cfcfcf;border-radius:8px;font-size:14.5px;font-family:$FONT_BODY;background:#fff;color:$($C.text)}
+.kt-hub-find input:focus{outline:none;border-color:$($C.accent);box-shadow:0 0 0 3px rgba(51,65,85,.12)}
+.kt-hub-find .clr{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:24px;height:24px;border:0;background:#ececec;border-radius:50%;color:#555;font-size:15px;line-height:1;cursor:pointer;padding:0}
+.kt-hub-find .clr:hover{background:#dcdcdc}
+.kt-hub-cnt{font-size:12px;color:#8a8a8a;margin:0 0 26px}
+.kt-hub h2{font-family:$FONT_HEAD;color:$($C.head);font-weight:700;font-size:16px;margin:26px 0 12px;padding:0;border:0}
+.kt-fqg:first-of-type h2{margin-top:6px}
+.kt-fqg{scroll-margin-top:16px}
+.kt-fqg[hidden]{display:none}
+.kt-fqs{display:grid;grid-template-columns:repeat(auto-fill,minmax(224px,1fr));gap:10px;margin-bottom:6px}
+.kt-fq{display:flex;flex-direction:column;background:#fff;border:1px solid #e2e2e2;border-radius:6px;padding:13px 15px;text-decoration:none;transition:border-color .12s}
 .kt-fq:hover{border-color:$($C.accent)}
-.kt-fq b{font-family:$FONT_HEAD;color:$($C.head);font-size:14px;margin-bottom:5px}
-.kt-fq span{font-size:12.5px;line-height:1.5;color:#555;flex:1}
-.kt-fq em{font-style:normal;font-family:$FONT_HEAD;color:$($C.accent);font-weight:700;font-size:11.5px;margin-top:10px}
+.kt-fq[hidden]{display:none}
+.kt-fq b{font-family:$FONT_HEAD;color:$($C.head);font-size:13.5px;line-height:1.3;margin-bottom:4px}
+.kt-fq span{font-size:12px;line-height:1.45;color:#5a5a5a;flex:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.kt-fq em{font-style:normal;font-family:$FONT_HEAD;color:$($C.accent);font-weight:700;font-size:11px;margin-top:9px}
+.kt-hub-none{font-size:14.5px;line-height:1.6;color:#555;background:#f6f6f4;border:1px solid #e6e6e6;border-radius:8px;padding:15px 18px;margin-top:14px}
+.kt-hub-none a{color:$($C.accent)}
+.kt-hub-none[hidden]{display:none}
 </style>
 "@
+  $iconSearch = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
+  $hubJs = @'
+<script>
+(function(){
+  var inp = document.getElementById('kt-hub-q');
+  if (!inp) { return; }
+  var cards  = [].slice.call(document.querySelectorAll('.kt-fq'));
+  var groups = [].slice.call(document.querySelectorAll('.kt-fqg'));
+  var none   = document.getElementById('kt-hub-none');
+  var clr    = document.getElementById('kt-hub-clr');
+  var cnt    = document.getElementById('kt-hub-cnt');
+  var total  = cards.length;
+  cards.forEach(function(c){ c.setAttribute('data-kw', (c.textContent || '').toLowerCase().replace(/\s+/g, ' ')); });
+  function apply(){
+    var q = inp.value.toLowerCase().replace(/\s+/g, ' ').trim();
+    var hits = 0;
+    cards.forEach(function(c){
+      var show = true;
+      if (q) { show = c.getAttribute('data-kw').indexOf(q) > -1; }
+      c.hidden = !show;
+      if (show) { hits = hits + 1; }
+    });
+    groups.forEach(function(g){ g.hidden = !g.querySelector('.kt-fq:not([hidden])'); });
+    if (none) { none.hidden = hits > 0; }
+    if (clr)  { clr.hidden = q.length === 0; }
+    if (cnt)  { cnt.textContent = q ? (hits + ' von ' + total + ' Themen') : (total + ' Themen'); }
+  }
+  inp.addEventListener('input', apply);
+  if (clr) { clr.addEventListener('click', function(){ inp.value = ''; apply(); inp.focus(); }); }
+  apply();
+})();
+</script>
+'@
   $body = @"
 $css
 <div class="kt-hub">
   <h1>$($p.title)</h1>
   <p class="lead">$($H.intro)</p>
+  <div class="kt-hub-find">
+    $iconSearch
+    <input id="kt-hub-q" type="text" inputmode="search" autocomplete="off" placeholder="Thema suchen &ndash; z.&nbsp;B. Milchschaum, entkalken, Br&uuml;hgruppe">
+    <button type="button" class="clr" id="kt-hub-clr" hidden aria-label="Suche zur&uuml;cksetzen">&times;</button>
+  </div>
+  <p class="kt-hub-cnt" id="kt-hub-cnt"></p>
+  <div class="kt-hub-groups">
   $groupsHtml
+  </div>
+  <p class="kt-hub-none" id="kt-hub-none" hidden>Dazu haben wir keinen Treffer. Rufen Sie uns an unter <a href="tel:+4961922004363">06192&nbsp;2004363</a> oder bringen Sie das Ger&auml;t bei uns vorbei.</p>
 </div>
+$hubJs
 "@
   Wrap-Page (@(
     (Pick-Header $p.slug),
