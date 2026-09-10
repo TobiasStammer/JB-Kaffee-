@@ -130,9 +130,11 @@ function Native-Blocks($blocks) {
                     else    { "<span style=`"font-family:$FONT_HEAD;font-weight:700;font-size:14px;color:$($C.head)`">$($_.name)</span>" }
             "<div id=`"brand-$slug`" style=`"scroll-margin-top:90px;display:grid;grid-template-columns:120px 1fr;gap:20px;align-items:baseline;padding:15px 0;border-top:1px solid #e6e6e6`"><div style=`"font-family:$FONT_HEAD;font-weight:700;font-size:13.5px;color:$($C.head);display:flex;align-items:center;min-height:20px`">$logo</div><div style=`"font-size:14px;line-height:1.65;color:$($C.text)`">$($_.models)</div></div>"
           }) -join "`n"
-          "<h3 style=`"font-family:$FONT_HEAD;color:$($C.head);font-weight:700;font-size:15px;margin:26px 0 4px`">$($g.h)</h3>`n<div style=`"font-family:$FONT_BODY`">`n$rows`n</div>"
+          "<h3 class=`"kt-bmsec`">$($g.h)</h3>`n<div style=`"font-family:$FONT_BODY`">`n$rows`n</div>"
         }
-        "<!-- wp:html -->`n$grid`n" + ($blocks2 -join "`n") + "`n<!-- /wp:html -->"
+        # .kt-prose h3 erzwingt sonst 11.5px/grau/uppercase - hier ueberschreiben
+        $bmSecCss = "<style>.kt-prose h3.kt-bmsec{font-family:$FONT_HEAD !important;color:$($C.head) !important;font-size:17px !important;font-weight:700;line-height:1.3;text-transform:none;letter-spacing:0;margin:36px 0 6px !important;padding-bottom:9px;border-bottom:2px solid #e2e2e2}</style>"
+        "<!-- wp:html -->`n$bmSecCss`n$grid`n" + ($blocks2 -join "`n") + "`n<!-- /wp:html -->"
       }
       'steps' {
         $items = ($b.x | ForEach-Object {
@@ -244,6 +246,33 @@ function Native-Blocks($blocks) {
 </style>
 "@
         "<!-- wp:html -->`n$ts`n<div class=`"kt-miles`"><div class=`"kt-tl`">`n      $strip`n</div></div>`n<div class=`"kt-chron`">`n    $chron`n</div>`n<!-- /wp:html -->"
+      }
+      'callout' {
+        # hervorgehobener Hinweiskasten. $b.title = Ueberschrift, $b.x = Listenpunkte,
+        # $b.intro = optionaler Vorspann, $b.variant = 'warn' (rot) | sonst neutral.
+        $isWarn = ($b.variant -eq 'warn')
+        $acc = if ($isWarn) { '#b23b3b' } else { $C.accent }
+        $bgc = if ($isWarn) { '#fbf2f2' } else { $C.soft }
+        $brd = if ($isWarn) { '#e8c9c9' } else { $C.line }
+        $mark = if ($isWarn) { '\2715' } else { '\2013' }  # CSS-Escape (kein HTML-Entity in content:)
+        $intro = if ($b.intro) { "<p class=`"kt-co-i`">$($b.intro)</p>" } else { '' }
+        $lis = ($b.x | ForEach-Object { "<li>$_</li>" }) -join "`n    "
+        $ttl = if ($b.title) { "<p class=`"kt-co-t`">$($b.title)</p>" } else { '' }
+        $co = @"
+<style>
+.kt-co{max-width:$SECW;margin:24px auto;background:$bgc;border:1px solid $brd;border-left:3px solid $acc;border-radius:10px;padding:18px 22px 20px;font-family:$FONT_BODY}
+.kt-co-t{font-family:$FONT_HEAD;font-weight:700;font-size:15px;color:$acc;margin:0 0 10px}
+.kt-co-i{font-size:14px;line-height:1.6;color:$($C.text);margin:0 0 12px}
+.kt-co ul{list-style:none;margin:0;padding:0}
+.kt-co li{position:relative;padding-left:24px;margin:0 0 7px;font-size:14px;line-height:1.6;color:$($C.text)}
+.kt-co li:last-child{margin-bottom:0}
+.kt-co li::before{content:"$mark";position:absolute;left:2px;top:0;color:$acc;font-weight:700}
+</style>
+<div class="kt-co">$ttl$intro<ul>
+    $lis
+</ul></div>
+"@
+        "<!-- wp:html -->`n$co`n<!-- /wp:html -->"
       }
       default { throw "Unbekannter Blocktyp: $($b.t)" }
     }
@@ -1852,6 +1881,7 @@ $PROSE_CSS = @"
 .kt-page:not(.has-rail) .kt-main{max-width:none}
 .kt-main>h1{font-family:$FONT_HEAD;color:$($C.head);font-weight:700;font-size:23px;line-height:1.25;margin:0 0 10px}
 .kt-lead{font-size:16px;line-height:1.6;color:$($C.text);margin:0;max-width:620px}
+.kt-lead.kt-lead-wide{max-width:none}
 .kt-sub{font-size:14px;line-height:1.55;color:#666666;margin:8px 0 0}
 .kt-prose{margin-top:26px}
 .kt-prose h3{font-family:$FONT_HEAD !important;color:#6d6d6d !important;font-weight:700;font-size:11.5px !important;text-transform:uppercase;letter-spacing:.09em;margin:16px 0 5px}
@@ -1888,7 +1918,8 @@ function Sub-Content($p) {
   $blocks = @($p.blocks)
   $heroP = ''
   if ($blocks.Count -gt 0 -and $blocks[0].t -eq 'p') {
-    $heroP = "<p class=`"kt-lead`">$($blocks[0].x)</p>"
+    $leadCls = if ($p.leadWide) { 'kt-lead kt-lead-wide' } else { 'kt-lead' }
+    $heroP = "<p class=`"$leadCls`">$($blocks[0].x)</p>"
     $blocks = @($blocks[1..($blocks.Count-1)])
   }
   # Excerpt nur als sichtbare Unterzeile zeigen, wenn KEIN Intro-Absatz da ist -
