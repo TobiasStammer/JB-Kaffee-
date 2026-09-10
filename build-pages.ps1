@@ -526,6 +526,7 @@ $SEC_ICONS = @{
   shield  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'
   check   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>'
   coffee  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>'
+  droplet = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7s6 6.8 6 11.3a6 6 0 0 1-12 0C6 9.5 12 2.7 12 2.7z"/></svg>'
   quote   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15l2 2 4-4"/></svg>'
   box     = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg>'
   map     = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'
@@ -2019,23 +2020,45 @@ function Faq-Hub-Content($p) {
       "<a class=`"kt-fq`" href=`"$base/$_/`"><b>$($sp.menu)</b><span>$($sp.excerpt)</span><em>Ansehen &rarr;</em></a>"
     }) -join "`n    "
     $aid = if ($_.anchor) { " id=`"$($_.anchor)`"" } else { '' }
-    "<section class=`"kt-fqg`"$aid>`n<h2 class=`"wp-block-heading`">$($_.title)</h2>`n<div class=`"kt-fqs`">`n    $cards`n</div>`n</section>"
+    "<section class=`"kt-fqg`"$aid hidden>`n<h2 class=`"wp-block-heading`">$($_.title)</h2>`n<div class=`"kt-fqs`">`n    $cards`n</div>`n</section>"
   }) -join "`n"
+  $catsHtml = ($H.groups | ForEach-Object {
+    $ic = H2-Ico $_.icon
+    $bl = if ($_.blurb) { $_.blurb } else { '' }
+    $n  = @($_.slugs | Where-Object { $pageBySlug[$_] }).Count
+    "<button type=`"button`" class=`"kt-cat`" data-cat=`"$($_.anchor)`"><span class=`"ci`">$ic</span><b>$($_.title)</b><span class=`"cd`">$bl</span><em>$n Themen</em></button>"
+  }) -join "`n    "
   $css = @"
 <style>
 .kt-hub{max-width:1000px;margin:0 auto;font-family:$FONT_BODY;color:$($C.text)}
 .kt-hub>h1{font-family:$FONT_HEAD;color:$($C.head);font-weight:700;font-size:22px;margin:0 0 10px}
-.kt-hub>.lead{font-size:15.5px;line-height:1.6;max-width:660px;margin:0 0 20px;color:$($C.text)}
-.kt-hub-find{position:relative;max-width:440px;margin:0 0 8px}
+.kt-hub>.lead{font-size:15.5px;line-height:1.6;max-width:640px;margin:0 0 20px;color:$($C.text)}
+.kt-hub-find{position:relative;max-width:440px;margin:0 0 22px}
 .kt-hub-find .ic{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:#8a8a8a;pointer-events:none}
 .kt-hub-find input{width:100%;box-sizing:border-box;padding:11px 40px;border:1px solid #cfcfcf;border-radius:8px;font-size:14.5px;font-family:$FONT_BODY;background:#fff;color:$($C.text)}
 .kt-hub-find input:focus{outline:none;border-color:$($C.accent);box-shadow:0 0 0 3px rgba(51,65,85,.12)}
 .kt-hub-find .clr{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:24px;height:24px;border:0;background:#ececec;border-radius:50%;color:#555;font-size:15px;line-height:1;cursor:pointer;padding:0}
 .kt-hub-find .clr:hover{background:#dcdcdc}
-.kt-hub-cnt{font-size:12px;color:#8a8a8a;margin:0 0 26px}
-.kt-hub h2{font-family:$FONT_HEAD;color:$($C.head);font-weight:700;font-size:16px;margin:26px 0 12px;padding:0;border:0}
-.kt-fqg:first-of-type h2{margin-top:6px}
+.kt-hub-cats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 12px}
+.kt-cat{display:flex;flex-direction:column;align-items:flex-start;text-align:left;background:#fff;border:1px solid #e2e2e2;border-radius:10px;padding:16px 17px 15px;cursor:pointer;font-family:$FONT_BODY;transition:border-color .12s,box-shadow .12s}
+.kt-cat:hover{border-color:$($C.accent);box-shadow:0 3px 14px rgba(0,0,0,.06)}
+.kt-cat.is-on{border-color:$($C.accent);background:$($C.soft)}
+.kt-cat .ci{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:8px;background:$($C.soft);color:$($C.accent);margin-bottom:10px}
+.kt-cat.is-on .ci{background:#fff}
+.kt-cat .ci .kt-h2ico{width:auto;height:auto;background:none;border-radius:0}
+.kt-cat .ci svg{width:18px;height:18px;display:block}
+.kt-cat b{font-family:$FONT_HEAD;color:$($C.head);font-size:14.5px;line-height:1.3;margin-bottom:3px}
+.kt-cat .cd{font-size:12px;line-height:1.45;color:#666;flex:1}
+.kt-cat em{font-style:normal;font-family:$FONT_HEAD;font-size:11px;font-weight:700;color:$($C.accent);margin-top:10px}
+.kt-hub-all{margin:0 0 30px;font-size:13px}
+.kt-hub-all[hidden]{display:none}
+.kt-hub-all a{color:$($C.accent);text-decoration:none;border-bottom:1px solid rgba(51,65,85,.35);cursor:pointer}
+.kt-hub-all a:hover{color:$($C.accentD)}
+.kt-hub-cnt{font-size:12px;color:#8a8a8a;margin:0 0 16px}
+.kt-hub-cnt:empty{margin:0}
+.kt-hub h2{font-family:$FONT_HEAD;color:$($C.head);font-weight:700;font-size:16px;margin:24px 0 12px;padding:0;border:0}
 .kt-fqg{scroll-margin-top:16px}
+.kt-fqg:first-of-type h2{margin-top:4px}
 .kt-fqg[hidden]{display:none}
 .kt-fqs{display:grid;grid-template-columns:repeat(auto-fill,minmax(224px,1fr));gap:10px;margin-bottom:6px}
 .kt-fq{display:flex;flex-direction:column;background:#fff;border:1px solid #e2e2e2;border-radius:6px;padding:13px 15px;text-decoration:none;transition:border-color .12s}
@@ -2044,9 +2067,10 @@ function Faq-Hub-Content($p) {
 .kt-fq b{font-family:$FONT_HEAD;color:$($C.head);font-size:13.5px;line-height:1.3;margin-bottom:4px}
 .kt-fq span{font-size:12px;line-height:1.45;color:#5a5a5a;flex:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .kt-fq em{font-style:normal;font-family:$FONT_HEAD;color:$($C.accent);font-weight:700;font-size:11px;margin-top:9px}
-.kt-hub-none{font-size:14.5px;line-height:1.6;color:#555;background:#f6f6f4;border:1px solid #e6e6e6;border-radius:8px;padding:15px 18px;margin-top:14px}
+.kt-hub-none{font-size:14.5px;line-height:1.6;color:#555;background:#f6f6f4;border:1px solid #e6e6e6;border-radius:8px;padding:15px 18px;margin-top:6px}
 .kt-hub-none a{color:$($C.accent)}
 .kt-hub-none[hidden]{display:none}
+@media(max-width:720px){.kt-hub-cats{grid-template-columns:1fr}}
 </style>
 "@
   $iconSearch = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
@@ -2057,28 +2081,84 @@ function Faq-Hub-Content($p) {
   if (!inp) { return; }
   var cards  = [].slice.call(document.querySelectorAll('.kt-fq'));
   var groups = [].slice.call(document.querySelectorAll('.kt-fqg'));
+  var cats   = [].slice.call(document.querySelectorAll('.kt-cat'));
   var none   = document.getElementById('kt-hub-none');
   var clr    = document.getElementById('kt-hub-clr');
   var cnt    = document.getElementById('kt-hub-cnt');
+  var allWrap= document.getElementById('kt-hub-all');
+  var allLink= document.getElementById('kt-hub-alllink');
   var total  = cards.length;
+  var activeCat = '';
   cards.forEach(function(c){ c.setAttribute('data-kw', (c.textContent || '').toLowerCase().replace(/\s+/g, ' ')); });
-  function apply(){
+
+  function render(){
     var q = inp.value.toLowerCase().replace(/\s+/g, ' ').trim();
+    var searching = q.length > 0;
     var hits = 0;
-    cards.forEach(function(c){
-      var show = true;
-      if (q) { show = c.getAttribute('data-kw').indexOf(q) > -1; }
-      c.hidden = !show;
-      if (show) { hits = hits + 1; }
+    groups.forEach(function(g){
+      var gid = g.getAttribute('id');
+      var inScope;
+      if (searching) { inScope = true; }
+      else if (activeCat === '__all__') { inScope = true; }
+      else if (activeCat) { inScope = (gid === activeCat); }
+      else { inScope = false; }
+      var anyVisible = false;
+      [].slice.call(g.querySelectorAll('.kt-fq')).forEach(function(c){
+        var show = inScope;
+        if (show) { if (searching) { show = c.getAttribute('data-kw').indexOf(q) > -1; } }
+        c.hidden = !show;
+        if (show) { anyVisible = true; hits = hits + 1; }
+      });
+      g.hidden = !anyVisible;
     });
-    groups.forEach(function(g){ g.hidden = !g.querySelector('.kt-fq:not([hidden])'); });
-    if (none) { none.hidden = hits > 0; }
-    if (clr)  { clr.hidden = q.length === 0; }
-    if (cnt)  { cnt.textContent = q ? (hits + ' von ' + total + ' Themen') : (total + ' Themen'); }
+    cats.forEach(function(b){
+      var on = (b.getAttribute('data-cat') === activeCat) && !searching;
+      b.classList.toggle('is-on', on);
+    });
+    if (clr)  { clr.hidden = !searching; }
+    if (none) { none.hidden = !(searching && hits === 0); }
+    if (allWrap) { allWrap.hidden = searching; }
+    if (allLink) { allLink.textContent = activeCat ? '\u2039 Bereiche einklappen' : ('Alle ' + total + ' Themen anzeigen'); }
+    if (cnt) {
+      if (searching) { cnt.textContent = hits + ' von ' + total + ' Themen'; }
+      else if (activeCat) { cnt.textContent = hits + ' Themen'; }
+      else { cnt.textContent = ''; }
+    }
   }
-  inp.addEventListener('input', apply);
-  if (clr) { clr.addEventListener('click', function(){ inp.value = ''; apply(); inp.focus(); }); }
-  apply();
+
+  cats.forEach(function(b){
+    b.addEventListener('click', function(){
+      var c = b.getAttribute('data-cat');
+      activeCat = (activeCat === c) ? '' : c;
+      inp.value = '';
+      render();
+      if (activeCat) {
+        var g = document.getElementById(activeCat);
+        if (g) { g.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+      }
+    });
+  });
+  if (allLink) {
+    allLink.addEventListener('click', function(e){
+      e.preventDefault();
+      activeCat = activeCat ? '' : '__all__';
+      inp.value = '';
+      render();
+    });
+  }
+  inp.addEventListener('input', function(){
+    if (inp.value.trim()) { activeCat = ''; }
+    render();
+  });
+  if (clr) { clr.addEventListener('click', function(){ inp.value = ''; render(); inp.focus(); }); }
+
+  var h = (location.hash || '').replace('#', '');
+  if (h) { cats.forEach(function(b){ if (b.getAttribute('data-cat') === h) { activeCat = h; } }); }
+  render();
+  if (activeCat) {
+    var gg = document.getElementById(activeCat);
+    if (gg) { gg.scrollIntoView({ block: 'start' }); }
+  }
 })();
 </script>
 '@
@@ -2092,6 +2172,10 @@ $css
     <input id="kt-hub-q" type="text" inputmode="search" autocomplete="off" placeholder="Thema suchen &ndash; z.&nbsp;B. Milchschaum, entkalken, Br&uuml;hgruppe">
     <button type="button" class="clr" id="kt-hub-clr" hidden aria-label="Suche zur&uuml;cksetzen">&times;</button>
   </div>
+  <div class="kt-hub-cats">
+    $catsHtml
+  </div>
+  <p class="kt-hub-all" id="kt-hub-all"><a id="kt-hub-alllink" href="#">Alle Themen anzeigen</a></p>
   <p class="kt-hub-cnt" id="kt-hub-cnt"></p>
   <div class="kt-hub-groups">
   $groupsHtml

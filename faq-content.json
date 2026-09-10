@@ -2,7 +2,7 @@
   "_note": "FAQ / Hilfe – einzelne Symptom- und Pflegeseiten. Wird von build-pages.ps1 in data.pages gemerged. Struktur wie pages[] in pages-content.json (Sub-Content). Der Hub (hilfethemen) verlinkt die Gruppen.",
   "hub": {
     "slug": "hilfethemen",
-    "intro": "Viele kleinere Störungen lassen sich mit etwas Know-how selbst beheben. Suchen Sie unten nach Ihrem Thema – von Störungsbildern über Pflege bis Hintergrundwissen aus unserer Werkstatt. Hilft die Erste Hilfe nicht weiter, bringen Sie das Gerät zu uns.",
+    "intro": "Viele kleinere Störungen lassen sich mit etwas Know-how selbst beheben. Wählen Sie einen Bereich – oder suchen Sie direkt nach Ihrem Stichwort.",
     "groups": [
       {
         "title": "Häufige Störungen",
@@ -20,7 +20,9 @@
           "stoerung-milchschaum",
           "stoerung-kaffee-kalt",
           "jura-fehlercodes"
-        ]
+        ],
+        "icon": "tool",
+        "blurb": "Kein Kaffee oder Wasser, Milchschaum, Undichtigkeit, Fehlermeldungen"
       },
       {
         "title": "Reinigung & Pflege",
@@ -31,7 +33,9 @@
           "pflege-wasserfilter",
           "pflege-milchsystem",
           "pflege-bruehgruppe"
-        ]
+        ],
+        "icon": "droplet",
+        "blurb": "Entkalken, Wasserfilter, Milchsystem und Brühgruppe richtig pflegen"
       },
       {
         "title": "Rund um den Kaffeevollautomaten",
@@ -42,7 +46,9 @@
           "ratgeber-kaufberatung",
           "ratgeber-systeme-vergleich",
           "ratgeber-siebtraeger"
-        ]
+        ],
+        "icon": "compare",
+        "blurb": "Reparieren oder neu kaufen, Systeme im Vergleich, Siebträger"
       }
     ]
   },
