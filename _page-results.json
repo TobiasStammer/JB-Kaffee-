@@ -36,6 +36,15 @@
         "aktion":  "aktualisiert (publish)"
     },
     {
+        "menu":  "Auftragsschein",
+        "titel":  "Reparatur-Auftragsschein online ausfüllen",
+        "id":  3177,
+        "slug":  "reparaturauftrag",
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/reparaturauftrag/",
+        "aktion":  "aktualisiert (publish)"
+    },
+    {
         "menu":  "Reparaturdauer",
         "titel":  "Reparaturdauer",
         "id":  23,
