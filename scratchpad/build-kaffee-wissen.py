@@ -71,6 +71,11 @@ CSS = """<style>
 .kw-buy ul{margin:0;padding:0;list-style:none}
 .kw-buy li{position:relative;padding:4px 0 4px 15px;font-size:13px;line-height:1.5;color:#40372f}
 .kw-buy li::before{content:"";position:absolute;left:0;top:11px;width:5px;height:5px;border-radius:50%;background:#c8a27a}
+.kw-buy-feat{background:#f3ece3;border:1px solid #e3d7c6;border-radius:8px;padding:10px 12px 8px;margin-bottom:9px}
+.kw-buy-feat-h{font-family:Tahoma,Arial,sans-serif;font-weight:700;font-size:12.5px;color:#6f4e37;margin-bottom:4px}
+.kw-buy-feat-h span{font-weight:400;color:#8a7a68}
+.kw-buy-feat li::before{background:#8b5e3c}
+.kw-buy-note{display:block;font-size:11.5px;line-height:1.45;color:#6b6257;margin-top:2px;padding-right:4px}
 @media(max-width:560px){
   .kw-sorts,.kw-buy{grid-template-columns:1fr}
   .kw-roast-marks{grid-template-columns:1fr;gap:8px}
@@ -150,12 +155,14 @@ buy = ('<div class="kw kw-buy">\n'
  '<div class="kw-buy-c"><div class="kw-buy-h">' + IC["shop"] + ' Direkt bei uns</div><ul>'
  '<li>Im Gesch&auml;ft in Hofheim-Langenhain</li>'
  '<li>Im Online-Shop &ndash; deutschlandweit</li></ul></div>\n'
- '<div class="kw-buy-c"><div class="kw-buy-h">' + IC["pin"] + ' Regionale Partner</div><ul>'
- '<li>EDEKA Buch &ndash; Chinoncenter Hofheim</li>'
- '<li>Sonnenhof R&uuml;bsamen &ndash; Langenhain</li>'
- '<li>B&auml;ckerei Schwenk &ndash; Langenhain &amp; Wallau</li>'
+ '<div class="kw-buy-c"><div class="kw-buy-h">' + IC["pin"] + ' Regionale Partner</div>'
+ '<div class="kw-buy-feat"><div class="kw-buy-feat-h">In enger Kooperation: Paolo <span>Nahkauf &amp; Nahkauf&nbsp;Box</span></div><ul>'
  '<li>Nahkauf Paolo &ndash; Diedenbergen</li>'
- '<li>Nahkauf Box Paolo 24/7 &ndash; Langenhain</li></ul></div>\n</div>')
+ '<li>Nahkauf&nbsp;Box Paolo, rund um die Uhr &ndash; Langenhain</li>'
+ '<li>Nahkauf&nbsp;Box Paolo, rund um die Uhr &ndash; Lorsbach'
+ '<span class="kw-buy-note">Hier gibt es rund um die Uhr auch frisch gebr&uuml;hten Kaffee aus einem JURA-Standautomaten.</span></li>'
+ '</ul></div>'
+ '<ul><li>Sonnenhof R&uuml;bsamen &ndash; Langenhain</li></ul></div>\n</div>')
 
 p["blocks"] = [
  {"t": "p", "x": "Ein Kaffeevollautomat kann aus einer Bohne nur herausholen, was in ihr steckt. Deshalb lohnt der Blick auf Herkunft, Aufbereitung und R\u00f6stung \u2013 und darauf, wie Sie den Kaffee zu Hause behandeln. Wir r\u00f6sten selbst: in kleinen Mengen, schonend in der Trommel, damit immer frische Ware im Regal steht."},
@@ -192,7 +199,7 @@ p["blocks"] = [
    "Temperatur: 90 bis 96&nbsp;\u00b0C. Zu hei\u00df wird bitter, zu k\u00fchl bleibt es sauer und d\u00fcnn.",
    "Frische: Bohnen innerhalb von zwei bis vier Wochen nach der R\u00f6stung verbrauchen, offene Beutel z\u00fcgig leeren.",
  ]},
- {"t": "callout", "icon": "coffee", "title": "Bohnen richtig lagern", "intro": "Aroma verliert Kaffee vor allem durch Sauerstoff, W\u00e4rme, Licht und Feuchtigkeit.", "x": [
+ {"t": "callout", "variant": "ok", "title": "Bohnen richtig lagern", "intro": "Aroma verliert Kaffee vor allem durch Sauerstoff, W\u00e4rme, Licht und Feuchtigkeit.", "x": [
    "k\u00fchl, dunkel und luftdicht lagern \u2013 die Originalt\u00fcte mit Aromaventil und Clip gen\u00fcgt",
    "nicht in den K\u00fchlschrank oder das Gefrierfach: Kondenswasser und fremde Ger\u00fcche schaden mehr, als die K\u00fchle n\u00fctzt",
    "nur so viel kaufen, wie in zwei bis vier Wochen getrunken wird",

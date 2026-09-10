@@ -249,26 +249,32 @@ function Native-Blocks($blocks) {
       }
       'callout' {
         # hervorgehobener Hinweiskasten. $b.title = Ueberschrift, $b.x = Listenpunkte,
-        # $b.intro = optionaler Vorspann, $b.variant = 'warn' (rot) | sonst neutral.
-        $isWarn = ($b.variant -eq 'warn')
-        $acc = if ($isWarn) { '#b23b3b' } else { $C.accent }
-        $bgc = if ($isWarn) { '#fbf2f2' } else { $C.soft }
-        $brd = if ($isWarn) { '#e8c9c9' } else { $C.line }
-        $mark = if ($isWarn) { '\2715' } else { '\2013' }  # CSS-Escape (kein HTML-Entity in content:)
+        # $b.intro = optionaler Vorspann, $b.variant = 'warn' (rot) | 'ok' (gruen) | sonst neutral.
+        # CSS deckt alle Varianten ab und ist nach Varianten-Klasse getrennt, damit
+        # mehrere Callouts unterschiedlicher Variante auf einer Seite nicht kollidieren.
+        $vcls = if ($b.variant -eq 'warn') { 'kt-co kt-co-warn' }
+                elseif ($b.variant -eq 'ok') { 'kt-co kt-co-ok' }
+                else { 'kt-co' }
         $intro = if ($b.intro) { "<p class=`"kt-co-i`">$($b.intro)</p>" } else { '' }
         $lis = ($b.x | ForEach-Object { "<li>$_</li>" }) -join "`n    "
         $ttl = if ($b.title) { "<p class=`"kt-co-t`">$($b.title)</p>" } else { '' }
         $co = @"
 <style>
-.kt-co{max-width:$SECW;margin:24px auto;background:$bgc;border:1px solid $brd;border-left:3px solid $acc;border-radius:10px;padding:18px 22px 20px;font-family:$FONT_BODY}
-.kt-co-t{font-family:$FONT_HEAD;font-weight:700;font-size:15px;color:$acc;margin:0 0 10px}
+.kt-co{max-width:$SECW;margin:24px auto;background:$($C.soft);border:1px solid $($C.line);border-left:3px solid $($C.accent);border-radius:10px;padding:18px 22px 20px;font-family:$FONT_BODY}
+.kt-co-warn{background:#fbf2f2;border-color:#e8c9c9;border-left-color:#b23b3b}
+.kt-co-ok{background:#eef6ef;border-color:#cbe3cf;border-left-color:#2f7d4a}
+.kt-co-t{font-family:$FONT_HEAD;font-weight:700;font-size:15px;color:$($C.accent);margin:0 0 10px}
+.kt-co-warn .kt-co-t{color:#b23b3b}
+.kt-co-ok .kt-co-t{color:#2f7d4a}
 .kt-co-i{font-size:14px;line-height:1.6;color:$($C.text);margin:0 0 12px}
 .kt-co ul{list-style:none;margin:0;padding:0}
 .kt-co li{position:relative;padding-left:24px;margin:0 0 7px;font-size:14px;line-height:1.6;color:$($C.text)}
 .kt-co li:last-child{margin-bottom:0}
-.kt-co li::before{content:"$mark";position:absolute;left:2px;top:0;color:$acc;font-weight:700}
+.kt-co li::before{content:"\2013";position:absolute;left:2px;top:0;color:$($C.accent);font-weight:700}
+.kt-co-warn li::before{content:"\2715";color:#b23b3b}
+.kt-co-ok li::before{content:"\2713";color:#2f7d4a}
 </style>
-<div class="kt-co">$ttl$intro<ul>
+<div class="$vcls">$ttl$intro<ul>
     $lis
 </ul></div>
 "@
