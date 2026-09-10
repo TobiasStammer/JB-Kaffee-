@@ -199,7 +199,7 @@ function Native-Blocks($blocks) {
             $figs = ($imgList | ForEach-Object { "<figure class=`"kt-erafig`"><img src=`"$($_.src)`" alt=`"$($_.alt)`" loading=`"lazy`">$(if ($_.cap) { "<figcaption>$($_.cap)</figcaption>" })</figure>" }) -join "`n        "
             "<div class=`"kt-erafigs`">`n        $figs`n      </div>"
           } else { '' }
-          "<section class=`"kt-era`" id=`"era-$($_.id)`"><div class=`"kt-era-h`"><span class=`"sp`">$($_.span)</span><h2>$($_.title)</h2></div>$fig<div class=`"kt-items`">`n        $its`n      </div></section>"
+          "<section class=`"kt-era`" id=`"era-$($_.id)`"><div class=`"kt-era-h`"><span class=`"sp`">$($_.span)</span><h2>$($_.title)</h2></div><div class=`"kt-items`">`n        $fig`n        $its`n      </div></section>"
         }) -join "`n    "
         $ts = @"
 <style>
@@ -337,9 +337,18 @@ function Form-Block($formId = $null, $anchor = 'kontakt') {
 # blockGap 0, damit das Theme keine weissen Abstaende zwischen die Zonen setzt.
 $SHEET_CSS = @"
 <style>
-.kt-sheet{max-width:1240px;margin:0 auto;background:$($C.white);border-radius:16px;box-shadow:0 14px 46px rgba(20,22,25,.14),0 3px 10px rgba(20,22,25,.06);overflow:clip}
+.kt-sheet{max-width:1240px;margin:0 auto;background:$($C.white);border-radius:16px;box-shadow:0 14px 46px rgba(20,22,25,.14),0 3px 10px rgba(20,22,25,.06)}
 .kt-sheet .alignfull{width:100% !important;max-width:none !important;margin-left:0 !important;margin-right:0 !important;left:auto !important;right:auto !important}
-@media(max-width:560px){.kt-sheet{border-radius:9px}}
+/* Ecken der ersten/letzten Zone runden - statt overflow:clip auf .kt-sheet,
+   damit die klebende Menueleiste (position:sticky) nicht von einem
+   Clip-Kontext gefangen wird (Safari/Firefox). */
+.kt-sheet>.wp-block-group:first-of-type{border-top-left-radius:16px;border-top-right-radius:16px}
+.kt-sheet>.wp-block-group:last-of-type{border-bottom-left-radius:16px;border-bottom-right-radius:16px;overflow:clip}
+@media(max-width:560px){
+  .kt-sheet{border-radius:9px}
+  .kt-sheet>.wp-block-group:first-of-type{border-top-left-radius:9px;border-top-right-radius:9px}
+  .kt-sheet>.wp-block-group:last-of-type{border-bottom-left-radius:9px;border-bottom-right-radius:9px}
+}
 </style>
 "@
 function Wrap-Page($zonesHtml) {
