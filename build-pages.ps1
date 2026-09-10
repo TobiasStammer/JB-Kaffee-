@@ -2477,7 +2477,7 @@ function ReparaturCheck-Content($p) {
     h+='<p style="font-size:13px;color:#6b7178">Genaue Preise je Ger&auml;tekategorie: <a href="$kosten">Dauer &amp; Kosten</a>.</p></div>';
     h+='<div class="rc-amp '+amp+'"><span class="dot"></span><span><b>'+t+'</b>'+tx+' Die Ersatzteilversorgung ist f&uuml;r g&auml;ngige Marken gut; bei sehr alten oder seltenen Ger&auml;ten pr&uuml;fen wir die Verf&uuml;gbarkeit vorab.</span></div>';
     h+='<div class="rc-card"><h2>So geht es weiter</h2><p>Bringen Sie das Ger&auml;t einfach w&auml;hrend der &Ouml;ffnungszeiten vorbei &ndash; ohne Termin. Wir pr&uuml;fen es und melden uns mit einem Kostenvoranschlag.</p>';
-    h+='<div class="rc-btns"><a href="$auftrag">Auftragsschein (PDF)</a><a class="ghost" href="$ablauf">Ablauf im Detail</a><a class="ghost" href="$miet">Mietger&auml;t</a>';
+    h+='<div class="rc-btns"><a href="$auftrag">Auftragsschein ausf&uuml;llen</a><a class="ghost" href="$ablauf">Ablauf im Detail</a><a class="ghost" href="$miet">Mietger&auml;t</a>';
     if(amp==='r'){ h+='<a class="ghost" href="$shop">Neue Ger&auml;te ansehen</a>'; }
     h+='<a class="ghost" href="$kontakt">Frage stellen</a></div></div>';
     h+='<p class="rc-dis">Alle Angaben sind grobe Richtwerte aus unserer Werkstattpraxis und ersetzen keine Pr&uuml;fung des Ger&auml;ts. Verbindlich ist erst der Kostenvoranschlag nach Sichtung.</p>';
