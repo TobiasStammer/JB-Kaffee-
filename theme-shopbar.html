@@ -106,6 +106,33 @@ a.kt-ic,a.ic{position:relative}
   if(window.jQuery){window.jQuery(document.body).on('added_to_cart removed_from_cart updated_cart_totals',refresh);}
 })();
 </script>
+<script>
+(function(){
+  var MAP = {
+    'term-jura-kaffeevollautomaten': {
+      url: '/jura-kaffeevollautomaten/',
+      label: 'Zur \u00dcbersicht mit Filtern \u2192',
+      text: 'Alle Modelle mit Serien-Filter, Farbwahl und Genusswelten finden Sie auf unserer ausf\u00fchrlichen \u00dcbersichtsseite.'
+    }
+  };
+  function init(){
+    if (document.getElementById('kt-catbanner')) { return; }
+    var cls = document.body.className.split(/\s+/);
+    var cfg = null;
+    for (var i = 0; i < cls.length; i++) { if (MAP[cls[i]]) { cfg = MAP[cls[i]]; break; } }
+    if (!cfg) { return; }
+    var h1 = document.querySelector('.wp-block-query-title');
+    if (!h1) { return; }
+    var el = document.createElement('div');
+    el.id = 'kt-catbanner';
+    el.style.cssText = "max-width:1160px;margin:14px auto 4px;background:#f0efec;border:1px solid #d8d8d8;border-left:3px solid #334155;border-radius:8px;padding:14px 18px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;font-family:'Source Sans 3','Source Sans Pro',system-ui,sans-serif";
+    el.innerHTML = '<span style="font-size:14px;line-height:1.5;color:#1c1c1c">' + cfg.text + '</span>' +
+      '<a href="' + cfg.url + '" style="display:inline-flex;align-items:center;padding:9px 16px;font-family:Tahoma,Arial,sans-serif;font-size:13px;font-weight:700;color:#ffffff;background:#334155;border-radius:4px;text-decoration:none;white-space:nowrap">' + cfg.label + '</a>';
+    h1.insertAdjacentElement('afterend', el);
+  }
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
+})();
+</script>
 <nav class="shnav-wrap"><div class="shnav-box">
     <button class="shnav-toggle" type="button" aria-expanded="false" aria-controls="shnav"><span class="bg" aria-hidden="true"></span>Men&uuml;</button>
     <ul class="shnav" id="shnav">

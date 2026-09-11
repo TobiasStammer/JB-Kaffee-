@@ -505,6 +505,41 @@ a.kt-ic,a.ic{position:relative}
 </script>
 "@
 
+# Hinweisbanner auf rohen WooCommerce-Kategorie-Archiven (/product-category/...),
+# die es auch als ausgebaute eigene Seite gibt (Serien, Filter, Genusswelten).
+# Erscheint per body-Klasse (term-<slug>) gezielt nur auf dieser einen Kategorie,
+# nicht sitezweit - Landeplatz ist das gemeinsame 'header'-Template-Part
+# (siehe build-theme-nav.ps1), das auf allen Shop-/Kategorie-Seiten liegt.
+$CATEGORY_BANNER_JS = @'
+<script>
+(function(){
+  var MAP = {
+    'term-jura-kaffeevollautomaten': {
+      url: '/jura-kaffeevollautomaten/',
+      label: 'Zur \u00dcbersicht mit Filtern \u2192',
+      text: 'Alle Modelle mit Serien-Filter, Farbwahl und Genusswelten finden Sie auf unserer ausf\u00fchrlichen \u00dcbersichtsseite.'
+    }
+  };
+  function init(){
+    if (document.getElementById('kt-catbanner')) { return; }
+    var cls = document.body.className.split(/\s+/);
+    var cfg = null;
+    for (var i = 0; i < cls.length; i++) { if (MAP[cls[i]]) { cfg = MAP[cls[i]]; break; } }
+    if (!cfg) { return; }
+    var h1 = document.querySelector('.wp-block-query-title');
+    if (!h1) { return; }
+    var el = document.createElement('div');
+    el.id = 'kt-catbanner';
+    el.style.cssText = "max-width:1160px;margin:14px auto 4px;background:#f0efec;border:1px solid #d8d8d8;border-left:3px solid #334155;border-radius:8px;padding:14px 18px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;font-family:'Source Sans 3','Source Sans Pro',system-ui,sans-serif";
+    el.innerHTML = '<span style="font-size:14px;line-height:1.5;color:#1c1c1c">' + cfg.text + '</span>' +
+      '<a href="' + cfg.url + '" style="display:inline-flex;align-items:center;padding:9px 16px;font-family:Tahoma,Arial,sans-serif;font-size:13px;font-weight:700;color:#ffffff;background:#334155;border-radius:4px;text-decoration:none;white-space:nowrap">' + cfg.label + '</a>';
+    h1.insertAdjacentElement('afterend', el);
+  }
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
+})();
+</script>
+'@
+
 # Icons fuer Ablauf-Schritte (Feather-Stil, faerben ueber currentColor)
 $STEP_ICONS = @{
   box   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg>'
@@ -808,6 +843,7 @@ function Shop-Bar-White {
   </div>
 </div></div>
 $CART_BADGE_JS
+$CATEGORY_BANNER_JS
 "@
 }
 # <ul class="shnav"> mit den Shop-Links
