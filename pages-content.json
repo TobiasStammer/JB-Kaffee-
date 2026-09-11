@@ -429,33 +429,6 @@
       ],
       "intro": "Eigene Röstung und lose Teemischungen aus unserem Geschäft. Wählen Sie oben eine Sorte aus – Kaffee im 1000-g-Beutel, Tee je 6,90 €. Alle Preise inkl. MwSt.",
       "note": "Mehr über Herkunft und Röstung: <a href=\"/unser-kaffee-wissen/\">Unser Kaffee – Wissenswertes</a>. Welche Teesorte zu Ihnen passt, probieren Sie am besten bei uns – oder rufen Sie an: 06192 2004363."
-    },
-    "genusswelten": {
-      "title": "Vier Genusswelten auf Knopfdruck",
-      "intro": "Je nach Modell brüht Ihr JURA klassisch heiß, mild bei niedriger Temperatur, kalt extrahiert oder mit natürlich gesüßtem Milchschaum. Welche Genusswelten Ihr Wunschgerät bietet, steht im Steckbrief jeder Maschine.",
-      "items": [
-        {
-          "icon": "flame",
-          "t": "Hot Brew",
-          "x": "Klassisch hei&szlig; gebr&uuml;ht &ndash; Ristretto, Espresso, Cappuccino, Latte Macchiato und mehr."
-        },
-        {
-          "icon": "sun",
-          "t": "Light Brew",
-          "x": "Mild bei rund 60&nbsp;&deg;C gebr&uuml;ht &ndash; leicht, aromatisch und bek&ouml;mmlich."
-        },
-        {
-          "icon": "droplet",
-          "t": "Cold Brew",
-          "x": "Vollautomatisch kalt extrahiert &ndash; fruchtig-frischer Kaffeegenuss, auch im Sommer."
-        },
-        {
-          "icon": "sparkle",
-          "t": "Sweet Foam",
-          "x": "Nat&uuml;rlich ges&uuml;&szlig;ter Milchschaum ganz ohne Zucker &ndash; f&uuml;r Dessert-Spezialit&auml;ten."
-        }
-      ],
-      "note": "Nicht jedes Modell bietet alle vier Genusswelten &ndash; wir beraten Sie, welches Ger&auml;t zu Ihren Lieblingsgetr&auml;nken passt."
     }
   },
   "nivona": {

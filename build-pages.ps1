@@ -1225,17 +1225,6 @@ $JURA_CSS = @"
 .jcat .bd b{font-family:$FONT_HEAD;color:$($C.head);font-size:15px;margin-bottom:6px}
 .jcat .bd .tx{font-size:13.5px;line-height:1.55;color:$($C.text);flex:1}
 .jcat .bd em{font-style:normal;font-family:$FONT_HEAD;color:$($C.accent);font-weight:700;font-size:12px;margin-top:12px}
-.jgenuss-wrap{max-width:960px;margin:34px auto 0}
-.jgenuss-h{font-family:$FONT_HEAD;color:$($C.head);font-weight:700;font-size:16px;margin:0 0 6px;text-align:center}
-.jgenuss-i{font-size:14px;line-height:1.6;color:$($C.text);max-width:640px;margin:0 auto 18px;text-align:center}
-.jgenuss{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
-.jgw{background:#ffffff;border:1px solid #e2e2e2;border-radius:7px;padding:16px 17px}
-.jgw .ic{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:8px;background:$($C.soft);color:$($C.accent);margin-bottom:11px}
-.jgw .ic svg{width:18px;height:18px;display:block}
-.jgw b{display:block;font-family:$FONT_HEAD;color:$($C.head);font-size:14.5px;margin-bottom:5px}
-.jgw span{font-size:13px;line-height:1.55;color:$($C.text)}
-.jgenuss-note{font-size:12.5px;color:#6b7178;margin:16px 0 0;text-align:center}
-.jgenuss-note a{color:$($C.accent)}
 .jtech{max-width:960px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:16px}
 .jtc{background:#ffffff;border:1px solid #e2e2e2;border-radius:7px;overflow:hidden}
 .jtc .vid{position:relative;aspect-ratio:16/9;background:#000;cursor:pointer}
@@ -1427,30 +1416,11 @@ $(Sec-Head $bn $J.aboutTitle '')
     $pic = if ($_.img) { "<span class=`"pic`" style=`"background-image:url('$($_.img)')`"></span>" } else { '' }
     "<a class=`"jcat`" href=`"$base$($_.url)`">$pic<span class=`"bd`"><b>$($_.t)</b><span class=`"tx`">$($_.x)</span><em>$($_.cta) &rarr;</em></span></a>"
   }) -join "`n    "
-  $genussHtml = ''
-  if ($J.genusswelten -and $J.genusswelten.items) {
-    $gw = ($J.genusswelten.items | ForEach-Object {
-      $gic = H2-Ico $_.icon
-      "<div class=`"jgw`"><span class=`"ic`">$gic</span><b>$($_.t)</b><span>$($_.x)</span></div>"
-    }) -join "`n      "
-    $gNote = if ($J.genusswelten.note) { "<p class=`"jgenuss-note`">$($J.genusswelten.note)</p>" } else { '' }
-    $genussHtml = @"
-<div class="jstore"><div class="jgenuss-wrap">
-  <p class="jgenuss-h">$($J.genusswelten.title)</p>
-  <p class="jgenuss-i">$($J.genusswelten.intro)</p>
-  <div class="jgenuss">
-      $gw
-  </div>
-  $gNote
-</div></div>
-"@
-  }
   $catsHtml = @"
 $(Sec-Head $J.categoriesTitle 'Was Sie bei uns bekommen' '')
 <div class="jstore"><div class="jcats">
     $cats
 </div></div>
-$genussHtml
 <div class="jstore"><div class="jhero" style="margin-top:30px">
     <p>$($J.heroText)</p>
     <div class="jbtns">
