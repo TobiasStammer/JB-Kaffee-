@@ -1460,12 +1460,14 @@ $JURA_KAT_JS = @'
   var serTiles=[].slice.call(document.querySelectorAll('#jk2series .jk2-serie'));
   var serChips=[].slice.call(document.querySelectorAll('#jk2bar .jk2-chip'));
   var fdots=[].slice.call(document.querySelectorAll('#jk2bar .jk2-fdot'));
-  var featBtns=[].slice.call(document.querySelectorAll('#jk2bar .jk2-feat'));
+  var featBtns=[].slice.call(document.querySelectorAll('#jk2bar .jk2-feat[data-f]'));
+  var genussBtns=[].slice.call(document.querySelectorAll('#jk2bar .jk2-feat[data-g]'));
   var sortSel=document.getElementById('jsort');
   var emptyMsg=document.getElementById('jk2empty');
   var activeSerie='*';
   var activeFarben=[];
   var activeFeat=[];
+  var activeGenuss=[];
 
   grid.addEventListener('click',function(e){
     if(e.target.closest('a,input,label,button,.cmp')) return;
@@ -1481,7 +1483,9 @@ $JURA_KAT_JS = @'
       var okF=(!activeFarben.length||activeFarben.some(function(x){return f.indexOf(x)>-1;}));
       var ft=(c.getAttribute('data-feat')||'').split(' ');
       var okA=(!activeFeat.length||activeFeat.every(function(x){return ft.indexOf(x)>-1;}));
-      var show=okS && okF && okA;
+      var gt=(c.getAttribute('data-genuss')||'').split(' ');
+      var okG=(!activeGenuss.length||activeGenuss.every(function(x){return gt.indexOf(x)>-1;}));
+      var show=okS && okF && okA && okG;
       c.classList.toggle('is-hidden',!show);
       if(show) vis++;
     });
@@ -1509,6 +1513,14 @@ $JURA_KAT_JS = @'
       var k=b.getAttribute('data-f'), i=activeFeat.indexOf(k);
       if(i>-1) activeFeat.splice(i,1); else activeFeat.push(k);
       b.classList.toggle('is-on',activeFeat.indexOf(k)>-1);
+      apply();
+    });
+  });
+  genussBtns.forEach(function(b){
+    b.addEventListener('click',function(){
+      var k=b.getAttribute('data-g'), i=activeGenuss.indexOf(k);
+      if(i>-1) activeGenuss.splice(i,1); else activeGenuss.push(k);
+      b.classList.toggle('is-on',activeGenuss.indexOf(k)>-1);
       apply();
     });
   });
@@ -1667,8 +1679,17 @@ function Jura-Kategorie-Content($p, $brandKey = 'jura') {
     if ($vz -match 'J\.O\.E\.|WLAN|WiFi|App') { $feat += 'app' }
     if ($mahl -match '^\s*2|Zwei|2 ' -or $vz -match 'zwei (Mahlwerke|Keramik|verschiedene)') { $feat += 'mahl2' }
     $featData = ($feat -join ' ')
+
+    # Genusswelten (JURA-Markenbegriff): aus den Vorzuegen abgeleitet. Hot kann
+    # jedes Geraet, daher kein eigener Filter-Chip - nur die unterscheidenden
+    # Welten Cold/Light/Sweet.
+    $genuss = @()
+    if ($vz -match '\bCold\b')  { $genuss += 'cold' }
+    if ($vz -match '\bLight\b') { $genuss += 'light' }
+    if ($vz -match '\bSweet\b') { $genuss += 'sweet' }
+    $genussData = ($genuss -join ' ')
     @"
-<article class="jp2" data-s="$($pr.serie)" data-name="$shortName" data-serie="$($pr.serie)$sfx" data-price="$($pr.priceStr)" data-pnum="$([int]$pr.price)" data-farben="$cData" data-feat="$featData" data-blurb="$([string]$J.seriesBlurb.$($pr.serie))" data-url="$($pr.url)">
+<article class="jp2" data-s="$($pr.serie)" data-name="$shortName" data-serie="$($pr.serie)$sfx" data-price="$($pr.priceStr)" data-pnum="$([int]$pr.price)" data-farben="$cData" data-feat="$featData" data-genuss="$genussData" data-blurb="$([string]$J.seriesBlurb.$($pr.serie))" data-url="$($pr.url)">
   <div class="jp2-pic"><img src="$($pr.displayImg)" alt="$shortName"></div>
   <div class="jp2-bd">
     <span class="jp2-serie">$($pr.serie)$sfx</span>
@@ -1695,6 +1716,16 @@ function Jura-Kategorie-Content($p, $brandKey = 'jura') {
     "<div class=`"grp`"><span class=`"lbl`">Ausstattung</span>$($fd -join '')</div>"
   } else { '' }
 
+  $anyGenuss = ($ranked | Where-Object { $_.sku -and (SpecOf $_.sku) -and (([string]::Join(' ', @((SpecOf $_.sku).vorzuege))) -match '\bCold\b|\bLight\b|\bSweet\b') } | Select-Object -First 1)
+  $genussBar = if ($anyGenuss) {
+    $gd = @(
+      @{ k='cold';  t='Genusswelt Cold' }
+      @{ k='light'; t='Genusswelt Light' }
+      @{ k='sweet'; t='Genusswelt Sweet' }
+    ) | ForEach-Object { "<button class=`"jk2-feat`" data-g=`"$($_.k)`">$($_.t)</button>" }
+    "<div class=`"grp`"><span class=`"lbl`">Genusswelten</span>$($gd -join '')</div>"
+  } else { '' }
+
   $body = @"
 $JURA_CSS
 <div class="jstore jkat">
@@ -1718,6 +1749,7 @@ $JURA_CSS
     </div>
     $farbBar
     $featBar
+    $genussBar
   </div>
   <div class="jk2-grid" id="jk2grid">
 $cards
