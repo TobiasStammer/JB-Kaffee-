@@ -1814,7 +1814,7 @@ $JURA_CSS
     <div class="grp"><span class="lbl">Serie</span>$serChips</div>
     <div class="grp"><span class="lbl">Sortieren</span>
       <select id="jsort">
-        <option value="serie">Serie (GIGA &rarr; ENA)</option>
+        <option value="serie">Serie ($($order -join ' &rarr; '))</option>
         <option value="asc">Preis aufsteigend</option>
         <option value="desc">Preis absteigend</option>
         <option value="az">Name A&ndash;Z</option>
@@ -2763,6 +2763,7 @@ foreach ($p in $data.pages) {
     'jura-marke'    { Jura-Marke-Content $p; break }
     'jura-kategorie'{ Jura-Kategorie-Content $p; break }
     'jura-liste'    { Jura-Liste-Content $p; break }
+    'jura-kategorie-professional' { Jura-Kategorie-Content $p 'jura-professional'; break }
     'kaffee-tee'    { KaffeeTee-Content $p; break }
     'wartungserinnerung' { Wartungserinnerung-Content $p; break }
     'reparatur-check' { ReparaturCheck-Content $p; break }

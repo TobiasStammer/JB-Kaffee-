@@ -1951,7 +1951,7 @@
     },
     {
       "slug": "jura-professional",
-      "kind": "jura-liste",
+      "kind": "jura-kategorie-professional",
       "menu": "JURA Professional",
       "title": "JURA Professional – Kaffeevollautomaten für Büro und Gastronomie",
       "excerpt": "JURA Professional-Kaffeevollautomaten für 10 bis über 200 Tassen am Tag – Beratung, Angebot und Service vom autorisierten JURA-Partner."
@@ -2797,5 +2797,26 @@
         }
       ]
     }
-  ]
+  ],
+  "jura-professional": {
+    "brandName": "JURA",
+    "shopSlug": "jura",
+    "katHeaderSlug": "jura-professional",
+    "katCrumbTail": "Professional",
+    "katTitle": "JURA Professional – Kaffeevollautomaten für Büro und Gastronomie",
+    "katIntro": "Alle Modelle für Büro und Gastronomie – 10 bis über 200 Tassen am Tag. Richtpreise inkl. MwSt.; je nach Konfiguration (Festwasseranschluss, Milchlösung, Wartungsvertrag) erstellen wir Ihnen ein passendes Angebot.",
+    "katNote": "Sagen Sie uns Ihre Mitarbeiterzahl und Ihren Kaffeebedarf – wir empfehlen das passende Modell und erstellen ein Angebot. Telefon 06192 2004363.",
+    "serieSuffix": "-Linie",
+    "footerNote": "JURA® sowie P.E.P.®, I.W.S.® und J.O.E.® sind Marken der JURA Elektroapparate AG, Niederbuchsiten (Schweiz). Verkauf durch die Joachim Blöchle Elektro-Service GmbH als autorisierter JURA-Fachhändler. Abbildungen: JURA.",
+    "seriesOrder": [
+      "GIGA",
+      "X",
+      "W"
+    ],
+    "seriesBlurb": {
+      "GIGA": "Profi-Vollautomat für hohen Durchsatz in Gastronomie und Großbüro.",
+      "X": "Kompakter Profi-Vollautomat für Büro und Gastronomie.",
+      "W": "Profi-Vollautomat für Büro und Gastronomie."
+    }
+  }
 }
