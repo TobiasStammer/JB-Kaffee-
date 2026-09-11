@@ -527,6 +527,9 @@ $SEC_ICONS = @{
   check   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>'
   coffee  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>'
   droplet = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7s6 6.8 6 11.3a6 6 0 0 1-12 0C6 9.5 12 2.7 12 2.7z"/></svg>'
+  flame   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-3-2-5-3.5-7C14 6 12 2 12 2S10 6 8.5 8C7 10 5 12 5 15a7 7 0 0 0 7 7z"/></svg>'
+  sun     = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>'
+  sparkle = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/></svg>'
   quote   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15l2 2 4-4"/></svg>'
   box     = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg>'
   map     = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'
@@ -1222,6 +1225,17 @@ $JURA_CSS = @"
 .jcat .bd b{font-family:$FONT_HEAD;color:$($C.head);font-size:15px;margin-bottom:6px}
 .jcat .bd .tx{font-size:13.5px;line-height:1.55;color:$($C.text);flex:1}
 .jcat .bd em{font-style:normal;font-family:$FONT_HEAD;color:$($C.accent);font-weight:700;font-size:12px;margin-top:12px}
+.jgenuss-wrap{max-width:960px;margin:34px auto 0}
+.jgenuss-h{font-family:$FONT_HEAD;color:$($C.head);font-weight:700;font-size:16px;margin:0 0 6px;text-align:center}
+.jgenuss-i{font-size:14px;line-height:1.6;color:$($C.text);max-width:640px;margin:0 auto 18px;text-align:center}
+.jgenuss{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.jgw{background:#ffffff;border:1px solid #e2e2e2;border-radius:7px;padding:16px 17px}
+.jgw .ic{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:8px;background:$($C.soft);color:$($C.accent);margin-bottom:11px}
+.jgw .ic svg{width:18px;height:18px;display:block}
+.jgw b{display:block;font-family:$FONT_HEAD;color:$($C.head);font-size:14.5px;margin-bottom:5px}
+.jgw span{font-size:13px;line-height:1.55;color:$($C.text)}
+.jgenuss-note{font-size:12.5px;color:#6b7178;margin:16px 0 0;text-align:center}
+.jgenuss-note a{color:$($C.accent)}
 .jtech{max-width:960px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:16px}
 .jtc{background:#ffffff;border:1px solid #e2e2e2;border-radius:7px;overflow:hidden}
 .jtc .vid{position:relative;aspect-ratio:16/9;background:#000;cursor:pointer}
@@ -1392,11 +1406,30 @@ $(Sec-Head $bn $J.aboutTitle '')
     $pic = if ($_.img) { "<span class=`"pic`" style=`"background-image:url('$($_.img)')`"></span>" } else { '' }
     "<a class=`"jcat`" href=`"$base$($_.url)`">$pic<span class=`"bd`"><b>$($_.t)</b><span class=`"tx`">$($_.x)</span><em>$($_.cta) &rarr;</em></span></a>"
   }) -join "`n    "
+  $genussHtml = ''
+  if ($J.genusswelten -and $J.genusswelten.items) {
+    $gw = ($J.genusswelten.items | ForEach-Object {
+      $gic = H2-Ico $_.icon
+      "<div class=`"jgw`"><span class=`"ic`">$gic</span><b>$($_.t)</b><span>$($_.x)</span></div>"
+    }) -join "`n      "
+    $gNote = if ($J.genusswelten.note) { "<p class=`"jgenuss-note`">$($J.genusswelten.note)</p>" } else { '' }
+    $genussHtml = @"
+<div class="jstore"><div class="jgenuss-wrap">
+  <p class="jgenuss-h">$($J.genusswelten.title)</p>
+  <p class="jgenuss-i">$($J.genusswelten.intro)</p>
+  <div class="jgenuss">
+      $gw
+  </div>
+  $gNote
+</div></div>
+"@
+  }
   $catsHtml = @"
 $(Sec-Head $J.categoriesTitle 'Was Sie bei uns bekommen' '')
 <div class="jstore"><div class="jcats">
     $cats
 </div></div>
+$genussHtml
 <div class="jstore"><div class="jhero" style="margin-top:30px">
     <p>$($J.heroText)</p>
     <div class="jbtns">
