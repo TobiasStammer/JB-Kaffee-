@@ -1734,19 +1734,6 @@ function Jura-Kategorie-Content($p, $brandKey = 'jura') {
     $milch = Td $sp 'Milchsystem'
     $mahl = Td $sp 'Mahlwerk'
     $vz = if ($sp -and $sp.vorzuege) { [string]::Join(' ', @($sp.vorzuege)) } else { '' }
-    $facts = @()
-    if ($spez) { $facts += "$spez Spezialit&auml;ten" }
-    $sd = ShortDisplay $disp
-    if ($sd)   { $facts += $sd }
-    if ($tank) { $facts += "$tank Tank" }
-    $factHtml = if ($facts.Count) { "<ul class=`"jp2-fx`">" + (($facts | Select-Object -First 3 | ForEach-Object { "<li>$_</li>" }) -join '') + "</ul>" } else { '' }
-
-    $feat = @()
-    if ($milch -or $vz -match 'Milch(schaum|system|spezialit)') { $feat += 'milch' }
-    if ($disp -match 'Touch|Farbdisplay') { $feat += 'display' }
-    if ($vz -match 'J\.O\.E\.|WLAN|WiFi|App') { $feat += 'app' }
-    if ($mahl -match '^\s*2|Zwei|2 ' -or $vz -match 'zwei (Mahlwerke|Keramik|verschiedene)') { $feat += 'mahl2' }
-    $featData = ($feat -join ' ')
 
     # Genusswelten (offizielle JURA-Markenbegriffe, siehe de.jura.com/einkaufsberatung/genusswelten):
     # Hot Brew kann jedes Geraet, Light/Cold Brew und Sweet Foam aus den Vorzuegen abgeleitet.
@@ -1755,6 +1742,23 @@ function Jura-Kategorie-Content($p, $brandKey = 'jura') {
     if ($vz -match '\bLight\b') { $genuss += 'light' }
     if ($vz -match '\bSweet\b') { $genuss += 'sweet' }
     $genussData = ($genuss -join ' ')
+    $genussLabel = @{ hot = 'Hot'; light = 'Light'; cold = 'Cold'; sweet = 'Sweet' }
+    $genussFact = 'Genusswelten: ' + (($genuss | ForEach-Object { $genussLabel[$_] }) -join ', ')
+
+    $facts = @()
+    if ($spez) { $facts += "$spez Spezialit&auml;ten" }
+    $sd = ShortDisplay $disp
+    if ($sd)   { $facts += $sd }
+    if ($tank) { $facts += "$tank Tank" }
+    $facts += $genussFact
+    $factHtml = if ($facts.Count) { "<ul class=`"jp2-fx`">" + (($facts | Select-Object -First 4 | ForEach-Object { "<li>$_</li>" }) -join '') + "</ul>" } else { '' }
+
+    $feat = @()
+    if ($milch -or $vz -match 'Milch(schaum|system|spezialit)') { $feat += 'milch' }
+    if ($disp -match 'Touch|Farbdisplay') { $feat += 'display' }
+    if ($vz -match 'J\.O\.E\.|WLAN|WiFi|App') { $feat += 'app' }
+    if ($mahl -match '^\s*2|Zwei|2 ' -or $vz -match 'zwei (Mahlwerke|Keramik|verschiedene)') { $feat += 'mahl2' }
+    $featData = ($feat -join ' ')
     @"
 <article class="jp2" data-s="$($pr.serie)" data-name="$shortName" data-serie="$($pr.serie)$sfx" data-price="$($pr.priceStr)" data-pnum="$([int]$pr.price)" data-farben="$cData" data-feat="$featData" data-genuss="$genussData" data-blurb="$([string]$J.seriesBlurb.$($pr.serie))" data-url="$($pr.url)">
   <div class="jp2-pic"><img src="$($pr.displayImg)" alt="$shortName"></div>
