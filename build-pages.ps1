@@ -1390,6 +1390,27 @@ function Jura-Marke-Content($p, $brandKey = 'jura') {
 </div>
 $herofig
 "@
+  # Vier Genusswelten (offizieller JURA-Markenbegriff), Bilder + Texte von
+  # de.jura.com/de/einkaufsberatung/genusswelten. Nur bei JURA, nicht bei NIVONA.
+  # Jede Kachel verlinkt in die Kategorie mit vorgewaehltem Genusswelten-Filter.
+  $genussTiles = if ($brandKey -eq 'jura') {
+    $gw = @(
+      @{ k='hot';   t='Hot Brew';   x='Intensiver Espresso in Barista-Qualit&auml;t dank Puls-Extraktionsprozess P.E.P.&reg;, dazu klassischer Kaffee und vollmundige Lungo-Spezialit&auml;ten.'; img='https://de.jura.com/-/media/global/images/why-jura/genusswelten/Genusswelten_Range_HotBrew_1600x1200.jpg?mw=600' }
+      @{ k='light'; t='Light Brew'; x='Bei rund 60&nbsp;&deg;C gebr&uuml;ht und mit weniger Kaffeepulver als Hot Brew &ndash; luftig-leicht, aromatisch mild und sofort trinkbereit.'; img='https://de.jura.com/-/media/global/images/why-jura/genusswelten/Genusswelten_Range_LightBrew_1600x1200.jpg?mw=600' }
+      @{ k='cold';  t='Cold Brew';  x='Der Cold Extraction Process br&uuml;ht mit kaltem Wasser unter hohem Druck: erfrischend fruchtig, ganz ohne Bitterstoffe.'; img='https://de.jura.com/-/media/global/images/why-jura/genusswelten/Genusswelten_Range_ColdBrew_1600x1200.jpg?mw=600' }
+      @{ k='sweet'; t='Sweet Foam'; x='Die Sweet-Foam-Funktion aromatisiert den Milchschaum direkt bei der Zubereitung mit Sirup nach Wahl.'; img='https://de.jura.com/-/media/global/images/why-jura/genusswelten/Genusswelten_Range_SweetFoam_1600x1200.jpg?mw=600' }
+    )
+    $gwTiles = ($gw | ForEach-Object {
+      "<a class=`"jcat`" href=`"$base/$($J.katHeaderSlug)/?genuss=$($_.k)`"><span class=`"pic`" style=`"background-image:url('$($_.img)')`"></span><span class=`"bd`"><b>$($_.t)</b><span class=`"tx`">$($_.x)</span><em>Passende Modelle &rarr;</em></span></a>"
+    }) -join "`n    "
+    @"
+$(Sec-Head 'Genusswelten' 'Vier Genusswelten von JURA' 'Von intensivem Espresso bis erfrischendem Cold Brew &ndash; jede Genusswelt steht f&uuml;r ein eigenes Geschmackserlebnis.')
+<div class="jstore"><div class="jcats">
+    $gwTiles
+</div></div>
+"@
+  } else { '' }
+
   $banner = @"
 <div class="jstore"><div class="jbanner">
   <div><h2>$($J.banner.title)</h2><p>$($J.banner.text)</p></div>
@@ -1476,10 +1497,11 @@ $techJs
   $promo = if ($brandKey -eq 'jura') { Shop-Promo-Html } else { '' }
   if ($promo) { $zones += (Zone $C.bg '22px' '2px' (Html-Block $promo)) }
   $zones += (Zone $C.white '46px' '34px' (Html-Block ($JURA_CSS + "`n" + $hero)))
-  $zones += (Zone $C.soft  '40px' '44px' (Html-Block $catsHtml))
-  $zones += (Zone $C.white '42px' '34px' (Html-Block $banner))
-  $zones += (Zone $C.soft  '44px' '44px' (Html-Block $about))
-  $zones += (Zone $C.white '46px' '52px' (Html-Block $techHtml))
+  if ($genussTiles) { $zones += (Zone $C.soft '40px' '44px' (Html-Block $genussTiles)) }
+  $zones += (Zone $C.white '40px' '44px' (Html-Block $catsHtml))
+  $zones += (Zone $C.soft  '42px' '34px' (Html-Block $banner))
+  $zones += (Zone $C.white '44px' '44px' (Html-Block $about))
+  $zones += (Zone $C.soft  '46px' '52px' (Html-Block $techHtml))
   $zones += (Footer-Zone)
   Wrap-Page ($zones -join "`n`n")
 }
@@ -1493,12 +1515,14 @@ $JURA_KAT_JS = @'
   var serTiles=[].slice.call(document.querySelectorAll('#jk2series .jk2-serie'));
   var serChips=[].slice.call(document.querySelectorAll('#jk2bar .jk2-chip'));
   var fdots=[].slice.call(document.querySelectorAll('#jk2bar .jk2-fdot'));
-  var featBtns=[].slice.call(document.querySelectorAll('#jk2bar .jk2-feat'));
+  var featBtns=[].slice.call(document.querySelectorAll('#jk2bar .jk2-feat[data-f]'));
+  var genussBtns=[].slice.call(document.querySelectorAll('#jk2bar .jk2-feat[data-g]'));
   var sortSel=document.getElementById('jsort');
   var emptyMsg=document.getElementById('jk2empty');
   var activeSerie='*';
   var activeFarben=[];
   var activeFeat=[];
+  var activeGenuss=[];
 
   grid.addEventListener('click',function(e){
     if(e.target.closest('a,input,label,button,.cmp')) return;
@@ -1514,7 +1538,9 @@ $JURA_KAT_JS = @'
       var okF=(!activeFarben.length||activeFarben.some(function(x){return f.indexOf(x)>-1;}));
       var ft=(c.getAttribute('data-feat')||'').split(' ');
       var okA=(!activeFeat.length||activeFeat.every(function(x){return ft.indexOf(x)>-1;}));
-      var show=okS && okF && okA;
+      var gt=(c.getAttribute('data-genuss')||'').split(' ');
+      var okG=(!activeGenuss.length||activeGenuss.every(function(x){return gt.indexOf(x)>-1;}));
+      var show=okS && okF && okA && okG;
       c.classList.toggle('is-hidden',!show);
       if(show) vis++;
     });
@@ -1545,6 +1571,21 @@ $JURA_KAT_JS = @'
       apply();
     });
   });
+  genussBtns.forEach(function(b){
+    b.addEventListener('click',function(){
+      var k=b.getAttribute('data-g'), i=activeGenuss.indexOf(k);
+      if(i>-1) activeGenuss.splice(i,1); else activeGenuss.push(k);
+      b.classList.toggle('is-on',activeGenuss.indexOf(k)>-1);
+      apply();
+    });
+  });
+  // Vorauswahl per Link von der Genusswelten-Erklaerung auf /jura/ (?genuss=cold)
+  (function(){
+    var q=(new URLSearchParams(location.search)).get('genuss'); if(!q) return;
+    var b=genussBtns.filter(function(x){return x.getAttribute('data-g')===q;})[0]; if(!b) return;
+    activeGenuss.push(q); b.classList.add('is-on'); apply();
+    grid.scrollIntoView({behavior:'smooth',block:'start'});
+  })();
 
   function applySort(){
     var m=sortSel.value;
@@ -1700,8 +1741,16 @@ function Jura-Kategorie-Content($p, $brandKey = 'jura') {
     if ($vz -match 'J\.O\.E\.|WLAN|WiFi|App') { $feat += 'app' }
     if ($mahl -match '^\s*2|Zwei|2 ' -or $vz -match 'zwei (Mahlwerke|Keramik|verschiedene)') { $feat += 'mahl2' }
     $featData = ($feat -join ' ')
+
+    # Genusswelten (offizielle JURA-Markenbegriffe, siehe de.jura.com/einkaufsberatung/genusswelten):
+    # Hot Brew kann jedes Geraet, Light/Cold Brew und Sweet Foam aus den Vorzuegen abgeleitet.
+    $genuss = @('hot')
+    if ($vz -match '\bCold\b')  { $genuss += 'cold' }
+    if ($vz -match '\bLight\b') { $genuss += 'light' }
+    if ($vz -match '\bSweet\b') { $genuss += 'sweet' }
+    $genussData = ($genuss -join ' ')
     @"
-<article class="jp2" data-s="$($pr.serie)" data-name="$shortName" data-serie="$($pr.serie)$sfx" data-price="$($pr.priceStr)" data-pnum="$([int]$pr.price)" data-farben="$cData" data-feat="$featData" data-blurb="$([string]$J.seriesBlurb.$($pr.serie))" data-url="$($pr.url)">
+<article class="jp2" data-s="$($pr.serie)" data-name="$shortName" data-serie="$($pr.serie)$sfx" data-price="$($pr.priceStr)" data-pnum="$([int]$pr.price)" data-farben="$cData" data-feat="$featData" data-genuss="$genussData" data-blurb="$([string]$J.seriesBlurb.$($pr.serie))" data-url="$($pr.url)">
   <div class="jp2-pic"><img src="$($pr.displayImg)" alt="$shortName"></div>
   <div class="jp2-bd">
     <span class="jp2-serie">$($pr.serie)$sfx</span>
@@ -1728,6 +1777,17 @@ function Jura-Kategorie-Content($p, $brandKey = 'jura') {
     "<div class=`"grp`"><span class=`"lbl`">Ausstattung</span>$($fd -join '')</div>"
   } else { '' }
 
+  # Namen/Reihenfolge wie auf de.jura.com/de/einkaufsberatung/genusswelten
+  $genussBar = if ($SPEC.Count) {
+    $gd = @(
+      @{ k='hot';   t='Hot Brew';   x='Intensiver Espresso, hei&szlig; gebr&uuml;hter Kaffee und Lungo in Barista-Qualit&auml;t' }
+      @{ k='light'; t='Light Brew'; x='Bei ca. 60&nbsp;&deg;C gebr&uuml;ht &ndash; wohltemperiert, luftig-leicht, sofort trinkbereit' }
+      @{ k='cold';  t='Cold Brew';  x='Cold Extraction: kalt, pulsierend, unter Druck gebr&uuml;ht &ndash; fruchtig, ohne Bitterstoffe' }
+      @{ k='sweet'; t='Sweet Foam'; x='Milchschaum direkt bei der Zubereitung mit Sirup aromatisiert' }
+    ) | ForEach-Object { "<button class=`"jk2-feat`" data-g=`"$($_.k)`" title=`"$($_.x)`">$($_.t)</button>" }
+    "<div class=`"grp`"><span class=`"lbl`">Genusswelten</span>$($gd -join '')</div>"
+  } else { '' }
+
   $body = @"
 $JURA_CSS
 <div class="jstore jkat">
@@ -1740,6 +1800,7 @@ $JURA_CSS
       $serTiles
   </div>
   <div class="jk2-bar" id="jk2bar">
+    $genussBar
     <div class="grp"><span class="lbl">Serie</span>$serChips</div>
     <div class="grp"><span class="lbl">Sortieren</span>
       <select id="jsort">
