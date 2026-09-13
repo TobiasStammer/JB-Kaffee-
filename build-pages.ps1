@@ -1769,7 +1769,7 @@ function Jura-Kategorie-Content($p, $brandKey = 'jura') {
     $featData = ($feat -join ' ')
     @"
 <article class="jp2" data-s="$($pr.serie)" data-name="$shortName" data-serie="$($pr.serie)$sfx" data-price="$($pr.priceStr)" data-pnum="$([int]$pr.price)" data-farben="$cData" data-feat="$featData" data-genuss="$genussData" data-blurb="$([string]$J.seriesBlurb.$($pr.serie))" data-url="$($pr.url)">
-  <div class="jp2-pic"><img src="$($pr.displayImg)" alt="$shortName"></div>
+  <div class="jp2-pic">$(if ($pr.displayImg) { "<img src=`"$($pr.displayImg)`" alt=`"$shortName`">" } else { "<span style=`"font-size:11px;color:#aaa`">Abbildung folgt</span>" })</div>
   <div class="jp2-bd">
     <span class="jp2-serie">$($pr.serie)$sfx</span>
     <h3>$shortName</h3>
