@@ -758,6 +758,11 @@ function Shop-Bar-CSS {
   @"
 <style>
 html{overflow-x:clip}
+/* Theme setzt global .wp-site-blocks{overflow:clip} - das bricht position:sticky
+   in Safari/iOS (bekannter WebKit-Bug), auch wenn der Ausschnitt hoch genug waere.
+   Waagerechtes Clipping bleibt oben an html erhalten, hier nur die Y-Achse loesen,
+   damit das Menueband unten wirklich am Bildschirm kleben bleibt. */
+.wp-site-blocks{overflow-x:clip !important;overflow-y:visible !important}
 header.wp-block-template-part{display:contents}
 .shbwrap{background:#ffffff}
 .shb{max-width:$MAXW;margin:0 auto;padding:13px 24px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px 18px;font-family:$FONT_BODY}
@@ -1502,12 +1507,15 @@ $techJs
   $zones = @( (Shop-Header-Zone $J.shopSlug) )
   $promo = if ($brandKey -eq 'jura') { Shop-Promo-Html } else { '' }
   if ($promo) { $zones += (Zone $C.bg '22px' '2px' (Html-Block $promo)) }
+  # Baender abwechselnd weiss/soft - unabhaengig davon, ob genussTiles (nur JURA) dabei ist.
+  $bandColors = @($C.soft, $C.white, $C.soft, $C.white, $C.soft)
   $zones += (Zone $C.white '46px' '34px' (Html-Block ($JURA_CSS + "`n" + $hero)))
-  if ($genussTiles) { $zones += (Zone $C.soft '40px' '44px' (Html-Block $genussTiles)) }
-  $zones += (Zone $C.white '40px' '44px' (Html-Block $catsHtml))
-  $zones += (Zone $C.soft  '42px' '34px' (Html-Block $banner))
-  $zones += (Zone $C.white '44px' '44px' (Html-Block $about))
-  $zones += (Zone $C.soft  '46px' '52px' (Html-Block $techHtml))
+  $zones += (Zone $bandColors[0] '40px' '44px' (Html-Block $catsHtml))
+  $bi = 1
+  if ($genussTiles) { $zones += (Zone $bandColors[$bi] '40px' '44px' (Html-Block $genussTiles)); $bi++ }
+  $zones += (Zone $bandColors[$bi]     '42px' '34px' (Html-Block $banner));   $bi++
+  $zones += (Zone $bandColors[$bi]     '44px' '44px' (Html-Block $about));    $bi++
+  $zones += (Zone $bandColors[$bi]     '46px' '52px' (Html-Block $techHtml))
   $zones += (Footer-Zone)
   Wrap-Page ($zones -join "`n`n")
 }
@@ -1943,8 +1951,12 @@ function KaffeeTee-Content($p) {
   $tiles = "<button class=`"jserie jserie-all is-on`" data-s=`"*`"><b>Alle</b><small>$($prods.Count) Sorten</small></button>" +
     (($arts | ForEach-Object {
        $a = $_
-       $cnt = @($prods | Where-Object { $_.art -eq $a }).Count
-       "<button class=`"jserie jserie-all`" data-s=`"$a`"><b>$a</b><small>$cnt Sorte$(if ($cnt -ne 1) {'n'})</small></button>"
+       $group = @($prods | Where-Object { $_.art -eq $a })
+       $cnt = $group.Count
+       $repImg = if ($group[0].displayImg) { $group[0].displayImg } else { $group[0].img }
+       $pic = if ($repImg) { "<img src=`"$repImg`" alt=`"`" loading=`"lazy`">" } else { '' }
+       $cls = if ($repImg) { 'jserie' } else { 'jserie jserie-all' }
+       "<button class=`"$cls`" data-s=`"$a`">$pic<b>$a</b><small>$cnt Sorte$(if ($cnt -ne 1) {'n'})</small></button>"
      }) -join '')
   $cards = ($prods | ForEach-Object {
     $img = if ($_.img) { "<img src=`"$($_.img)`" alt=`"$($_.name)`">" } else { '' }

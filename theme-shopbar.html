@@ -1,5 +1,10 @@
-﻿<style>
+<style>
 html{overflow-x:clip}
+/* Theme setzt global .wp-site-blocks{overflow:clip} - das bricht position:sticky
+   in Safari/iOS (bekannter WebKit-Bug), auch wenn der Ausschnitt hoch genug waere.
+   Waagerechtes Clipping bleibt oben an html erhalten, hier nur die Y-Achse loesen,
+   damit das Menueband unten wirklich am Bildschirm kleben bleibt. */
+.wp-site-blocks{overflow-x:clip !important;overflow-y:visible !important}
 header.wp-block-template-part{display:contents}
 .shbwrap{background:#ffffff}
 .shb{max-width:1200px;margin:0 auto;padding:13px 24px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px 18px;font-family:'Source Sans 3', 'Source Sans Pro', system-ui, sans-serif}
