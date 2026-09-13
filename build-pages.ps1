@@ -2776,6 +2776,8 @@ foreach ($p in $data.pages) {
     'jura-kategorie'{ Jura-Kategorie-Content $p; break }
     'jura-liste'    { Jura-Liste-Content $p; break }
     'jura-kategorie-professional' { Jura-Kategorie-Content $p 'jura-professional'; break }
+    'jura-kategorie-zubehoer' { Jura-Kategorie-Content $p 'jura-zubehoer'; break }
+    'jura-kategorie-pflege'   { Jura-Kategorie-Content $p 'jura-pflegeprodukte'; break }
     'kaffee-tee'    { KaffeeTee-Content $p; break }
     'wartungserinnerung' { Wartungserinnerung-Content $p; break }
     'reparatur-check' { ReparaturCheck-Content $p; break }

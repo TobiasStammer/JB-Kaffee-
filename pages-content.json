@@ -1937,14 +1937,14 @@
     },
     {
       "slug": "jura-zubehoer",
-      "kind": "jura-liste",
+      "kind": "jura-kategorie-zubehoer",
       "menu": "JURA Zubehör",
       "title": "JURA Zubehör für Kaffeevollautomaten",
       "excerpt": "Original JURA Zubehör – Milchbehälter, Karaffen, Smart Connect, Feinschaumdüsen, Tassen und mehr."
     },
     {
       "slug": "jura-pflegeprodukte",
-      "kind": "jura-liste",
+      "kind": "jura-kategorie-pflege",
       "menu": "JURA Pflegeprodukte",
       "title": "JURA Pflegeprodukte – Filter, Reinigung, Entkalkung",
       "excerpt": "Original JURA CLARIS Wasserfilter, Reinigungs- und Entkalkungstabletten, Milchsystem-Reiniger."
@@ -2817,6 +2817,54 @@
       "GIGA": "Profi-Vollautomat für hohen Durchsatz in Gastronomie und Großbüro.",
       "X": "Kompakter Profi-Vollautomat für Büro und Gastronomie.",
       "W": "Profi-Vollautomat für Büro und Gastronomie."
+    }
+  },
+  "jura-zubehoer": {
+    "brandName": "JURA",
+    "shopSlug": "jura",
+    "katHeaderSlug": "jura-zubehoer",
+    "katCrumbTail": "Zubehör",
+    "katTitle": "JURA Zubehör für Kaffeevollautomaten",
+    "katIntro": "Original-Zubehör für Ihren JURA Kaffeevollautomaten – Milchbehälter, Karaffen, Smart Connect, Tassen und mehr. Alle Preise inkl. MwSt. Was zu Ihrem Gerät passt, zeigen wir Ihnen gern im Geschäft.",
+    "katNote": "Sie wissen nicht, welches Zubehör mit Ihrem Modell kompatibel ist? Rufen Sie uns an: 06192 2004363.",
+    "serieSuffix": "",
+    "footerNote": "JURA&reg; ist eine Marke der JURA Elektroapparate AG, Niederbuchsiten (Schweiz). Verkauf durch die Joachim Bl&ouml;chle Elektro-Service GmbH als autorisierter JURA-Fachh&auml;ndler. Abbildungen: JURA.",
+    "seriesOrder": [
+      "Milchsystem & Zubehör",
+      "Tassen & Gläser",
+      "Aufsätze für Spezialitäten",
+      "Technik & Konnektivität",
+      "Aufbewahrung & Komfort",
+      "Besteck & Kleinteile"
+    ],
+    "seriesBlurb": {
+      "Milchsystem & Zubehör": "Milchbehälter, Karaffen und Zubehör rund um Milchschaum.",
+      "Tassen & Gläser": "Passende Tassen und Gläser für jede Spezialität.",
+      "Aufsätze für Spezialitäten": "Sirup, Schoko und Cold-Brew-Zubehör für den Kombiauslauf.",
+      "Technik & Konnektivität": "WLAN- und Fernsteuerungs-Zubehör für Ihren Vollautomaten.",
+      "Aufbewahrung & Komfort": "Tassenwärmer, Schublade und Ersatzmühle.",
+      "Besteck & Kleinteile": "Löffel und Kleinteile für den täglichen Gebrauch."
+    }
+  },
+  "jura-pflegeprodukte": {
+    "brandName": "JURA",
+    "shopSlug": "jura",
+    "katHeaderSlug": "jura-pflegeprodukte",
+    "katCrumbTail": "Pflegeprodukte",
+    "katTitle": "JURA Pflegeprodukte",
+    "katIntro": "Regelmäßige Pflege hält Ihren JURA Vollautomaten hygienisch und langlebig. Original CLARIS Wasserfilter, Reinigungs- und Entkalkungstabletten sowie Milchsystem-Reiniger. Alle Preise inkl. MwSt.",
+    "katNote": "Unsicher bei Wasserhärte, Filterwechsel oder Entkalkung? Wir beraten Sie – telefonisch unter 06192 2004363 oder im Geschäft.",
+    "serieSuffix": "",
+    "footerNote": "JURA&reg; und CLARIS&reg; sind Marken der JURA Elektroapparate AG, Niederbuchsiten (Schweiz). Verkauf durch die Joachim Bl&ouml;chle Elektro-Service GmbH als autorisierter JURA-Fachh&auml;ndler. Abbildungen: JURA.",
+    "seriesOrder": [
+      "Wasserfilter",
+      "Reinigung & Entkalkung",
+      "Pflege-Sets"
+    ],
+    "seriesBlurb": {
+      "Wasserfilter": "Original CLARIS Filterpatronen für Ihren Vollautomaten.",
+      "Reinigung & Entkalkung": "Tabletten und Reiniger für Brühgruppe, Milchsystem und Entkalkung.",
+      "Pflege-Sets": "Komplett-Sets für die regelmäßige Pflege im Vorteilspaket."
     }
   }
 }
