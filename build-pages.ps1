@@ -2024,6 +2024,14 @@ $PROSE_CSS = @"
 .kt-sec li{position:relative;padding-left:20px;margin:0 0 6px;font-size:15.5px;line-height:1.55}
 .kt-sec li::before{content:"";position:absolute;left:3px;top:9px;width:5px;height:5px;background:$($C.head);border-radius:50%}
 .kt-sec .wp-block-buttons{margin-top:14px}
+.kt-faq-back{display:inline-flex;align-items:center;gap:6px;font-family:$FONT_HEAD;font-size:12.5px;font-weight:700;color:#6d6d6d;text-decoration:none;margin:0 0 14px}
+.kt-faq-back:hover{color:$($C.accent)}
+.kt-faq-cta{margin-top:28px;background:$($C.soft);border:1px solid #e6e6e6;border-radius:8px;padding:22px 24px}
+.kt-faq-cta>p{margin:0 0 14px;font-family:$FONT_HEAD;color:$($C.head);font-weight:700;font-size:15px}
+.kt-faq-cta-btns{display:flex;flex-wrap:wrap;gap:10px}
+.kt-faq-cta-btns a{display:inline-flex;align-items:center;padding:10px 18px;font-family:$FONT_HEAD;font-size:13px;font-weight:700;letter-spacing:.01em;text-decoration:none;border-radius:4px}
+.kt-faq-cta-btns a.kt-faq-btn-primary{background:$($C.accent);color:#ffffff;border:1px solid $($C.accent)}
+.kt-faq-cta-btns a.kt-faq-btn-ghost{background:transparent;color:$($C.accent);border:1px solid #ccd1d8}
 @media(max-width:900px){
   .kt-page.has-rail{grid-template-columns:1fr;gap:0}
   .kt-rail{position:static;border-bottom:1px solid $($C.line);padding-bottom:16px;margin-bottom:24px}
@@ -2035,6 +2043,27 @@ $PROSE_CSS = @"
 
 # ---------- Unterseite ----------
 function Sub-Content($p) {
+  # Hilfe&Wissen-Artikel (erkennbar an faqGroup aus faq-content.json): Ruecksprung
+  # zum Hub + Kontakt-CTA am Ende, damit der Kunde nach dem Lesen nicht in einer
+  # Sackgasse landet (Nutzerwunsch 2026-09-16: "der Kunde muss das einfacher
+  # bedienen koennen").
+  $faqBackHtml = ''
+  $faqCtaHtml  = ''
+  if ($p.faqGroup) {
+    $grp = $null
+    if ($FAQ_HUB) { $grp = @($FAQ_HUB.groups | Where-Object { $_.title -eq $p.faqGroup }) | Select-Object -First 1 }
+    $backUrl = if ($grp) { "$base/hilfethemen/#$($grp.anchor)" } else { "$base/hilfethemen/" }
+    $faqBackHtml = "<a href=`"$backUrl`" class=`"kt-faq-back`">&larr; Zur&uuml;ck zu Hilfe &amp; Wissen</a>"
+    $faqCtaHtml = @"
+<div class="kt-faq-cta">
+  <p>Hat das nicht geholfen?</p>
+  <div class="kt-faq-cta-btns">
+    <a href="$base/kontakt/" class="kt-faq-btn-primary">Kontakt aufnehmen</a>
+    <a href="tel:+4961922004363" class="kt-faq-btn-ghost">06192 2004363 anrufen</a>
+  </div>
+</div>
+"@
+  }
   $blocks = @($p.blocks)
   $heroP = ''
   if ($blocks.Count -gt 0 -and $blocks[0].t -eq 'p') {
@@ -2095,12 +2124,14 @@ $PROSE_CSS
 <div class="$cls">
   $rail
   <div class="kt-main">
+    $faqBackHtml
     <h1>$($p.title)</h1>
     $heroP
     $sub
     <div class="kt-prose">
 $proseHtml
     </div>
+    $faqCtaHtml
   </div>
 </div>
 "@
