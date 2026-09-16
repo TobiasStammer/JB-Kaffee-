@@ -1621,11 +1621,23 @@ $JURA_KAT_JS = @'
 
   cards.forEach(function(card){
     var img=card.querySelector('.jp2-pic img');
+    var link=card.querySelector('.jp2-row a');
+    var baseUrl=card.getAttribute('data-url');
     [].slice.call(card.querySelectorAll('.jsw')).forEach(function(sw){
       sw.addEventListener('click',function(){
         var src=sw.getAttribute('data-img'); if(src && img) img.src=src;
         [].slice.call(card.querySelectorAll('.jsw')).forEach(function(x){ x.classList.remove('is-on'); });
         sw.classList.add('is-on');
+        // Farbauswahl in die Zielseite mitgeben, damit "Details ansehen" (und
+        // der Klick auf die Karte) zur passenden Variante fuehren, nicht zur
+        // Standardfarbe (Kundentest hat das als Widerspruch aufgedeckt).
+        var color=sw.getAttribute('data-c');
+        if(baseUrl && color){
+          var sep=(baseUrl.indexOf('?')>-1) ? '&' : '?';
+          var u=baseUrl+sep+'attribute_farbe='+encodeURIComponent(color);
+          card.setAttribute('data-url',u);
+          if(link) link.href=u;
+        }
       });
     });
   });
