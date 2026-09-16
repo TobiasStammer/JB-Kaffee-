@@ -118,7 +118,7 @@
           "x": [
             "Gerät gründlich entkalken (mit korrekt eingestelltem Wasserhärtegrad)",
             "Reinigungsprogramm mit einer Reinigungstablette durchführen",
-            "Herausnehmbare Brühgruppe entnehmen und unter warmem Wasser abspülen – ohne Spülmittel, nicht in die Spülmaschine",
+            "Brühgruppe reinigen: bei NIVONA herausnehmen und unter warmem Wasser abspülen (ohne Spülmittel, nicht in die Spülmaschine); bei JURA (fest verbaut) stattdessen das Reinigungsprogramm durchführen",
             "Bohnen prüfen: sehr ölige, dunkle Bohnen verkleben Mahlwerk und Brühgruppe schneller"
           ]
         },
@@ -147,11 +147,19 @@
       "faqGroup": "Häufige Störungen",
       "menu": "Brühgruppe lässt sich nicht einsetzen",
       "title": "Brühgruppe lässt sich nicht einsetzen oder entnehmen",
-      "excerpt": "Die herausnehmbare Brühgruppe klemmt – so bringen Sie das Getriebe wieder in Grundstellung.",
+      "excerpt": "Betrifft Geräte mit herausnehmbarer Brühgruppe, z. B. NIVONA – bei JURA (fest verbaut) kommt das nicht vor.",
       "blocks": [
         {
           "t": "p",
-          "x": "Betrifft Geräte mit herausnehmbarer Brühgruppe (z. B. Saeco, Philips, Melitta, De Longhi). Lässt sie sich nicht einsetzen, steht das Getriebe im Gerät nicht in der richtigen Position."
+          "x": "Betrifft Geräte mit herausnehmbarer Brühgruppe, zum Beispiel NIVONA, Saeco, Philips, Melitta oder De’Longhi. Lässt sie sich nicht einsetzen, steht das Getriebe im Gerät nicht in der richtigen Position."
+        },
+        {
+          "t": "callout",
+          "title": "JURA betroffen?",
+          "x": [
+            "JURA-Kaffeevollautomaten haben eine fest verbaute Brühgruppe – sie lässt sich nicht herausnehmen, und dieses Problem kommt bei JURA entsprechend nicht vor.",
+            "Reagiert ein JURA trotzdem nicht mehr richtig, liegt eine andere Ursache vor – bringen Sie es zur Diagnose vorbei oder rufen Sie an: 06192 2004363."
+          ]
         },
         {
           "t": "h",
@@ -209,7 +217,7 @@
             "Satzbehälter richtig in die Abtropfschale einsetzen – die Kombination wird als Einheit eingeschoben",
             "Restwasser aus der Schale gießen; ein Schwimmer oder Metallplättchen darf frei liegen",
             "Die Servicetür muss geschlossen sein, bevor die Schale einrastet",
-            "Bei Geräten mit Brühgruppe: sitzt diese korrekt in Grundstellung?"
+            "Bei Geräten mit herausnehmbarer Brühgruppe (z. B. NIVONA): sitzt diese korrekt in Grundstellung?"
           ]
         },
         {
@@ -353,7 +361,7 @@
         {
           "t": "ul",
           "x": [
-            "Brühgruppe verschmutzt oder verklebt – reinigen (siehe „Brühgruppe & Kaffeeweg reinigen“)",
+            "Brühgruppe verschmutzt oder verklebt – reinigen (bei NIVONA herausnehmbar, bei JURA über das Reinigungsprogramm; siehe „Brühgruppe & Kaffeeweg reinigen“)",
             "Brühkolben-Dichtung oder Sieb verschlissen",
             "Zu wenig Kaffeepulver pro Bezug (Menge/Stärke am Gerät erhöhen)",
             "Sehr feiner Mahlgrad in Kombination mit öligen Bohnen"
@@ -630,32 +638,57 @@
       "faqGroup": "Reinigung & Pflege",
       "menu": "Brühgruppe & Kaffeeweg reinigen",
       "title": "Brühgruppe und Kaffeeweg reinigen",
-      "excerpt": "Reinigungsprogramm, herausnehmbare Brühgruppe und der Restwasserkanal.",
+      "excerpt": "JURA (fest verbaut) und NIVONA (herausnehmbar) im Vergleich – Reinigungsprogramm und der Restwasserkanal.",
       "blocks": [
         {
           "t": "p",
-          "x": "Kaffeefett und Pulverreste setzen sich mit der Zeit in der Brühgruppe und im Kaffeeweg ab. Das kostet Aroma und Durchfluss."
+          "x": "Kaffeefett und Pulverreste setzen sich mit der Zeit in der Brühgruppe und im Kaffeeweg ab. Das kostet Aroma und Durchfluss. Wie Sie pflegen, hängt vom Hersteller ab: JURA hat eine fest verbaute Brühgruppe, NIVONA eine herausnehmbare."
+        },
+        {
+          "t": "callout",
+          "title": "JURA oder NIVONA – fest oder herausnehmbar?",
+          "x": [
+            "JURA: Brühgruppe fest verbaut, keine Servicetür zum Herausnehmen – Pflege ausschließlich über das Reinigungsprogramm.",
+            "NIVONA: Brühgruppe herausnehmbar hinter der Servicetür – zusätzlich von Hand abspülbar."
+          ]
         },
         {
           "t": "h",
           "lvl": 2,
-          "x": "Reinigungsprogramm"
+          "x": "Reinigungsprogramm (JURA und NIVONA)"
         },
         {
           "t": "p",
-          "x": "Führen Sie das geräteeigene Reinigungsprogramm mit einer Reinigungstablette durch, sobald das Gerät dazu auffordert – bei Vielnutzung eher öfter. Das löst Kaffeefett im gesamten Brühweg."
+          "x": "Führen Sie das geräteeigene Reinigungsprogramm mit einer Reinigungstablette durch, sobald das Gerät dazu auffordert – bei Vielnutzung eher öfter. Das löst Kaffeefett im gesamten Brühweg, bei beiden Bauarten."
         },
         {
           "t": "h",
           "lvl": 2,
-          "x": "Herausnehmbare Brühgruppe"
+          "x": "JURA – fest verbaute Brühgruppe"
+        },
+        {
+          "t": "p",
+          "x": "Bei JURA lässt sich die Brühgruppe nicht entnehmen – es gibt keine Servicetür dafür. Die Reinigung übernimmt das Gerät selbst: Beim Ein- und Ausschalten spült es automatisch, dazu kommt regelmäßig das Reinigungsprogramm."
         },
         {
           "t": "ul",
           "x": [
-            "Entnehmen und unter warmem Wasser abspülen – ohne Spülmittel, nicht in die Spülmaschine",
+            "Kein Öffnen oder Ausbauen nötig – und bei aktuellen JURA-Modellen auch nicht möglich",
+            "Reinigungsprogramm regelmäßig durchführen, bei Vielnutzung öfter als vom Gerät vorgeschlagen",
+            "Die gründliche Innenreinigung übernehmen wir im Rahmen der Wartung"
+          ]
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "x": "NIVONA – herausnehmbare Brühgruppe"
+        },
+        {
+          "t": "ul",
+          "x": [
+            "Über die Servicetür entnehmen und unter warmem Wasser abspülen – ohne Spülmittel, nicht in die Spülmaschine",
             "Gut trocknen lassen, bewegliche Teile sparsam mit lebensmittelechtem Fett schmieren",
-            "Etwa alle ein bis zwei Wochen"
+            "Etwa alle ein bis zwei Wochen, bei täglicher Nutzung auch öfter"
           ]
         },
         {
@@ -665,7 +698,7 @@
         },
         {
           "t": "p",
-          "x": "Den Auslauf regelmäßig abnehmen und reinigen. Bei einigen Saeco-Modellen verstopft der Ablauf-/Restwasserkanal – hier hilft nur Zerlegen. Bei fest eingebauten Brühgruppen (z. B. JURA) übernimmt die gründliche Innenreinigung die Werkstatt im Zuge der Wartung."
+          "x": "Den Auslauf regelmäßig abnehmen und reinigen. Bei einigen Geräten mit herausnehmbarer Brühgruppe verstopft der Ablauf-/Restwasserkanal – hier hilft nur Zerlegen. Bei JURA übernimmt die gründliche Innenreinigung des Kaffeewegs die Werkstatt im Zuge der Wartung."
         }
       ]
     },
