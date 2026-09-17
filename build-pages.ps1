@@ -741,6 +741,7 @@ $navCss
 $SHOP_SLUGS = @('jura','jura-kaffeevollautomaten','jura-professional','jura-zubehoer','jura-pflegeprodukte','unser-kaffee')
 $SHOP_NAV = @(
   @{ label = 'JURA-Shop';           slug = 'jura' }
+  @{ label = 'NIVONA-Shop';         slug = 'nivona' }
   @{ label = 'Kaffeevollautomaten'; slug = 'jura-kaffeevollautomaten' }
   @{ label = 'Professional';        slug = 'jura-professional' }
   @{ label = 'Zubeh&ouml;r';        slug = 'jura-zubehoer' }

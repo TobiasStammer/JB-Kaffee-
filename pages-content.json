@@ -2691,7 +2691,7 @@
         },
         {
           "t": "p",
-          "x": "Im Shop-Bereich setzt die Software WooCommerce zur Erfassung der Bestellherkunft Cookies mit der Bezeichnung „sbjs_“ (Sourcebuster). Damit wird nachvollzogen, über welchen Weg (z. B. Suchmaschine, Direktaufruf, Verweis) ein Besuch zustande gekommen ist. Rechtsgrundlage ist unser berechtigtes Interesse an der Auswertung der Herkunft von Bestellungen (Art. 6 Abs. 1 lit. f DSGVO). Sie können der Speicherung widersprechen, indem Sie Cookies in Ihrem Browser blockieren oder löschen. Die meisten Browser bieten hierzu Einstellungen an."
+          "x": "Die WooCommerce-Funktion zur automatischen Erfassung der Bestellherkunft (Sourcebuster-Cookies mit der Bezeichnung „sbjs_“) haben wir deaktiviert; es werden keine entsprechenden Cookies mehr gesetzt. Im Zahlungsprozess kann unser Zahlungsdienstleister Stripe (WooPayments) ein technisch notwendiges Cookie zur Betrugsprävention setzen (z. B. „__stripe_mid“); dies ist zur sicheren Abwicklung der von Ihnen angestoßenen Zahlung erforderlich (Art. 6 Abs. 1 lit. f DSGVO bzw. § 25 Abs. 2 TDDDG)."
         },
         {
           "t": "h",
@@ -2719,7 +2719,27 @@
         },
         {
           "t": "p",
-          "x": "Die Einrichtung eines Kundenkontos ist freiwillig und erleichtert künftige Bestellungen. Sie können Ihr Konto jederzeit löschen lassen. Eine Zahlungsabwicklung über externe Zahlungsdienstleister ist derzeit nicht aktiv; sobald sie angeboten wird, informieren wir an dieser Stelle über den jeweiligen Dienstleister und die damit verbundene Datenverarbeitung."
+          "x": "Die Einrichtung eines Kundenkontos ist freiwillig und erleichtert künftige Bestellungen. Sie können Ihr Konto jederzeit löschen lassen. Für die Zahlungsabwicklung setzen wir externe Zahlungsdienstleister ein; Näheres dazu finden Sie in den beiden folgenden Abschnitten."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "x": "Zahlungsabwicklung mit WooPayments (Stripe)",
+          "icon": "shield"
+        },
+        {
+          "t": "p",
+          "x": "Bei Zahlung per Karte wird die Zahlung über WooPayments abgewickelt, technisch bereitgestellt von Stripe, Inc. bzw. Stripe Payments Europe, Limited, 1 Grand Canal Street Lower, Dublin, Irland (\"Stripe\"). Dabei werden die zur Zahlungsabwicklung erforderlichen Daten (u. a. Name, Rechnungsadresse, Bestell- und Zahlungsbetrag, Zahlungsmitteldaten) an Stripe übermittelt. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Erfüllung des Kaufvertrags). Es kann hierbei zu einer Übermittlung von Daten in die USA kommen; diese stützt sich auf das EU-US Data Privacy Framework bzw. auf Standardvertragsklauseln der EU-Kommission. Näheres regelt die Datenschutzerklärung von Stripe (stripe.com/de/privacy)."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "x": "Zahlungsabwicklung mit Klarna",
+          "icon": "shield"
+        },
+        {
+          "t": "p",
+          "x": "Bei Auswahl der Zahlungsart Klarna übermitteln wir die zur Zahlungsabwicklung erforderlichen Daten (u. a. Name, Anschrift, Kontakt- und Bestelldaten) an die Klarna Bank AB (publ), Sveavägen 46, 111 34 Stockholm, Schweden (\"Klarna\"). Klarna kann zur Absicherung des eigenen Forderungsausfallrisikos eine Bonitätsprüfung durchführen und hierfür Daten an Wirtschaftsauskunfteien übermitteln bzw. von diesen abrufen. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO. Näheres regelt die Datenschutzerklärung von Klarna (klarna.com/de/datenschutz)."
         },
         {
           "t": "h",
@@ -2781,7 +2801,139 @@
       "blocks": [
         {
           "t": "p",
-          "x": "[TODO] AGB für Werkstatt- und Reparaturaufträge sowie für den Online-Shop einsetzen: Vertragsschluss, Preise und Zahlung, Lieferung, Eigentumsvorbehalt, Gewährleistung, Kostenvoranschlag und Untersuchungspauschale. Vor der Veröffentlichung rechtlich prüfen lassen."
+          "x": "Diese Allgemeinen Geschäftsbedingungen (AGB) gelten für Reparatur- und Wartungsaufträge in unserer Werkstatt sowie für Bestellungen in unserem Online-Shop unter new.kaffeetechniker.de."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "x": "1. Geltungsbereich und Vertragspartner",
+          "icon": "info"
+        },
+        {
+          "t": "p",
+          "x": "Vertragspartner ist die Joachim Blöchle Elektro-Service GmbH, Wallauer Straße 4, 65719 Hofheim-Langenhain (Kontaktdaten siehe <a href=\"https://new.kaffeetechniker.de/impressum/\">Impressum</a>). Diese AGB gelten gegenüber Verbrauchern im Sinne des § 13 BGB und Unternehmern im Sinne des § 14 BGB, soweit nachfolgend nicht nach Kundengruppe unterschieden wird. Abweichende, entgegenstehende oder ergänzende Allgemeine Geschäftsbedingungen des Kunden werden nur dann und insoweit Vertragsbestandteil, als wir ihrer Geltung ausdrücklich schriftlich zugestimmt haben."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "x": "2. Vertragsschluss im Online-Shop",
+          "icon": "shop"
+        },
+        {
+          "t": "p",
+          "x": "Die Darstellung der Produkte im Online-Shop stellt kein rechtlich bindendes Angebot unsererseits dar, sondern eine Aufforderung zur Abgabe einer Bestellung (invitatio ad offerendum). Mit Absenden der Bestellung über den Button „Zahlungspflichtig bestellen“ geben Sie ein verbindliches Angebot zum Abschluss eines Kaufvertrags ab. Wir bestätigen den Eingang Ihrer Bestellung unmittelbar per E-Mail (Bestellbestätigung); diese Bestellbestätigung stellt noch keine Annahme Ihres Angebots dar. Der Kaufvertrag kommt erst zustande, indem wir die bestellte Ware an Sie versenden und den Versand mit einer zweiten E-Mail (Versandbestätigung) bestätigen, oder indem wir Ihnen innerhalb angemessener Frist ausdrücklich die Annahme erklären."
+        },
+        {
+          "t": "p",
+          "x": "Der Vertragstext wird von uns gespeichert. Sie können Ihre Bestelldaten im Bestellvorgang einsehen und über die üblichen Browser- und Tastaturfunktionen korrigieren, bevor Sie die Bestellung absenden. Die Vertragssprache ist Deutsch."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "x": "3. Preise, Versandkosten und Zahlung",
+          "icon": "euro"
+        },
+        {
+          "t": "p",
+          "x": "Die auf den Produktseiten genannten Preise sind Endpreise; sie enthalten die jeweils gültige gesetzliche Umsatzsteuer. Zusätzlich anfallende Versandkosten werden auf der jeweiligen Produktseite sowie zusätzlich vor Abschluss der Bestellung im Bestellvorgang gesondert ausgewiesen."
+        },
+        {
+          "t": "p",
+          "x": "Im Online-Shop stehen Ihnen je nach Warenkorb unter anderem folgende Zahlungsarten zur Verfügung:"
+        },
+        {
+          "t": "ul",
+          "x": [
+            "Kreditkarte / Debitkarte (Zahlungsabwicklung über unseren Zahlungsdienstleister)",
+            "Klarna (je nach Verfügbarkeit und Bonitätsprüfung durch Klarna)",
+            "Vorkasse (Überweisung auf unser Geschäftskonto; die Bankverbindung teilen wir Ihnen nach Bestelleingang mit; die Ware wird nach Zahlungseingang versandt)"
+          ]
+        },
+        {
+          "t": "p",
+          "x": "Bei Reparatur- und Wartungsaufträgen erfolgt die Zahlung, soweit nicht anders vereinbart, nach Abschluss der Arbeiten gegen Rechnung, per EC-/Kreditkarte vor Ort oder per Überweisung."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "x": "4. Lieferung",
+          "icon": "box"
+        },
+        {
+          "t": "p",
+          "x": "Die Lieferung erfolgt an die von Ihnen im Bestellvorgang angegebene Lieferadresse innerhalb Deutschlands, soweit im Bestellvorgang nichts anderes angeboten wird. Die voraussichtliche Lieferzeit wird auf der jeweiligen Produktseite bzw. spätestens im Bestellvorgang angegeben. Kommt es ausnahmsweise trotz rechtzeitiger Bestellung zu Lieferverzögerungen, informieren wir Sie unverzüglich hierüber."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "x": "5. Eigentumsvorbehalt",
+          "icon": "building"
+        },
+        {
+          "t": "p",
+          "x": "Die gelieferte Ware bleibt bis zur vollständigen Bezahlung des Kaufpreises unser Eigentum."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "x": "6. Reparatur- und Wartungsaufträge",
+          "icon": "tool"
+        },
+        {
+          "t": "p",
+          "x": "Ein Reparatur- oder Wartungsauftrag kommt zustande, wenn Sie uns Ihr Gerät zur Prüfung übergeben (persönlich, per Versand oder im Rahmen eines Leihgeräte-Tauschs) und wir den Auftrag annehmen. Vor Beginn kostenpflichtiger Arbeiten erstellen wir auf Wunsch einen unverbindlichen Kostenvoranschlag. Stellt sich bei der Untersuchung heraus, dass die Reparatur unwirtschaftlich ist oder wesentlich teurer wird als ursprünglich angenommen, informieren wir Sie vor Weiterarbeit; für die reine Fehlerdiagnose ohne anschließenden Reparaturauftrag können wir eine Untersuchungspauschale berechnen, über deren Höhe wir Sie vorab informieren."
+        },
+        {
+          "t": "p",
+          "x": "Wir verwenden, soweit nicht anders vereinbart, Originalersatzteile bzw. qualitativ gleichwertige Ersatzteile. Ausgebaute, ersetzte Teile gehen in unser Eigentum über und werden fachgerecht entsorgt, sofern Sie nicht ausdrücklich deren Rückgabe wünschen."
+        },
+        {
+          "t": "p",
+          "x": "Reparierte oder gewartete Geräte sind innerhalb von 30 Tagen nach Benachrichtigung über die Fertigstellung abzuholen bzw. ist deren Rücksendung zu veranlassen. Für nicht abgeholte Geräte können wir nach angemessener Nachfristsetzung eine marktübliche Einlagerungsgebühr berechnen. Informationen zu Leihgeräten während der Reparaturzeit finden Sie unter <a href=\"https://new.kaffeetechniker.de/leihgeraete/\">Mietgerät für die Reparaturzeit</a>."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "x": "7. Gewährleistung",
+          "icon": "check"
+        },
+        {
+          "t": "p",
+          "x": "Für im Online-Shop verkaufte Waren gilt die gesetzliche Mängelhaftung (§§ 434 ff. BGB). Gegenüber Verbrauchern beträgt die Verjährungsfrist für Mängelansprüche bei neuen Waren zwei Jahre ab Ablieferung."
+        },
+        {
+          "t": "p",
+          "x": "Für Reparatur- und Wartungsaufträge gelten die werkvertraglichen Gewährleistungsvorschriften (§§ 634 ff. BGB). Wir leisten Gewähr dafür, dass die durchgeführten Arbeiten fachgerecht ausgeführt wurden und die eingebauten Ersatzteile mangelfrei sind; verbleibt nach einer Reparatur ein anderer, zuvor nicht behandelter Defekt am Gerät, stellt dies keinen Mangel der erbrachten Leistung dar."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "x": "8. Haftung",
+          "icon": "shield"
+        },
+        {
+          "t": "p",
+          "x": "Wir haften unbeschränkt für Vorsatz und grobe Fahrlässigkeit sowie nach Maßgabe des Produkthaftungsgesetzes. Für leichte Fahrlässigkeit haften wir nur bei der Verletzung einer wesentlichen Vertragspflicht (Kardinalpflicht), deren Erfüllung die ordnungsgemäße Durchführung des Vertrags überhaupt erst ermöglicht und auf deren Einhaltung Sie regelmäßig vertrauen dürfen; in diesem Fall ist die Haftung auf den vertragstypischen, vorhersehbaren Schaden begrenzt. Die Haftung für Schäden aus der Verletzung des Lebens, des Körpers oder der Gesundheit bleibt hiervon unberührt."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "x": "9. Datenschutz",
+          "icon": "mail"
+        },
+        {
+          "t": "p",
+          "x": "Informationen zur Verarbeitung Ihrer personenbezogenen Daten finden Sie in unserer <a href=\"https://new.kaffeetechniker.de/datenschutz/\">Datenschutzerklärung</a>."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "x": "10. Schlussbestimmungen",
+          "icon": "info"
+        },
+        {
+          "t": "p",
+          "x": "Es gilt das Recht der Bundesrepublik Deutschland unter Ausschluss des UN-Kaufrechts; bei Verbrauchern gilt dies nur insoweit, als hierdurch der gewährte Schutz durch zwingende Bestimmungen des Rechts des Staates, in dem der Verbraucher seinen gewöhnlichen Aufenthalt hat, nicht eingeschränkt wird. Ist der Kunde Kaufmann, juristische Person des öffentlichen Rechts oder öffentlich-rechtliches Sondervermögen, ist Gerichtsstand für alle Streitigkeiten aus diesem Vertragsverhältnis unser Geschäftssitz Hofheim am Taunus. Sollten einzelne Bestimmungen dieser AGB unwirksam sein oder werden, bleibt die Wirksamkeit der übrigen Bestimmungen hiervon unberührt. Hinweise zur Online-Streitbeilegung finden Sie in unserem <a href=\"https://new.kaffeetechniker.de/impressum/\">Impressum</a>."
         }
       ]
     },
@@ -2793,7 +2945,89 @@
       "blocks": [
         {
           "t": "p",
-          "x": "[TODO] Gesetzeskonforme Widerrufsbelehrung inklusive Muster-Widerrufsformular für den Online-Shop einsetzen: 14-tägige Frist, Fristbeginn, Ausnahmen (z. B. versiegelte Waren, Kaffee), Rücksendekosten. Vor der Veröffentlichung rechtlich prüfen lassen."
+          "x": "Diese Widerrufsbelehrung gilt für Verbraucherinnen und Verbraucher, die Waren über unseren Online-Shop unter new.kaffeetechniker.de bestellen."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "x": "Widerrufsrecht",
+          "icon": "clock"
+        },
+        {
+          "t": "p",
+          "x": "Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen."
+        },
+        {
+          "t": "p",
+          "x": "Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag, an dem Sie oder ein von Ihnen benannter Dritter, der nicht der Beförderer ist, die letzte Ware in Besitz genommen haben bzw. hat (bei einer einheitlich bestellten Ware, die in mehreren Teilsendungen geliefert wird: ab Erhalt der letzten Teilsendung)."
+        },
+        {
+          "t": "p",
+          "x": "Um Ihr Widerrufsrecht auszuüben, müssen Sie uns (Joachim Blöchle Elektro-Service GmbH, Wallauer Straße 4, 65719 Hofheim-Langenhain, Telefon: 06192 2004363, E-Mail: info@kaffeetechniker.de) mittels einer eindeutigen Erklärung (z. B. ein mit der Post versandter Brief, Telefax oder E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren. Sie können dafür das untenstehende Muster-Widerrufsformular verwenden, das ist jedoch nicht vorgeschrieben."
+        },
+        {
+          "t": "p",
+          "x": "Zur Wahrung der Widerrufsfrist reicht es aus, dass Sie die Mitteilung über die Ausübung des Widerrufsrechts vor Ablauf der Widerrufsfrist absenden."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "x": "Folgen des Widerrufs",
+          "icon": "box"
+        },
+        {
+          "t": "p",
+          "x": "Wenn Sie diesen Vertrag widerrufen, haben wir Ihnen alle Zahlungen, die wir von Ihnen erhalten haben, einschließlich der Lieferkosten (mit Ausnahme der zusätzlichen Kosten, die sich daraus ergeben, dass Sie eine andere Art der Lieferung als die von uns angebotene, günstigste Standardlieferung gewählt haben), unverzüglich und spätestens binnen vierzehn Tagen ab dem Tag zurückzuzahlen, an dem die Mitteilung über Ihren Widerruf dieses Vertrags bei uns eingegangen ist. Für diese Rückzahlung verwenden wir dasselbe Zahlungsmittel, das Sie bei der ursprünglichen Transaktion eingesetzt haben, es sei denn, mit Ihnen wurde ausdrücklich etwas anderes vereinbart; in keinem Fall werden Ihnen wegen dieser Rückzahlung Entgelte berechnet. Wir können die Rückzahlung verweigern, bis wir die Waren wieder zurückerhalten haben oder bis Sie den Nachweis erbracht haben, dass Sie die Waren zurückgesandt haben, je nachdem, welches der frühere Zeitpunkt ist."
+        },
+        {
+          "t": "p",
+          "x": "Sie haben die Waren unverzüglich und in jedem Fall spätestens binnen vierzehn Tagen ab dem Tag, an dem Sie uns über den Widerruf dieses Vertrags unterrichten, an uns zurückzusenden oder zu übergeben. Die Frist ist gewahrt, wenn Sie die Waren vor Ablauf der Frist von vierzehn Tagen absenden. Sie tragen die unmittelbaren Kosten der Rücksendung der Waren."
+        },
+        {
+          "t": "p",
+          "x": "Sie müssen für einen etwaigen Wertverlust der Waren nur aufkommen, wenn dieser Wertverlust auf einen zum Prüfen der Beschaffenheit, Eigenschaften und Funktionsweise der Waren nicht notwendigen Umgang mit ihnen zurückzuführen ist."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "x": "Reparatur- und Wartungsaufträge",
+          "icon": "tool"
+        },
+        {
+          "t": "p",
+          "x": "Beauftragen Sie eine Reparatur oder Wartung ausschließlich per Fernkommunikationsmittel (z. B. über unser Online-Formular oder Telefon), steht Ihnen ebenfalls ein Widerrufsrecht nach den vorstehenden Regelungen zu. Haben Sie ausdrücklich verlangt, dass wir mit der Ausführung der Arbeiten bereits vor Ablauf der Widerrufsfrist beginnen, und widerrufen Sie anschließend den Vertrag, haben Sie uns einen angemessenen Betrag zu zahlen, der dem Anteil der bis zu Ihrer Widerrufserklärung bereits erbrachten Leistungen im Vergleich zum Gesamtumfang des Vertrags entspricht (§ 357 Abs. 8 BGB). Wurde der Reparatur- oder Wartungsauftrag vollständig erfüllt, bevor Sie Ihr Widerrufsrecht ausüben, erlischt das Widerrufsrecht, wenn Sie vor Beginn der Ausführung ausdrücklich zugestimmt haben und gleichzeitig Ihre Kenntnis davon bestätigt haben, dass Sie Ihr Widerrufsrecht bei vollständiger Vertragserfüllung durch uns verlieren (§ 356 Abs. 4 BGB)."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "x": "Ausschluss des Widerrufsrechts",
+          "icon": "info"
+        },
+        {
+          "t": "p",
+          "x": "Ein Widerrufsrecht besteht nicht bzw. erlischt vorzeitig bei Verträgen über die Lieferung von Waren, die nicht vorgefertigt sind und für deren Herstellung eine individuelle Auswahl oder Bestimmung durch den Verbraucher maßgeblich ist oder die eindeutig auf die persönlichen Bedürfnisse des Verbrauchers zugeschnitten sind (§ 312g Abs. 2 Nr. 1 BGB), sowie in den weiteren gesetzlich vorgesehenen Fällen des § 312g Abs. 2 BGB. Für die in unserem Online-Shop regulär angebotenen Kaffeevollautomaten, Zubehör-, Pflege-, Kaffee- und Teeprodukte gelten keine dieser Ausnahmen; das Widerrufsrecht besteht hier im vollen gesetzlichen Umfang."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "x": "Muster-Widerrufsformular",
+          "icon": "quote"
+        },
+        {
+          "t": "p",
+          "x": "(Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular aus und senden Sie es zurück.)"
+        },
+        {
+          "t": "p",
+          "x": "An<br>Joachim Blöchle Elektro-Service GmbH<br>Wallauer Straße 4<br>65719 Hofheim-Langenhain<br>E-Mail: info@kaffeetechniker.de"
+        },
+        {
+          "t": "p",
+          "x": "Hiermit widerrufe(n) ich/wir (*) den von mir/uns (*) abgeschlossenen Vertrag über den Kauf der folgenden Waren (*)/die Erbringung der folgenden Dienstleistung (*)<br>&mdash;<br>Bestellt am (*)/erhalten am (*)<br>&mdash;<br>Name des/der Verbraucher(s)<br>&mdash;<br>Anschrift des/der Verbraucher(s)<br>&mdash;<br>Unterschrift des/der Verbraucher(s) (nur bei Mitteilung auf Papier)<br>Datum"
+        },
+        {
+          "t": "p",
+          "x": "(*) Unzutreffendes streichen."
         }
       ]
     }
