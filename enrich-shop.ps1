@@ -32,9 +32,10 @@ foreach ($p in $prod.haushalt) {
   $sp  = $specs.$sku
   if (-not $sp) { Write-Host "[skip] $sku ohne specs"; continue }
 
-  # Produkt holen
-  $found = wc GET "products?sku=$sku&status=any"
-  $wcp   = @($found)[0]
+  # Produkt holen - SKU-Feld traegt oft zusaetzlich unsere interne Nummer in
+  # Klammern (z. B. "15775 (4379)"), daher Praefix-Abgleich statt exaktem Treffer.
+  $found = wc GET "products?search=$sku&status=any&per_page=20"
+  $wcp   = @($found) | Where-Object { $_.sku -eq $sku -or $_.sku -match "^$([regex]::Escape($sku))(\s|$)" } | Select-Object -First 1
   if (-not $wcp) { Write-Host "[fehlt] $sku ($($p.name))" -ForegroundColor Yellow; continue }
 
   # ---- description ----
