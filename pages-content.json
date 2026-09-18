@@ -476,10 +476,17 @@
         "img": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-nivona-cat-kaffeevollautomaten.jpg"
       },
       {
-        "t": "Zubehör, Pflege & Kaffeebohnen",
-        "x": "Milchbehälter, Wasserfilter, Reinigungs- und Entkalkungsmittel sowie NIVONA-Kaffeebohnen – auf Anfrage und im Geschäft erhältlich.",
-        "url": "/kontakt/",
-        "cta": "Anfrage senden",
+        "t": "Zubehör",
+        "x": "Milchkühler, Milchlanze, Kaffeemühle CafeGrano und mehr Original-Zubehör – passend zu Ihrem Gerät.",
+        "url": "/nivona-zubehoer/",
+        "cta": "Zubehör ansehen",
+        "img": "https://nivona.com/assets/Cooler-CdR_X0DT.webp"
+      },
+      {
+        "t": "Pflegeprodukte",
+        "x": "Original NIVONA CLARIS Wasserfilter, Reinigungstabletten, Flüssigentkalker und Milchsystemreiniger.",
+        "url": "/nivona-pflegeprodukte/",
+        "cta": "Pflege ansehen",
         "img": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-nivona-cat-pflege.jpg"
       }
     ],
@@ -518,6 +525,48 @@
     },
     "footerNote": "NIVONA® ist eine Marke der NIVONA Apparate GmbH, Nürnberg. Verkauf durch die Joachim Blöchle Elektro-Service GmbH. Abbildungen: NIVONA.",
     "listen": {}
+  },
+  "nivona-zubehoer": {
+    "brandName": "NIVONA",
+    "shopSlug": "nivona",
+    "katHeaderSlug": "nivona-zubehoer",
+    "katCrumbTail": "Zubehör",
+    "katTitle": "NIVONA Zubehör für Kaffeevollautomaten",
+    "katIntro": "Original-Zubehör für Ihren NIVONA Kaffeevollautomaten – Milchkühler, Milchlanze, Kaffeemühle und mehr. Alle Preise inkl. MwSt. Was zu Ihrem Gerät passt, zeigen wir Ihnen gern im Geschäft.",
+    "katNote": "Sie wissen nicht, welches Zubehör mit Ihrem Modell kompatibel ist? Rufen Sie uns an: 06192 2004363.",
+    "serieSuffix": "",
+    "footerNote": "NIVONA&reg; ist eine Marke der NIVONA Apparate GmbH, N&uuml;rnberg. Verkauf durch die Joachim Bl&ouml;chle Elektro-Service GmbH. Abbildungen: NIVONA.",
+    "seriesOrder": [
+      "Milchsystem & Zubehör",
+      "Mahlen & Genuss",
+      "Transport & Zubehör"
+    ],
+    "seriesBlurb": {
+      "Milchsystem & Zubehör": "Milchkühler, Milchcontainer und Milchlanze rund um Milchschaum.",
+      "Mahlen & Genuss": "Kaffeemühle und Bohnenbehälter für mehr Vorrat und frisch Gemahlenes.",
+      "Transport & Zubehör": "Tasche und weiteres Zubehör für unterwegs."
+    }
+  },
+  "nivona-pflegeprodukte": {
+    "brandName": "NIVONA",
+    "shopSlug": "nivona",
+    "katHeaderSlug": "nivona-pflegeprodukte",
+    "katCrumbTail": "Pflegeprodukte",
+    "katTitle": "NIVONA Pflegeprodukte",
+    "katIntro": "Regelmäßige Pflege hält Ihren NIVONA Vollautomaten hygienisch und langlebig. Original CLARIS Wasserfilter, Reinigungstabletten, Flüssigentkalker sowie Milchsystem-Reiniger. Alle Preise inkl. MwSt.",
+    "katNote": "Unsicher bei Wasserhärte, Filterwechsel oder Entkalkung? Wir beraten Sie – telefonisch unter 06192 2004363 oder im Geschäft.",
+    "serieSuffix": "",
+    "footerNote": "NIVONA&reg; und CLARIS&reg; sind Marken der NIVONA Apparate GmbH, N&uuml;rnberg. Verkauf durch die Joachim Bl&ouml;chle Elektro-Service GmbH. Abbildungen: NIVONA.",
+    "seriesOrder": [
+      "Wasserfilter",
+      "Reinigung & Entkalkung",
+      "Pflege-Sets"
+    ],
+    "seriesBlurb": {
+      "Wasserfilter": "Original CLARIS Frischwasserfilter für Ihren Vollautomaten.",
+      "Reinigung & Entkalkung": "Tabletten und Reiniger für Milchsystem und Entkalkung.",
+      "Pflege-Sets": "Komplett-Sets für die regelmäßige Pflege im Vorteilspaket."
+    }
   },
   "pages": [
     {
@@ -1969,6 +2018,20 @@
       "menu": "NIVONA Kaffeevollautomaten",
       "title": "NIVONA Kaffeevollautomaten",
       "excerpt": "Alle NIVONA Kaffeevollautomaten von der kompakten CUBE 4' bis zur NIVO 9000 – mit Filter, Vergleich und persönlicher Vorführung im Geschäft."
+    },
+    {
+      "slug": "nivona-zubehoer",
+      "kind": "nivona-kategorie-zubehoer",
+      "menu": "NIVONA Zubehör",
+      "title": "NIVONA Zubehör für Kaffeevollautomaten",
+      "excerpt": "Original NIVONA Zubehör – Milchkühler, Milchlanze, Kaffeemühle CafeGrano, Bohnenbehälter und mehr."
+    },
+    {
+      "slug": "nivona-pflegeprodukte",
+      "kind": "nivona-kategorie-pflege",
+      "menu": "NIVONA Pflegeprodukte",
+      "title": "NIVONA Pflegeprodukte – Filter, Reinigung, Entkalkung",
+      "excerpt": "Original NIVONA CLARIS Wasserfilter, Reinigungstabletten, Flüssigentkalker und Milchsystemreiniger."
     },
     {
       "slug": "hilfethemen",
