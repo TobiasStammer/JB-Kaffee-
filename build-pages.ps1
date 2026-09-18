@@ -1740,7 +1740,13 @@ function Jura-Kategorie-Content($p, $brandKey = 'jura') {
     $sp = Get-Content $specFile -Raw -Encoding UTF8 | ConvertFrom-Json
     foreach ($pn in $sp.PSObject.Properties) { if ($pn.Name -notmatch '^_') { $SPEC[$pn.Name] = $pn.Value } }
   }
-  function SpecOf($sku) { if ($sku -and $SPEC.ContainsKey("$sku")) { $SPEC["$sku"] } else { $null } }
+  function SpecOf($sku) {
+    # WC-SKU traegt bei Farbvarianten die interne Produkt-ID in Klammern
+    # (z.B. "15609 (1099)"), jura-specs.json ist aber nach der reinen
+    # JURA-Artikelnummer indiziert - Klammerzusatz vor dem Lookup abtrennen.
+    $base = "$sku" -replace '\s*\(.*\)\s*$', ''
+    if ($base -and $SPEC.ContainsKey($base)) { $SPEC[$base] } else { $null }
+  }
   function Td($spec, $rx) { if ($spec) { ([string](($spec.techdaten | Where-Object { $_.k -match $rx }).v | Select-Object -First 1)) } else { '' } }
   function ShortDisplay($v) {
     if (-not $v) { return '' }
@@ -1789,7 +1795,10 @@ function Jura-Kategorie-Content($p, $brandKey = 'jura') {
     $tank = Td $sp 'Wassertank'
     $milch = Td $sp 'Milchsystem'
     $mahl = Td $sp 'Mahlwerk'
-    $vz = if ($sp -and $sp.vorzuege) { [string]::Join(' ', @($sp.vorzuege)) } else { '' }
+    # "spez" (Kurzbeschreibung) traegt bei manchen Geraeten die explizite
+    # Genusswelten-Aufzaehlung statt/zusaetzlich zu den Vorzuegen (z.B. 15836)
+    $vzList = if ($sp -and $sp.vorzuege) { [string]::Join(' ', @($sp.vorzuege)) } else { '' }
+    $vz = if ($sp) { ([string]$sp.spez) + ' ' + $vzList } else { '' }
 
     # Genusswelten (offizielle JURA-Markenbegriffe, siehe de.jura.com/einkaufsberatung/genusswelten):
     # Hot Brew kann jedes Geraet, Light/Cold Brew und Sweet Foam aus den Vorzuegen abgeleitet.
