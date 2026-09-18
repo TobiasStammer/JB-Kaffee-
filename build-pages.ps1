@@ -906,16 +906,16 @@ function Footer-Inner-Html {
   # (2026-09-03) - war auf jeder Seite. $chrome.cta bleibt ungenutzt im JSON.
   $footHtml = @"
 <div style="max-width:$MAXW;margin:0 auto;color:$($C.onDark2);font-family:$FONT_BODY;border-top:1px solid rgba(255,255,255,.16);padding-top:40px">
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:40px">
-    <div>
+  <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:32px 40px">
+    <div style="flex:1 1 180px;max-width:240px">
       <div style="color:$($C.onDark);font-family:Tahoma,Arial,sans-serif;font-weight:700;font-size:16px;margin-bottom:10px">$($f.companyName)</div>
       <div style="font-size:14px;line-height:1.8">$addr</div>
     </div>
-    <div>
+    <div style="flex:1 1 180px;max-width:240px">
       <div style="color:$($C.onDark);font-family:Tahoma,Arial,sans-serif;font-weight:700;font-size:16px;margin-bottom:10px">$($f.hoursTitle)</div>
       <div style="font-size:14px;line-height:1.8">$hrs</div>
     </div>
-    <div>
+    <div style="flex:1 1 180px;max-width:240px">
       <div style="color:$($C.onDark);font-family:Tahoma,Arial,sans-serif;font-weight:700;font-size:16px;margin-bottom:10px">$($f.navTitle)</div>
       <div style="font-size:14px;line-height:1.9;display:flex;flex-direction:column">
           $navLinks
