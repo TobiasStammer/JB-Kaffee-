@@ -1215,5 +1215,45 @@
         "v": "27 × 34,8 × 44,6 cm"
       }
     ]
+  },
+  "15836": {
+    "spez": "Kaffeespezialitäten aus vier Genusswelten (Hot, Light, Cold, Sweet)",
+    "vorzuege": [
+      "51 Kaffeespezialitäten aus vier Genusswelten, u. a. Mocaccino und feiner Schokoschaum",
+      "5\" Touchscreen-Farbdisplay, bis zu 4 individuelle Nutzerprofile",
+      "Coffee Timer mit App J.O.E. (Zubereitung bis zu 16 Stunden im Voraus planbar), Koffeinregler in 3 Stufen",
+      "Präzisionsmahlwerk P.R.G.2+ mit automatischer Anpassung an die gewählte Spezialität",
+      "Beratung und Vorführung in unserem Geschäft in Hofheim-Langenhain"
+    ],
+    "techdaten": [
+      {
+        "k": "Baureihe",
+        "v": "Z-Linie (2026)"
+      },
+      {
+        "k": "Display",
+        "v": "5\" Touchscreen-Farbdisplay"
+      },
+      {
+        "k": "Milchsystem",
+        "v": "ja"
+      },
+      {
+        "k": "Artikelnummer",
+        "v": "15836"
+      },
+      {
+        "k": "Verfügbarkeit",
+        "v": "ab Lager verfügbar"
+      },
+      {
+        "k": "Gewicht",
+        "v": "12,5 kg"
+      },
+      {
+        "k": "Maße (B × H × T)",
+        "v": "32 × 38,3 × 47 cm"
+      }
+    ]
   }
 }

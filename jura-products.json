@@ -1,4 +1,4 @@
-{
+﻿{
   "categories": {
     "parent": {
       "name": "JURA",
@@ -153,6 +153,14 @@
       "line": "S",
       "url": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/s10-obsidian-black-ea-15775",
       "img": "https://api.jura.com/media/global/images/home-products/s-line-2026/S10-Obsidian-Black-EA-SA-15775/s10_ob_ea_packshot.jpg"
+    },
+    {
+      "sku": "15836",
+      "name": "JURA Z10 (Obsidian Black)",
+      "price": "2595.00",
+      "line": "Z",
+      "url": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/z10-obsidian-black-ec-15836",
+      "img": "https://api.jura.com/media/global/images/home-products/z-line-2026/Z10-EC-SC/Z10-EC-SC-Obsidian-Black/Z10_ec_sc_ob_packshot.jpg"
     }
   ]
 }
