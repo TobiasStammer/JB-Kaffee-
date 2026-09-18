@@ -1274,13 +1274,16 @@ function Jura-Products($catSlug = 'jura-kaffeevollautomaten') {
       foreach ($v in $vs) {
         $vc = ($v.attributes | Where-Object { $_.name -eq 'Farbe' }).option
         if ($vc) {
-          $variants += [pscustomobject]@{ color = "$vc"; img = if ($v.image -and $v.image.src) { $v.image.src } else { $mainImg } }
+          $vpnum = ($v.regular_price -as [decimal])
+          if ((-not $vpnum -or $vpnum -le 0) -and $v.price) { $vpnum = ($v.price -as [decimal]) }
+          $vpstr = if ($vpnum -and $vpnum -gt 0) { ([decimal]$vpnum).ToString('N2', $de) + ' &euro;' } else { $pstr }
+          $variants += [pscustomobject]@{ color = "$vc"; img = if ($v.image -and $v.image.src) { $v.image.src } else { $mainImg }; priceStr = $vpstr }
         }
       }
     }
     if (-not $variants -or $variants.Count -eq 0) {
       $c0 = if ($farben.Count -ge 1) { $farben[0] } else { '' }
-      $variants = @([pscustomobject]@{ color = "$c0"; img = $mainImg })
+      $variants = @([pscustomobject]@{ color = "$c0"; img = $mainImg; priceStr = $pstr })
     }
     # nach Helligkeit sortieren, hellstes zuerst -> Standardbild
     $variants = @($variants | Sort-Object @{ Expression = { & $farbRank $_.color } }, color)
@@ -1681,10 +1684,12 @@ $JURA_KAT_JS = @'
     var img=card.querySelector('.jp2-pic img');
     var link=card.querySelector('.jp2-row a');
     var titleLink=card.querySelector('.jp2-bd h3 a');
+    var priceEl=card.querySelector('.jp2-price');
     var baseUrl=card.getAttribute('data-url');
     [].slice.call(card.querySelectorAll('.jsw')).forEach(function(sw){
       sw.addEventListener('click',function(){
         var src=sw.getAttribute('data-img'); if(src && img) img.src=src;
+        var price=sw.getAttribute('data-price'); if(price && priceEl) priceEl.innerHTML=price;
         [].slice.call(card.querySelectorAll('.jsw')).forEach(function(x){ x.classList.remove('is-on'); });
         sw.classList.add('is-on');
         // Farbauswahl in die Zielseite mitgeben, damit "Details ansehen" und
@@ -1808,7 +1813,7 @@ function Jura-Kategorie-Content($p, $brandKey = 'jura') {
     $vs = @($pr.variants)
     $sw = ($vs | ForEach-Object {
       $on = if ($_.img -eq $pr.displayImg) { ' is-on' } else { '' }
-      "<button class=`"jsw$on`" data-img=`"$($_.img)`" data-c=`"$($_.color)`" title=`"$($_.color)`" aria-label=`"$($_.color)`" style=`"background:$(FbHex $_.color)`"></button>"
+      "<button class=`"jsw$on`" data-img=`"$($_.img)`" data-c=`"$($_.color)`" data-price=`"$($_.priceStr)`" title=`"$($_.color)`" aria-label=`"$($_.color)`" style=`"background:$(FbHex $_.color)`"></button>"
     }) -join ''
     $txt = if ($vs.Count -gt 1) { "$($vs.Count) Farben &middot; " + ((@($vs | ForEach-Object { $_.color })) -join ', ') }
            elseif ($vs[0].color) { $vs[0].color }
