@@ -1317,7 +1317,7 @@ $JURA_CSS = @"
 <style>
 .jstore{max-width:$MAXW;margin:0 auto;font-family:$FONT_BODY;color:$($C.text)}
 .jstore h1,.jstore h2,.jstore h3{font-family:$FONT_HEAD;color:$($C.head);font-weight:700;line-height:1.3;margin:0;padding:0;border:0}
-.jwm{font-family:$FONT_HEAD;font-weight:700;letter-spacing:.32em;font-size:24px !important;color:$($C.head);text-align:center;margin:0 0 18px;padding-left:.32em}
+.jwm{font-family:$FONT_HEAD;font-weight:700;letter-spacing:.32em;font-size:24px !important;color:$($C.head);text-align:center;margin:0 0 18px}
 .jlogo{display:block;margin:0 auto 20px;height:34px;width:auto}
 .jherofig{max-width:900px;margin:0 auto 34px;border-radius:8px;overflow:hidden;border:1px solid #e2e2e2}
 .jherofig img{display:block;width:100%;height:auto;aspect-ratio:21/9;object-fit:cover}
