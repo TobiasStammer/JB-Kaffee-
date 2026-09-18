@@ -378,7 +378,7 @@ function Btn-Html($label, $url, $style) {
 }
 
 # Eyebrow-Label (kleiner Akzent-Text ueber Ueberschriften) im Feuerwehr-Stil
-function Eyebrow($t) { "<p style=`"font-family:$FONT_HEAD;color:$($C.accent);font-weight:700;font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin:0 0 10px`">$t</p>" }
+function Eyebrow($t) { "<p style=`"font-family:$FONT_HEAD;color:$($C.accent);font-weight:700;font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin:0 auto 10px`">$t</p>" }
 
 # ---------- Daten ----------
 $data   = Get-Content "$root\pages-content.json" -Raw -Encoding UTF8 | ConvertFrom-Json
@@ -801,10 +801,13 @@ $SHOP_NAV = @(
   @{ label = 'Pflegeprodukte';      slug = 'jura-pflegeprodukte' }
   @{ label = 'Unser Kaffee &amp; Tee'; slug = 'unser-kaffee' }
 )
-$NIVONA_SHOP_SLUGS = @('nivona','nivona-kaffeevollautomaten')
+$NIVONA_SHOP_SLUGS = @('nivona','nivona-kaffeevollautomaten','nivona-zubehoer','nivona-pflegeprodukte')
 $NIVONA_NAV = @(
   @{ label = 'NIVONA-Shop';         slug = 'nivona' }
   @{ label = 'Kaffeevollautomaten'; slug = 'nivona-kaffeevollautomaten' }
+  @{ label = 'Zubeh&ouml;r';        slug = 'nivona-zubehoer' }
+  @{ label = 'Pflegeprodukte';      slug = 'nivona-pflegeprodukte' }
+  @{ label = 'Unser Kaffee &amp; Tee'; slug = 'unser-kaffee' }
   @{ label = 'Zum JURA-Shop';       slug = 'jura' }
 )
 # gemeinsames CSS fuer die Shop-Kopfzeile
@@ -2901,6 +2904,8 @@ foreach ($p in $data.pages) {
     'reparatur-check' { ReparaturCheck-Content $p; break }
     'nivona-marke'    { Jura-Marke-Content $p 'nivona'; break }
     'nivona-kategorie'{ Jura-Kategorie-Content $p 'nivona'; break }
+    'nivona-kategorie-zubehoer' { Jura-Kategorie-Content $p 'nivona-zubehoer'; break }
+    'nivona-kategorie-pflege'   { Jura-Kategorie-Content $p 'nivona-pflegeprodukte'; break }
     default         {
       if ($p.slug -eq 'start') { Start-Content }
       elseif ($p.slug -eq 'hilfethemen' -and $FAQ_HUB) { Faq-Hub-Content $p }
