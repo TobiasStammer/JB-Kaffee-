@@ -1332,15 +1332,16 @@ $JURA_CSS = @"
 .jserie small{display:block;font-size:10px;color:#999;text-align:center;margin-top:1px}
 .jserie.jserie-all{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:104px}
 .jgrid{max-width:$MAXW;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(216px,1fr));gap:16px}
-.jprod{display:flex;flex-direction:column;background:#fff;border:1px solid #e4e4e4;border-radius:6px;overflow:hidden;cursor:pointer;transition:border-color .12s,box-shadow .12s}
+.jprod{display:flex;flex-direction:column;background:#fff;border:1px solid #e4e4e4;border-radius:6px;overflow:hidden;transition:border-color .12s,box-shadow .12s}
 .jprod:hover{border-color:$($C.accent);box-shadow:0 2px 14px rgba(0,0,0,.08)}
 .jprod .pic img{transition:transform .18s}
-.jprod:hover .pic img{transform:scale(1.03)}
 .jprod .pic{background:#fff;height:196px;display:flex;align-items:center;justify-content:center;padding:16px;border-bottom:1px solid #eee}
 .jprod .pic img{max-width:100%;max-height:100%;object-fit:contain}
 .jprod .body{padding:13px 15px;display:flex;flex-direction:column;flex:1}
 .jprod .serie{font-family:$FONT_HEAD;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:$($C.accent);font-weight:700}
 .jprod h3{font-size:14px !important;line-height:1.3 !important;margin:4px 0 6px}
+.jprod h3 a{color:inherit;text-decoration:none}
+.jprod h3 a:hover{text-decoration:underline}
 .jprod .jfarb{font-size:11px;line-height:1.4;color:#8a8a8a;margin:0 0 8px}
 .jprod .price{font-family:$FONT_HEAD;color:$($C.head);font-size:15px;font-weight:700;margin-top:auto}
 .jprod .row{display:flex;align-items:center;justify-content:space-between;margin-top:11px;gap:8px}
@@ -1387,6 +1388,8 @@ $JURA_CSS = @"
 .jp2-bd{padding:15px 17px 16px;display:flex;flex-direction:column;min-width:0}
 .jp2-serie{font-family:$FONT_HEAD;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:$($C.accent);font-weight:700}
 .jp2-bd h3{font-size:16px !important;line-height:1.25 !important;margin:3px 0 6px;color:$($C.head)}
+.jp2-bd h3 a{color:inherit;text-decoration:none}
+.jp2-bd h3 a:hover{text-decoration:underline}
 .jp2-fx{list-style:none;margin:0 0 9px;padding:0;display:flex;flex-wrap:wrap;gap:5px 6px}
 .jp2-fx li{font-size:11px;line-height:1;color:#4a4a4a;background:$($C.soft);border-radius:4px;padding:5px 8px;font-family:$FONT_BODY;white-space:nowrap}
 .jp2-tx{font-size:12.5px;line-height:1.5;color:#6b6b6b;margin:0 0 10px}
@@ -1574,11 +1577,6 @@ $JURA_KAT_JS = @'
   var activeFeat=[];
   var activeGenuss=[];
 
-  grid.addEventListener('click',function(e){
-    if(e.target.closest('a,input,label,button,.cmp')) return;
-    var c=e.target.closest('.jp2'); if(!c) return;
-    var u=c.getAttribute('data-url'); if(u) location.href=u;
-  });
 
   function apply(){
     var vis=0;
@@ -1658,14 +1656,15 @@ $JURA_KAT_JS = @'
   cards.forEach(function(card){
     var img=card.querySelector('.jp2-pic img');
     var link=card.querySelector('.jp2-row a');
+    var titleLink=card.querySelector('.jp2-bd h3 a');
     var baseUrl=card.getAttribute('data-url');
     [].slice.call(card.querySelectorAll('.jsw')).forEach(function(sw){
       sw.addEventListener('click',function(){
         var src=sw.getAttribute('data-img'); if(src && img) img.src=src;
         [].slice.call(card.querySelectorAll('.jsw')).forEach(function(x){ x.classList.remove('is-on'); });
         sw.classList.add('is-on');
-        // Farbauswahl in die Zielseite mitgeben, damit "Details ansehen" (und
-        // der Klick auf die Karte) zur passenden Variante fuehren, nicht zur
+        // Farbauswahl in die Zielseite mitgeben, damit "Details ansehen" und
+        // der Titel-Link zur passenden Variante fuehren, nicht zur
         // Standardfarbe (Kundentest hat das als Widerspruch aufgedeckt).
         var color=sw.getAttribute('data-c');
         if(baseUrl && color){
@@ -1673,6 +1672,7 @@ $JURA_KAT_JS = @'
           var u=baseUrl+sep+'attribute_farbe='+encodeURIComponent(color);
           card.setAttribute('data-url',u);
           if(link) link.href=u;
+          if(titleLink) titleLink.href=u;
         }
       });
     });
@@ -1829,7 +1829,7 @@ function Jura-Kategorie-Content($p, $brandKey = 'jura') {
   <div class="jp2-pic">$(if ($pr.displayImg) { "<img src=`"$($pr.displayImg)`" alt=`"$shortName`">" } else { "<span style=`"font-size:11px;color:#aaa`">Abbildung folgt</span>" })</div>
   <div class="jp2-bd">
     <span class="jp2-serie">$($pr.serie)$sfx</span>
-    <h3>$shortName</h3>
+    <h3><a href="$($pr.url)">$shortName</a></h3>
     $factHtml
     <p class="jp2-tx">$txt</p>
     <div class="jp2-sw">$sw</div>
@@ -1922,11 +1922,6 @@ $JURA_LISTE_JS = @'
   var grid=document.getElementById('jgrid'); if(!grid) return;
   var q=document.getElementById('jq');
   var cards=Array.prototype.slice.call(grid.querySelectorAll('.jprod'));
-  grid.addEventListener('click',function(e){
-    if(e.target.closest('a,input,label')) return;
-    var card=e.target.closest('.jprod'); if(!card) return;
-    var u=card.getAttribute('data-url'); if(u) window.location.href=u;
-  });
   if(q){ q.addEventListener('input',function(){
     var v=q.value.trim().toLowerCase();
     cards.forEach(function(c){ c.style.display=(!v||c.getAttribute('data-name').toLowerCase().indexOf(v)>-1)?'':'none'; });
@@ -1945,7 +1940,7 @@ function Jura-Liste-Content($p) {
 <article class="jprod" data-name="$($_.name)" data-url="$($_.url)">
   <div class="pic">$img</div>
   <div class="body">
-    <h3>$($_.name)</h3>
+    <h3><a href="$($_.url)">$($_.name)</a></h3>
     <div class="price">$($_.priceStr)</div>
     <div class="row"><a href="$($_.url)">Details &rarr;</a></div>
   </div>
@@ -1983,11 +1978,6 @@ $KAFFEETEE_JS = @'
   var grid=document.getElementById('jgrid'); if(!grid) return;
   var chips=Array.prototype.slice.call(document.querySelectorAll('.jserie'));
   var cards=Array.prototype.slice.call(grid.querySelectorAll('.jprod'));
-  grid.addEventListener('click',function(e){
-    if(e.target.closest('a,input,label')) return;
-    var card=e.target.closest('.jprod'); if(!card) return;
-    var u=card.getAttribute('data-url'); if(u) window.location.href=u;
-  });
   chips.forEach(function(c){c.addEventListener('click',function(){
     chips.forEach(function(x){x.classList.remove('is-on')});c.classList.add('is-on');
     var s=c.getAttribute('data-s');
@@ -2022,7 +2012,7 @@ function KaffeeTee-Content($p) {
   <div class="pic">$img</div>
   <div class="body">
     <span class="serie">$($_.art)</span>
-    <h3>$($_.name)</h3>
+    <h3><a href="$($_.url)">$($_.name)</a></h3>
     <div class="price">$($_.priceStr)</div>
     <div class="row"><a href="$($_.url)">Details &rarr;</a></div>
   </div>
