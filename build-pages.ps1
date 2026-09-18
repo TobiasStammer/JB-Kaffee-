@@ -1750,7 +1750,7 @@ function Jura-Kategorie-Content($p, $brandKey = 'jura') {
   function Td($spec, $rx) { if ($spec) { ([string](($spec.techdaten | Where-Object { $_.k -match $rx }).v | Select-Object -First 1)) } else { '' } }
   function ShortDisplay($v) {
     if (-not $v) { return '' }
-    $sz = if ($v -match '(\d+[.,]\d+)') { $matches[1] + '&Prime; ' } else { '' }
+    $sz = if ($v -match '(\d+(?:[.,]\d+)?)"') { $matches[1] + '&Prime; ' } else { '' }
     if ($v -match 'Touch')       { $sz + 'Touch' }
     elseif ($v -match 'Farbdisplay|Farb-Display') { $sz + 'Farbdisplay' }
     elseif ($v -match 'Klartext|Text') { 'Textdisplay' }
@@ -1772,8 +1772,11 @@ function Jura-Kategorie-Content($p, $brandKey = 'jura') {
     "<button class=`"jk2-fdot`" data-c=`"$_`" title=`"$_`" aria-label=`"$_`" style=`"background:$(FbHex $_)`"></button>"
   }) -join ''
 
+  # Wie die Serien-Reihenfolge (GIGA -> ... -> ENA) soll auch innerhalb
+  # jeder Serie das hochwertigste Modell zuerst stehen (Preis/Klasse absteigend),
+  # z.B. bei E: E10, E8, E6, E4.
   $ranked = @()
-  foreach ($s in $order) { $ranked += @($prods | Where-Object { $_.serie -eq $s } | Sort-Object price) }
+  foreach ($s in $order) { $ranked += @($prods | Where-Object { $_.serie -eq $s } | Sort-Object price -Descending) }
 
   $cards = ($ranked | ForEach-Object {
     $pr = $_

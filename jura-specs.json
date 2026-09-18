@@ -1187,32 +1187,60 @@
     ],
     "techdaten": [
       {
-        "k": "Baureihe",
-        "v": "S-Linie (2026)"
+        "k": "Spezialitäten",
+        "v": "45"
+      },
+      {
+        "k": "Mahlwerk",
+        "v": "P.A.G.2+"
+      },
+      {
+        "k": "Bohnenbehälter",
+        "v": "280 g"
+      },
+      {
+        "k": "Wassertank",
+        "v": "1,9 l"
+      },
+      {
+        "k": "Kaffeesatzbehälter",
+        "v": "max. 16 Portionen"
       },
       {
         "k": "Display",
-        "v": "großes Farbdisplay"
+        "v": "4,3\" Touchscreen-Farbdisplay"
+      },
+      {
+        "k": "Pumpendruck",
+        "v": "15 bar"
       },
       {
         "k": "Milchsystem",
-        "v": "ja"
+        "v": "HP3 / CX3"
       },
       {
-        "k": "Artikelnummer",
-        "v": "15775"
-      },
-      {
-        "k": "Verfügbarkeit",
-        "v": "ab Lager verfügbar"
+        "k": "Maße (B × H × T)",
+        "v": "27 × 34,8 × 44,6 cm"
       },
       {
         "k": "Gewicht",
         "v": "10,7 kg"
       },
       {
-        "k": "Maße (B × H × T)",
-        "v": "27 × 34,8 × 44,6 cm"
+        "k": "Leistung",
+        "v": "1450 W"
+      },
+      {
+        "k": "Spannung",
+        "v": "230 V ~"
+      },
+      {
+        "k": "Wasserfilter",
+        "v": "CLARIS Smart+"
+      },
+      {
+        "k": "Artikelnummer",
+        "v": "15775"
       }
     ]
   },
@@ -1227,32 +1255,60 @@
     ],
     "techdaten": [
       {
-        "k": "Baureihe",
-        "v": "Z-Linie (2026)"
+        "k": "Spezialitäten",
+        "v": "51"
+      },
+      {
+        "k": "Mahlwerk",
+        "v": "P.R.G.2+ (Product Recognising Grinder)"
+      },
+      {
+        "k": "Bohnenbehälter",
+        "v": "280 g"
+      },
+      {
+        "k": "Wassertank",
+        "v": "2,4 l"
+      },
+      {
+        "k": "Kaffeesatzbehälter",
+        "v": "max. 20 Portionen"
       },
       {
         "k": "Display",
         "v": "5\" Touchscreen-Farbdisplay"
       },
       {
+        "k": "Pumpendruck",
+        "v": "15 bar"
+      },
+      {
         "k": "Milchsystem",
-        "v": "ja"
+        "v": "HP3 / CX3"
       },
       {
-        "k": "Artikelnummer",
-        "v": "15836"
-      },
-      {
-        "k": "Verfügbarkeit",
-        "v": "ab Lager verfügbar"
+        "k": "Maße (B × H × T)",
+        "v": "32 × 38,3 × 47 cm"
       },
       {
         "k": "Gewicht",
         "v": "12,5 kg"
       },
       {
-        "k": "Maße (B × H × T)",
-        "v": "32 × 38,3 × 47 cm"
+        "k": "Leistung",
+        "v": "1450 W"
+      },
+      {
+        "k": "Spannung",
+        "v": "230 V ~"
+      },
+      {
+        "k": "Wasserfilter",
+        "v": "CLARIS Smart+"
+      },
+      {
+        "k": "Artikelnummer",
+        "v": "15836"
       }
     ]
   }
