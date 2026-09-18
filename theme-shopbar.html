@@ -118,6 +118,26 @@ a.kt-ic,a.ic{position:relative}
       url: '/jura-kaffeevollautomaten/',
       label: 'Zur \u00dcbersicht mit Filtern \u2192',
       text: 'Alle Modelle mit Serien-Filter, Farbwahl und Genusswelten finden Sie auf unserer ausf\u00fchrlichen \u00dcbersichtsseite.'
+    },
+    'term-jura-professional': {
+      url: '/jura-professional/',
+      label: 'Zur \u00dcbersicht mit Filtern \u2192',
+      text: 'Alle Professional-Modelle finden Sie auf unserer ausf\u00fchrlichen \u00dcbersichtsseite.'
+    },
+    'term-jura-zubehoer': {
+      url: '/jura-zubehoer/',
+      label: 'Zur \u00dcbersicht \u2192',
+      text: 'Alle Zubeh\u00f6r-Artikel finden Sie auf unserer ausf\u00fchrlichen \u00dcbersichtsseite.'
+    },
+    'term-jura-pflegeprodukte': {
+      url: '/jura-pflegeprodukte/',
+      label: 'Zur \u00dcbersicht \u2192',
+      text: 'Alle Pflegeprodukte finden Sie auf unserer ausf\u00fchrlichen \u00dcbersichtsseite.'
+    },
+    'term-nivona-kaffeevollautomaten': {
+      url: '/nivona-kaffeevollautomaten/',
+      label: 'Zur \u00dcbersicht mit Filtern \u2192',
+      text: 'Alle Modelle mit Serien-Filter finden Sie auf unserer ausf\u00fchrlichen \u00dcbersichtsseite.'
     }
   };
   function init(){
@@ -144,11 +164,15 @@ a.kt-ic,a.ic{position:relative}
     '/product-category/jura/': '/jura/',
     '/product-category/jura/jura-kaffeevollautomaten/': '/jura-kaffeevollautomaten/',
     '/product-category/jura/jura-professional/': '/jura-professional/',
+    '/product-category/jura/jura-zubehoer/': '/jura-zubehoer/',
+    '/product-category/jura/jura-pflegeprodukte/': '/jura-pflegeprodukte/',
     '/product-category/nivona/': '/nivona/',
     '/product-category/nivona/nivona-kaffeevollautomaten/': '/nivona-kaffeevollautomaten/'
   };
   function init(){
-    var links = document.querySelectorAll('.woocommerce-breadcrumb a, nav.wc-block-breadcrumbs a');
+    // Breadcrumb-Leiste UND der "Zurueck zur Uebersicht"-Link (#kt-pback) auf
+    // Einzel-Produktseiten zeigen von Haus aus auf die rohen Kategorie-Archive.
+    var links = document.querySelectorAll('.woocommerce-breadcrumb a, nav.wc-block-breadcrumbs a, #kt-pback');
     for (var i = 0; i < links.length; i++) {
       var a = links[i];
       var path = a.pathname;

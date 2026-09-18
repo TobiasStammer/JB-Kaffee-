@@ -747,6 +747,74 @@
       }
     ]
   },
+  "15643": {
+    "spez": "17 Spezialitäten",
+    "vorzuege": [
+      "17 Spezialitäten in zwei Genusswelten (Hot Brew, Light Brew)",
+      "Präzisionsmahlwerk P.A.G.2",
+      "Easy-Cappuccino-Funktion für automatischen Milchschaum",
+      "3,5\" Farbdisplay mit klarer Menüführung",
+      "J.O.E.® App-Steuerung mit Coffee Timer bis 16 Stunden vorausplanbar"
+    ],
+    "techdaten": [
+      {
+        "k": "Spezialitäten",
+        "v": "17"
+      },
+      {
+        "k": "Mahlwerk",
+        "v": "P.A.G.2"
+      },
+      {
+        "k": "Bohnenbehälter",
+        "v": "280 g"
+      },
+      {
+        "k": "Wassertank",
+        "v": "1,9 l"
+      },
+      {
+        "k": "Kaffeesatzbehälter",
+        "v": "max. 16 Portionen"
+      },
+      {
+        "k": "Display",
+        "v": "3,5\" Tasten-Farbdisplay"
+      },
+      {
+        "k": "Pumpendruck",
+        "v": "15 bar"
+      },
+      {
+        "k": "Milchsystem",
+        "v": "HP1 / CX3"
+      },
+      {
+        "k": "Maße (B × H × T)",
+        "v": "27 × 34,8 × 44,6 cm"
+      },
+      {
+        "k": "Gewicht",
+        "v": "9,7 kg"
+      },
+      {
+        "k": "Leistung",
+        "v": "1450 W"
+      },
+      {
+        "k": "Spannung",
+        "v": "230 V ~"
+      },
+      {
+        "k": "Wasserfilter",
+        "v": "CLARIS Smart+"
+      },
+      {
+        "k": "Artikelnummer",
+        "v": "15643"
+      }
+    ]
+  },
   "15435": {
     "spez": "5 Spezialitäten (Schwarzkaffee)",
     "vorzuege": [
