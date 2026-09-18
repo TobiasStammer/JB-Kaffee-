@@ -894,9 +894,14 @@ function Footer-Inner-Html {
   $f   = $chrome.footer
   $addr = ($f.address -join '<br>')
   $hrs  = ($f.hours -join '<br>')
+  # Footer-Links zeigen dieselbe Bezeichnung wie das Hauptmenue oben (dessen
+  # Top-Level-Label kann vom eigenen Seiten-"menu"-Titel abweichen, z. B.
+  # "Kaufen" statt "Neue Kaffeemaschinen", "Ueber uns" statt "Das Unternehmen").
+  $navLabelOverride = @{ 'kaffeemaschinen-kaufen' = 'Kaufen'; 'ueber-uns' = '&Uuml;ber uns' }
   $navLinks = ($f.navSlugs | ForEach-Object {
     $pg = $data.pages | Where-Object slug -eq $_
-    "<a href=`"$($linkOf[$_])`" style=`"color:$($C.onDark2);text-decoration:none`">$($pg.menu)</a>"
+    $lbl = if ($navLabelOverride.ContainsKey($_)) { $navLabelOverride[$_] } else { $pg.menu }
+    "<a href=`"$($linkOf[$_])`" style=`"color:$($C.onDark2);text-decoration:none`">$lbl</a>"
   }) -join "`n          "
   $legalLinks = ($f.legalSlugs | ForEach-Object {
     $pg = $data.pages | Where-Object slug -eq $_
