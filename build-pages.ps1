@@ -452,6 +452,7 @@ $NAVTREE = @(
       @{ slug = 'kaffeemaschine-mieten'; label = 'Mieten &amp; Leasen' }
       @{ slug = 'unser-kaffee'; label = 'Unser Kaffee &amp; Tee' }
       @{ slug = 'unser-kaffee-wissen'; label = 'Kaffee: Herkunft &amp; R&ouml;stung' }
+      @{ slug = 'unser-tee-wissen'; label = 'Tee: Teekultur &amp; Sorten' }
     ) }
   @{ slug = 'hilfethemen'; label = 'Hilfe &amp; Wissen'; kids = @(
       $FAQ_HUB.groups | ForEach-Object { @{ url = "$base/hilfethemen/#$($_.anchor)"; label = [string]$_.nav } }
@@ -625,6 +626,7 @@ $SEC_ICONS = @{
   shop    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.3 4.6a1 1 0 0 0 .9 1.4H19"/><circle cx="9" cy="20" r="1"/><circle cx="17" cy="20" r="1"/></svg>'
   mail    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>'
   building= '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M9 8h.01M15 8h.01M9 12h.01M15 12h.01M9 16h6"/></svg>'
+  cup     = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h13v6a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5V8z"/><path d="M16 9h1.5a3 3 0 0 1 0 6H16"/><path d="M7 2c-.6.8-.6 1.4 0 2s.6 1.2 0 2M11 2c-.6.8-.6 1.4 0 2s.6 1.2 0 2"/></svg>'
 }
 function H2-Ico($key) {
   if ($key -and $SEC_ICONS.ContainsKey($key)) { "<span class=`"kt-h2ico`">$($SEC_ICONS[$key])</span>" } else { '' }

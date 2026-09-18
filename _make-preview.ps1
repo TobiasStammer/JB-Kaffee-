@@ -6,13 +6,13 @@ $root = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
 $order = @(
   'start','reparatur','marken','reparaturablauf','reparaturdauer','reparaturkosten','gewaehrleistung','hinweise-nach-der-reparatur',
   'leihgeraete','wertgarantie','wartung',
-  'kaffeemaschinen-kaufen','jura','jura-kaffeevollautomaten','jura-zubehoer','jura-pflegeprodukte','jura-professional','nivona','nivona-kaffeevollautomaten','kaffeemaschine-mieten','kaffeemaschine-leasen','pflegemittel','unser-kaffee','unser-kaffee-wissen','wartungserinnerung','reparatur-check',
+  'kaffeemaschinen-kaufen','jura','jura-kaffeevollautomaten','jura-zubehoer','jura-pflegeprodukte','jura-professional','nivona','nivona-kaffeevollautomaten','kaffeemaschine-mieten','kaffeemaschine-leasen','pflegemittel','unser-kaffee','unser-kaffee-wissen','unser-tee-wissen','wartungserinnerung','reparatur-check',
   'hilfethemen','ueber-uns','anfahrt','jobs','kontakt',
   'impressum','datenschutz','agb','widerruf'
 )
 $labels = @{
   'start'='Start'; 'reparatur'='Reparatur'; 'marken'='Marken'; 'reparaturablauf'='Reparaturablauf'
-  'reparaturdauer'='Reparaturdauer (Weiterleitung)'; 'reparaturkosten'='Dauer & Kosten'; 'gewaehrleistung'='Gewaehrleistung (Weiterleitung)'; 'hinweise-nach-der-reparatur'='Hinweise nach der Reparatur'; 'unser-kaffee-wissen'='Unser Kaffee (Wissen)'
+  'reparaturdauer'='Reparaturdauer (Weiterleitung)'; 'reparaturkosten'='Dauer & Kosten'; 'gewaehrleistung'='Gewaehrleistung (Weiterleitung)'; 'hinweise-nach-der-reparatur'='Hinweise nach der Reparatur'; 'unser-kaffee-wissen'='Unser Kaffee (Wissen)'; 'unser-tee-wissen'='Unser Tee (Wissen)'
   'leihgeraete'='Ersatzgeraet fuer die Reparaturzeit'; 'wertgarantie'='WERTGARANTIE Reparaturschutz'; 'wartung'='Wartung'; 'wartungserinnerung'='Wartungserinnerung (Tool)'; 'reparatur-check'='Reparatur-Check (Tool)'
   'kaffeemaschinen-kaufen'='Neue Kaffeemaschinen'; 'jura'='JURA Online-Shop'; 'jura-kaffeevollautomaten'='JURA Kaffeevollautomaten'; 'jura-zubehoer'='JURA Zubehoer'; 'jura-pflegeprodukte'='JURA Pflegeprodukte'; 'jura-professional'='JURA Professional'; 'nivona'='NIVONA Online-Shop'; 'nivona-kaffeevollautomaten'='NIVONA Kaffeevollautomaten'; 'kaffeemaschine-mieten'='Mieten & Leasen'
   'kaffeemaschine-leasen'='Kaffeemaschine leasen (Weiterleitung)'; 'pflegemittel'='Pflegemittel & Zubehoer'; 'unser-kaffee'='Unser Kaffee & Tee'
@@ -23,7 +23,7 @@ $groups = @(
   @{ h='Hauptmenue'; items=@('start') }
   @{ h='Reparatur'; items=@('reparatur','reparatur-check','marken','reparaturablauf','reparaturdauer','reparaturkosten','gewaehrleistung','hinweise-nach-der-reparatur','leihgeraete','wertgarantie') }
   @{ h='Wartung'; items=@('wartung','wartungserinnerung') }
-  @{ h='Kaufen'; items=@('kaffeemaschinen-kaufen','jura','jura-kaffeevollautomaten','jura-professional','jura-zubehoer','jura-pflegeprodukte','nivona','nivona-kaffeevollautomaten','kaffeemaschine-mieten','kaffeemaschine-leasen','pflegemittel','unser-kaffee','unser-kaffee-wissen') }
+  @{ h='Kaufen'; items=@('kaffeemaschinen-kaufen','jura','jura-kaffeevollautomaten','jura-professional','jura-zubehoer','jura-pflegeprodukte','nivona','nivona-kaffeevollautomaten','kaffeemaschine-mieten','kaffeemaschine-leasen','pflegemittel','unser-kaffee','unser-kaffee-wissen','unser-tee-wissen') }
   @{ h='Hilfe & Wissen'; items=@('hilfethemen') }
   @{ h='Ueber uns'; items=@('ueber-uns','anfahrt','jobs') }
   @{ h='Kontakt'; items=@('kontakt') }
@@ -189,7 +189,7 @@ $doc = @"
 </script>
 "@
 
-$out = 'C:\Users\info\AppData\Local\Temp\claude\C--Homepage-Neue-Seite-2026\d6fde327-8546-442b-baa3-87d6a3b3766a\scratchpad\vorschau.html'
+$out = Join-Path $root 'scratchpad\vorschau.html'
 Set-Content -Path $out -Value $doc -Encoding UTF8
 Write-Host "geschrieben: $out  ($([math]::Round((Get-Item $out).Length/1kb)) KB)"
 
