@@ -1,0 +1,44 @@
+{
+  "_note": "NIVONA Farbvarianten je Modell (nur Modelle mit mehreren Ausfuehrungen), von nivona.com/de/product/... 2026-09. Preis kann je Farbe abweichen (anders als bei JURA), daher eigenes 'price' Feld je Farbe.",
+  "colors": {
+    "nivona-cube-4": [
+      { "name": "Weiß",                    "art": "CUBE 4102", "price": "479.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_cube4_weiss-BO00enDi.webp" },
+      { "name": "Schwarz",                 "art": "CUBE 4106", "price": "479.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_cube4_schwarz-Jp6dpHzD.webp" },
+      { "name": "Himmelblau (Folierung)",  "art": "CUBE 4106", "price": "529.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_CUBE_Pantone_551C-R4lH1r56.png" },
+      { "name": "Kleegrün (Folierung)",    "art": "CUBE 4106", "price": "529.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_CUBE_Pantone_2303C-hd6IVNge.png" },
+      { "name": "Orange (Folierung)",      "art": "CUBE 4106", "price": "529.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_CUBE_Pantone_7563C-CohGf-7x.png" },
+      { "name": "Fliedergrau (Folierung)", "art": "CUBE 4106", "price": "529.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_CUBE_Pantone_Fliedergrau-Ko-cjrQe.png" },
+      { "name": "Tannengrün (Folierung)",  "art": "CUBE 4106", "price": "529.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_CUBE_Pantone_7720C-D6r5hexX.png" },
+      { "name": "Grasgrün (Folierung)",    "art": "CUBE 4106", "price": "529.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_CUBE_Pantone_5555C-CsvTF634.png" },
+      { "name": "Rot (Folierung)",         "art": "CUBE 4106", "price": "529.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_CUBE_Pantone_ROT-D5-zGkpc.png" }
+    ],
+    "nivona-5er": [
+      { "name": "Schwarz", "art": "NICR 5'50", "price": "549.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_5series_schwarz-DBTpwHlk.webp" },
+      { "name": "Weiß",    "art": "NICR 5'60", "price": "549.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_5series_weiss-D2TofRtK.webp" }
+    ],
+    "nivona-7er": [
+      { "name": "Grau",    "art": "NICR 7'93", "price": "777.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_7series_grau-CqxZo51t.webp" },
+      { "name": "Schwarz", "art": "NICR 7'90", "price": "779.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_7series_schwarz-DouxMlEN.webp" },
+      { "name": "Titan",   "art": "NICR 7'95", "price": "849.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_7series_titan-BQjzW13s.webp" },
+      { "name": "Weiß",    "art": "NICR 7'96", "price": "849.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_7series_weiss-nbBg49DM.webp" }
+    ],
+    "nivona-nivo-7000": [
+      { "name": "Schwarz", "art": "NIVO 7101", "price": "999.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_nivo7000_schwarz-Bxa38DUQ.webp" },
+      { "name": "Grau",    "art": "NIVO 7105", "price": "999.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_nivo7000_grau-DOefjY5e.webp" }
+    ],
+    "nivona-nivo-8000": [
+      { "name": "Schwarz",     "art": "NIVO 8111", "price": "1199.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_8000er_schwarz-BlEiOSUz.png" },
+      { "name": "Titan",      "art": "NIVO 8113", "price": "1249.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_8000er_titan-CWeA0YNC.png" },
+      { "name": "Perlenblau", "art": "NIVO 8117", "price": "1249.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_8000er_perlenblau-s5VOVyDX.png" }
+    ],
+    "nivona-nivo-9000": [
+      { "name": "Schwarz", "art": "NIVO 9101", "price": "1649.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_nivo9000_schwarz-DgfhSzcc.webp" },
+      { "name": "Titan",   "art": "NIVO 9103", "price": "1699.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_nivo9000_titan-Cr7_41Qc.webp" }
+    ]
+  },
+  "singleColor": {
+    "nivona-6er":            "Titan",
+    "nivona-10er":           "Titan",
+    "nivona-nivo-8141-pro":  "Schwarz"
+  }
+}
