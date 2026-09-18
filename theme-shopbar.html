@@ -138,6 +138,27 @@ a.kt-ic,a.ic{position:relative}
   if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
 })();
 </script>
+<script>
+(function(){
+  var MAP = {
+    '/product-category/jura/': '/jura/',
+    '/product-category/jura/jura-kaffeevollautomaten/': '/jura-kaffeevollautomaten/',
+    '/product-category/jura/jura-professional/': '/jura-professional/',
+    '/product-category/nivona/': '/nivona/',
+    '/product-category/nivona/nivona-kaffeevollautomaten/': '/nivona-kaffeevollautomaten/'
+  };
+  function init(){
+    var links = document.querySelectorAll('.woocommerce-breadcrumb a, nav.wc-block-breadcrumbs a');
+    for (var i = 0; i < links.length; i++) {
+      var a = links[i];
+      var path = a.pathname;
+      if (path.charAt(path.length - 1) !== '/') { path += '/'; }
+      if (MAP[path]) { a.href = MAP[path]; }
+    }
+  }
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
+})();
+</script>
 <nav class="shnav-wrap"><div class="shnav-box">
     <button class="shnav-toggle" type="button" aria-expanded="false" aria-controls="shnav"><span class="bg" aria-hidden="true"></span>Men&uuml;</button>
     <ul class="shnav" id="shnav">

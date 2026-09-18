@@ -540,6 +540,35 @@ $CATEGORY_BANNER_JS = @'
 </script>
 '@
 
+# Breadcrumb-Links auf Produktseiten zeigen von Haus aus auf die rohen
+# WooCommerce-Kategorie-Archive (/product-category/...). Die sollen stattdessen
+# auf unsere ausgebauten eigenen Marken-/Kategorieseiten fuehren. Laeuft
+# sitezweit ueber das gemeinsame 'header'-Template-Part (wie $CATEGORY_BANNER_JS),
+# greift aber nur, wenn die Breadcrumb-Leiste ueberhaupt vorhanden ist.
+$BREADCRUMB_FIX_JS = @'
+<script>
+(function(){
+  var MAP = {
+    '/product-category/jura/': '/jura/',
+    '/product-category/jura/jura-kaffeevollautomaten/': '/jura-kaffeevollautomaten/',
+    '/product-category/jura/jura-professional/': '/jura-professional/',
+    '/product-category/nivona/': '/nivona/',
+    '/product-category/nivona/nivona-kaffeevollautomaten/': '/nivona-kaffeevollautomaten/'
+  };
+  function init(){
+    var links = document.querySelectorAll('.woocommerce-breadcrumb a, nav.wc-block-breadcrumbs a');
+    for (var i = 0; i < links.length; i++) {
+      var a = links[i];
+      var path = a.pathname;
+      if (path.charAt(path.length - 1) !== '/') { path += '/'; }
+      if (MAP[path]) { a.href = MAP[path]; }
+    }
+  }
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
+})();
+</script>
+'@
+
 # Icons fuer Ablauf-Schritte (Feather-Stil, faerben ueber currentColor)
 $STEP_ICONS = @{
   box   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg>'
@@ -850,6 +879,7 @@ function Shop-Bar-White {
 </div></div>
 $CART_BADGE_JS
 $CATEGORY_BANNER_JS
+$BREADCRUMB_FIX_JS
 "@
 }
 # <ul class="shnav"> mit den Shop-Links
