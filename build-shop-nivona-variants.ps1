@@ -26,12 +26,20 @@ foreach ($sku in $vars.colors.PSObject.Properties.Name) {
   if (-not $wcp) { Write-Host "[fehlt] $sku" -ForegroundColor Yellow; continue }
   $prodId = $wcp.id
 
+  # Bestehende Attribute (z.B. "Serie") erhalten - PUT ersetzt attributes komplett,
+  # daher hier mit dem vorhandenen Array mergen statt nur "Farbe" zu setzen (sonst
+  # verliert das Produkt sein Serie-Attribut und faellt aus der Serien-Gruppierung
+  # der Geraeteuebersicht raus).
+  $keepAttrs = @($wcp.attributes | Where-Object { $_.name -ne 'Farbe' } | ForEach-Object {
+    @{ name = $_.name; position = $_.position; visible = $_.visible; variation = $_.variation; options = @($_.options) }
+  })
+  $farbeAttr = @{
+    name = 'Farbe'; position = 0; visible = $true; variation = $true
+    options = @($colors | ForEach-Object { $_.name })
+  }
   $body = @{
     type       = 'variable'
-    attributes = @(@{
-      name = 'Farbe'; position = 0; visible = $true; variation = $true
-      options = @($colors | ForEach-Object { $_.name })
-    })
+    attributes = @($keepAttrs) + @($farbeAttr)
     default_attributes = @(@{ name = 'Farbe'; option = $colors[0].name })
   }
   $null = wc PUT "products/$prodId" $body
