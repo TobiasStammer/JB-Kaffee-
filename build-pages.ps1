@@ -1260,13 +1260,9 @@ function Jura-Products($catSlug = 'jura-kaffeevollautomaten') {
     $pnum  = ($_.regular_price -as [decimal])
     if ((-not $pnum -or $pnum -le 0) -and $_.price) { $pnum = ($_.price -as [decimal]) }
     $de    = [Globalization.CultureInfo]::GetCultureInfo('de-DE')
-    $pstr  = if ($pnum -and $pnum -gt 0) {
-               $f = ([decimal]$pnum).ToString('N2', $de) + ' &euro;'
-               if ($isVar) { "ab $f" } else { $f }
-             } else { 'Preis auf Anfrage' }
     $mainImg = if ($_.images -and $_.images[0]) { $_.images[0].src } else { '' }
 
-    # Farbvarianten (color -> Bild)
+    # Farbvarianten (color -> Bild + eigener Preis)
     $variants = @()
     if ($isVar) {
       $vResp = wc GET "products/$($_.id)/variations?per_page=30"
@@ -1276,18 +1272,30 @@ function Jura-Products($catSlug = 'jura-kaffeevollautomaten') {
         if ($vc) {
           $vpnum = ($v.regular_price -as [decimal])
           if ((-not $vpnum -or $vpnum -le 0) -and $v.price) { $vpnum = ($v.price -as [decimal]) }
-          $vpstr = if ($vpnum -and $vpnum -gt 0) { ([decimal]$vpnum).ToString('N2', $de) + ' &euro;' } else { $pstr }
-          $variants += [pscustomobject]@{ color = "$vc"; img = if ($v.image -and $v.image.src) { $v.image.src } else { $mainImg }; priceStr = $vpstr }
+          if (-not $vpnum -or $vpnum -le 0) { $vpnum = $pnum }
+          $vpstr = if ($vpnum -and $vpnum -gt 0) { ([decimal]$vpnum).ToString('N2', $de) + ' &euro;' } else { 'Preis auf Anfrage' }
+          $variants += [pscustomobject]@{ color = "$vc"; img = if ($v.image -and $v.image.src) { $v.image.src } else { $mainImg }; price = $vpnum; priceStr = $vpstr }
         }
       }
     }
     if (-not $variants -or $variants.Count -eq 0) {
       $c0 = if ($farben.Count -ge 1) { $farben[0] } else { '' }
-      $variants = @([pscustomobject]@{ color = "$c0"; img = $mainImg; priceStr = $pstr })
+      $vpstr0 = if ($pnum -and $pnum -gt 0) { ([decimal]$pnum).ToString('N2', $de) + ' &euro;' } else { 'Preis auf Anfrage' }
+      $variants = @([pscustomobject]@{ color = "$c0"; img = $mainImg; price = $pnum; priceStr = $vpstr0 })
     }
     # nach Helligkeit sortieren, hellstes zuerst -> Standardbild
     $variants = @($variants | Sort-Object @{ Expression = { & $farbRank $_.color } }, color)
     $displayImg = if ($variants[0].img) { $variants[0].img } else { $mainImg }
+
+    # "ab X €" nur zeigen, wenn die Farbvarianten sich tatsaechlich im Preis
+    # unterscheiden - vorher stand "ab" bei JEDEM variablen Produkt, auch wenn
+    # alle Farben gleich teuer sind (z.B. E4, Z10 Aluminium/Diamond).
+    $distinctPrices = @($variants | ForEach-Object { $_.price } | Where-Object { $_ -gt 0 } | Select-Object -Unique)
+    if ($distinctPrices.Count -gt 0) { $pnum = ($distinctPrices | Measure-Object -Minimum).Minimum }
+    $pstr  = if ($pnum -and $pnum -gt 0) {
+               $f = ([decimal]$pnum).ToString('N2', $de) + ' &euro;'
+               if ($isVar -and $distinctPrices.Count -gt 1) { "ab $f" } else { $f }
+             } else { 'Preis auf Anfrage' }
 
     [pscustomobject]@{
       name       = $_.name
