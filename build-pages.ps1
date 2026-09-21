@@ -2841,12 +2841,9 @@ function ReparaturCheck-Content($p) {
     <div class="rc-opts" data-k="alter">
       <button type="button" data-v="a">unter 2 Jahre</button>
       <button type="button" data-v="b" class="on">2 &ndash; 5 Jahre</button>
-      <button type="button" data-v="y5">5 &ndash; 6 Jahre</button>
-      <button type="button" data-v="y6">6 &ndash; 7 Jahre</button>
-      <button type="button" data-v="y7">7 &ndash; 8 Jahre</button>
-      <button type="button" data-v="y8">8 &ndash; 9 Jahre</button>
-      <button type="button" data-v="y9">9 &ndash; 10 Jahre</button>
-      <button type="button" data-v="y10">&uuml;ber 10 Jahre</button>
+      <button type="button" data-v="c">5 &ndash; 8 Jahre</button>
+      <button type="button" data-v="d">8 &ndash; 12 Jahre</button>
+      <button type="button" data-v="e">&uuml;ber 12 Jahre</button>
       <button type="button" data-v="x">wei&szlig; ich nicht</button>
     </div>
   </div>
@@ -2913,9 +2910,7 @@ function ReparaturCheck-Content($p) {
     'tot':{u:'Netzteil, Hauptschalter, Kabel oder Elektronik &ndash; das muss in der Werkstatt gepr&uuml;ft werden.',self:'',lo:30,hi:200},
     'anderes':{u:'Wir sehen uns das Ger&auml;t an und melden uns mit einem Kostenvoranschlag, bevor etwas gemacht wird.',self:'$base/reparaturablauf/',lo:0,hi:160}
   };
-  // Gruen-Grenze = Anteil des Neupreises, bis zu dem die Reparatur "gruen" ist (je Alter).
-  // Bis 5 Jahre 60 %, danach je Jahr 5 Prozentpunkte weniger; Gelb bis Gruen-Grenze + 20 Punkte, darueber Rot.
-  var GREEN={a:.60,b:.60,y5:.55,y6:.50,y7:.45,y8:.40,y9:.35,y10:.30,x:.45};
+  // Zeitachse: unter 2 J. Herstellergarantie (selbst verursacht: lohnt sich), 2-8 J. gruen, 8-12 J. gelb, ueber 12 J. rot (offen abwaegen).
 
   document.getElementById('rc-go').addEventListener('click',function(){
     var symK=document.getElementById('rc-sym').value;
@@ -2928,19 +2923,32 @@ function ReparaturCheck-Content($p) {
     if(st.typ==='siebtraeger'){ base=/ECM|Profitec/i.test(brandV)?400:180; }
     var lo=base+s.lo, hi=base+s.hi;
     var mid=(lo+hi)/2;
-    var lim=GREEN[st.alter]; if(lim===undefined) lim=.45;
     var np=price>0?price:((st.typ==='siebtraeger')?1200:700);
-    var ratio=mid/np;
+    var heavy=price>0 && (mid/np)>0.6;   // Aufwand hoch im Verhaeltnis zum bekannten Neupreis
     var amp='g',t='',tx='';
-    if(ratio>lim+.20){
-      amp='r'; t='Reparatur pr&uuml;fen lassen &ndash; Neuger&auml;t als Alternative';
-      tx='Der voraussichtliche Aufwand steht in keinem guten Verh&auml;ltnis zum Wert des Ger&auml;ts. Eine Reparatur kann sich trotzdem lohnen, wenn Ihnen das Ger&auml;t viel wert ist. Wir pr&uuml;fen es und zeigen Ihnen beide Wege &ndash; Reparatur und Neuger&auml;t &ndash; ehrlich nebeneinander.';
-    } else if(ratio>lim){
-      amp='y'; t='Reparatur meist sinnvoll &ndash; kurz abw&auml;gen';
-      tx='Der Aufwand liegt im mittleren Bereich. Bei einem gepflegten Ger&auml;t und verf&uuml;gbaren Ersatzteilen lohnt sich die Reparatur oft. Wir pr&uuml;fen das Ger&auml;t und machen einen Kostenvoranschlag, bevor etwas repariert wird.';
-    } else {
+    var age=st.alter;
+    if(age==='a'){
+      amp='g'; t='Noch Herstellergarantie &ndash; Reparatur lohnt sich auf jeden Fall';
+      tx='Bei einem Ger&auml;t unter 2 Jahren greift in der Regel noch die Herstellergarantie. Bitte kl&auml;ren Sie zuerst, ob der Defekt abgedeckt ist, und &ouml;ffnen Sie das Ger&auml;t nicht selbst.'+(brandV==='Jura'?' Als autorisierte JURA-Servicestelle bearbeiten wir Garantief&auml;lle auch direkt.':'')+' Ist der Schaden selbst verursacht (z.&nbsp;B. Sturz, Wasser, Fehlbedienung), gilt die Garantie nicht &ndash; dann lohnt sich die Reparatur auf jeden Fall.';
+    } else if(age==='b'){
       amp='g'; t='Reparatur lohnt sich';
-      tx='Der voraussichtliche Aufwand steht in einem guten Verh&auml;ltnis zum Wert des Ger&auml;ts. Eine Reparatur ist die wirtschaftlichere Wahl.';
+      tx='Das Ger&auml;t ist noch jung. Eine Reparatur ist klar die wirtschaftlichere Wahl.';
+    } else if(age==='c'){
+      amp='g'; t='Reparatur lohnt sich';
+      tx='Ein gepflegtes Ger&auml;t in diesem Alter l&auml;uft nach einer Reparatur in der Regel noch viele Jahre. Die Reparatur ist meist die wirtschaftlichere Wahl.';
+    } else if(age==='d'){
+      amp='y'; t='Reparatur meist sinnvoll &ndash; kurz abw&auml;gen';
+      tx='Bei Ger&auml;ten dieses Alters kommt es auf Zustand und Aufwand an. Bei einem gepflegten Ger&auml;t und verf&uuml;gbaren Ersatzteilen lohnt sich die Reparatur oft. Wir pr&uuml;fen das Ger&auml;t und machen einen Kostenvoranschlag, bevor etwas repariert wird.';
+    } else if(age==='e'){
+      amp='r'; t='Offen abw&auml;gen, was noch drin ist';
+      tx='Bei Ger&auml;ten dieses Alters entscheidet der Zustand: Wie viel Aufwand ist n&ouml;tig, sind Ersatzteile verf&uuml;gbar, was ist das Ger&auml;t Ihnen wert? Wir pr&uuml;fen es ehrlich und zeigen Ihnen beide Wege &ndash; Reparatur und Neuger&auml;t &ndash; nebeneinander.';
+    } else {
+      amp='y'; t='Reparatur pr&uuml;fen lassen';
+      tx='Ohne Altersangabe l&auml;sst sich das schwer sagen. Wir pr&uuml;fen das Ger&auml;t, machen einen Kostenvoranschlag und beraten Sie ehrlich, ob sich die Reparatur lohnt.';
+    }
+    if(heavy && amp==='g' && age!=='a'){
+      amp='y'; t='Reparatur meist sinnvoll &ndash; kurz abw&auml;gen';
+      tx='Der voraussichtliche Aufwand ist im Verh&auml;ltnis zum Wert des Ger&auml;ts sp&uuml;rbar. Wir pr&uuml;fen das Ger&auml;t und machen einen Kostenvoranschlag, bevor etwas repariert wird.';
     }
 
     var selfHtml='';
