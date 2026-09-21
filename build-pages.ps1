@@ -2424,6 +2424,14 @@ $css
   <div class="kt-hub-cats">
     $catsHtml
   </div>
+  <style>
+  .kt-hub-quiz{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:#fff;border:1px solid #e2e2e2;border-radius:10px;padding:16px 20px;margin:0 0 14px;text-decoration:none;transition:border-color .12s,box-shadow .12s}
+  .kt-hub-quiz:hover{border-color:$($C.accent);box-shadow:0 3px 14px rgba(0,0,0,.06)}
+  .kt-hub-quiz b{display:block;font-family:$FONT_HEAD;color:$($C.head);font-size:14.5px;margin-bottom:3px}
+  .kt-hub-quiz span{font-size:13px;line-height:1.5;color:#666}
+  .kt-hub-quiz em{font-style:normal;font-family:$FONT_HEAD;font-size:12.5px;font-weight:700;color:#fff;background:$($C.accent);border-radius:4px;padding:9px 16px;white-space:nowrap}
+  </style>
+  <a class="kt-hub-quiz" href="$base/kaffee-quiz/"><div><b>Kaffee-Quiz: Testen Sie Ihr Wissen</b><span>10 Fragen rund um Bohne, R&ouml;stung und Zubereitung &ndash; mit Erkl&auml;rung zu jeder Antwort.</span></div><em>Quiz starten &rarr;</em></a>
   <p class="kt-hub-all" id="kt-hub-all"><a id="kt-hub-alllink" href="#">Alle Themen anzeigen</a></p>
   <p class="kt-hub-cnt" id="kt-hub-cnt"></p>
   <div class="kt-hub-groups">
