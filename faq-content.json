@@ -835,6 +835,143 @@
           "x": "Regelmäßig rückspülen (Blindsieb + Reiniger), Brühgruppe und Duschsieb sauber halten, Wasser aufbereiten und je nach Gebrauch entkalken. Wir beraten Sie gern zu Einstellung und Pflege."
         }
       ]
+    },
+    {
+      "slug": "hilfe-stoerungen",
+      "kind": "faq-kategorie",
+      "hubAnchor": "stoerungen",
+      "menu": "Störung selbst beheben",
+      "title": "Störung selbst beheben – Anleitungen für Ihre Kaffeemaschine",
+      "excerpt": "Kein Wasser, Kaffee zu langsam, Brühgruppe klemmt, undicht, Fehlermeldung: Anleitungen, mit denen Sie kleine Störungen oft selbst beheben.",
+      "intro": "Viele Störungen lassen sich mit ein paar Handgriffen beheben. Wählen Sie das Symptom, das Ihr Gerät zeigt – jede Anleitung nennt mögliche Ursachen und was Sie selbst prüfen können."
+    },
+    {
+      "slug": "hilfe-reinigung-pflege",
+      "kind": "faq-kategorie",
+      "hubAnchor": "reinigung-pflege",
+      "menu": "Reinigung &amp; Pflege",
+      "title": "Reinigung & Pflege Ihrer Kaffeemaschine",
+      "excerpt": "Entkalken, Wasserfilter, Milchsystem und Brühgruppe: So pflegen Sie Ihre Kaffeemaschine richtig und halten sie lange fit.",
+      "intro": "Regelmäßige Pflege ist die beste Reparaturvorsorge und wirkt sich direkt auf den Geschmack aus. Hier finden Sie die wichtigsten Pflegeschritte Schritt für Schritt erklärt."
+    },
+    {
+      "slug": "hilfe-ratgeber",
+      "kind": "faq-kategorie",
+      "hubAnchor": "ratgeber",
+      "menu": "Reparieren, kaufen, vergleichen",
+      "title": "Ratgeber: Reparieren, kaufen, vergleichen",
+      "excerpt": "Lohnt sich die Reparatur? Welche Maschine passt zu mir? Vollautomat oder Siebträger? Unsere Ratgeber helfen bei der Entscheidung.",
+      "intro": "Reparieren oder neu kaufen, welches System passt zu Ihnen, Vollautomat oder Siebträger – unsere Ratgeber helfen bei der Entscheidung, ehrlich und ohne Verkaufsdruck."
+    },
+    {
+      "slug": "kaffee-quiz",
+      "kind": "quiz",
+      "menu": "Kaffee-Quiz",
+      "title": "Kaffee-Quiz – testen Sie Ihr Wissen",
+      "excerpt": "Zehn Fragen rund um Kaffee: Bohne, Röstung, Zubereitung und Pflege. Wie viel wissen Sie wirklich?",
+      "intro": "Zehn Fragen rund um Bohne, Röstung und Zubereitung. Wählen Sie jeweils eine Antwort – am Ende sehen Sie Ihr Ergebnis und erfahren, was dahintersteckt.",
+      "quiz": [
+        {
+          "q": "Welche zwei Kaffeearten machen fast den gesamten Welthandel aus?",
+          "opts": [
+            "Arabica und Robusta",
+            "Liberica und Excelsa",
+            "Bourbon und Typica"
+          ],
+          "a": 0,
+          "why": "Arabica und Robusta dominieren den Weltmarkt. Sie unterscheiden sich deutlich in Geschmack, Koffeingehalt und Anbau."
+        },
+        {
+          "q": "Welche Sorte enthält mehr Koffein?",
+          "opts": [
+            "Arabica",
+            "Robusta",
+            "Beide etwa gleich viel"
+          ],
+          "a": 1,
+          "why": "Robusta hat mit ca. 2,2 % fast doppelt so viel Koffein wie Arabica (ca. 1,2 %) und schmeckt kräftiger und erdiger."
+        },
+        {
+          "q": "Woraus besteht eine Tasse Kaffee zu über 98 %?",
+          "opts": [
+            "Aus Kaffeeöl",
+            "Aus Wasser",
+            "Aus gelösten Röststoffen"
+          ],
+          "a": 1,
+          "why": "Die Tasse besteht fast nur aus Wasser. Deshalb schmeckt weiches, gefiltertes Wasser sauberer und schützt die Maschine vor Kalk."
+        },
+        {
+          "q": "Welche Brühtemperatur ist für Kaffee ideal?",
+          "opts": [
+            "70 bis 80 °C",
+            "90 bis 96 °C",
+            "100 °C, kochend"
+          ],
+          "a": 1,
+          "why": "Bei 90 bis 96 °C lösen sich Aromen optimal. Zu heiß wird der Kaffee bitter, zu kühl bleibt er sauer und dünn."
+        },
+        {
+          "q": "Wie viel Kaffeepulver braucht eine Tasse etwa?",
+          "opts": [
+            "2 bis 4 Gramm",
+            "7 bis 11 Gramm",
+            "15 bis 20 Gramm"
+          ],
+          "a": 1,
+          "why": "Als Richtwert gelten 7 bis 11 Gramm pro Tasse. Mehr Pulver bringt Körper und Crema, weniger macht die Tasse leichter."
+        },
+        {
+          "q": "Wo lagern Sie Kaffeebohnen am besten?",
+          "opts": [
+            "Im Kühlschrank",
+            "Im Gefrierfach",
+            "Kühl, dunkel und luftdicht"
+          ],
+          "a": 2,
+          "why": "Im Kühlschrank oder Gefrierfach bilden sich Kondenswasser und fremde Gerüche. Die Originaltüte mit Aromaventil und Clip reicht völlig."
+        },
+        {
+          "q": "Wie lange hält das Aroma-Optimum nach der Röstung ungefähr?",
+          "opts": [
+            "Etwa 2 bis 4 Wochen",
+            "Etwa 6 Monate",
+            "Nur 2 bis 3 Tage"
+          ],
+          "a": 0,
+          "why": "Frisch geröstet braucht Kaffee ein paar Tage Ruhe, dann hält das Optimum etwa zwei bis vier Wochen. Danach wird die Tasse flacher."
+        },
+        {
+          "q": "Ihr Kaffee schmeckt dünn und sauer. Was hilft meist?",
+          "opts": [
+            "Gröber mahlen",
+            "Feiner mahlen",
+            "Kälteres Wasser nehmen"
+          ],
+          "a": 1,
+          "why": "Zu grob gemahlen läuft das Wasser zu schnell durch. Stellen Sie das Mahlwerk in kleinen Schritten feiner und bewerten Sie erst nach ein, zwei Bezügen."
+        },
+        {
+          "q": "Wie lange dauert eine schonende Trommelröstung etwa?",
+          "opts": [
+            "Rund 90 Sekunden",
+            "12 bis 20 Minuten",
+            "Mehrere Stunden"
+          ],
+          "a": 1,
+          "why": "In der Trommel wird die Bohne 12 bis 20 Minuten gleichmäßig durchgeröstet. Industrielle Heißluftröstung ist in rund 90 Sekunden durch und kann außen dunkel, innen unfertig bleiben."
+        },
+        {
+          "q": "Wozu dient das kleine Ventil auf dem Kaffeebeutel?",
+          "opts": [
+            "Es lässt Röstgase entweichen, aber keinen Sauerstoff hinein",
+            "Es zeigt an, ob der Kaffee frisch ist",
+            "Es verhindert, dass der Beutel aufplatzt, wenn er warm wird"
+          ],
+          "a": 0,
+          "why": "Das Aromaventil lässt Röstgase entweichen, ohne dass Sauerstoff hereinkommt. So bleibt der Kaffee länger frisch."
+        }
+      ]
     }
   ]
 }

@@ -440,11 +440,13 @@ $NAVTREE = @(
       @{ slug = 'reparaturkosten'; label = 'Dauer &amp; Kosten' },
       @{ slug = 'reparatur-check'; label = 'Reparatur-Check' },
       'marken',
-      @{ slug = 'leihgeraete' }
+      @{ slug = 'leihgeraete' },
+      @{ slug = 'wertgarantie' }
     ) }
   @{ slug = 'wartung'; label = 'Wartung'; kids = @(
       @{ slug = 'wartung'; label = 'Wartung &amp; Reinigung' }
       @{ slug = 'wartungserinnerung'; label = 'Wartungserinnerung' }
+      @{ slug = 'wertgarantie' }
     ) }
   @{ slug = 'kaffeemaschinen-kaufen'; label = 'Kaufen'; kids = @(
       @{ label = 'JURA Online-Shop &rsaquo;'; url = "$base/jura/" }
@@ -455,7 +457,10 @@ $NAVTREE = @(
       @{ slug = 'unser-tee-wissen'; label = 'Tee: Teekultur &amp; Sorten' }
     ) }
   @{ slug = 'hilfethemen'; label = 'Hilfe &amp; Wissen'; kids = @(
-      $FAQ_HUB.groups | ForEach-Object { @{ url = "$base/hilfethemen/#$($_.anchor)"; label = [string]$_.nav } }
+      @{ slug = 'hilfe-stoerungen' }
+      @{ slug = 'hilfe-reinigung-pflege' }
+      @{ slug = 'hilfe-ratgeber' }
+      @{ slug = 'kaffee-quiz'; label = 'Kaffee-Quiz: Testen Sie Ihr Wissen' }
       @{ slug = 'hilfethemen'; label = 'Alle Hilfethemen &rarr;' }
     ) }
   @{ slug = 'ueber-uns'; label = '&Uuml;ber uns'; kids = @(
@@ -2156,8 +2161,13 @@ function Sub-Content($p) {
   if ($p.faqGroup) {
     $grp = $null
     if ($FAQ_HUB) { $grp = @($FAQ_HUB.groups | Where-Object { $_.title -eq $p.faqGroup }) | Select-Object -First 1 }
-    $backUrl = if ($grp) { "$base/hilfethemen/#$($grp.anchor)" } else { "$base/hilfethemen/" }
-    $faqBackHtml = "<a href=`"$backUrl`" class=`"kt-faq-back`">&larr; Zur&uuml;ck zu Hilfe &amp; Wissen</a>"
+    $catPg = $null
+    if ($grp) { $catPg = @($data.pages | Where-Object { $_.kind -eq 'faq-kategorie' -and $_.hubAnchor -eq $grp.anchor }) | Select-Object -First 1 }
+    if ($catPg) {
+      $faqBackHtml = "<a href=`"$base/$($catPg.slug)/`" class=`"kt-faq-back`">&larr; Zur&uuml;ck zu &bdquo;$($catPg.menu)&ldquo;</a>"
+    } else {
+      $faqBackHtml = "<a href=`"$base/hilfethemen/`" class=`"kt-faq-back`">&larr; Zur&uuml;ck zu Hilfe &amp; Wissen</a>"
+    }
     $faqCtaHtml = @"
 <div class="kt-faq-cta">
   <p>Hat das nicht geholfen?</p>
@@ -2841,17 +2851,20 @@ function ReparaturCheck-Content($p) {
     var price=parseFloat(document.getElementById('rc-price').value)||0;
     if(!symK){ alert('Bitte w' + String.fromCharCode(228) + 'hlen Sie ein Problem aus.'); return; }
     var s=SY[symK];
-    var base=(st.typ==='siebtraeger')?300:160;
+    // Wartungs-Richtwerte wie auf /reparaturkosten/: Haushalt-Vollautomat 160, Siebtraeger ECM/Profitec 400, sonst (Sage, La Pavoni) 180
+    var brandV=document.getElementById('rc-brand').value;
+    var base=160;
+    if(st.typ==='siebtraeger'){ base=/ECM|Profitec/i.test(brandV)?400:180; }
     var lo=base+s.lo, hi=base+s.hi;
     var mid=(lo+hi)/2;
     var years=YEARS[st.alter];
     var np=price>0?price:((st.typ==='siebtraeger')?1200:700);
 
     var amp='g',t='',tx='';
-    if((years!==null&&years>=8)||(mid>np*0.5)){
-      amp='r'; t='Eher Richtung Neuger&auml;t';
-      tx='Der voraussichtliche Aufwand liegt &uuml;ber der H&auml;lfte des Neuwerts'+(years&&years>=8?' und das Ger&auml;t ist bereits einige Jahre im Einsatz':'')+'. Eine Reparatur kann sich noch lohnen, wenn Ihnen das Ger&auml;t viel wert ist &ndash; wirtschaftlich ist meist ein neues Ger&auml;t die bessere Wahl. Wir beraten Sie ehrlich.';
-    } else if((years!==null&&years>=5)||(mid>np/3)){
+    if(mid>np*0.6){
+      amp='r'; t='Reparatur pr&uuml;fen lassen &ndash; Neuger&auml;t als Alternative';
+      tx='Der voraussichtliche Aufwand liegt bei mehr als der H&auml;lfte des Neuwerts. Eine Reparatur kann sich trotzdem lohnen, wenn Ihnen das Ger&auml;t viel wert ist. Wir pr&uuml;fen es und zeigen Ihnen beide Wege &ndash; Reparatur und Neuger&auml;t &ndash; ehrlich nebeneinander.';
+    } else if((years!==null&&years>=10)||(mid>np*0.4)){
       amp='y'; t='Reparatur meist sinnvoll &ndash; kurz abw&auml;gen';
       tx='Der Aufwand liegt im mittleren Bereich. Bei einem gepflegten Ger&auml;t und verf&uuml;gbaren Ersatzteilen lohnt sich die Reparatur in der Regel. Wir pr&uuml;fen das Ger&auml;t und machen einen Kostenvoranschlag, bevor etwas repariert wird.';
     } else {
@@ -2891,6 +2904,169 @@ function ReparaturCheck-Content($p) {
   ) -join "`n`n")
 }
 
+# ---------- Hilfe & Wissen: Kategorieseite (Stoerungen / Pflege / Ratgeber) ----------
+function Faq-Kat-Content($p) {
+  $pageBySlug = @{}
+  foreach ($pg in $data.pages) { $pageBySlug[$pg.slug] = $pg }
+  $grp = @($FAQ_HUB.groups | Where-Object { $_.anchor -eq $p.hubAnchor }) | Select-Object -First 1
+  $cards = ($grp.slugs | ForEach-Object {
+    $sp = $pageBySlug[$_]
+    if (-not $sp) { return }
+    "<a class=`"kt-fq`" href=`"$base/$_/`"><b>$($sp.menu)</b><span>$($sp.excerpt)</span><em>Ansehen &rarr;</em></a>"
+  }) -join "`n    "
+  $others = ($data.pages | Where-Object { $_.kind -eq 'faq-kategorie' -and $_.slug -ne $p.slug } | ForEach-Object {
+    "<a href=`"$base/$($_.slug)/`">$($_.menu)</a>"
+  }) -join ' '
+  $html = @"
+<style>
+.kt-kat{max-width:1000px;margin:0 auto;font-family:$FONT_BODY;color:$($C.text)}
+.kt-kat-back{display:inline-block;font-size:13px;color:$($C.accent);text-decoration:none;margin:0 0 14px}
+.kt-kat-back:hover{color:$($C.accentD)}
+.kt-kat>h1{font-family:$FONT_HEAD;color:$($C.head);font-weight:700;font-size:22px;margin:0 0 10px}
+.kt-kat>.lead{font-size:15.5px;line-height:1.6;max-width:680px;margin:0 0 24px}
+.kt-kat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.kt-kat .kt-fq{display:flex;flex-direction:column;background:#fff;border:1px solid #e2e2e2;border-radius:8px;padding:16px 18px;text-decoration:none;transition:border-color .12s,box-shadow .12s}
+.kt-kat .kt-fq:hover{border-color:$($C.accent);box-shadow:0 3px 14px rgba(0,0,0,.06)}
+.kt-kat .kt-fq b{font-family:$FONT_HEAD;color:$($C.head);font-size:14.5px;line-height:1.3;margin-bottom:5px}
+.kt-kat .kt-fq span{font-size:13px;line-height:1.5;color:#555;flex:1}
+.kt-kat .kt-fq em{font-style:normal;font-family:$FONT_HEAD;color:$($C.accent);font-weight:700;font-size:12px;margin-top:11px}
+.kt-kat-more{margin:34px 0 0;padding:18px 20px;background:#fff;border:1px solid #e2e2e2;border-radius:8px;font-size:14px;line-height:1.7}
+.kt-kat-more b{font-family:$FONT_HEAD;color:$($C.head);display:block;margin-bottom:4px}
+.kt-kat-more a{color:$($C.accent);margin-right:16px;white-space:nowrap}
+</style>
+<div class="kt-kat">
+  <a class="kt-kat-back" href="$base/hilfethemen/">&larr; Alle Hilfethemen</a>
+  <h1>$($p.menu)</h1>
+  <p class="lead">$($p.intro)</p>
+  <div class="kt-kat-grid">
+    $cards
+  </div>
+  <div class="kt-kat-more">
+    <b>Weitere Bereiche</b>
+    $others
+    <a href="$base/kaffee-quiz/">Kaffee-Quiz</a>
+    <a href="$base/kontakt/">Frage stellen</a>
+  </div>
+</div>
+"@
+  Wrap-Page (@(
+    (Pick-Header $p.slug),
+    (Zone $C.bg '44px' '58px' (Html-Block $html)),
+    (Footer-Zone)
+  ) -join "`n`n")
+}
+
+# ---------- Hilfe & Wissen: Kaffee-Quiz ----------
+function Quiz-Content($p) {
+  $quizJson = ConvertTo-Json -InputObject @($p.quiz) -Depth 6 -Compress
+  $wissen = "$base/unser-kaffee-wissen/"
+  $shop   = "$base/unser-kaffee/"
+  $css = @"
+<style>
+.kq{max-width:720px;margin:0 auto;font-family:$FONT_BODY;color:$($C.text)}
+.kq>h1{font-family:$FONT_HEAD;color:$($C.head);font-weight:700;font-size:22px;margin:0 0 10px}
+.kq>.lead{font-size:15.5px;line-height:1.6;margin:0 0 22px}
+.kq-card{background:#fff;border:1px solid $($C.line);border-radius:10px;padding:22px 22px 20px}
+.kq-prog{display:flex;justify-content:space-between;font-family:$FONT_HEAD;font-size:12.5px;color:#666;margin:0 0 8px}
+.kq-bar{height:6px;background:#e7e9ec;border-radius:3px;margin:0 0 18px;overflow:hidden}
+.kq-bar i{display:block;height:100%;background:$($C.accent);width:0;transition:width .25s}
+.kq-q{font-family:$FONT_HEAD;font-size:17px;line-height:1.4;font-weight:700;color:$($C.head);margin:0 0 14px}
+.kq-opts{display:flex;flex-direction:column;gap:9px}
+.kq-opts button{text-align:left;background:#fff;border:1px solid #ccd1d8;border-radius:8px;padding:12px 15px;font-family:$FONT_BODY;font-size:15px;line-height:1.4;color:$($C.text);cursor:pointer;transition:border-color .12s,background .12s}
+.kq-opts button:hover:not(:disabled){border-color:$($C.accent);background:#f6f7f9}
+.kq-opts button:disabled{cursor:default}
+.kq-opts button.ok{background:#eef7f0;border-color:#63a375;font-weight:700}
+.kq-opts button.no{background:#fbeeee;border-color:#d08a8a}
+.kq-fb{margin:14px 0 0;padding:13px 15px;border-radius:8px;font-size:14px;line-height:1.55;background:#f6f6f4;border:1px solid #e6e6e6}
+.kq-fb b{font-family:$FONT_HEAD;display:block;margin-bottom:2px;color:$($C.head)}
+.kq-next{margin:16px 0 0;background:$($C.accent);color:#fff;border:0;border-radius:5px;padding:11px 26px;font-family:$FONT_HEAD;font-size:14px;font-weight:700;cursor:pointer}
+.kq-next:hover{background:$($C.accentD)}
+.kq-score{font-family:$FONT_HEAD;font-size:34px;font-weight:700;color:$($C.head);margin:0 0 4px}
+.kq-res h2{font-family:$FONT_HEAD;font-size:18px;color:$($C.head);margin:0 0 10px}
+.kq-res p{font-size:15px;line-height:1.6;margin:0 0 10px}
+.kq-btns{display:flex;flex-wrap:wrap;gap:9px;margin:16px 0 0}
+.kq-btns a,.kq-btns button{display:inline-flex;background:$($C.accent);color:#fff;border:1px solid $($C.accent);border-radius:4px;padding:10px 17px;font-family:$FONT_HEAD;font-size:13px;font-weight:700;text-decoration:none;cursor:pointer}
+.kq-btns .ghost{background:transparent;color:$($C.accent);border-color:#ccd1d8}
+.kq-btns .ghost:hover{background:#f2f4f6}
+</style>
+"@
+  $js = @'
+<script>
+(function(){
+  var root=document.getElementById('kq'); if(!root) return;
+  var Q=JSON.parse(root.getAttribute('data-quiz'));
+  var order=[],i=0,score=0,answered=false;
+  function shuffle(a){ for(var k=a.length-1;k>0;k--){ var j=Math.floor(Math.random()*(k+1)); var t=a[k]; a[k]=a[j]; a[j]=t; } return a; }
+  function el(tag,cls,txt){ var e=document.createElement(tag); if(cls) e.className=cls; if(txt!==undefined) e.textContent=txt; return e; }
+  function start(){
+    order=shuffle(Q.map(function(q){ var idx=q.opts.map(function(_,n){return n;}); return {q:q.q,why:q.why,opts:shuffle(idx).map(function(n){return {t:q.opts[n],ok:n===q.a};})}; }));
+    i=0; score=0; show();
+  }
+  function show(){
+    answered=false;
+    var q=order[i], card=el('div','kq-card');
+    var prog=el('div','kq-prog'); prog.appendChild(el('span','','Frage '+(i+1)+' von '+order.length)); prog.appendChild(el('span','','Richtige: '+score));
+    var bar=el('div','kq-bar'), fill=el('i'); fill.style.width=(i/order.length*100)+'%'; bar.appendChild(fill);
+    card.appendChild(prog); card.appendChild(bar); card.appendChild(el('div','kq-q',q.q));
+    var opts=el('div','kq-opts'), fb=el('div','kq-fb'); fb.hidden=true;
+    var next=el('button','kq-next',i+1<order.length?'Weiter':'Ergebnis anzeigen'); next.type='button'; next.hidden=true;
+    q.opts.forEach(function(o){
+      var b=el('button','',o.t); b.type='button';
+      b.addEventListener('click',function(){
+        if(answered) return; answered=true;
+        if(o.ok) score++;
+        [].slice.call(opts.children).forEach(function(x,n){ x.disabled=true; if(q.opts[n].ok) x.classList.add('ok'); });
+        if(!o.ok) b.classList.add('no');
+        fb.innerHTML=''; fb.appendChild(el('b','',o.ok?'Richtig!':'Leider nicht.')); fb.appendChild(document.createTextNode(q.why));
+        fb.hidden=false; next.hidden=false; next.focus();
+      });
+      opts.appendChild(b);
+    });
+    next.addEventListener('click',function(){ i++; if(i<order.length) show(); else result(); });
+    card.appendChild(opts); card.appendChild(fb); card.appendChild(next);
+    root.innerHTML=''; root.appendChild(card);
+  }
+  function result(){
+    var n=order.length, t,x;
+    if(score>=9){ t='Kaffee-Profi!'; x='Beeindruckend \u2013 Sie kennen sich mit Bohne, R\u00f6stung und Zubereitung bestens aus.'; }
+    else if(score>=7){ t='Sehr gut!'; x='Sie wissen schon eine Menge. Mit ein paar Details holen Sie noch mehr aus Ihrer Tasse heraus.'; }
+    else if(score>=4){ t='Solide Grundlage'; x='Das Wichtigste sitzt. In unserem Wissensbereich finden Sie alles, was Ihren Kaffee noch besser macht.'; }
+    else { t='Da geht noch was!'; x='Kein Problem \u2013 genau daf\u00fcr haben wir unsere Wissensseite geschrieben. Ein Blick lohnt sich.'; }
+    var card=el('div','kq-card kq-res');
+    card.appendChild(el('div','kq-score',score+' von '+n));
+    card.appendChild(el('h2','',t)); card.appendChild(el('p','',x));
+    var btns=el('div','kq-btns');
+    var a1=el('a','','Mehr \u00fcber Kaffee erfahren'); a1.href='__WISSEN__';
+    var a2=el('a','ghost','Unseren Kaffee ansehen'); a2.href='__SHOP__';
+    var again=el('button','ghost','Nochmal spielen'); again.type='button'; again.addEventListener('click',start);
+    btns.appendChild(a1); btns.appendChild(a2); btns.appendChild(again);
+    card.appendChild(btns);
+    root.innerHTML=''; root.appendChild(card);
+  }
+  start();
+})();
+</script>
+'@
+  $js = $js.Replace('__WISSEN__', $wissen).Replace('__SHOP__', $shop)
+  $quizAttr = $quizJson.Replace('&','&amp;').Replace('"','&quot;')
+  $html = @"
+$css
+<div class="kq-wrap">
+<div class="kq-head" style="max-width:720px;margin:0 auto">
+  <h1 style="font-family:$FONT_HEAD;color:$($C.head);font-weight:700;font-size:22px;margin:0 0 10px">$($p.title)</h1>
+  <p style="font-family:$FONT_BODY;font-size:15.5px;line-height:1.6;margin:0 0 22px;color:$($C.text)">$($p.intro)</p>
+</div>
+<div class="kq" id="kq" data-quiz="$quizAttr"><noscript>F&uuml;r das Quiz wird JavaScript ben&ouml;tigt.</noscript></div>
+</div>
+$js
+"@
+  Wrap-Page (@(
+    (Pick-Header $p.slug),
+    (Zone $C.bg '44px' '58px' (Html-Block $html)),
+    (Footer-Zone)
+  ) -join "`n`n")
+}
+
 # ---------- Anlegen / Aktualisieren (immer draft) ----------
 $results = @()
 foreach ($p in $data.pages) {
@@ -2904,6 +3080,8 @@ foreach ($p in $data.pages) {
     'kaffee-tee'    { KaffeeTee-Content $p; break }
     'wartungserinnerung' { Wartungserinnerung-Content $p; break }
     'reparatur-check' { ReparaturCheck-Content $p; break }
+    'faq-kategorie' { Faq-Kat-Content $p; break }
+    'quiz'          { Quiz-Content $p; break }
     'nivona-marke'    { Jura-Marke-Content $p 'nivona'; break }
     'nivona-kategorie'{ Jura-Kategorie-Content $p 'nivona'; break }
     'nivona-kategorie-zubehoer' { Jura-Kategorie-Content $p 'nivona-zubehoer'; break }
