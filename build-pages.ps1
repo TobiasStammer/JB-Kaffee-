@@ -2481,11 +2481,14 @@ function Wartungserinnerung-Content($p) {
 .we-btn{display:inline-flex;align-items:center;gap:8px;background:$($C.accent);color:#fff;border-radius:4px;padding:11px 20px;font-family:$FONT_HEAD;font-size:13.5px;font-weight:700;text-decoration:none;margin:12px 0 0}
 .we-btn:hover{background:$($C.accentD)}
 .we-hint{font-size:12px;line-height:1.5;color:#6b7178;margin:10px 0 0}
+.we-kinds{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0}
+.we-kinds button{background:#fff;border:1px solid #ccd1d8;border-radius:7px;padding:8px 13px;cursor:pointer;font-family:$FONT_BODY;font-size:13.5px}
+.we-kinds button.on{border-color:$($C.accent);box-shadow:inset 0 0 0 2px $($C.accent);font-weight:700}
 </style>
 $FORM_CSS
 <div class="we">
   <h1>Wartungserinnerung</h1>
-  <p class="we-lead">Ein Kaffeevollautomat sollte etwa alle zwei Jahre professionell gewartet werden &ndash; f&uuml;r gleichbleibende Kaffeequalit&auml;t, Hygiene und eine lange Lebensdauer. Damit Sie den Termin nicht vergessen:</p>
+  <p class="we-lead">Ein Kaffeevollautomat sollte im Privathaushalt etwa alle zwei Jahre, bei gewerblicher Nutzung j&auml;hrlich professionell gewartet werden &ndash; f&uuml;r gleichbleibende Kaffeequalit&auml;t, Hygiene und eine lange Lebensdauer. Damit Sie den Termin nicht vergessen:</p>
 
   <div class="we-box">
     <span class="we-q">Wann war die letzte Wartung oder der Kauf?</span>
@@ -2494,9 +2497,13 @@ $FORM_CSS
       <select id="we-m"><option value="">Monat</option>$monthSel</select>
       <select id="we-y"><option value="">Jahr</option>$yearOpts</select>
     </div>
+    <div class="we-kinds" id="we-kinds">
+      <button type="button" class="on" data-k="privat">Privathaushalt (alle 2 Jahre)</button>
+      <button type="button" data-k="gewerblich">Gewerblich (j&auml;hrlich)</button>
+    </div>
     <p class="we-next" id="we-next" hidden></p>
     <a class="we-btn" id="we-ics" download="wartungserinnerung-kaffeetechniker.ics" hidden>Erinnerung in den Kalender</a>
-    <p class="we-hint">Die Datei legt einen Termin an, der sich alle zwei Jahre wiederholt (Handy, Outlook, Google). Zwei Wochen vorher werden Sie erinnert.</p>
+    <p class="we-hint" id="we-hint">Die Datei legt einen Termin an, der sich alle zwei Jahre wiederholt (Handy, Outlook, Google). Zwei Wochen vorher werden Sie erinnert.</p>
   </div>
 
   <div class="we-box we-box2">
@@ -2509,6 +2516,8 @@ $FORM_CSS
   var m=document.getElementById('we-m'), y=document.getElementById('we-y');
   if(!m||!y) return;
   var MON=['Januar','Februar','M\u00e4rz','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  var kind='privat';
+  function intv(){ return kind==='gewerblich'?1:2; }
   function z(n){return(n<10?'0':'')+n;}
   function day(d){return d.getFullYear()+z(d.getMonth()+1)+z(d.getDate());}
   function stamp(d){return d.getUTCFullYear()+z(d.getUTCMonth()+1)+z(d.getUTCDate())+'T'+z(d.getUTCHours())+z(d.getUTCMinutes())+z(d.getUTCSeconds())+'Z';}
@@ -2516,10 +2525,10 @@ $FORM_CSS
     var mi=parseInt(m.value,10), yi=parseInt(y.value,10);
     var nEl=document.getElementById('we-next'), a=document.getElementById('we-ics');
     if(isNaN(mi)||isNaN(yi)){ nEl.hidden=true; a.hidden=true; return; }
-    var next=new Date(yi+2,mi,1);
+    var next=new Date(yi+intv(),mi,1);
     nEl.textContent='N\u00e4chste Wartung: '+MON[next.getMonth()]+' '+next.getFullYear();
     nEl.hidden=false;
-    var dt=new Date(yi+2,mi,1);
+    var dt=new Date(yi+intv(),mi,1);
     var now=new Date();
     var L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//JB Kaffeemaschinen//Wartung//DE','CALSCALE:GREGORIAN','METHOD:PUBLISH','BEGIN:VEVENT',
       'UID:kt-wartung-'+now.getTime()+'@kaffeetechniker.de',
@@ -2527,7 +2536,7 @@ $FORM_CSS
       'DTSTART;VALUE=DATE:'+day(dt),
       'SUMMARY:Kaffeevollautomat: Wartung f\u00e4llig',
       'DESCRIPTION:Zeit f\u00fcr die Wartung Ihres Kaffeevollautomaten. Ohne Termin w\u00e4hrend der \u00d6ffnungszeiten vorbeibringen: JB Kaffeemaschinen\\, Wallauer Stra\u00dfe 4\\, 65719 Hofheim-Langenhain. Infos: $base/wartung/',
-      'RRULE:FREQ=YEARLY;INTERVAL=2',
+      'RRULE:FREQ=YEARLY;INTERVAL='+intv(),
       'BEGIN:VALARM','TRIGGER:-P14D','ACTION:DISPLAY','DESCRIPTION:Kaffeevollautomat warten lassen','END:VALARM',
       'END:VEVENT','END:VCALENDAR'];
     if(a.dataset.u) URL.revokeObjectURL(a.dataset.u);
@@ -2535,6 +2544,15 @@ $FORM_CSS
     a.href=u; a.dataset.u=u; a.hidden=false;
   }
   m.addEventListener('change',upd); y.addEventListener('change',upd);
+  [].slice.call(document.querySelectorAll('#we-kinds button')).forEach(function(b){
+    b.addEventListener('click',function(){
+      kind=b.getAttribute('data-k');
+      [].slice.call(document.querySelectorAll('#we-kinds button')).forEach(function(x){ x.classList.remove('on'); });
+      b.classList.add('on');
+      document.getElementById('we-hint').textContent='Die Datei legt einen Termin an, der sich '+(kind==='gewerblich'?'j\u00e4hrlich':'alle zwei Jahre')+' wiederholt (Handy, Outlook, Google). Zwei Wochen vorher werden Sie erinnert.';
+      upd();
+    });
+  });
 })();
 </script>
 "@

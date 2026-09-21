@@ -1504,8 +1504,8 @@
       "slug": "wartungserinnerung",
       "kind": "wartungserinnerung",
       "menu": "Wartungserinnerung",
-      "title": "Wartungserinnerung – alle zwei Jahre rechtzeitig erinnert",
-      "excerpt": "Melden Sie sich an und werden Sie alle zwei Jahre an die Wartung Ihres Kaffeevollautomaten erinnert – oder legen Sie sich den Termin selbst in den Kalender. Plus Entkalkungsplan für die Pflege zwischendurch."
+      "title": "Wartungserinnerung – rechtzeitig erinnert",
+      "excerpt": "Melden Sie sich an und werden Sie rechtzeitig an die Wartung Ihres Kaffeevollautomaten erinnert (privat alle zwei Jahre, gewerblich jährlich) – oder legen Sie sich den Termin selbst in den Kalender. Plus Entkalkungsplan für die Pflege zwischendurch."
     },
     {
       "slug": "reparatur-check",
@@ -2913,6 +2913,20 @@
         {
           "t": "p",
           "x": "Zweck der Verarbeitung ist die Bearbeitung Ihrer Anfrage. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, soweit die Anfrage auf den Abschluss oder die Durchführung eines Vertrags gerichtet ist, im Übrigen Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der Beantwortung von Anfragen). Wir löschen die Daten, sobald Ihr Anliegen abschließend geklärt ist und keine gesetzlichen Aufbewahrungspflichten entgegenstehen; Formulareinträge prüfen wir hierauf regelmäßig."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "icon": "info",
+          "x": "Wartungserinnerung"
+        },
+        {
+          "t": "p",
+          "x": "Wenn Sie sich zur Wartungserinnerung anmelden, verarbeiten wir: Name, E-Mail-Adresse, Hersteller des Geräts, Art der Nutzung (privat oder gewerblich) sowie Monat und Jahr der letzten Wartung bzw. des Kaufs. Aus diesen Angaben berechnen wir den Zeitpunkt der nächsten Wartung (privat nach zwei, gewerblich nach einem Jahr) und erinnern Sie per E-Mail daran; außerdem erhalten Sie eine Bestätigung. Rechtsgrundlage ist Ihre Einwilligung (Art. 6 Abs. 1 lit. a DSGVO), die Sie mit dem Absenden des Formulars erteilen."
+        },
+        {
+          "t": "p",
+          "x": "Wir speichern die Angaben bis zum Versand der Erinnerung und löschen sie danach, spätestens nach drei Monaten. Sie können die Erinnerung jederzeit beenden – über den Link in jeder E-Mail oder per Nachricht an info@kaffeetechniker.de – und Ihre Einwilligung mit Wirkung für die Zukunft widerrufen. Die Angaben werden im Formular-Plugin unserer Website gespeichert (Hosting bei IONOS, siehe oben); der E-Mail-Versand erfolgt über unseren E-Mail-Dienstleister."
         },
         {
           "t": "h",
