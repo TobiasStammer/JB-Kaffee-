@@ -1352,7 +1352,7 @@
       "facts": [
         {
           "k": "Empfohlen",
-          "v": "nach 2–3 Jahren bzw. 3.000–5.000 Tassen"
+          "v": "privat nach 2–3 Jahren bzw. 3.000–5.000 Tassen, gewerblich jährlich"
         },
         {
           "k": "Ort",
@@ -1396,7 +1396,7 @@
         },
         {
           "t": "p",
-          "x": "Etwa alle zwei Jahre ist eine professionelle Wartung sinnvoll. Melden Sie sich an – wir erinnern Sie rechtzeitig – oder legen Sie sich den Termin selbst in den Kalender. Auf derselben Seite finden Sie außerdem einen Entkalkungsplan für die Pflege zwischendurch."
+          "x": "Im Privathaushalt ist etwa alle zwei Jahre eine professionelle Wartung sinnvoll, bei gewerblicher Nutzung jährlich. Melden Sie sich an – wir erinnern Sie rechtzeitig – oder legen Sie sich den Termin selbst in den Kalender. Auf derselben Seite finden Sie außerdem einen Entkalkungsplan für die Pflege zwischendurch."
         },
         {
           "t": "btns",
@@ -1454,7 +1454,8 @@
         {
           "t": "ul",
           "x": [
-            "Nach 2, spätestens 3 Jahren",
+            "Privat: nach 2, spätestens 3 Jahren",
+            "Gewerblich (Büro, Gastronomie): jährlich",
             "Nach 3.000 bis 5.000 Tassen",
             "Bei wiederkehrenden Fehlermeldungen",
             "Wenn der Kaffeetrester nicht richtig absetzt oder zu nass ist",
