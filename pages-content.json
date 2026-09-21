@@ -1455,7 +1455,7 @@
           "t": "ul",
           "x": [
             "Privat: nach 2, spätestens 3 Jahren",
-            "Gewerblich (Büro, Gastronomie): jährlich",
+            "Gewerblich (Büro, Gastronomie): jährlich, mit VDE-Sicherheitsprüfung",
             "Nach 3.000 bis 5.000 Tassen",
             "Bei wiederkehrenden Fehlermeldungen",
             "Wenn der Kaffeetrester nicht richtig absetzt oder zu nass ist",
@@ -1480,6 +1480,7 @@
             "Brüheinheit zerlegen, reinigen und fetten, Getriebe schmieren",
             "Reinigung von Kaffeeauslauf, Satzbehälter, Abtropfschale, Gehäuse und Wassertank",
             "Einstellungen nach Herstellervorgabe, Kaffeetemperatur messen und einstellen",
+            "VDE-Sicherheitsprüfung (elektrische Sicherheit des Geräts)",
             "Abschließender Test aller Funktionen"
           ]
         },
