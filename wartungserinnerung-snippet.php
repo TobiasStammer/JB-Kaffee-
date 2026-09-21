@@ -26,9 +26,9 @@ if ( ! function_exists( 'kt_we_cfg' ) ) {
 			'form_id'   => 2,
 			'lead_days' => 28,   // Erinnerung so viele Tage vor der Faelligkeit
 			'keep_days' => 90,   // Daten so lange nach dem Erinnerungsversand aufbewahren, dann loeschen
-			'from'      => 'JB Kaffeemaschinen <shop@kaffeetechniker.de>',
+			'from'      => 'JB Kaffeemaschinen <info@kaffeetechniker.de>',
 			'reply_to'  => 'info@kaffeetechniker.de',
-			'admin'     => 'shop@kaffeetechniker.de',
+			'admin'     => 'info@kaffeetechniker.de',
 			'max_mails' => 40,   // Sicherheitsgrenze je Lauf
 		);
 	}
