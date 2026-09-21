@@ -1,0 +1,916 @@
+{
+ "stand": "2026-09-21",
+ "hinweis": "Aktuelle Listen-/Herstellerpreise als Richtwert. Bei aelteren Geraeten zaehlt der damalige Preis - bitte im Check anpassen.",
+ "marken": {
+  "Jura": [
+   {
+    "m": "ENA 4",
+    "p": 649,
+    "u": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/ena-4-full-metropolitan-black-eb-15501",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "C3",
+    "p": 699,
+    "u": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/c3-piano-black-ea-15599",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "E4",
+    "p": 749,
+    "u": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/e4-piano-black-ea-15435",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "C9",
+    "p": 899,
+    "u": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/c9-piano-black-ea-15753",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "E6",
+    "p": 979,
+    "u": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/e6-dark-inox-ed-15828",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "A8",
+    "p": 999,
+    "u": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/a8-piano-black-ea-15736",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "ENA 5",
+    "p": 999,
+    "u": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/ena-5-night-inox-ea-15696",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "ENA 8",
+    "p": 1049,
+    "u": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/ena-8-full-metropolitan-black-ec-15493",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "E8",
+    "p": 1249,
+    "u": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/e8-midnight-silver-ed-15712",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "E10",
+    "p": 1399,
+    "u": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/e10-onyx-grey-ea-15743",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "S8",
+    "p": 1679,
+    "u": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/s8platin-eb-15483",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "J10",
+    "p": 1849,
+    "u": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/j10-piano-black-ea-15562",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "J10 twin",
+    "p": 2249,
+    "u": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/j10twin-diamond-onyx-ea-15706",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "Z10",
+    "p": 2299,
+    "u": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/z10diamond-black-eb-15615",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "GIGA 10",
+    "p": 2999,
+    "u": "https://de.jura.com/de/produkte-haushalt/kaffeevollautomaten/giga-10-diamond-black-ea-15478",
+    "c": "",
+    "q": "auto"
+   }
+  ],
+  "Nivona": [
+   {
+    "m": "CUBE 4",
+    "p": 479,
+    "u": "https://nivona.com/de/product/cube4",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "5er-Serie",
+    "p": 549,
+    "u": "https://nivona.com/de/product/5series",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "6er-Serie",
+    "p": 699,
+    "u": "https://nivona.com/de/product/6series",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "7er-Serie",
+    "p": 777,
+    "u": "https://nivona.com/de/product/7series",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "NIVO 7000",
+    "p": 999,
+    "u": "https://nivona.com/de/product/nivo7000",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "NIVO 8000",
+    "p": 1199,
+    "u": "https://nivona.com/de/product/nivo8000",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "NIVO 8000 Pro (8141)",
+    "p": 1549,
+    "u": "https://nivona.com/de/product/nivo8141pro",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "NIVO 9000",
+    "p": 1649,
+    "u": "https://nivona.com/de/product/nivo9000",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "10er-Serie (NICR 1040)",
+    "p": 1999,
+    "u": "https://nivona.com/de/product/10series",
+    "c": "",
+    "q": "auto"
+   }
+  ],
+  "Melitta": [
+   {
+    "m": "Solo",
+    "p": 349,
+    "u": "https://www.melitta.de/kaffeevollautomaten/solo-/schwarz",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "Purista",
+    "p": 439,
+    "u": "https://www.melitta.de/kaffeevollautomaten/purista-/schwarz",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "Latticia OT",
+    "p": 599,
+    "u": "https://www.melitta.de/kaffeevollautomaten/latticia-ot/silber",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "CI Touch",
+    "p": 729,
+    "u": "https://www.melitta.de/kaffeevollautomaten/ci-touch-/silber",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "LatteSelect",
+    "p": 749,
+    "u": "https://www.melitta.de/kaffeevollautomaten/latteselect/silber",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "Barista T Smart",
+    "p": 835,
+    "u": "https://www.melitta.de/kaffeevollautomaten/barista-t-smart-/schwarz",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "Barista TS Smart",
+    "p": 879,
+    "u": "https://www.melitta.de/kaffeevollautomaten/barista-ts-smart-/schwarz",
+    "c": "",
+    "q": "auto"
+   }
+  ],
+  "Siemens": [
+   {
+    "m": "EQ500 integral",
+    "p": 349,
+    "u": "https://www.siemens-home.bsh-group.com/de/de/product/kaffeemaschinen/kaffeevollautomaten/eq500/TQ517D03",
+    "c": "TQ517D03",
+    "q": "auto"
+   },
+   {
+    "m": "EQ300",
+    "p": 379,
+    "u": "https://www.siemens-home.bsh-group.com/de/de/product/kaffeemaschinen/kaffeevollautomaten/eq300/TF301E09",
+    "c": "TF301E09",
+    "q": "auto"
+   },
+   {
+    "m": "EQ500 classic",
+    "p": 499,
+    "u": "https://www.siemens-home.bsh-group.com/de/de/product/kaffeemaschinen/kaffeevollautomaten/eq500/TP511E19",
+    "c": "TP511E19",
+    "q": "auto"
+   },
+   {
+    "m": "EQ500 classic connect",
+    "p": 549,
+    "u": "https://www.siemens-home.bsh-group.com/de/de/product/kaffeemaschinen/kaffeevollautomaten/eq500/TP516DX3",
+    "c": "TP516DX3",
+    "q": "auto"
+   },
+   {
+    "m": "EQ6 plus s700",
+    "p": 549,
+    "u": "https://www.siemens-home.bsh-group.com/de/de/product/kaffeemaschinen/kaffeevollautomaten/eq6-plus/TE657M03DE",
+    "c": "TE657M03DE",
+    "q": "auto"
+   },
+   {
+    "m": "EQ500 iAroma",
+    "p": 599,
+    "u": "https://www.siemens-home.bsh-group.com/de/de/product/kaffeemaschinen/kaffeevollautomaten/eq500/TP551E07",
+    "c": "TP551E07",
+    "q": "auto"
+   },
+   {
+    "m": "EQ6 plus s300",
+    "p": 699,
+    "u": "https://www.siemens-home.bsh-group.com/de/de/product/kaffeemaschinen/kaffeevollautomaten/eq6-plus/TE653501DE",
+    "c": "TE653501DE",
+    "q": "auto"
+   },
+   {
+    "m": "EQ700 classic",
+    "p": 949,
+    "u": "https://www.siemens-home.bsh-group.com/de/de/product/kaffeemaschinen/kaffeevollautomaten/eq700/TP715E17",
+    "c": "TP715E17",
+    "q": "auto"
+   },
+   {
+    "m": "EQ700 iAroma",
+    "p": 1249,
+    "u": "https://www.siemens-home.bsh-group.com/de/de/product/kaffeemaschinen/kaffeevollautomaten/eq700/TP7X5BM7",
+    "c": "TP7X5BM7",
+    "q": "auto"
+   },
+   {
+    "m": "EQ700 integral",
+    "p": 1299,
+    "u": "https://www.siemens-home.bsh-group.com/de/de/product/kaffeemaschinen/kaffeevollautomaten/eq700/TQ717D03",
+    "c": "TQ717D03",
+    "q": "auto"
+   },
+   {
+    "m": "EQ900 iAroma",
+    "p": 1699,
+    "u": "https://www.siemens-home.bsh-group.com/de/de/product/kaffeemaschinen/kaffeevollautomaten/eq900/TQ923E43",
+    "c": "TQ923E43",
+    "q": "auto"
+   },
+   {
+    "m": "EQ900",
+    "p": 1899,
+    "u": "https://www.siemens-home.bsh-group.com/de/de/product/kaffeemaschinen/kaffeevollautomaten/eq900/TQ905D03",
+    "c": "TQ905D03",
+    "q": "auto"
+   },
+   {
+    "m": "EQ900 plus",
+    "p": 1899,
+    "u": "https://www.siemens-home.bsh-group.com/de/de/product/kaffeemaschinen/kaffeevollautomaten/eq900/TQ905DZ3",
+    "c": "TQ905DZ3",
+    "q": "auto"
+   },
+   {
+    "m": "EQ900 plus iAroma",
+    "p": 2049,
+    "u": "https://www.siemens-home.bsh-group.com/de/de/product/kaffeemaschinen/kaffeevollautomaten/eq900/TQ9X3BZ3",
+    "c": "TQ9X3BZ3",
+    "q": "auto"
+   }
+  ],
+  "Bosch": [
+   {
+    "m": "Serie 2 VeroCafe",
+    "p": 329,
+    "u": "https://www.bosch-home.com/de/de/product/kaffeemaschinen/kaffeevollautomaten/TIE20109",
+    "c": "TIE20109",
+    "q": "auto"
+   }
+  ],
+  "ECM": [
+   {
+    "m": "Classika PID",
+    "p": 1399,
+    "u": "https://www.diecrema.de/products/ecm-classika-pid",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "Mechanika Slim PID Exclusive Line",
+    "p": 2055,
+    "u": "https://www.diecrema.de/products/ecm-mechanika-vi-slim",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "Mechanika MAX II",
+    "p": 2495,
+    "u": "https://www.diecrema.de/products/ecm-mechanika-max",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "Technika VI Profi PID",
+    "p": 2795,
+    "u": "https://www.diecrema.de/products/espressomaschinen-ecm-heidelberg-technika-ecm-technika-v-profi-pid",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "Synchronika II Exclusive Line",
+    "p": 3195,
+    "u": "https://www.diecrema.de/products/ecm-synchronika-ii",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "Estetika",
+    "p": 3995,
+    "u": "https://www.diecrema.de/products/ecm-estetika",
+    "c": "",
+    "q": "auto"
+   }
+  ],
+  "Profitec": [
+   {
+    "m": "GO",
+    "p": 959,
+    "u": "https://www.diecrema.de/products/profitec-go-pro-100-black",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "GO 2.0",
+    "p": 995,
+    "u": "https://www.diecrema.de/products/profitec-go",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "Pro 400",
+    "p": 1499,
+    "u": "https://www.diecrema.de/products/profitec-pro-400",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "Jump",
+    "p": 1765,
+    "u": "https://www.diecrema.de/products/jump",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "Move",
+    "p": 1965,
+    "u": "https://www.diecrema.de/products/move",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "Drive",
+    "p": 2695,
+    "u": "https://www.diecrema.de/products/drive",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "PRO 800 Handhebel",
+    "p": 2899,
+    "u": "https://www.diecrema.de/products/espressomaschinen-profitec-pro-800-profitec-pro-800",
+    "c": "",
+    "q": "auto"
+   }
+  ],
+  "Sage": [
+   {
+    "m": "Bambino SES450",
+    "p": 295,
+    "u": "https://field-coffee.de/products/the-bambino",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "Bambino Plus SES500",
+    "p": 530,
+    "u": "https://field-coffee.de/products/the-bambino-plus",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "Barista Pro SES878",
+    "p": 679,
+    "u": "https://field-coffee.de/products/sage-espresso-machine-the-barista-pro",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "Barista Express Impress SES876",
+    "p": 680,
+    "u": "https://field-coffee.de/products/sage-barista-express-impress-coffee-machine",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "Barista Express SES875",
+    "p": 680,
+    "u": "https://field-coffee.de/products/the-barista-express",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "Barista Touch Impress SES882",
+    "p": 1050,
+    "u": "https://field-coffee.de/products/the-barista-touch-impress-with-cold-extraction",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "Dual Boiler SES920",
+    "p": 1089,
+    "u": "https://field-coffee.de/products/sage-coffee-machine-the-dual-boiler",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "Oracle Jet SES985",
+    "p": 1750,
+    "u": "https://field-coffee.de/products/the-oracle-jet",
+    "c": "",
+    "q": "auto"
+   },
+   {
+    "m": "Oracle Dual Boiler SES995",
+    "p": 2500,
+    "u": "https://field-coffee.de/products/the-oracle-dual-boiler",
+    "c": "",
+    "q": "auto"
+   }
+  ],
+  "De Longhi": [
+   {
+    "m": "Magnifica Evo ECAM 290.21",
+    "p": 279,
+    "u": "https://www.delonghi.com/de-de/p/magnifica-evo-ecam290.21.b-magnifica-evo-automatic-coffee-maker/ECAM290.21.B.html",
+    "c": "ECAM290.21.B",
+    "q": "auto"
+   },
+   {
+    "m": "Magnifica S ECAM 22.110",
+    "p": 299,
+    "u": "https://www.delonghi.com/de-de/p/magnifica-s-ecam22.110.w-kaffeevollautomat/ECAM22.110.W.html",
+    "c": "ECAM22.110.W",
+    "q": "auto"
+   },
+   {
+    "m": "Magnifica S ECAM 22.140",
+    "p": 299,
+    "u": "https://www.delonghi.com/de-de/p/magnifica-s-ecam22.140.b-magnifica-s-bean-to-cup-coffee-machine/ECAM22.140.B.html",
+    "c": "ECAM22.140.B",
+    "q": "auto"
+   },
+   {
+    "m": "Magnifica S ECAM 11.112",
+    "p": 319,
+    "u": "https://www.delonghi.com/de-de/p/magnifica-s-ecam11.112.b-magnifica-s-kaffeevollautomat/ECAM11.112.B.html",
+    "c": "ECAM11.112.B",
+    "q": "auto"
+   },
+   {
+    "m": "Magnifica S ECAM 250.23",
+    "p": 329,
+    "u": "https://www.delonghi.com/de-de/p/magnifica-s-smart-ecam250.23.sb-magnifica-s-kaffeevollautomat/ECAM250.23.SB.html",
+    "c": "ECAM250.23.SB",
+    "q": "auto"
+   },
+   {
+    "m": "Magnifica Start ECAM 220.20",
+    "p": 359,
+    "u": "https://www.delonghi.com/de-de/p/magnifica-start-magnifica-start-kaffeevollautomat-ecam220.20.w/ECAM220.20.W.html",
+    "c": "ECAM220.20.W",
+    "q": "auto"
+   },
+   {
+    "m": "Magnifica Start ECAM 220.50",
+    "p": 359,
+    "u": "https://www.delonghi.com/de-de/p/magnifica-start-magnifica-start-kaffeevollautomat-ecam220.50.bg/ECAM220.50.BG.html",
+    "c": "ECAM220.50.BG",
+    "q": "auto"
+   },
+   {
+    "m": "Magnifica Start ECAM 222.20",
+    "p": 359,
+    "u": "https://www.delonghi.com/de-de/p/magnifica-start-magnifica-start-ecam222.20.b-kaffeevollautomat/ECAM222.20.B.html",
+    "c": "ECAM222.20.B",
+    "q": "auto"
+   },
+   {
+    "m": "Magnifica Start ECAM 220.61",
+    "p": 369,
+    "u": "https://www.delonghi.com/de-de/p/magnifica-start-magnifica-start-kaffeevollautomat-ecam220.61.w-ex1/ECAM220.61.W+EX%3A1.html",
+    "c": "ECAM220.61.W+EX:1",
+    "q": "auto"
+   },
+   {
+    "m": "Magnifica S Smart ECAM 230.13",
+    "p": 380,
+    "u": "https://www.delonghi.com/de-de/p/magnifica-s-smart-ecam230.13.b-magnifica-s-smart-kaffeevollautomat/ECAM230.13.B.html",
+    "c": "ECAM230.13.B",
+    "q": "auto"
+   },
+   {
+    "m": "Dinamica ECAM 350.15",
+    "p": 419,
+    "u": "https://www.delonghi.com/de-de/p/dinamica-ecam350.15.b-dinamica-kaffeevollautomat/ECAM350.15.B.html",
+    "c": "ECAM350.15.B",
+    "q": "auto"
+   },
+   {
+    "m": "Magnifica Evo ECAM 292.33",
+    "p": 419,
+    "u": "https://www.delonghi.com/de-de/p/magnifica-evo-ecam292.33.sb-magnifica-evo-kaffeevollautomat/ECAM292.33.SB.html",
+    "c": "ECAM292.33.SB",
+    "q": "auto"
+   },
+   {
+    "m": "Magnifica Start ECAM 222.60",
+    "p": 419,
+    "u": "https://www.delonghi.com/de-de/p/magnifica-start-magnifica-start-kaffeevollautomat-ecam222.60.bg-ex1/ECAM222.60.BG+EX%3A1.html",
+    "c": "ECAM222.60.BG+EX:1",
+    "q": "auto"
+   },
+   {
+    "m": "Magnifica Evo ECAM 290.85",
+    "p": 479,
+    "u": "https://www.delonghi.com/de-de/p/magnifica-evo-magnifica-evo-kaffeevollautomat-ecam290.85.sbx-ex1/ECAM290.85.SBX+EX%3A1.html",
+    "c": "ECAM290.85.SBX+EX:1",
+    "q": "auto"
+   },
+   {
+    "m": "Magnifica Evo ECAM 290.89",
+    "p": 479,
+    "u": "https://www.delonghi.com/de-de/p/magnifica-evo-kaffeevollautomat-magnifica-evo-ecam290.89.sbx-ex1/ECAM290.89.SBX+EX%3A1.html",
+    "c": "ECAM290.89.SBX+EX:1",
+    "q": "auto"
+   },
+   {
+    "m": "Magnifica Evo Next ECAM 310.60",
+    "p": 479,
+    "u": "https://www.delonghi.com/de-de/p/magnifica-evo-next-magnifica-evo-next-ecam310.60.gb-kaffeevollautomat/ECAM310.60.GB.html",
+    "c": "ECAM310.60.GB",
+    "q": "auto"
+   },
+   {
+    "m": "Rivelia EXAM 440.35",
+    "p": 539,
+    "u": "https://www.delonghi.com/de-de/p/rivelia-rivelia-kaffeevollautomat-exam440.35.w/EXAM440.35.W.html",
+    "c": "EXAM440.35.W",
+    "q": "auto"
+   },
+   {
+    "m": "Magnifica Start ECAM 220.80",
+    "p": 550,
+    "u": "https://www.delonghi.com/de-de/p/magnifica-start-magnifica-start-kaffeevollautomat-ecam220.80.sb-ex1/ECAM220.80.SB+EX%3A1.html",
+    "c": "ECAM220.80.SB+EX:1",
+    "q": "auto"
+   },
+   {
+    "m": "Dinamica Plus ECAM 380.85",
+    "p": 569,
+    "u": "https://www.delonghi.com/de-de/p/dinamica-plus-dinamica-plus-kaffeevollautomat-ecam380.85.sb/ECAM380.85.SB.html",
+    "c": "ECAM380.85.SB",
+    "q": "auto"
+   },
+   {
+    "m": "Magnifica Evo Next ECAM 312.80",
+    "p": 599,
+    "u": "https://www.delonghi.com/de-de/p/magnifica-evo-next-magnifica-evo-next-ecam312.80.tb-kaffeevollautomat/ECAM312.80.TB.html",
+    "c": "ECAM312.80.TB",
+    "q": "auto"
+   },
+   {
+    "m": "Eletta Cappuccino Evo ECAM 46.860",
+    "p": 629,
+    "u": "https://www.delonghi.com/de-de/p/eletta-cappuccino-evo-ecam46.860.b-eletta-cappuccino-evo-kaffeevollautomat/ECAM46.860.B.html",
+    "c": "ECAM46.860.B",
+    "q": "auto"
+   },
+   {
+    "m": "Magnifica Plus ECAM 320.70",
+    "p": 629,
+    "u": "https://www.delonghi.com/de-de/p/magnifica-plus-magnifica-plus-kaffeemaschine-ecam320.70.tb/ECAM320.70.TB.html",
+    "c": "ECAM320.70.TB",
+    "q": "auto"
+   },
+   {
+    "m": "PrimaDonna Class ECAM 550.65",
+    "p": 629,
+    "u": "https://www.delonghi.com/de-de/p/primadonna-class-ecam550.65.sb-primadonna-class-kaffeevollautomat/ECAM550.65.SB.html",
+    "c": "ECAM550.65.SB",
+    "q": "auto"
+   },
+   {
+    "m": "Rivelia EXAM 440.55",
+    "p": 629,
+    "u": "https://www.delonghi.com/de-de/p/rivelia-rivelia-kaffeevollautomat-exam440.55.w/EXAM440.55.W.html",
+    "c": "EXAM440.55.W",
+    "q": "auto"
+   },
+   {
+    "m": "Magnifica Evo ECAM 292.81",
+    "p": 630,
+    "u": "https://www.delonghi.com/de-de/p/magnifica-evo-magnifica-evo-automatic-coffee-maker-ecam292.81.sb-ex2/ECAM292.81.SB+EX%3A2.html",
+    "c": "ECAM292.81.SB+EX:2",
+    "q": "auto"
+   },
+   {
+    "m": "Dinamica ECAM 350.75",
+    "p": 639,
+    "u": "https://www.delonghi.com/de-de/p/dinamica-ecam350.75.s-dinamica-kaffeeautomat/ECAM350.75.S+EX%3A4.html",
+    "c": "ECAM350.75.S+EX:4",
+    "q": "auto"
+   },
+   {
+    "m": "Magnifica Duo ECAM 332.80",
+    "p": 639,
+    "u": "https://www.delonghi.com/de-de/p/magnifica-duo-magnifica-duo-kaffeevollautomat-ecam332.80.sxb/ECAM332.80.SXB.html",
+    "c": "ECAM332.80.SXB",
+    "q": "auto"
+   },
+   {
+    "m": "Dinamica ECAM 350.35",
+    "p": 650,
+    "u": "https://www.delonghi.com/de-de/p/dinamica-ecam350.35.w-dinamica-kaffeevollautomat/ECAM350.35.W.html",
+    "c": "ECAM350.35.W",
+    "q": "auto"
+   },
+   {
+    "m": "Dinamica Plus ECAM 382.70",
+    "p": 669,
+    "u": "https://www.delonghi.com/de-de/p/dinamica-plus-dinamica-plus-kaffeevollautomat-ecam382.70.b/ECAM382.70.B.html",
+    "c": "ECAM382.70.B",
+    "q": "auto"
+   },
+   {
+    "m": "Magnifica Plus ECAM 322.70",
+    "p": 669,
+    "u": "https://www.delonghi.com/de-de/p/magnifica-plus-magnifica-plus-kaffeemaschine-ecam322.70.sb/ECAM322.70.SB.html",
+    "c": "ECAM322.70.SB",
+    "q": "auto"
+   },
+   {
+    "m": "Magnifica Duo ECAM 330.80",
+    "p": 700,
+    "u": "https://www.delonghi.com/de-de/p/magnifica-duo-magnifica-duo-ecam330.80.txb-kaffeevollautomat/ECAM330.80.TXB.html",
+    "c": "ECAM330.80.TXB",
+    "q": "auto"
+   },
+   {
+    "m": "Rivelia Start EXAM 420.55",
+    "p": 700,
+    "u": "https://www.delonghi.com/de-de/p/rivelia-start-rivelia-start-kaffeevollautomat-exam420.55.bw/EXAM420.55.BW.html",
+    "c": "EXAM420.55.BW",
+    "q": "auto"
+   },
+   {
+    "m": "Rivelia Start EXAM 422.55",
+    "p": 700,
+    "u": "https://www.delonghi.com/de-de/p/rivelia-start-rivelia-start-kaffeevollautomat-exam422.55.bg/EXAM422.55.BG.html",
+    "c": "EXAM422.55.BG",
+    "q": "auto"
+   },
+   {
+    "m": "Magnifica Plus ECAM 320.60",
+    "p": 770,
+    "u": "https://www.delonghi.com/de-de/p/magnifica-plus-magnifica-plus-kaffeemaschine-ecam320.60.b/ECAM320.60.B.html",
+    "c": "ECAM320.60.B",
+    "q": "auto"
+   },
+   {
+    "m": "Eletta Explore ECAM 450.86",
+    "p": 819,
+    "u": "https://www.delonghi.com/de-de/p/eletta-explore-automatische-kaffeemaschine-eletta-explore-ecam450.86.t-ex4/ECAM450.86.T+EX%3A4.html",
+    "c": "ECAM450.86.T+EX:4",
+    "q": "auto"
+   },
+   {
+    "m": "Eletta Explore ECAM 450.69",
+    "p": 849,
+    "u": "https://www.delonghi.com/de-de/p/eletta-explore-kaffeevollautomat-eletta-explore-ecam450.69.g-ex4/ECAM450.69.G+EX%3A4.html",
+    "c": "ECAM450.69.G+EX:4",
+    "q": "auto"
+   },
+   {
+    "m": "Rivelia EXAM 441.55",
+    "p": 850,
+    "u": "https://www.delonghi.com/de-de/p/rivelia-rivelia-kaffeevollautomat-exam441.55.amr/EXAM441.55.AMR.html",
+    "c": "EXAM441.55.AMR",
+    "q": "auto"
+   },
+   {
+    "m": "PrimaDonna Soul ECAM 610.75",
+    "p": 899,
+    "u": "https://www.delonghi.com/de-de/p/primadonna-soul-ecam610.75.mb-primadonna-soul-kaffeevollautomat/ECAM610.75.MB.html",
+    "c": "ECAM610.75.MB",
+    "q": "auto"
+   },
+   {
+    "m": "Eletta Explore ECAM 450.65",
+    "p": 900,
+    "u": "https://www.delonghi.com/de-de/p/eletta-explore-automatische-kaffeemaschine-eletta-explore-ecam450.65.g-ex4/ECAM450.65.G+EX%3A4.html",
+    "c": "ECAM450.65.G+EX:4",
+    "q": "auto"
+   },
+   {
+    "m": "Dinamica Plus ECAM 380.95",
+    "p": 949,
+    "u": "https://www.delonghi.com/de-de/p/dinamica-plus-dinamica-plus-kaffeevollautomat-ecam380.95.tb/ECAM380.95.TB.html",
+    "c": "ECAM380.95.TB",
+    "q": "auto"
+   },
+   {
+    "m": "Eletta Ultra ECAM 472.50",
+    "p": 1000,
+    "u": "https://www.delonghi.com/de-de/p/eletta-kaffeevollautomat-eletta-ultra-ecam472.50.b/ECAM472.50.B.html",
+    "c": "ECAM472.50.B",
+    "q": "auto"
+   },
+   {
+    "m": "PrimaDonna Soul ECAM 612.55",
+    "p": 1049,
+    "u": "https://www.delonghi.com/de-de/p/primadonna-soul-ecam612.55.sb-primadonna-soul-kaffeevollautomat/ECAM612.55.SB.html",
+    "c": "ECAM612.55.SB",
+    "q": "auto"
+   },
+   {
+    "m": "Eletta Explore ECAM 452.67",
+    "p": 1050,
+    "u": "https://www.delonghi.com/de-de/p/eletta-explore-automatische-kaffeemaschine-eletta-explore-ecam452.67.g-ex4/ECAM452.67.G+EX%3A4.html",
+    "c": "ECAM452.67.G+EX:4",
+    "q": "auto"
+   },
+   {
+    "m": "Eletta Ultra ECAM 470.85",
+    "p": 1199,
+    "u": "https://www.delonghi.com/de-de/p/eletta-ultra-kaffeevollautomat-eletta-ultra-ecam470.85.mb/ECAM470.85.MB.html",
+    "c": "ECAM470.85.MB",
+    "q": "auto"
+   },
+   {
+    "m": "PrimaDonna Aromatic ECAM 630.55",
+    "p": 1299,
+    "u": "https://www.delonghi.com/de-de/p/primadonna-aromatic-primadonna-aromatic-kaffeevollautomat-ecam630.55.sm/ECAM630.55.SM.html",
+    "c": "ECAM630.55.SM",
+    "q": "auto"
+   },
+   {
+    "m": "Eletta Ultra ECAM 470.75",
+    "p": 1300,
+    "u": "https://www.delonghi.com/de-de/p/eletta-ultra-eletta-ultra-automatic-coffee-maker-ecam470.75.txb/ECAM470.75.TXB.html",
+    "c": "ECAM470.75.TXB",
+    "q": "auto"
+   },
+   {
+    "m": "PrimaDonna Aromatic ECAM 630.75",
+    "p": 1399,
+    "u": "https://www.delonghi.com/de-de/p/primadonna-aromatic-primadonna-aromatic-kaffeevollautomat-ecam630.75.tsm/ECAM630.75.TSM.html",
+    "c": "ECAM630.75.TSM",
+    "q": "auto"
+   },
+   {
+    "m": "Maestosa EPAM 960.75",
+    "p": 2299,
+    "u": "https://www.delonghi.com/de-de/p/maestosa-epam960.75.glm-maestosa-kaffeevollautomat/EPAM960.75.GLM.html",
+    "c": "EPAM960.75.GLM",
+    "q": "auto"
+   }
+  ],
+  "Philips": [
+   {
+    "m": "2200 Series LatteGo (EP22xx)",
+    "p": 400,
+    "ca": true,
+    "u": "https://www.kaufland.de/t/kaffeevollautomaten/philips-lattego-2200/~57668/",
+    "stand": "2026-09",
+    "q": "manuell"
+   },
+   {
+    "m": "3200 Series LatteGo (EP32xx)",
+    "p": 520,
+    "ca": true,
+    "u": "https://www.billiger.de/baseproducts/65650-philips-3200-series-lattego",
+    "stand": "2026-09",
+    "q": "manuell"
+   }
+  ],
+  "Saeco": [
+   {
+    "m": "GranAroma",
+    "p": 850,
+    "ca": true,
+    "u": "https://www.coffeeness.de/saeco-granaroma-test/",
+    "stand": "2026-09",
+    "q": "manuell"
+   },
+   {
+    "m": "Xelsis Suprema",
+    "p": 1700,
+    "ca": true,
+    "u": "https://www.coffeeness.de/saeco-xelsis-suprema-test/",
+    "stand": "2026-09",
+    "q": "manuell"
+   }
+  ],
+  "Gaggia": [
+   {
+    "m": "Anima Prestige",
+    "p": 665,
+    "ca": true,
+    "u": "https://www.coffeeness.de/gaggia-anima-prestige-test/",
+    "stand": "2026-09",
+    "q": "manuell"
+   },
+   {
+    "m": "Magenta Prestige",
+    "p": 720,
+    "ca": true,
+    "u": "https://www.gaggia.com/de/kaffeeautomaten/magenta-prestige/",
+    "stand": "2026-09",
+    "q": "manuell"
+   },
+   {
+    "m": "Cadorna Prestige",
+    "p": 899,
+    "ca": true,
+    "u": "https://www.guenstiger.de/Produkt/Gaggia/Cadorna_Prestige.html",
+    "stand": "2026-09",
+    "q": "manuell"
+   }
+  ],
+  "La Pavoni": [
+   {
+    "m": "Europiccola (Handhebel)",
+    "p": 800,
+    "ca": true,
+    "u": "https://www.coffeeness.de/la-pavoni-professional-test/",
+    "stand": "2026-09",
+    "q": "manuell"
+   },
+   {
+    "m": "Professional (Handhebel)",
+    "p": 1000,
+    "ca": true,
+    "u": "https://www.coffeeness.de/la-pavoni-professional-test/",
+    "stand": "2026-09",
+    "q": "manuell"
+   }
+  ]
+ }
+}
