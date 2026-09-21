@@ -13,6 +13,10 @@ Automatisch abgerufen (bei jedem Lauf frisch):
   ECM, Profitec <- diecrema.de         (Shopify products.json, UVP = compare_at_price falls vorhanden)
   Sage      <- field-coffee.de         (Shopify products.json)
 
+Modell-Listen (ohne Preise, alle Hersteller inkl. aelterer Geraete):
+  modelle   <- juraprofi.de            (Ersatzteilsuche: Hersteller -> Modell). Preise aus den Quellen oben
+                                          werden an passende Modelle gehaengt, der Rest bleibt ohne Preis.
+
 Manuell gepflegt (kein sauberer Abruf moeglich, z. B. Bot-Sperre / reines JS):
   neupreise-manuell.json  -> Struktur wie unten, mit Quelle + Stand je Eintrag.
 
@@ -241,6 +245,69 @@ def src_sage(store):
             lambda t: re.sub(r"\s+with Cold Extraction", "", re.sub(r"^Sage\s+", "", t)))
 
 
+# ---- Modell-Listen (juraprofi.de Ersatzteilsuche) ------------------------------------------------
+PROFI_BRANDS = {"AEG": "AEG", "Bosch": "Bosch", "DeLonghi": "De Longhi", "ECM": "ECM", "Gaggia": "Gaggia",
+                "JURA": "Jura", "La Pavoni": "La Pavoni", "Melitta": "Melitta", "Miele": "Miele",
+                "NIVONA": "Nivona", "Philips": "Philips", "Profitec": "Profitec", "Saeco": "Saeco",
+                "Sage": "Sage", "Siemens": "Siemens", "Spidem": "Spidem"}
+NOT_A_MACHINE = re.compile(r"Cool ?Control|Milchk|Milchbeh|Tassenw|Glacette|Werkzeug|M\u00fchle|Muehle|Grinder|Zubeh|Ersatzteil|Espressomaschine BCO", re.I)
+
+
+def src_modelle():
+    page = fetch("https://www.juraprofi.de/Produktuebersicht:_:8.html") or ""
+    sel = re.search(r'<select id="js-frmTSA".*?</select>', page, re.S)
+    opts = re.findall(r'<option value="([^"]+)">([^<]+)', sel.group(0)) if sel else []
+    out = {}
+    for val, label in opts:
+        brand = PROFI_BRANDS.get(html.unescape(label).strip())
+        if not brand:
+            continue
+        raw = fetch("https://www.juraprofi.de/includes/ajax/ajx-find-b.php?tsaId=" + val)
+        time.sleep(0.4)
+        if not raw:
+            continue
+        seen = set()
+        for v, m in re.findall(r'<option value="([^"]+)">([^<]+)', raw):
+            m = clean(m)
+            if not v or NOT_A_MACHINE.search(m) or m in seen:
+                continue
+            seen.add(m)
+            out.setdefault(brand, []).append({"m": m, "p": 0, "u": "https://www.juraprofi.de/", "c": "", "q": "liste"})
+    return out
+
+
+def _key(s):
+    return re.sub(r"[^a-z0-9]", "", s.lower())
+
+
+def match_price(brand, priced, model):
+    """liefert den Preis-Eintrag, der zum juraprofi-Modell passt (oder None)"""
+    label = model["m"]
+    if brand == "Jura":
+        # nur das aktuelle Modell: ohne Zusatz oder "(EA)" - aeltere Generationen (EB, EC ... / Impressa) bekommen keinen Preis
+        m = re.fullmatch(r"(.+?)(?:\s*\(EA\))?", label.strip())
+        base = (m.group(1) if m else label).strip().upper()
+        if re.search(r"\(E[B-Z]\)|Impressa|Limited|ab 20|Modell 20", label, re.I):
+            return None
+        for it in priced:
+            if it["m"].upper() == base:
+                return it
+    elif brand == "De Longhi":
+        m = re.search(r"(ECAM|ESAM|EAM|EXAM|ETAM|EPAM)\s*(\d+\.\d+)", label)
+        if m:
+            code = _key(m.group(1) + m.group(2))
+            for it in priced:
+                if it.get("c") and _key(re.sub(r"\.[A-Za-z][^.]*$", "", it["c"].split("+")[0])) == code:
+                    return it
+    elif brand in ("Siemens", "Bosch"):
+        k = _key(label)
+        for it in priced:
+            c = _key(it.get("c", ""))[:8]
+            if c and c in k:
+                return it
+    return None
+
+
 SOURCES = {"jura": src_jura, "nivona": src_nivona, "delonghi": src_delonghi,
            "siemens": src_siemens, "bosch": src_bosch, "melitta": src_melitta,
            "ecm": src_ecm, "profitec": src_profitec, "sage": src_sage}
@@ -248,38 +315,54 @@ BRAND_OF = {"jura": "Jura", "nivona": "Nivona", "delonghi": "De Longhi", "siemen
             "bosch": "Bosch", "melitta": "Melitta", "ecm": "ECM", "profitec": "Profitec", "sage": "Sage"}
 
 
+def natkey(x):
+    return [int(t) if t.isdigit() else t.lower() for t in re.split(r"(\d+)", x["m"])]
+
+
 def main():
-    want = [a.lower() for a in sys.argv[1:]] or list(SOURCES)
+    args = [a.lower() for a in sys.argv[1:]]
+    want = [a for a in args if a in SOURCES] or ([] if "modelle" in args else list(SOURCES))
+    do_models = (not args) or ("modelle" in args)
+    for a in args:
+        if a not in SOURCES and a != "modelle":
+            print("unbekannte Quelle:", a)
     old = {}
     if os.path.exists(OUT):
         old = json.load(open(OUT, encoding="utf-8")).get("marken", {})
     store = {}
     for k in want:
-        if k not in SOURCES:
-            print("unbekannte Quelle:", k); continue
         print("->", k)
         SOURCES[k](store)
-        print("   ", len(store.get(BRAND_OF[k], {})), "Modelle")
+        print("   ", len(store.get(BRAND_OF[k], {})), "Preise")
+    models = {}
+    if do_models:
+        print("-> modelle (juraprofi.de)")
+        models = src_modelle()
+        print("   ", sum(len(v) for v in models.values()), "Modelle in", len(models), "Marken")
+    man = json.load(open(MANUAL, encoding="utf-8-sig")).get("marken", {}) if os.path.exists(MANUAL) else {}
+
     marken = {}
-    # nicht neu abgerufene Marken aus der alten Datei behalten
-    for b, lst in old.items():
-        if not any(BRAND_OF.get(k) == b for k in want):
-            marken[b] = [x for x in lst if x.get("q") == "auto"]
-    for b, d in store.items():
-        marken[b] = list(d.values())
-    # manuelle Eintraege dazu
-    if os.path.exists(MANUAL):
-        man = json.load(open(MANUAL, encoding="utf-8-sig"))
-        for b, lst in man.get("marken", {}).items():
-            marken.setdefault(b, [])
-            marken[b] = [x for x in marken[b] if x.get("q") == "auto"] + [dict(x, q="manuell") for x in lst]
-    for b in marken:
-        marken[b].sort(key=lambda x: (x["p"], x["m"]))
+    brands = set(old) | set(store) | set(models) | set(man)
+    for b in brands:
+        refreshed = any(BRAND_OF.get(k) == b for k in want)
+        priced = list(store[b].values()) if (refreshed and b in store) else [x for x in old.get(b, []) if x.get("q") == "auto"]
+        liste = models[b] if (do_models and b in models) else [x for x in old.get(b, []) if x.get("q") == "liste"]
+        items = {x["m"]: dict(x) for x in liste}
+        for it in priced:
+            hits = [x for x in items.values() if x.get("q") == "liste" and x["p"] == 0 and match_price(b, [it], x)]
+            for x in hits:
+                x["p"], x["u"], x["c"], x["q"] = it["p"], it["u"], it.get("c", ""), "auto"
+            if not hits and it["m"] not in items:
+                items[it["m"]] = dict(it)
+        for x in man.get(b, []):
+            items[x["m"]] = dict(x, q="manuell")
+        marken[b] = sorted(items.values(), key=natkey)
     out = {"stand": datetime.date.today().isoformat(),
-           "hinweis": "Aktuelle Listen-/Herstellerpreise als Richtwert. Bei aelteren Geraeten zaehlt der damalige Preis - bitte im Check anpassen.",
-           "marken": marken}
+           "hinweis": "Aktuelle Listen-/Herstellerpreise als Richtwert (p=0: kein Preis bekannt). Bei aelteren Geraeten zaehlt der damalige Preis - bitte im Check anpassen.",
+           "marken": dict(sorted(marken.items()))}
     json.dump(out, open(OUT, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-    print("geschrieben:", OUT, "-", sum(len(v) for v in marken.values()), "Modelle in", len(marken), "Marken")
+    n = sum(len(v) for v in marken.values()); pr = sum(1 for v in marken.values() for x in v if x["p"])
+    print("geschrieben:", OUT, "-", n, "Modelle in", len(marken), "Marken, davon", pr, "mit Preis")
 
 
 if __name__ == "__main__":

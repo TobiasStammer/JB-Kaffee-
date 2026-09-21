@@ -2814,7 +2814,13 @@ function ReparaturCheck-Content($p) {
   </div>
 
   <div class="rc-step">
-    <span class="rc-q">3 &middot; Was ist das Problem?</span>
+    <span class="rc-q">3 &middot; Neupreis damals (optional &ndash; falls Sie ihn kennen)</span>
+    <input type="number" id="rc-price" min="0" step="10" placeholder="z. B. 800 &euro;">
+    <p class="rc-hint">Wenn Sie oben ein Modell gew&auml;hlt haben, tragen wir den aktuellen Listenpreis ein. Kennen Sie den damaligen Preis, &uuml;berschreiben Sie den Betrag einfach &ndash; Ihre Angabe z&auml;hlt.</p>
+  </div>
+
+  <div class="rc-step">
+    <span class="rc-q">4 &middot; Was ist das Problem?</span>
     <select id="rc-sym">
       <option value="">Bitte w&auml;hlen</option>
       <option value="kein-wasser">Kein Wasser / kein Kaffee</option>
@@ -2831,7 +2837,7 @@ function ReparaturCheck-Content($p) {
   </div>
 
   <div class="rc-step">
-    <span class="rc-q">4 &middot; Wie alt ist das Ger&auml;t ungef&auml;hr?</span>
+    <span class="rc-q">5 &middot; Wie alt ist das Ger&auml;t ungef&auml;hr?</span>
     <div class="rc-opts" data-k="alter">
       <button type="button" data-v="a">unter 2 Jahre</button>
       <button type="button" data-v="b" class="on">2 &ndash; 5 Jahre</button>
@@ -2843,12 +2849,6 @@ function ReparaturCheck-Content($p) {
       <button type="button" data-v="y10">&uuml;ber 10 Jahre</button>
       <button type="button" data-v="x">wei&szlig; ich nicht</button>
     </div>
-  </div>
-
-  <div class="rc-step">
-    <span class="rc-q">5 &middot; Neupreis damals (optional &ndash; falls Sie ihn kennen)</span>
-    <input type="number" id="rc-price" min="0" step="10" placeholder="z. B. 800 &euro;">
-    <p class="rc-hint">Wenn Sie oben ein Modell gew&auml;hlt haben, tragen wir den aktuellen Listenpreis ein. Kennen Sie den damaligen Preis, &uuml;berschreiben Sie den Betrag einfach &ndash; Ihre Angabe z&auml;hlt.</p>
   </div>
 
   <button type="button" class="rc-go" id="rc-go">Auswerten</button>
@@ -2875,8 +2875,8 @@ function ReparaturCheck-Content($p) {
     var list=NP.m[brandSel.value];
     modelEl.innerHTML='';
     if(!list||!list.length){ modelEl.hidden=true; return; }
-    modelEl.appendChild(new Option('Modell w\u00e4hlen (optional) \u2013 tr\u00e4gt den Neupreis ein',''));
-    list.forEach(function(m,i){ modelEl.appendChild(new Option(m[0]+' \u2013 '+(m[2]?'ca. ':'')+fmt(m[1])+' \u20ac',String(i))); });
+    modelEl.appendChild(new Option('Modell w\u00e4hlen (optional)',''));
+    list.forEach(function(m,i){ modelEl.appendChild(new Option(m[0],String(i))); });
     modelEl.appendChild(new Option('Mein Modell steht nicht dabei','-1'));
     modelEl.hidden=false;
   });
@@ -2884,8 +2884,13 @@ function ReparaturCheck-Content($p) {
     resetModel();
     var v=modelEl.value; if(v===''||v==='-1'){ return; }
     var m=NP.m[brandSel.value][parseInt(v,10)]; if(!m) return;
-    modelSel=m; priceEl.value=m[1]; priceSrc='model';
-    modelHint.textContent='Aktueller Listenpreis'+(m[2]?' (ca.)':'')+', Stand '+deDate(NP.stand)+': '+fmt(m[1])+' \u20ac. Ihr Ger\u00e4t hat damals evtl. anders gekostet \u2013 Sie k\u00f6nnen den Betrag bei Schritt 5 jederzeit \u00e4ndern.';
+    modelSel=m;
+    if(m[1]>0){
+      priceEl.value=m[1]; priceSrc='model';
+      modelHint.textContent='Den aktuellen Listenpreis'+(m[2]?' (ca.)':'')+' (Stand '+deDate(NP.stand)+') haben wir bei Schritt 3 eingetragen. Ihr Ger\u00e4t hat damals evtl. anders gekostet \u2013 den Betrag k\u00f6nnen Sie dort jederzeit \u00e4ndern.';
+    } else {
+      modelHint.textContent='F\u00fcr dieses Modell haben wir keinen Listenpreis. Kennen Sie den Neupreis, tragen Sie ihn bei Schritt 3 ein \u2013 sonst rechnen wir mit einem Sch\u00e4tzwert.';
+    }
     modelHint.hidden=false;
   });
   priceEl.addEventListener('input',function(){ priceSrc=priceEl.value?'own':''; });
@@ -2911,7 +2916,6 @@ function ReparaturCheck-Content($p) {
   // Gruen-Grenze = Anteil des Neupreises, bis zu dem die Reparatur "gruen" ist (je Alter).
   // Bis 5 Jahre 60 %, danach je Jahr 5 Prozentpunkte weniger; Gelb bis Gruen-Grenze + 20 Punkte, darueber Rot.
   var GREEN={a:.60,b:.60,y5:.55,y6:.50,y7:.45,y8:.40,y9:.35,y10:.30,x:.45};
-  var AGE={a:'unter 2 Jahre',b:'2\u20135 Jahre',y5:'5\u20136 Jahre',y6:'6\u20137 Jahre',y7:'7\u20138 Jahre',y8:'8\u20139 Jahre',y9:'9\u201310 Jahre',y10:'\u00fcber 10 Jahre',x:'Alter unbekannt'};
 
   document.getElementById('rc-go').addEventListener('click',function(){
     var symK=document.getElementById('rc-sym').value;
@@ -2925,25 +2929,19 @@ function ReparaturCheck-Content($p) {
     var lo=base+s.lo, hi=base+s.hi;
     var mid=(lo+hi)/2;
     var lim=GREEN[st.alter]; if(lim===undefined) lim=.45;
-    var npKnown=price>0;
-    var np=npKnown?price:((st.typ==='siebtraeger')?1200:700);
-    var pLo=Math.round(lo/np*100), pHi=Math.round(hi/np*100), pGreen=Math.round(lim*100);
+    var np=price>0?price:((st.typ==='siebtraeger')?1200:700);
     var ratio=mid/np;
     var amp='g',t='',tx='';
-    var pct='ca. '+pLo+' &ndash; '+pHi+' % des Neupreises';
     if(ratio>lim+.20){
       amp='r'; t='Reparatur pr&uuml;fen lassen &ndash; Neuger&auml;t als Alternative';
-      tx='Der voraussichtliche Aufwand liegt bei '+pct+' &ndash; bei Ger&auml;ten dieses Alters sind wir ab '+(pGreen+20)+' % im roten Bereich. Eine Reparatur kann sich trotzdem lohnen, wenn Ihnen das Ger&auml;t viel wert ist. Wir pr&uuml;fen es und zeigen Ihnen beide Wege &ndash; Reparatur und Neuger&auml;t &ndash; ehrlich nebeneinander.';
+      tx='Der voraussichtliche Aufwand steht in keinem guten Verh&auml;ltnis zum Wert des Ger&auml;ts. Eine Reparatur kann sich trotzdem lohnen, wenn Ihnen das Ger&auml;t viel wert ist. Wir pr&uuml;fen es und zeigen Ihnen beide Wege &ndash; Reparatur und Neuger&auml;t &ndash; ehrlich nebeneinander.';
     } else if(ratio>lim){
       amp='y'; t='Reparatur meist sinnvoll &ndash; kurz abw&auml;gen';
-      tx='Der Aufwand liegt bei '+pct+' und damit &uuml;ber der Gr&uuml;n-Grenze von '+pGreen+' % f&uuml;r Ger&auml;te dieses Alters, aber noch im vertretbaren Bereich. Bei einem gepflegten Ger&auml;t und verf&uuml;gbaren Ersatzteilen lohnt sich die Reparatur oft trotzdem. Wir pr&uuml;fen das Ger&auml;t und machen einen Kostenvoranschlag, bevor etwas repariert wird.';
+      tx='Der Aufwand liegt im mittleren Bereich. Bei einem gepflegten Ger&auml;t und verf&uuml;gbaren Ersatzteilen lohnt sich die Reparatur oft. Wir pr&uuml;fen das Ger&auml;t und machen einen Kostenvoranschlag, bevor etwas repariert wird.';
     } else {
       amp='g'; t='Reparatur lohnt sich';
-      tx='Der voraussichtliche Aufwand liegt bei '+pct+' und damit im gr&uuml;nen Bereich (bei Ger&auml;ten dieses Alters bis '+pGreen+' %). Eine Reparatur ist die wirtschaftlichere Wahl.';
+      tx='Der voraussichtliche Aufwand steht in einem guten Verh&auml;ltnis zum Wert des Ger&auml;ts. Eine Reparatur ist die wirtschaftlichere Wahl.';
     }
-    function esc(x){ return String(x).replace(/&/g,'&amp;').replace(/\u003c/g,'&lt;'); }  // Kein spitzes Klammerzeichen im Script (wptexturize haelt es fuer ein Tag und verfaelscht danach das doppelte kaufmaennische Und)
-    var npSrc = priceSrc==='own' ? 'Ihre Angabe' : (priceSrc==='model'&&modelSel ? 'Listenpreis '+esc(brandSel.value+' '+modelSel[0])+(modelSel[2]?' (ca.)':'')+', Stand '+esc(deDate(NP.stand)) : 'Sch&auml;tzwert &ndash; f&uuml;r ein genaueres Ergebnis Modell oder Neupreis angeben');
-    var basis='Grundlage: Neupreis '+fmt(np)+' &euro; ('+npSrc+') &middot; Alter: '+AGE[st.alter]+' &middot; gr&uuml;n bis '+pGreen+' % des Neupreises.';
 
     var selfHtml='';
     if(s.self){ selfHtml='<p><b>Erst selbst probieren:</b> Ein paar Handgriffe l&ouml;sen das Problem oft schon. <a href="'+s.self+'">Zur Anleitung</a>.</p>'; }
@@ -2957,7 +2955,6 @@ function ReparaturCheck-Content($p) {
     h+='<p>Enthalten sind Grundwartung, Kleinteile und Arbeitszeit. Sind gr&ouml;&szlig;ere Ersatzteile n&ouml;tig, bekommen Sie vorab einen Kostenvoranschlag. Bei abgelehntem Kostenvoranschlag f&auml;llt eine Pr&uuml;fpauschale an ('+pruef+' &euro;).</p>';
     h+='<p style="font-size:13px;color:#6b7178">Genaue Preise je Ger&auml;tekategorie: <a href="$kosten">Dauer &amp; Kosten</a>.</p></div>';
     h+='<div class="rc-amp '+amp+'"><span class="dot"></span><span><b>'+t+'</b>'+tx+' Die Ersatzteilversorgung ist f&uuml;r g&auml;ngige Marken gut; bei sehr alten oder seltenen Ger&auml;ten pr&uuml;fen wir die Verf&uuml;gbarkeit vorab.</span></div>';
-    h+='<p class="rc-basis">'+basis+'</p>';
     h+='<div class="rc-card"><h2>So geht es weiter</h2><p>Bringen Sie das Ger&auml;t einfach w&auml;hrend der &Ouml;ffnungszeiten vorbei &ndash; ohne Termin. Wir pr&uuml;fen es und melden uns mit einem Kostenvoranschlag.</p>';
     h+='<div class="rc-btns"><a href="$auftrag">Auftragsschein ausf&uuml;llen</a><a class="ghost" href="$ablauf">Ablauf im Detail</a><a class="ghost" href="$miet">Mietger&auml;t</a>';
     if(amp==='r'){ h+='<a class="ghost" href="$shop">Neue Ger&auml;te ansehen</a>'; }
