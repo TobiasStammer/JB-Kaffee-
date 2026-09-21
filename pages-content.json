@@ -2931,6 +2931,16 @@
         {
           "t": "h",
           "lvl": 2,
+          "icon": "info",
+          "x": "Wasserhärte-Abfrage (wasser-haerte.de)"
+        },
+        {
+          "t": "p",
+          "x": "Im Entkalkungsplan auf der Seite „Wartungserinnerung“ können Sie die Wasserhärte über Ihre Postleitzahl abfragen. Die Abfrage wird erst ausgeführt, wenn Sie auf „Härte ermitteln“ klicken. Dabei sendet Ihr Browser die eingegebene Postleitzahl und – technisch bedingt – Ihre IP-Adresse an den Dienst wasser-haerte.de (FUTR UG (haftungsbeschränkt), Lübeck). Rechtsgrundlage ist Ihre Einwilligung durch den Klick (Art. 6 Abs. 1 lit. a DSGVO). Wenn Sie die Abfrage nicht nutzen, findet keine Übermittlung statt; Sie können den Härtebereich stattdessen selbst auswählen."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
           "icon": "shop",
           "x": "Online-Shop, Bestellung und Kundenkonto"
         },

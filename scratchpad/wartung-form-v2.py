@@ -51,6 +51,7 @@ monat = select(4, "wartung_monat", "Letzte Wartung oder Kauf – Monat", "Monat 
 jahr = select(5, "wartung_jahr", "Letzte Wartung oder Kauf – Jahr", "Jahr wählen", [(str(j), str(j)) for j in range(y, y - 15, -1)], "el_wjahr")
 monat["settings"]["help_message"] = "Wenn unbekannt: das ungefähre Kaufdatum."
 cons["index"] = 6
+cons["attributes"]["value"] = []   # Einwilligung darf nicht vorangekreuzt sein (DSGVO)
 cons["settings"]["advanced_options"][0]["label"] = ("Ich möchte per E-Mail an die nächste Wartung erinnert werden. Die Daten werden nur dafür genutzt; "
     "die Erinnerung kann jederzeit über den Link in der E-Mail beendet werden.")
 for i, f in enumerate((name, email, hers)):
