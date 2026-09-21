@@ -2508,7 +2508,7 @@ $FORM_CSS
 
   <div class="we-box we-box2">
     <span class="we-q">Oder: Wir erinnern Sie per E-Mail</span>
-    <span class="we-sub">Kurz anmelden &ndash; wir melden uns rechtzeitig vor der n&auml;chsten Wartung. Absender: shop@kaffeetechniker.de.</span>
+    <span class="we-sub">Kurz anmelden &ndash; wir melden uns rechtzeitig vor der n&auml;chsten Wartung. Absender: info@kaffeetechniker.de.</span>
   </div>
 </div>
 <script>
