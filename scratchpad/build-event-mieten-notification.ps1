@@ -7,9 +7,9 @@ $fid = 4
 
 $notif = [pscustomobject]@{
   name      = ('Event-Mietanfrage an die Werkstatt')
-  sendTo    = [pscustomobject]@{ type='email'; email='shop@kaffeetechniker.de' }
+  sendTo    = [pscustomobject]@{ type='email'; email='info@kaffeetechniker.de' }
   fromName  = ('JB Kaffeemaschinen '+[char]0x2013+' Service & Verkauf')
-  fromEmail = 'shop@kaffeetechniker.de'
+  fromEmail = 'info@kaffeetechniker.de'
   replyTo   = '{inputs.email}'
   bcc       = ''
   subject   = 'Neue Event-Mietanfrage: {inputs.name}'
