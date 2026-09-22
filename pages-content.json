@@ -25,7 +25,7 @@
       "text": "Betriebsferien 10.09.&ndash;10.10.2026 &ndash; ab dem 10.10. sind wir wieder f&uuml;r Sie da. Danke f&uuml;r Ihr Verst&auml;ndnis!"
     },
     "shopPromo": {
-      "enabled": true,
+      "enabled": false,
       "eyebrow": "Neu im Sortiment",
       "title": "JURA A8 – der schmalste Vollautomat",
       "text": "Voller Kaffeegenuss auf nur 19 cm Breite. Jetzt bei uns im Geschäft – kommen Sie zur Vorführung vorbei.",
@@ -284,6 +284,12 @@
     "logoUrl": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-shop-jura-logo.png",
     "heroImage": "",
     "heroSlides": [
+      {
+        "name": "JURA A8",
+        "tagline": "Neu im Sortiment – der schmalste Vollautomat, nur 19 cm breit",
+        "img": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/a8_ea_sa_pb_image2.jpg",
+        "url": "/product/jura-a8-piano-black/"
+      },
       {
         "name": "JURA E10",
         "tagline": "Kaffee-Erlebnis mit vier Genusswelten",

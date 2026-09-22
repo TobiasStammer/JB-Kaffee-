@@ -822,13 +822,6 @@ function Shop-Bar-CSS {
   @"
 <style>
 html{overflow-x:clip}
-/* Sicherheitsnetz gegen den FlexSlider-Variantenbild-Bug: berechnet die
-   Galerie beim Farbwechsel manchmal neu, BEVOR das neue Bild geladen ist,
-   und bleibt dann bei Hoehe/Breite 0 haengen (Bild unsichtbar). CSS-Regel
-   greift nur in genau diesem kaputten Zustand (style*="0px") und erzwingt
-   eine Mindesthoehe/-breite, unabhaengig vom JS-Timing. */
-.woocommerce-product-gallery .flex-viewport[style*="height: 0px"]{min-height:300px !important}
-.woocommerce-product-gallery .flex-active-slide[style*="width: 0px"]{width:100% !important}
 /* Theme setzt global .wp-site-blocks{overflow:clip} - das bricht position:sticky
    in Safari/iOS (bekannter WebKit-Bug), auch wenn der Ausschnitt hoch genug waere.
    Waagerechtes Clipping bleibt oben an html erhalten, hier nur die Y-Achse loesen,
@@ -1584,7 +1577,6 @@ function Jura-Marke-Content($p, $brandKey = 'jura') {
     <h1>$($J.heroTitle)</h1>
   </div>
 </div>
-$herofig
 "@
   # Vier Genusswelten (offizieller JURA-Markenbegriff), Bilder + Texte von
   # de.jura.com/de/einkaufsberatung/genusswelten. Nur bei JURA, nicht bei NIVONA.
@@ -1671,8 +1663,7 @@ $(Sec-Head 'Technik' $J.techTitle $J.techIntro)
 $techJs
 "@
   $zones = @( (Shop-Header-Zone $J.shopSlug) )
-  $promo = if ($brandKey -eq 'jura') { Shop-Promo-Html } else { '' }
-  if ($promo) { $zones += (Zone $C.bg '22px' '2px' (Html-Block $promo)) }
+  if ($herofig) { $zones += (Zone $C.white '22px' '2px' (Html-Block $herofig)) }
   # Baender abwechselnd weiss/soft - unabhaengig davon, ob genussTiles (nur JURA) dabei ist.
   $bandColors = @($C.soft, $C.white, $C.soft, $C.white, $C.soft)
   $zones += (Zone $C.white '46px' '34px' (Html-Block ($JURA_CSS + "`n" + $hero)))

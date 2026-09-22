@@ -1,4 +1,4 @@
-﻿{
+{
   "15478": [
     "https://api.jura.com/media/global/images/home-products/giga-line/giga-10/giga_10_diamond_black_ea_overview.jpg",
     "https://api.jura.com/media/global/images/home-products/giga-line/giga-10/giga_10_diamond_black_ea_packshot.jpg",
@@ -158,5 +158,105 @@
   ],
   "15775": [
     "https://api.jura.com/media/global/images/home-products/s-line-2026/S10-Obsidian-Black-EA-SA-15775/s10_ob_ea_packshot.jpg"
+  ],
+  "15613": [
+    "https://api.jura.com/media/global/images/home-products/z-line-2025/Z10-EB-SB/Z10-EB-SB-Aluminium-White/Z10_eb_sb_aw_packshot.jpg",
+    "https://api.jura.com/media/global/images/home-products/z-line-2025/Z10-EB-SB/Z10-EB-SB-Aluminium-White/Z10_eb_sb_aw_overview.jpg",
+    "https://api.jura.com/media/global/images/home-products/z-line-2025/Z10-EB-SB/Z10-EB-SB-Aluminium-White/image-gallery/Z10_eb_sb_aw_image1.jpg",
+    "https://api.jura.com/media/global/images/home-products/z-line-2025/Z10-EB-SB/Z10-EB-SB-Aluminium-White/image-gallery/Z10_eb_sb_aw_image2.jpg",
+    "https://api.jura.com/media/global/images/home-products/z-line-2025/Z10-EB-SB/Z10-EB-SB-Aluminium-White/image-gallery/Z10_eb_sb_aw_image3.jpg",
+    "https://api.jura.com/media/global/images/home-products/z-line-2025/Z10-EB-SB/Z10-EB-SB-Aluminium-White/image-gallery/Z10_eb_sb_aw_image4.jpg",
+    "https://api.jura.com/media/global/images/home-products/z-line-2025/Z10-EB-SB/Z10-EB-SB-Aluminium-White/image-gallery/Z10_eb_sb_aw_image5.jpg",
+    "https://api.jura.com/media/global/images/home-products/z-line-2025/Z10-EB-SB/Z10-EB-SB-Aluminium-White/image-gallery/Z10_eb_sb_aw_image6.jpg"
+  ],
+  "15619": [
+    "https://api.jura.com/media/global/images/home-products/z-line-2025/Z10-EB-SB/Z10-EB-SB-Diamond-White/Z10_eb_sb_dw_packshot.jpg",
+    "https://api.jura.com/media/global/images/home-products/z-line-2025/Z10-EB-SB/Z10-EB-SB-Diamond-White/Overview_Z10_DW.jpg",
+    "https://api.jura.com/media/global/images/home-products/z-line-2025/Z10-EB-SB/Z10-EB-SB-Diamond-White/image-gallery/Z10_eb_sb_dw_image1.jpg",
+    "https://api.jura.com/media/global/images/home-products/z-line-2025/Z10-EB-SB/Z10-EB-SB-Diamond-White/image-gallery/Z10_eb_sb_dw_image10.jpg",
+    "https://api.jura.com/media/global/images/home-products/z-line-2025/Z10-EB-SB/Z10-EB-SB-Diamond-White/image-gallery/Z10_eb_sb_dw_image11.jpg",
+    "https://api.jura.com/media/global/images/home-products/z-line-2025/Z10-EB-SB/Z10-EB-SB-Diamond-White/image-gallery/Z10_eb_sb_dw_image12.jpg",
+    "https://api.jura.com/media/global/images/home-products/z-line-2025/Z10-EB-SB/Z10-EB-SB-Diamond-White/image-gallery/Z10_eb_sb_dw_image2.jpg",
+    "https://api.jura.com/media/global/images/home-products/z-line-2025/Z10-EB-SB/Z10-EB-SB-Diamond-White/image-gallery/Z10_eb_sb_dw_image3.jpg"
+  ],
+  "15482": [
+    "https://api.jura.com/media/global/images/home-products/s-line-2024/S8-Piano-Black-EB-SB/s8_pianoblack_eb_packshot.jpg",
+    "https://api.jura.com/media/global/images/home-products/s-line-2024/S8-Piano-Black-EB-SB/s8_pianoblack_eb_overview.jpg",
+    "https://api.jura.com/media/global/images/home-products/s-line-2024/S8-Piano-Black-EB-SB/image-gallery/s8_pianoblack_eb_image1.jpg",
+    "https://api.jura.com/media/global/images/home-products/s-line-2024/S8-Piano-Black-EB-SB/image-gallery/s8_pianoblack_eb_image10.jpg",
+    "https://api.jura.com/media/global/images/home-products/s-line-2024/S8-Piano-Black-EB-SB/image-gallery/s8_pianoblack_eb_image11.jpg",
+    "https://api.jura.com/media/global/images/home-products/s-line-2024/S8-Piano-Black-EB-SB/image-gallery/s8_pianoblack_eb_image12.jpg",
+    "https://api.jura.com/media/global/images/home-products/s-line-2024/S8-Piano-Black-EB-SB/image-gallery/s8_pianoblack_eb_image13.jpg",
+    "https://api.jura.com/media/global/images/home-products/s-line-2024/S8-Piano-Black-EB-SB/image-gallery/s8_pianoblack_eb_image14.jpg"
+  ],
+  "15749": [
+    "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-cosmic-black/e8_ed_cosmicblack_packshot.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-cosmic-black/e8_ed_cosmicblack_overview.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-cosmic-black/image-gallery/e8_ed_cosmicblack_image1.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-cosmic-black/image-gallery/e8_ed_cosmicblack_image2.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-cosmic-black/image-gallery/e8_ed_cosmicblack_image3.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-cosmic-black/image-gallery/e8_ed_cosmicblack_image4.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-cosmic-black/image-gallery/e8_ed_cosmicblack_image5.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-cosmic-black/image-gallery/e8_ed_cosmicblack_image6.jpg"
+  ],
+  "15745": [
+    "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-piano-black/e8_ed_pb_packshot.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-piano-black/e8_ed_pb_overview.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-piano-black/image-gallery/e8_ed_pb_image1.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-piano-black/image-gallery/e8_ed_pb_image2.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-piano-black/image-gallery/e8_ed_pb_image3.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-piano-black/image-gallery/e8_ed_pb_image4.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-piano-black/image-gallery/e8_ed_pb_image5.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-piano-black/image-gallery/e8_ed_pb_image6.jpg"
+  ],
+  "15747": [
+    "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-piano-white/e8_ed_pianowhite_packshot.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-piano-white/e8_ed_pianowhite_overview.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-piano-white/image-gallery/e8_ed_pianowhite_image1.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-piano-white/image-gallery/e8_ed_pianowhite_image2.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-piano-white/image-gallery/e8_ed_pianowhite_image3.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-piano-white/image-gallery/e8_ed_pianowhite_image4.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-piano-white/image-gallery/e8_ed_pianowhite_image5.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2025/e8-ed-piano-white/image-gallery/e8_ed_pianowhite_image6.jpg"
+  ],
+  "15642": [
+    "https://api.jura.com/media/global/images/home-products/e-line-2026/e6-ed-piano-black/e6_ed_pb_packshot.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2026/e6-ed-piano-black/e6_ed_pb_overview.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2026/e6-ed-piano-black/image-gallery/e6_ed_pb_image1.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2026/e6-ed-piano-black/image-gallery/e6_ed_pb_image2.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2026/e6-ed-piano-black/image-gallery/e6_ed_pb_image3.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2026/e6-ed-piano-black/image-gallery/e6_ed_pb_image4.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2026/e6-ed-piano-black/image-gallery/e6_ed_pb_image5.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2026/e6-ed-piano-black/image-gallery/e6_ed_pb_image6.jpg"
+  ],
+  "15433": [
+    "https://api.jura.com/media/global/images/home-products/e-line-2021/e4/e4-piano-white-ea-15433/e4_ea_pianowhite_packshot.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2021/e4/e4-piano-white-ea-15433/e4_ea_pianowhite_overview.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2021/e4/e4-piano-white-ea-15433/image-gallery/e4_ea_pianowhite_image1.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2021/e4/e4-piano-white-ea-15433/image-gallery/e4_ea_pianowhite_image10.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2021/e4/e4-piano-white-ea-15433/image-gallery/e4_ea_pianowhite_image11.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2021/e4/e4-piano-white-ea-15433/image-gallery/e4_ea_pianowhite_image2.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2021/e4/e4-piano-white-ea-15433/image-gallery/e4_ea_pianowhite_image3.jpg",
+    "https://api.jura.com/media/global/images/home-products/e-line-2021/e4/e4-piano-white-ea-15433/image-gallery/e4_ea_pianowhite_image4.jpg"
+  ],
+  "15810": [
+    "https://api.jura.com/media/global/images/home-products/c-line-2025/C9-EA-SA-Piano-White/c9_ea_sa_pw_overview.jpg",
+    "https://api.jura.com/media/global/images/home-products/c-line-2025/C9-EA-SA-Piano-White/c9_ea_sa_pw_heroimage.jpg",
+    "https://api.jura.com/media/global/images/home-products/c-line-2025/C9-EA-SA-Piano-White/image-gallery/c9_ea_sa_pw_image1.jpg",
+    "https://api.jura.com/media/global/images/home-products/c-line-2025/C9-EA-SA-Piano-White/image-gallery/c9_ea_sa_pw_image2.jpg",
+    "https://api.jura.com/media/global/images/home-products/c-line-2025/C9-EA-SA-Piano-White/image-gallery/c9_ea_sa_pw_image4.jpg",
+    "https://api.jura.com/media/global/images/home-products/c-line-2025/C9-EA-SA-Piano-White/image-gallery/c9_ea_sa_pw_image5.jpg",
+    "https://api.jura.com/media/global/images/home-products/c-line-2025/C9-EA-SA-Piano-White/image-gallery/c9_ea_sa_pw_image6.jpg",
+    "https://api.jura.com/media/global/images/home-products/c-line-2025/C9-EA-SA-Piano-White/image-gallery/c9_ea_sa_pw_image7.jpg"
+  ],
+  "15491": [
+    "https://api.jura.com/media/global/images/home-products/ena-line-2022/ena-8-ec-sc/ena-8-full-nordic-white-ec-sc/ena8_fnw_nac_packshot.jpg",
+    "https://api.jura.com/media/global/images/home-products/ena-line-2022/ena-8-ec-sc/ena-8-full-nordic-white-ec-sc/ena_8_fnw_overview.jpg",
+    "https://api.jura.com/media/global/images/home-products/ena-line-2022/ena-8-ec-sc/ena-8-full-nordic-white-ec-sc/image-gallery/ena8_fnw_ec_sc_image1.jpg",
+    "https://api.jura.com/media/global/images/home-products/ena-line-2022/ena-8-ec-sc/ena-8-full-nordic-white-ec-sc/image-gallery/ena8_fnw_ec_sc_image2.jpg",
+    "https://api.jura.com/media/global/images/home-products/ena-line-2022/ena-8-ec-sc/ena-8-full-nordic-white-ec-sc/image-gallery/ena8_fnw_ec_sc_image3.jpg",
+    "https://api.jura.com/media/global/images/home-products/ena-line-2022/ena-8-ec-sc/ena-8-full-nordic-white-ec-sc/image-gallery/ena8_fnw_ec_sc_image4.jpg",
+    "https://api.jura.com/media/global/images/home-products/ena-line-2022/ena-8-ec-sc/ena-8-full-nordic-white-ec-sc/image-gallery/ena8_fnw_ec_sc_image6.jpg",
+    "https://api.jura.com/media/global/images/home-products/ena-line-2022/ena-8-ec-sc/ena-8-full-nordic-white-ec-sc/image-gallery/ena8_fnw_ec_sc_image7.jpg"
   ]
 }
