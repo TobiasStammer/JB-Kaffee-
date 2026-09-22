@@ -1528,6 +1528,9 @@ $JURA_CSS = @"
 .jp2-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px}
 .jp2-row a{font-family:$FONT_HEAD;font-size:12.5px;font-weight:700;color:$($C.accent);text-decoration:none;white-space:nowrap}
 .jp2-row .cmp{font-size:11.5px;color:#777;display:flex;gap:5px;align-items:center;cursor:pointer;user-select:none}
+.jp2-acc .jp2-bd{align-items:center;text-align:center}
+.jp2-acc .jp2-fx{justify-content:center}
+.jp2-acc .jp2-row{justify-content:center;flex-direction:column;gap:6px}
 @media(max-width:520px){.jp2{grid-template-columns:1fr}.jp2-pic{border-right:0;border-bottom:1px solid #eee}}
 .jk2-empty{padding:40px 10px;text-align:center;color:#8a8a8a;font-size:14px}
 @media(max-width:640px){.jabout{grid-template-columns:1fr}.jbanner{grid-template-columns:1fr}}
@@ -1996,7 +1999,7 @@ function Jura-Kategorie-Content($p, $brandKey = 'jura') {
     if ($mahl -match '^\s*2|Zwei|2 ' -or $vz -match 'zwei (Mahlwerke|Keramik|verschiedene)') { $feat += 'mahl2' }
     $featData = ($feat -join ' ')
     @"
-<article class="jp2" data-s="$($pr.serie)" data-name="$shortName" data-serie="$($pr.serie)$sfx" data-price="$($pr.priceStr)" data-pnum="$([int]$pr.price)" data-farben="$cData" data-feat="$featData" data-genuss="$genussData" data-blurb="$([string]$J.seriesBlurb.$($pr.serie))" data-url="$($pr.url)">
+<article class="jp2$(if (-not $sp) { ' jp2-acc' })" data-s="$($pr.serie)" data-name="$shortName" data-serie="$($pr.serie)$sfx" data-price="$($pr.priceStr)" data-pnum="$([int]$pr.price)" data-farben="$cData" data-feat="$featData" data-genuss="$genussData" data-blurb="$([string]$J.seriesBlurb.$($pr.serie))" data-url="$($pr.url)">
   <div class="jp2-pic">$(if ($pr.displayImg) { "<img src=`"$($pr.displayImg)`" alt=`"$shortName`">" } else { "<span style=`"font-size:11px;color:#aaa`">Abbildung folgt</span>" })</div>
   <div class="jp2-bd">
     <span class="jp2-serie">$($pr.serie)$sfx</span>
