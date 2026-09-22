@@ -822,6 +822,13 @@ function Shop-Bar-CSS {
   @"
 <style>
 html{overflow-x:clip}
+/* Sicherheitsnetz gegen den FlexSlider-Variantenbild-Bug: berechnet die
+   Galerie beim Farbwechsel manchmal neu, BEVOR das neue Bild geladen ist,
+   und bleibt dann bei Hoehe/Breite 0 haengen (Bild unsichtbar). CSS-Regel
+   greift nur in genau diesem kaputten Zustand (style*="0px") und erzwingt
+   eine Mindesthoehe/-breite, unabhaengig vom JS-Timing. */
+.woocommerce-product-gallery .flex-viewport[style*="height: 0px"]{min-height:300px !important}
+.woocommerce-product-gallery .flex-active-slide[style*="width: 0px"]{width:100% !important}
 /* Theme setzt global .wp-site-blocks{overflow:clip} - das bricht position:sticky
    in Safari/iOS (bekannter WebKit-Bug), auch wenn der Ausschnitt hoch genug waere.
    Waagerechtes Clipping bleibt oben an html erhalten, hier nur die Y-Achse loesen,
@@ -884,6 +891,29 @@ header.wp-block-template-part{display:contents}
     });
   }
   if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);}else{init();}
+})();
+// Bugfix Variantenbild: FlexSlider berechnet die Galerie-Hoehe/-Breite beim
+// Farbwechsel manchmal neu, BEVOR das neue Bild geladen ist -> Viewport/Slide
+// bleiben bei 0x0 haengen, das Bild verschwindet (nur die Lupe bleibt sichtbar).
+// Fix: nach jedem Variantenwechsel (mehrfach verzoegert) die kaputten Inline-
+// Styles zuruecksetzen und FlexSlider zum Neuberechnen zwingen.
+(function(){
+  if(!window.jQuery) return;
+  function fixGallery(){
+    var g = window.jQuery('.woocommerce-product-gallery');
+    if(!g.length) return;
+    g.find('.flex-viewport').css('height','');
+    g.find('.flex-active-slide').css('width','');
+    if(g.data('flexslider')){ try{ g.flexslider('resize'); }catch(e){} }
+  }
+  window.jQuery(document.body).on('found_variation woocommerce_gallery_init_gallery woocommerce_gallery_reset_slide_position reset_data', function(){
+    setTimeout(fixGallery,60);
+    setTimeout(fixGallery,350);
+    setTimeout(fixGallery,900);
+  });
+  window.jQuery(document).on('load','.woocommerce-product-gallery__wrapper img',function(){
+    setTimeout(fixGallery,30);
+  });
 })();
 </script>
 "@
