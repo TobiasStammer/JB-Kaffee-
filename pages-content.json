@@ -939,7 +939,7 @@
         },
         {
           "t": "p",
-          "x": "Ihr Gerät wurde repariert, komplett gewartet und in unserer Endkontrolle von einem zweiten Techniker geprüft. Für die erste Inbetriebnahme zu Hause – Entlüften, die Meldung „Entkalken“, kleine Pulverreste – haben wir die wichtigsten Punkte zusammengestellt."
+          "x": "Ihr Gerät wurde repariert, komplett gewartet und in unserer Endkontrolle einem Funktionstest aller Bauteile unterzogen – dabei bereiten wir alle Produkte zu. Für die erste Inbetriebnahme zu Hause – Entlüften, die Meldung „Entkalken“, kleine Pulverreste – haben wir die wichtigsten Punkte zusammengestellt."
         },
         {
           "t": "btns",
@@ -1115,7 +1115,7 @@
         },
         {
           "t": "p",
-          "x": "Bei größeren Defekten prüfen wir das Gerät, erstellen einen Kostenvoranschlag und besprechen ihn mit Ihnen per Telefon oder E-Mail. Dann haben Sie die Wahl:"
+          "x": "Bei größeren Defekten – z. B. defekten Bauteilen wie Mahlwerk oder Keramikventil – prüfen wir das Gerät, erstellen einen Kostenvoranschlag und besprechen ihn mit Ihnen per Telefon oder E-Mail. Dann haben Sie die Wahl:"
         },
         {
           "t": "ul",
@@ -1141,6 +1141,7 @@
         {
           "t": "ul",
           "x": [
+            "defekte elektronische Bauteile, z. B. Mahlwerk oder Keramikventil",
             "spezielle Elektronik- und Logikmodule",
             "Wasser- und Überspannungsschäden",
             "Sturz- und Bruchschäden",
@@ -1223,7 +1224,7 @@
       "blocks": [
         {
           "t": "p",
-          "x": "Ihr Kaffeevollautomat wurde repariert, komplett gewartet und in unserer Endkontrolle von einem zweiten Techniker geprüft. Damit Sie sofort wieder guten Kaffee genießen, hier die wichtigsten Punkte für die Inbetriebnahme zu Hause."
+          "x": "Ihr Kaffeevollautomat wurde repariert, komplett gewartet und in unserer Endkontrolle einem Funktionstest aller Bauteile unterzogen – dabei bereiten wir alle Produkte zu. Damit Sie sofort wieder guten Kaffee genießen, hier die wichtigsten Punkte für die Inbetriebnahme zu Hause."
         },
         {
           "t": "h",
@@ -1351,7 +1352,7 @@
       "facts": [
         {
           "k": "Empfohlen",
-          "v": "nach 2–3 Jahren bzw. 3.000–5.000 Tassen"
+          "v": "privat nach 2–3 Jahren bzw. 3.000–5.000 Tassen, gewerblich jährlich"
         },
         {
           "k": "Ort",
@@ -1395,7 +1396,7 @@
         },
         {
           "t": "p",
-          "x": "Etwa alle zwei Jahre ist eine professionelle Wartung sinnvoll. Melden Sie sich an – wir erinnern Sie rechtzeitig – oder legen Sie sich den Termin selbst in den Kalender. Auf derselben Seite finden Sie außerdem einen Entkalkungsplan für die Pflege zwischendurch."
+          "x": "Im Privathaushalt ist etwa alle zwei Jahre eine professionelle Wartung sinnvoll, bei gewerblicher Nutzung jährlich. Melden Sie sich an – wir erinnern Sie rechtzeitig – oder legen Sie sich den Termin selbst in den Kalender. Auf derselben Seite finden Sie außerdem einen Entkalkungsplan für die Pflege zwischendurch."
         },
         {
           "t": "btns",
@@ -1453,7 +1454,8 @@
         {
           "t": "ul",
           "x": [
-            "Nach 2, spätestens 3 Jahren",
+            "Privat: nach 2, spätestens 3 Jahren",
+            "Gewerblich (Büro, Gastronomie): jährlich, mit VDE-Sicherheitsprüfung",
             "Nach 3.000 bis 5.000 Tassen",
             "Bei wiederkehrenden Fehlermeldungen",
             "Wenn der Kaffeetrester nicht richtig absetzt oder zu nass ist",
@@ -1478,6 +1480,7 @@
             "Brüheinheit zerlegen, reinigen und fetten, Getriebe schmieren",
             "Reinigung von Kaffeeauslauf, Satzbehälter, Abtropfschale, Gehäuse und Wassertank",
             "Einstellungen nach Herstellervorgabe, Kaffeetemperatur messen und einstellen",
+            "VDE-Sicherheitsprüfung (elektrische Sicherheit des Geräts)",
             "Abschließender Test aller Funktionen"
           ]
         },
@@ -1501,8 +1504,8 @@
       "slug": "wartungserinnerung",
       "kind": "wartungserinnerung",
       "menu": "Wartungserinnerung",
-      "title": "Wartungserinnerung – alle zwei Jahre rechtzeitig erinnert",
-      "excerpt": "Melden Sie sich an und werden Sie alle zwei Jahre an die Wartung Ihres Kaffeevollautomaten erinnert – oder legen Sie sich den Termin selbst in den Kalender. Plus Entkalkungsplan für die Pflege zwischendurch."
+      "title": "Wartungserinnerung – rechtzeitig erinnert",
+      "excerpt": "Melden Sie sich an und werden Sie rechtzeitig an die Wartung Ihres Kaffeevollautomaten erinnert (privat alle zwei Jahre, gewerblich jährlich) – oder legen Sie sich den Termin selbst in den Kalender. Plus Entkalkungsplan für die Pflege zwischendurch."
     },
     {
       "slug": "reparatur-check",
@@ -2911,6 +2914,30 @@
         {
           "t": "p",
           "x": "Zweck der Verarbeitung ist die Bearbeitung Ihrer Anfrage. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, soweit die Anfrage auf den Abschluss oder die Durchführung eines Vertrags gerichtet ist, im Übrigen Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der Beantwortung von Anfragen). Wir löschen die Daten, sobald Ihr Anliegen abschließend geklärt ist und keine gesetzlichen Aufbewahrungspflichten entgegenstehen; Formulareinträge prüfen wir hierauf regelmäßig."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "icon": "info",
+          "x": "Wartungserinnerung"
+        },
+        {
+          "t": "p",
+          "x": "Wenn Sie sich zur Wartungserinnerung anmelden, verarbeiten wir: Name, E-Mail-Adresse, Hersteller des Geräts, Art der Nutzung (privat oder gewerblich) sowie Monat und Jahr der letzten Wartung bzw. des Kaufs. Aus diesen Angaben berechnen wir den Zeitpunkt der nächsten Wartung (privat nach zwei, gewerblich nach einem Jahr) und erinnern Sie per E-Mail daran; außerdem erhalten Sie eine Bestätigung. Rechtsgrundlage ist Ihre Einwilligung (Art. 6 Abs. 1 lit. a DSGVO), die Sie mit dem Absenden des Formulars erteilen."
+        },
+        {
+          "t": "p",
+          "x": "Wir speichern die Angaben bis zum Versand der Erinnerung und löschen sie danach, spätestens nach drei Monaten. Sie können die Erinnerung jederzeit beenden – über den Link in jeder E-Mail oder per Nachricht an info@kaffeetechniker.de – und Ihre Einwilligung mit Wirkung für die Zukunft widerrufen. Die Angaben werden im Formular-Plugin unserer Website gespeichert (Hosting bei IONOS, siehe oben); der E-Mail-Versand erfolgt über unseren E-Mail-Dienstleister."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "icon": "info",
+          "x": "Wasserhärte-Abfrage (wasser-haerte.de)"
+        },
+        {
+          "t": "p",
+          "x": "Im Entkalkungsplan auf der Seite „Wartungserinnerung“ können Sie die Wasserhärte über Ihre Postleitzahl abfragen. Die Abfrage wird erst ausgeführt, wenn Sie auf „Härte ermitteln“ klicken. Dabei sendet Ihr Browser die eingegebene Postleitzahl und – technisch bedingt – Ihre IP-Adresse an den Dienst wasser-haerte.de (FUTR UG (haftungsbeschränkt), Lübeck). Rechtsgrundlage ist Ihre Einwilligung durch den Klick (Art. 6 Abs. 1 lit. a DSGVO). Wenn Sie die Abfrage nicht nutzen, findet keine Übermittlung statt; Sie können den Härtebereich stattdessen selbst auswählen."
         },
         {
           "t": "h",

@@ -2469,65 +2469,114 @@ function Wartungserinnerung-Content($p) {
   $weHtml = @"
 <style>
 .we{max-width:820px;margin:0 auto;font-family:$FONT_BODY;color:$($C.text)}
-.we h1{font-family:$FONT_HEAD;font-size:22px;line-height:1.25;margin:0 0 10px;color:$($C.head)}
-.we-lead{font-size:15.5px;line-height:1.6;color:#444;margin:0 0 22px;max-width:640px}
-.we-box{background:#fff;border:1px solid $($C.line);border-radius:10px;padding:18px 20px;margin:0 0 14px}
-.we-box2{border-left:3px solid $($C.accent)}
-.we-q{display:block;font-family:$FONT_HEAD;font-size:15px;font-weight:700;color:$($C.head);margin:0 0 4px}
-.we-sub{font-size:13.5px;color:#555;margin:0 0 2px}
-.we-row{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0 0}
-.we-row select{flex:1 1 150px;padding:9px 11px;border:1px solid #c4c4c4;border-radius:6px;font-size:14.5px;font-family:$FONT_BODY;background:#fff;color:$($C.text)}
-.we-next{font-family:$FONT_HEAD;font-size:16px;font-weight:700;color:$($C.head);margin:14px 0 0}
-.we-btn{display:inline-flex;align-items:center;gap:8px;background:$($C.accent);color:#fff;border-radius:4px;padding:11px 20px;font-family:$FONT_HEAD;font-size:13.5px;font-weight:700;text-decoration:none;margin:12px 0 0}
+.we h1{font-family:$FONT_HEAD;font-size:24px;line-height:1.25;margin:0 0 10px;color:$($C.head)}
+.we-lead{font-size:16px;line-height:1.6;color:#444;margin:0 0 24px;max-width:660px}
+.we-card,#we-anmeldung.kt-formwrap{box-sizing:border-box;max-width:820px;background:#fff;border:1px solid $($C.line);border-radius:12px;padding:22px 24px 24px;margin:0 auto 18px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+.we-head{display:flex;gap:14px;align-items:flex-start;margin:0 0 16px}
+.we-ic{flex:0 0 42px;width:42px;height:42px;border-radius:50%;background:$($C.soft);color:$($C.accent);display:flex;align-items:center;justify-content:center}
+.we-ic svg{width:22px;height:22px}
+.we-q{display:block;font-family:$FONT_HEAD;font-size:16px;font-weight:700;color:$($C.head);margin:2px 0 3px}
+.we-sub{display:block;font-size:14px;line-height:1.5;color:#5a6068}
+.we-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px}
+.we-f label{display:block;font-family:$FONT_HEAD;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6b7178;margin:0 0 5px}
+.we-f select{width:100%;padding:11px 12px;border:1px solid #c4c4c4;border-radius:7px;font-size:15px;font-family:$FONT_BODY;background:#fff;color:$($C.text)}
+.we-kinds{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
+.we-kinds button{background:#fff;border:1px solid #ccd1d8;border-radius:7px;padding:9px 14px;cursor:pointer;font-family:$FONT_BODY;font-size:14px;transition:border-color .12s,box-shadow .12s}
+.we-kinds button:hover{border-color:#9aa3ad}
+.we-kinds button.on{border-color:$($C.accent);box-shadow:inset 0 0 0 2px $($C.accent);font-weight:700}
+.we-result{margin:18px 0 0;background:$($C.soft);border:1px dashed #cfcfca;border-radius:10px;padding:16px 18px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px}
+.we-result.ready{background:#eef2f6;border:1px solid #c9d3de;border-left:4px solid $($C.accent)}
+.we-rl{display:block;font-family:$FONT_HEAD;font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b7178}
+.we-rv{display:block;font-family:$FONT_HEAD;font-size:22px;line-height:1.2;font-weight:700;color:#8a9097}
+.we-result.ready .we-rv{color:$($C.head)}
+.we-rtxt{flex:1 1 200px}
+.we-btn{display:inline-flex;align-items:center;gap:8px;background:$($C.accent);color:#fff;border-radius:6px;padding:11px 20px;font-family:$FONT_HEAD;font-size:13.5px;font-weight:700;text-decoration:none}
 .we-btn:hover{background:$($C.accentD)}
-.we-hint{font-size:12px;line-height:1.5;color:#6b7178;margin:10px 0 0}
+.we-btn[hidden]{display:none}
+.we-hint{font-size:12.5px;line-height:1.55;color:#6b7178;margin:12px 0 0}
+.we-steps{list-style:none;margin:0 0 18px;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.we-steps li{background:$($C.soft);border-radius:8px;padding:11px 13px;font-size:13px;line-height:1.45;color:#3c4148}
+.we-steps li b{display:block;font-family:$FONT_HEAD;font-size:12px;color:$($C.head);margin:0 0 2px}
+/* Formular in der Karte: 2 Spalten, Auswahl als Schalter */
+#we-anmeldung fieldset{display:grid;grid-template-columns:1fr 1fr;gap:0 18px;border:0;margin:0;padding:0;min-width:0}
+#we-anmeldung fieldset>*:not(.ff-el-group):not(.ff_screen_reader_title){display:none}
+#we-anmeldung .ff-el-group{margin-bottom:14px}
+#we-anmeldung .ff-el-group:nth-last-child(-n+2){grid-column:1 / -1}
+#we-anmeldung .ff-el-tooltip{display:none}
+#we-anmeldung .ff-el-form-check{display:inline-block;margin:0 8px 8px 0}
+#we-anmeldung .ff-el-form-check-radio{position:absolute;opacity:0;pointer-events:none}
+#we-anmeldung .ff-el-form-check-label{display:inline-flex;align-items:center;background:#fff;border:1px solid #ccd1d8;border-radius:7px;padding:9px 14px;cursor:pointer;font-size:14px;transition:border-color .12s,box-shadow .12s}
+#we-anmeldung .ff-el-form-check-label:hover{border-color:#9aa3ad}
+#we-anmeldung .ff-el-form-check-label:has(input[type=radio]:checked){border-color:$($C.accent);box-shadow:inset 0 0 0 2px $($C.accent);font-weight:700}
+#we-anmeldung .ff_submit_btn_wrapper{margin:6px 0 0}
+@media(max-width:660px){
+  .we-grid,#we-anmeldung fieldset{grid-template-columns:1fr}
+  #we-anmeldung .ff-el-group:nth-last-child(-n+2){grid-column:auto}
+  .we-steps{grid-template-columns:1fr}
+  .we-card,#we-anmeldung.kt-formwrap{padding:18px 16px 20px}
+}
 </style>
 $FORM_CSS
 <div class="we">
   <h1>Wartungserinnerung</h1>
-  <p class="we-lead">Ein Kaffeevollautomat sollte etwa alle zwei Jahre professionell gewartet werden &ndash; f&uuml;r gleichbleibende Kaffeequalit&auml;t, Hygiene und eine lange Lebensdauer. Damit Sie den Termin nicht vergessen:</p>
+  <p class="we-lead">Ein Kaffeevollautomat sollte im Privathaushalt etwa alle zwei Jahre, bei gewerblicher Nutzung j&auml;hrlich professionell gewartet werden &ndash; f&uuml;r gleichbleibende Kaffeequalit&auml;t, Hygiene und eine lange Lebensdauer. Damit Sie den Termin nicht vergessen:</p>
 
-  <div class="we-box">
-    <span class="we-q">Wann war die letzte Wartung oder der Kauf?</span>
-    <span class="we-sub">Monat und Jahr gen&uuml;gen &ndash; wenn unbekannt, das ungef&auml;hre Kaufjahr.</span>
-    <div class="we-row">
-      <select id="we-m"><option value="">Monat</option>$monthSel</select>
-      <select id="we-y"><option value="">Jahr</option>$yearOpts</select>
+  <div class="we-card" id="we-calc">
+    <div class="we-head">
+      <span class="we-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></span>
+      <div><span class="we-q">1 &middot; Wann ist Ihre n&auml;chste Wartung f&auml;llig?</span>
+      <span class="we-sub">Monat und Jahr der letzten Wartung oder des Kaufs gen&uuml;gen &ndash; wenn unbekannt, das ungef&auml;hre Kaufdatum.</span></div>
     </div>
-    <p class="we-next" id="we-next" hidden></p>
-    <a class="we-btn" id="we-ics" download="wartungserinnerung-kaffeetechniker.ics" hidden>Erinnerung in den Kalender</a>
-    <p class="we-hint">Die Datei legt einen Termin an, der sich alle zwei Jahre wiederholt (Handy, Outlook, Google). Zwei Wochen vorher werden Sie erinnert.</p>
-  </div>
-
-  <div class="we-box we-box2">
-    <span class="we-q">Oder: Wir erinnern Sie per E-Mail</span>
-    <span class="we-sub">Kurz anmelden &ndash; wir melden uns rechtzeitig vor der n&auml;chsten Wartung. Absender: shop@kaffeetechniker.de.</span>
+    <div class="we-grid">
+      <div class="we-f"><label for="we-m">Monat</label><select id="we-m"><option value="">Bitte w&auml;hlen</option>$monthSel</select></div>
+      <div class="we-f"><label for="we-y">Jahr</label><select id="we-y"><option value="">Bitte w&auml;hlen</option>$yearOpts</select></div>
+    </div>
+    <div class="we-kinds" id="we-kinds">
+      <button type="button" class="on" data-k="privat">Privathaushalt (alle 2 Jahre)</button>
+      <button type="button" data-k="gewerblich">Gewerblich (j&auml;hrlich)</button>
+    </div>
+    <div class="we-result" id="we-result">
+      <div class="we-rtxt"><span class="we-rl">N&auml;chste Wartung</span><span class="we-rv" id="we-next">Bitte Monat und Jahr w&auml;hlen</span></div>
+      <a class="we-btn" id="we-ics" download="wartungserinnerung-kaffeetechniker.ics" hidden>In den Kalender eintragen</a>
+    </div>
+    <p class="we-hint" id="we-hint">Die Kalender-Datei legt einen Termin an, der sich alle zwei Jahre wiederholt (Handy, Outlook, Google). Zwei Wochen vorher werden Sie erinnert.</p>
   </div>
 </div>
 <script>
 (function(){
   var m=document.getElementById('we-m'), y=document.getElementById('we-y');
   if(!m||!y) return;
-  var MON=['Januar','Februar','M\u00e4rz','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  var MON=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  var kind='privat';
+  function intv(){ return kind==='gewerblich'?1:2; }
   function z(n){return(n<10?'0':'')+n;}
   function day(d){return d.getFullYear()+z(d.getMonth()+1)+z(d.getDate());}
   function stamp(d){return d.getUTCFullYear()+z(d.getUTCMonth()+1)+z(d.getUTCDate())+'T'+z(d.getUTCHours())+z(d.getUTCMinutes())+z(d.getUTCSeconds())+'Z';}
+  // Angaben ins E-Mail-Formular uebernehmen (nur Vorbelegung, der Kunde kann dort aendern)
+  function syncForm(mi,yi){
+    var fm=document.querySelector('#we-anmeldung select[name=wartung_monat]'), fy=document.querySelector('#we-anmeldung select[name=wartung_jahr]');
+    if(fm){ if(!isNaN(mi)){ fm.value=z(mi+1); } }
+    if(fy){ if(!isNaN(yi)){ fy.value=String(yi); } }
+    var r=document.querySelector('#we-anmeldung input[name=nutzung][value='+kind+']');
+    if(r){ r.checked=true; }
+  }
   function upd(){
     var mi=parseInt(m.value,10), yi=parseInt(y.value,10);
-    var nEl=document.getElementById('we-next'), a=document.getElementById('we-ics');
-    if(isNaN(mi)||isNaN(yi)){ nEl.hidden=true; a.hidden=true; return; }
-    var next=new Date(yi+2,mi,1);
-    nEl.textContent='N\u00e4chste Wartung: '+MON[next.getMonth()]+' '+next.getFullYear();
-    nEl.hidden=false;
-    var dt=new Date(yi+2,mi,1);
+    var nEl=document.getElementById('we-next'), a=document.getElementById('we-ics'), box=document.getElementById('we-result');
+    syncForm(mi,yi);
+    if(isNaN(mi)||isNaN(yi)){ nEl.textContent='Bitte Monat und Jahr wählen'; box.classList.remove('ready'); a.hidden=true; return; }
+    var next=new Date(yi+intv(),mi,1);
+    nEl.textContent=MON[next.getMonth()]+' '+next.getFullYear();
+    box.classList.add('ready');
+    var dt=new Date(yi+intv(),mi,1);
     var now=new Date();
     var L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//JB Kaffeemaschinen//Wartung//DE','CALSCALE:GREGORIAN','METHOD:PUBLISH','BEGIN:VEVENT',
       'UID:kt-wartung-'+now.getTime()+'@kaffeetechniker.de',
       'DTSTAMP:'+stamp(now),
       'DTSTART;VALUE=DATE:'+day(dt),
-      'SUMMARY:Kaffeevollautomat: Wartung f\u00e4llig',
-      'DESCRIPTION:Zeit f\u00fcr die Wartung Ihres Kaffeevollautomaten. Ohne Termin w\u00e4hrend der \u00d6ffnungszeiten vorbeibringen: JB Kaffeemaschinen\\, Wallauer Stra\u00dfe 4\\, 65719 Hofheim-Langenhain. Infos: $base/wartung/',
-      'RRULE:FREQ=YEARLY;INTERVAL=2',
+      'SUMMARY:Kaffeevollautomat: Wartung fällig',
+      'DESCRIPTION:Zeit für die Wartung Ihres Kaffeevollautomaten. Ohne Termin während der Öffnungszeiten vorbeibringen: JB Kaffeemaschinen\\, Wallauer Straße 4\\, 65719 Hofheim-Langenhain. Infos: $base/wartung/',
+      'RRULE:FREQ=YEARLY;INTERVAL='+intv(),
       'BEGIN:VALARM','TRIGGER:-P14D','ACTION:DISPLAY','DESCRIPTION:Kaffeevollautomat warten lassen','END:VALARM',
       'END:VEVENT','END:VCALENDAR'];
     if(a.dataset.u) URL.revokeObjectURL(a.dataset.u);
@@ -2535,50 +2584,80 @@ $FORM_CSS
     a.href=u; a.dataset.u=u; a.hidden=false;
   }
   m.addEventListener('change',upd); y.addEventListener('change',upd);
+  [].slice.call(document.querySelectorAll('#we-kinds button')).forEach(function(b){
+    b.addEventListener('click',function(){
+      kind=b.getAttribute('data-k');
+      [].slice.call(document.querySelectorAll('#we-kinds button')).forEach(function(x){ x.classList.remove('on'); });
+      b.classList.add('on');
+      document.getElementById('we-hint').textContent='Die Kalender-Datei legt einen Termin an, der sich '+(kind==='gewerblich'?'jährlich':'alle zwei Jahre')+' wiederholt (Handy, Outlook, Google). Zwei Wochen vorher werden Sie erinnert.';
+      upd();
+    });
+  });
 })();
 </script>
 "@
 
-  $formBlock = "<!-- wp:html -->`n<div class=`"kt-formwrap`" id=`"we-anmeldung`">`n<!-- /wp:html -->`n`n<!-- wp:shortcode -->`n[fluentform id=`"2`"]`n<!-- /wp:shortcode -->`n`n<!-- wp:html -->`n</div>`n<!-- /wp:html -->"
+  $mailHead = @"
+<div class="we-head">
+  <span class="we-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 7l8.5 6.5L20.5 7"/></svg></span>
+  <div><span class="we-q">2 &middot; Oder: Wir erinnern Sie per E-Mail</span>
+  <span class="we-sub">Kurz anmelden &ndash; den Rest erledigen wir. Absender: info@kaffeetechniker.de.</span></div>
+</div>
+<ul class="we-steps">
+  <li><b>Sofort</b>Best&auml;tigung mit Ihrem F&auml;lligkeitsmonat</li>
+  <li><b>4 Wochen vorher</b>Eine Erinnerungs-Mail an Sie</li>
+  <li><b>Jederzeit beendbar</b>Ein Klick &ndash; Ihre Angaben werden gel&ouml;scht</li>
+</ul>
+"@
+
+  $formBlock = "<!-- wp:html -->`n<div class=`"kt-formwrap`" id=`"we-anmeldung`">`n$mailHead`n<!-- /wp:html -->`n`n<!-- wp:shortcode -->`n[fluentform id=`"2`"]`n<!-- /wp:shortcode -->`n`n<!-- wp:html -->`n</div>`n<!-- /wp:html -->"
 
   $html = @"
 <style>
 .pp{max-width:820px;margin:38px auto 0;font-family:$FONT_BODY;color:$($C.text);border-top:1px solid $($C.line);padding-top:32px}
-.pp h2.pp-h2{font-family:$FONT_HEAD;font-size:19px;line-height:1.25;margin:0 0 10px;color:$($C.head)}
-.pp .lead{font-size:15.5px;line-height:1.6;color:#444;margin:0 0 26px;max-width:640px}
-.pp-step{background:#fff;border:1px solid $($C.line);border-radius:10px;padding:16px 18px;margin:0 0 14px}
-.pp-q{display:block;font-family:$FONT_HEAD;font-size:14px;font-weight:700;color:$($C.head);margin:0 0 11px}
+.pp h2.pp-h2{font-family:$FONT_HEAD;font-size:20px;line-height:1.25;margin:0 0 10px;color:$($C.head)}
+.pp .lead{font-size:15.5px;line-height:1.6;color:#444;margin:0 0 24px;max-width:640px}
+.pp-step{background:#fff;border:1px solid $($C.line);border-radius:12px;padding:18px 20px;margin:0 0 14px}
+.pp-q{display:block;font-family:$FONT_HEAD;font-size:14.5px;font-weight:700;color:$($C.head);margin:0 0 12px}
 .pp-opts{display:flex;flex-wrap:wrap;gap:9px}
-.pp-opts button{flex:1 1 120px;min-width:96px;background:#fff;border:1px solid #ccd1d8;border-radius:7px;padding:9px 10px;cursor:pointer;font-family:$FONT_BODY;text-align:center;transition:border-color .12s,box-shadow .12s}
+.pp-opts button{flex:1 1 120px;min-width:96px;background:#fff;border:1px solid #ccd1d8;border-radius:8px;padding:10px 10px;cursor:pointer;font-family:$FONT_BODY;text-align:center;transition:border-color .12s,box-shadow .12s}
 .pp-opts button:hover{border-color:#9aa3ad}
 .pp-opts button.on{border-color:$($C.accent);box-shadow:inset 0 0 0 2px $($C.accent)}
 .pp-opts button b{display:block;font-family:$FONT_HEAD;font-size:13.5px;color:$($C.head)}
 .pp-opts button small{display:block;font-size:11px;color:#8a8a8a;margin-top:2px}
-.pp-hint{font-size:12.5px;line-height:1.5;color:#6b7178;margin:11px 0 0}
-.pp-go{display:inline-block;background:$($C.accent);color:#fff;border:0;border-radius:5px;padding:13px 30px;font-family:$FONT_HEAD;font-size:15px;font-weight:700;letter-spacing:.01em;cursor:pointer;margin:6px 0 0}
+.pp-hint{font-size:12.5px;line-height:1.55;color:#6b7178;margin:11px 0 0}
+.pp-hint a{color:$($C.accent)}
+.pp-plz{margin:14px 0 0;background:$($C.soft);border-radius:10px;padding:14px 16px}
+.pp-plzl{display:block;font-size:13.5px;font-weight:600;color:$($C.head);margin:0 0 9px}
+.pp-plzrow{display:flex;flex-wrap:wrap;gap:9px}
+.pp-plzrow input{width:130px;padding:10px 12px;border:1px solid #c4c4c4;border-radius:7px;font-size:16px;font-family:$FONT_BODY;letter-spacing:.06em;background:#fff}
+.pp-plzrow button{background:$($C.accent);color:#fff;border:0;border-radius:7px;padding:10px 18px;font-family:$FONT_HEAD;font-size:13.5px;font-weight:700;cursor:pointer}
+.pp-plzrow button:hover{background:$($C.accentD)}
+.pp-plzres{margin:11px 0 0;font-size:14px;line-height:1.55}
+.pp-plzres .ok{background:#eef7f0;border:1px solid #63a375;border-radius:8px;padding:10px 13px;color:#2f5d3f}
+.pp-plzres .err{background:#fbeeee;border:1px solid #d08a8a;border-radius:8px;padding:10px 13px;color:#8a3b3b}
+.pp-plzpick{display:flex;flex-wrap:wrap;gap:7px;margin:9px 0 0}
+.pp-plzpick button{background:#fff;border:1px solid #ccd1d8;border-radius:999px;padding:6px 12px;font-size:12.5px;cursor:pointer;font-family:$FONT_BODY}
+.pp-plzpick button.on{border-color:$($C.accent);box-shadow:inset 0 0 0 1px $($C.accent);font-weight:700}
+.pp-go{display:inline-block;background:$($C.accent);color:#fff;border:0;border-radius:6px;padding:13px 30px;font-family:$FONT_HEAD;font-size:15px;font-weight:700;letter-spacing:.01em;cursor:pointer;margin:6px 0 0}
 .pp-go:hover{background:$($C.accentD)}
-.pp-res{margin:30px 0 0;background:#fff;border:1px solid $($C.line);border-radius:10px;padding:20px 20px 22px}
-.pp-res h2{font-family:$FONT_HEAD;font-size:17px;margin:0 0 4px;color:$($C.head)}
-.pp-res .sub{font-size:12.5px;color:#6b7178;margin:0 0 16px}
-.pp-tbl{width:100%;border-collapse:collapse;font-size:14px}
-.pp-tbl th{text-align:left;font-family:$FONT_HEAD;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#8a8a8a;padding:0 12px 8px 0;border-bottom:2px solid $($C.line)}
-.pp-tbl td{padding:11px 12px 11px 0;border-bottom:1px solid #eee;vertical-align:top;line-height:1.45}
-.pp-tbl td b{font-family:$FONT_HEAD;font-size:14px;color:$($C.head)}
-.pp-tbl .pp-lk{display:block;font-size:12px;margin-top:3px}
-.pp-tbl .pp-lk a{color:$($C.accent)}
-.pp-tbl td:nth-child(2){white-space:nowrap;color:#444}
-.pp-tbl td:nth-child(3){white-space:nowrap;font-family:$FONT_HEAD;font-weight:700;color:$($C.head)}
-.pp-actions{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0}
-.pp-btn{display:inline-flex;align-items:center;gap:8px;background:$($C.accent);color:#fff;border-radius:4px;padding:11px 20px;font-family:$FONT_HEAD;font-size:13.5px;font-weight:700;text-decoration:none}
+.pp-res{margin:26px 0 0;background:#fff;border:1px solid $($C.line);border-left:4px solid $($C.accent);border-radius:12px;padding:22px 24px 22px}
+.pp-badge{display:inline-block;font-family:$FONT_HEAD;font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:$($C.accent);margin:0 0 8px}
+.pp-big{font-family:$FONT_HEAD;font-size:26px;line-height:1.2;font-weight:700;color:$($C.head)}
+.pp-next{font-size:15.5px;margin:8px 0 0;color:#333}
+.pp-next b{font-family:$FONT_HEAD;color:$($C.head)}
+.pp-facts{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0;padding:0;list-style:none}
+.pp-facts li{background:$($C.soft);border-radius:999px;padding:6px 13px;font-size:12.5px;color:#3c4148}
+.pp-actions{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 0}
+.pp-btn{display:inline-flex;align-items:center;gap:8px;background:$($C.accent);color:#fff;border-radius:6px;padding:11px 20px;font-family:$FONT_HEAD;font-size:13.5px;font-weight:700;text-decoration:none}
 .pp-btn:hover{background:$($C.accentD)}
 .pp-btn.ghost{background:transparent;color:$($C.accent);border:1px solid #ccd1d8}
+.pp-btn.ghost:hover{background:#f2f4f6}
 .pp-note{font-size:12.5px;line-height:1.6;color:#6b7178;margin:16px 0 0}
-.pp-note a{color:$($C.accent)}
-@media(max-width:560px){.pp-tbl,.pp-tbl tbody,.pp-tbl tr,.pp-tbl td{display:block;width:100%}.pp-tbl thead{display:none}.pp-tbl tr{border:1px solid $($C.line);border-radius:8px;padding:10px 12px;margin:0 0 10px}.pp-tbl td{border:0;padding:3px 0}.pp-tbl td:nth-child(2)::before{content:"Intervall: ";color:#8a8a8a}.pp-tbl td:nth-child(3)::before{content:"Termin: ";color:#8a8a8a;font-weight:400;font-family:$FONT_BODY}}
 </style>
 <div class="pp">
   <h2 class="pp-h2">Zwischendurch: Ihr Entkalkungsplan</h2>
-  <p class="lead">Zwischen den professionellen Wartungen halten Sie Ihr Ger&auml;t mit regelm&auml;&szlig;igem Entkalken und Reinigen in Form. In vier Klicks zu Ihrem pers&ouml;nlichen Entkalkungsplan &ndash; mit Terminen f&uuml;r den Kalender.</p>
+  <p class="lead">Regelm&auml;&szlig;iges Entkalken sch&uuml;tzt Boiler, Pumpe und Leitungen Ihres Vollautomaten. In drei Klicks zu Ihrem pers&ouml;nlichen Entkalkungsplan &ndash; mit Termin f&uuml;r den Kalender.</p>
 
   <div class="pp-step">
     <span class="pp-q">1 &middot; Wie hart ist Ihr Wasser?</span>
@@ -2587,7 +2666,15 @@ $FORM_CSS
       <button type="button" data-v="mittel"><b>Mittel</b><small>8,4 &ndash; 14 &deg;dH</small></button>
       <button type="button" data-v="hart" class="on"><b>Hart</b><small>&uuml;ber 14 &deg;dH</small></button>
     </div>
-    <p class="pp-hint">Region Hofheim / Rhein-Main: das Leitungswasser ist meist <b>hart</b>. Den genauen Wert nennt Ihr Wasserversorger; einen Teststreifen erhalten Sie auch bei uns im Gesch&auml;ft.</p>
+    <div class="pp-plz">
+      <span class="pp-plzl">Wasserh&auml;rte nicht bekannt? Ermitteln Sie sie &uuml;ber Ihre Postleitzahl:</span>
+      <div class="pp-plzrow">
+        <input type="text" id="pp-plz" inputmode="numeric" maxlength="5" placeholder="PLZ" autocomplete="postal-code" aria-label="Postleitzahl">
+        <button type="button" id="pp-plzgo">H&auml;rte ermitteln</button>
+      </div>
+      <div class="pp-plzres" id="pp-plzres" hidden></div>
+      <p class="pp-hint">Die Abfrage l&auml;uft &uuml;ber <a href="https://wasser-haerte.de" target="_blank" rel="noopener">wasser-haerte.de</a>; dabei werden Ihre IP-Adresse und die PLZ an den Dienst &uuml;bermittelt. Es ist ein Richtwert f&uuml;r Ihre Gemeinde &ndash; den genauen Wert nennt Ihr Wasserversorger, einen Teststreifen erhalten Sie auch bei uns im Gesch&auml;ft.</p>
+    </div>
   </div>
 
   <div class="pp-step">
@@ -2601,15 +2688,7 @@ $FORM_CSS
   </div>
 
   <div class="pp-step">
-    <span class="pp-q">3 &middot; Bereiten Sie Milchspezialit&auml;ten zu (Cappuccino, Latte)?</span>
-    <div class="pp-opts" data-k="milk">
-      <button type="button" data-v="yes" class="on"><b>Ja</b></button>
-      <button type="button" data-v="no"><b>Nein</b></button>
-    </div>
-  </div>
-
-  <div class="pp-step">
-    <span class="pp-q">4 &middot; Nutzen Sie einen Wasserfilter im Ger&auml;t?</span>
+    <span class="pp-q">3 &middot; Nutzen Sie einen Wasserfilter im Ger&auml;t?</span>
     <div class="pp-opts" data-k="filter">
       <button type="button" data-v="yes"><b>Ja</b></button>
       <button type="button" data-v="no" class="on"><b>Nein</b></button>
@@ -2619,99 +2698,107 @@ $FORM_CSS
   <button type="button" class="pp-go" id="pp-go">Entkalkungsplan erstellen</button>
 
   <div class="pp-res" id="pp-res" hidden>
-    <h2>Ihr Entkalkungsplan</h2>
-    <p class="sub">Richtwerte aus unserer Werkstattpraxis &ndash; angepasst an Ihre Angaben.</p>
-    <table class="pp-tbl"><thead><tr><th>Aufgabe</th><th>Intervall</th><th>N&auml;chster Termin</th></tr></thead><tbody id="pp-rows"></tbody></table>
+    <span class="pp-badge">Ihr Entkalkungsplan</span>
+    <div class="pp-big" id="pp-iv"></div>
+    <p class="pp-next">N&auml;chster Termin: <b id="pp-due"></b></p>
+    <ul class="pp-facts" id="pp-facts"></ul>
     <div class="pp-actions">
-      <a class="pp-btn" id="pp-ics" download="pflegeplan-kaffeetechniker.ics">In den Kalender (.ics)</a>
-      <a class="pp-btn ghost" href="$shop">Passende Pflegeprodukte</a>
+      <a class="pp-btn" id="pp-ics" download="entkalkungsplan-kaffeetechniker.ics">In den Kalender (.ics)</a>
+      <a class="pp-btn ghost" href="$pEntk">Passender Entkalker</a>
+      <a class="pp-btn ghost" href="$tEntk">Anleitung Entkalken</a>
     </div>
-    <p class="pp-note">Fordert Ihr Ger&auml;t selbst zum Entkalken oder Reinigen auf, folgen Sie bitte der Anzeige &ndash; auch wenn der Termin fr&uuml;her kommt. Einmal im Jahr empfehlen wir zus&auml;tzlich eine <a href="$tWart">Grundwartung in unserer Werkstatt</a> (Innenreinigung, Dichtungen, Sicherheitspr&uuml;fung).</p>
+    <p class="pp-note">Richtwert aus unserer Werkstattpraxis, angepasst an Ihre Angaben. Fordert Ihr Ger&auml;t selbst zum Entkalken auf, folgen Sie bitte der Anzeige &ndash; auch wenn der Termin fr&uuml;her kommt.</p>
   </div>
 </div>
 <script>
 (function(){
   var wrap=document.querySelector('.pp'); if(!wrap) return;
-  var st={hard:'hart',cups:'b',milk:'yes',filter:'no'};
-  try{var s=JSON.parse(localStorage.getItem('kt_pp')||'null'); if(s&&s.hard){st=s;}}catch(e){}
+  var st={hard:'hart',cups:'b',filter:'no'};
+  var place='', dh=null;
+  try{var s=JSON.parse(localStorage.getItem('kt_pp')||'null'); if(s&&s.hard){ st.hard=s.hard; st.cups=s.cups||'b'; st.filter=s.filter||'no'; }}catch(e){}
   function paint(){ wrap.querySelectorAll('.pp-opts').forEach(function(g){ var k=g.getAttribute('data-k'); g.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-v')===st[k]); }); }); }
   paint();
   wrap.querySelectorAll('.pp-opts').forEach(function(g){
     var k=g.getAttribute('data-k');
     g.querySelectorAll('button').forEach(function(b){
-      b.addEventListener('click',function(){ st[k]=b.getAttribute('data-v'); paint(); });
+      b.addEventListener('click',function(){ st[k]=b.getAttribute('data-v'); if(k==='hard'){ place=''; dh=null; } paint(); });
     });
   });
 
-  var cpd={a:2,b:4,c:8,d:13};
+  // Wasserhaerte ueber die PLZ (wasser-haerte.de, Abfrage erst auf Klick)
+  var plzEl=document.getElementById('pp-plz'), resEl=document.getElementById('pp-plzres');
+  function catOf(v){ return (8.4>v)?'weich':((14>=v)?'mittel':'hart'); }
+  function nameOf(c){ return c==='weich'?'weich':(c==='mittel'?'mittel':'hart'); }
+  function showMsg(cls,text){ resEl.hidden=false; resEl.innerHTML=''; var d=document.createElement('div'); d.className=cls; d.textContent=text; resEl.appendChild(d); return d; }
+  function applyEntry(e,box,pick){
+    var v=parseFloat(e.haerte_dh); if(isNaN(v)) return;
+    st.hard=catOf(v); place=e.name; dh=v; paint();
+    box.textContent='Wasserh\u00e4rte in '+e.name+': ca. '+String(v).replace('.',',')+' \u00b0dH \u2013 '+nameOf(st.hard)+'. Wir haben oben \u201e'+(st.hard==='weich'?'Weich':(st.hard==='mittel'?'Mittel':'Hart'))+'\u201c f\u00fcr Sie ausgew\u00e4hlt.';
+    if(pick){ [].slice.call(pick.children).forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-n')===e.name); }); }
+  }
+  function lookup(){
+    var q=plzEl.value.replace(/\D/g,'');
+    if(q.length!==5){ showMsg('err','Bitte eine f\u00fcnfstellige Postleitzahl eingeben.'); return; }
+    showMsg('ok','Einen Moment \u2026');
+    fetch('https://wasser-haerte.de/api/search.php?q='+q).then(function(r){ return r.json(); }).then(function(list){
+      list=(list||[]).filter(function(x){ return String(x.plz)===q; });
+      if(!list.length){ showMsg('err','Zu dieser Postleitzahl haben wir keine Angabe gefunden. Bitte w\u00e4hlen Sie den H\u00e4rtebereich oben selbst aus.'); return; }
+      var box=showMsg('ok','');
+      var pick=null;
+      if(list.length>1){
+        pick=document.createElement('div'); pick.className='pp-plzpick';
+        list.forEach(function(e){ var b=document.createElement('button'); b.type='button'; b.setAttribute('data-n',e.name); b.textContent=e.name+' ('+String(e.haerte_dh).replace('.',',')+' \u00b0dH)'; b.addEventListener('click',function(){ applyEntry(e,box,pick); }); pick.appendChild(b); });
+        resEl.appendChild(pick);
+      }
+      applyEntry(list[0],box,pick);
+    }).catch(function(){ showMsg('err','Die Abfrage ist gerade nicht m\u00f6glich. Bitte w\u00e4hlen Sie den H\u00e4rtebereich oben selbst aus.'); });
+  }
+  document.getElementById('pp-plzgo').addEventListener('click',lookup);
+  plzEl.addEventListener('keydown',function(ev){ if(ev.key==='Enter'){ ev.preventDefault(); lookup(); } });
+
   var base={weich:56,mittel:42,hart:26};
   var MON=['Jan.','Feb.','M\u00e4rz','Apr.','Mai','Juni','Juli','Aug.','Sept.','Okt.','Nov.','Dez.'];
   function fmt(d){ return d.getDate()+'. '+MON[d.getMonth()]+' '+d.getFullYear(); }
-  function ivText(n){ if(n<=1)return 't\u00e4glich'; if(n<14)return 'alle '+n+' Tage'; if(n<60){var w=Math.round(n/7);return 'ca. alle '+w+' Wochen';} var mo=Math.round(n/30); return 'ca. alle '+mo+' Monate'; }
-
-  function build(){
-    var c=cpd[st.cups];
+  function ivText(n){ if(1>=n) return 't\u00e4glich'; if(14>n) return 'alle '+n+' Tage'; if(60>n){ var w=Math.round(n/7); return 'alle '+w+' Wochen'; } var mo=Math.round(n/30); return 'alle '+mo+' Monate'; }
+  function interval(){
     var uf=(st.cups==='a')?1.15:(st.cups==='b')?1.0:(st.cups==='c')?0.8:0.62;
-    var descale=Math.round(base[st.hard]*uf);
-    if(st.filter==='yes') descale=Math.round(descale*1.9);
-    descale=Math.max(14,Math.min(120,descale));
-    var out=[];
-    out.push({t:'Entkalken',iv:descale,tip:'$tEntk',shop:'$pEntk',d:'Kalkablagerungen im Wasserlauf und Boiler entfernen.'});
-    out.push({t:'Reinigungsprogramm (Kaffeefett)',iv:Math.max(30,Math.min(75,Math.round(200/c))),tip:'$tBrew',shop:'$pRein',d:'\u00d6l- und Kaffeefettreste aus dem Br\u00fchweg l\u00f6sen (Reinigungstablette).'});
-    out.push({t:'Br\u00fchgruppe absp\u00fclen',iv:Math.max(7,Math.min(21,Math.round(12*uf))),tip:'$tBrew',shop:'',d:'Br\u00fchgruppe entnehmen und unter klarem Wasser absp\u00fclen (falls herausnehmbar).'});
-    if(st.milk==='yes'){
-      out.push({t:'Milchsystem t\u00e4glich sp\u00fclen',iv:1,tip:'$tMilch',shop:'',d:'Nach dem letzten Milchgetr\u00e4nk mit klarem Wasser sp\u00fclen.'});
-      out.push({t:'Milchsystem mit Reiniger sp\u00fclen',iv:7,tip:'$tMilch',shop:'$pMilch',d:'Einmal pro Woche mit Milchsystem-Reiniger durchsp\u00fclen.'});
-    }
-    if(st.filter==='yes'){
-      var f=Math.min(60,Math.round(50/(c*0.12)));
-      out.push({t:'Wasserfilter wechseln',iv:Math.max(30,f),tip:'$tFilt',shop:'$pFilt',d:'Filterpatrone tauschen \u2013 sp\u00e4testens nach 2 Monaten.'});
-    }
-    out.push({t:'Grundwartung in der Werkstatt',iv:365,tip:'$tWart',shop:'',d:'Einmal j\u00e4hrlich: Innenreinigung, Dichtungen, Funktions- und Sicherheitspr\u00fcfung.'});
-    return out;
+    var d=Math.round(base[st.hard]*uf);
+    if(st.filter==='yes') d=Math.round(d*1.9);
+    return Math.max(14,Math.min(120,d));
   }
 
   function z(n){return (n<10?'0':'')+n;}
   function icsStamp(d){return d.getUTCFullYear()+z(d.getUTCMonth()+1)+z(d.getUTCDate())+'T'+z(d.getUTCHours())+z(d.getUTCMinutes())+z(d.getUTCSeconds())+'Z';}
   function icsDay(d){return d.getFullYear()+z(d.getMonth()+1)+z(d.getDate());}
-  function esc(x){return String(x).split('\\').join('\\\\').split(';').join('\\;').split(',').join('\\,').split('\n').join('\\n');}
+  function esc(x){return String(x).split('\\').join('\\\\').split(';').join('\;').split(',').join('\\,').split('\n').join('\\n');}
   function fold(s){ var o=[]; s.split('\r\n').forEach(function(ln){ while(ln.length>73){ o.push(ln.slice(0,73)); ln=' '+ln.slice(73); } o.push(ln); }); return o.join('\r\n'); }
-  function makeIcs(all,today){
+  function makeIcs(iv,due){
     var now=new Date();
-    var list=all.filter(function(tk){return tk.iv>=3;});
-    var L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//JB Kaffeemaschinen//Pflegeplaner//DE','CALSCALE:GREGORIAN','METHOD:PUBLISH'];
-    list.forEach(function(tk,i){
-      var due=new Date(today.getTime()+tk.iv*86400000);
-      L.push('BEGIN:VEVENT');
-      L.push('UID:kt-pp-'+i+'-'+now.getTime()+'@kaffeetechniker.de');
-      L.push('DTSTAMP:'+icsStamp(now));
-      L.push('DTSTART;VALUE=DATE:'+icsDay(due));
-      L.push('SUMMARY:'+esc(tk.t)+' \u2013 Kaffeevollautomat');
-      L.push('DESCRIPTION:'+esc(tk.d+' Anleitung: '+tk.tip));
-      L.push('RRULE:FREQ=DAILY;INTERVAL='+Math.max(1,tk.iv));
-      L.push('BEGIN:VALARM','TRIGGER:PT0S','ACTION:DISPLAY','DESCRIPTION:'+esc(tk.t),'END:VALARM');
-      L.push('END:VEVENT');
-    });
-    L.push('END:VCALENDAR');
+    var L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//JB Kaffeemaschinen//Entkalkungsplan//DE','CALSCALE:GREGORIAN','METHOD:PUBLISH',
+      'BEGIN:VEVENT','UID:kt-entkalken-'+now.getTime()+'@kaffeetechniker.de','DTSTAMP:'+icsStamp(now),'DTSTART;VALUE=DATE:'+icsDay(due),
+      'SUMMARY:Kaffeevollautomat entkalken',
+      'DESCRIPTION:'+esc('Kalkablagerungen im Wasserlauf und Boiler entfernen. Anleitung: $tEntk'),
+      'RRULE:FREQ=DAILY;INTERVAL='+iv,
+      'BEGIN:VALARM','TRIGGER:PT0S','ACTION:DISPLAY','DESCRIPTION:Kaffeevollautomat entkalken','END:VALARM',
+      'END:VEVENT','END:VCALENDAR'];
     return fold(L.join('\r\n'));
   }
 
   function render(){
     try{localStorage.setItem('kt_pp',JSON.stringify(st));}catch(e){}
-    var list=build();
+    var iv=interval();
     var today=new Date(); today.setHours(9,0,0,0);
-    var tb=document.getElementById('pp-rows'); tb.innerHTML='';
-    list.forEach(function(tk){
-      var due=new Date(today.getTime()+tk.iv*86400000);
-      var lk=''; if(tk.shop) lk+='<a href="'+tk.shop+'">Produkt</a>'; if(tk.tip){ if(lk)lk+=' &middot; '; lk+='<a href="'+tk.tip+'">Anleitung</a>'; }
-      var tr=document.createElement('tr');
-      tr.innerHTML='<td><b>'+tk.t+'</b>'+(lk?'<span class="pp-lk">'+lk+'</span>':'')+'</td><td>'+ivText(tk.iv)+'</td><td>'+fmt(due)+'</td>';
-      tb.appendChild(tr);
-    });
+    var due=new Date(today.getTime()+iv*86400000);
+    document.getElementById('pp-iv').textContent=ivText(iv).charAt(0).toUpperCase()+ivText(iv).slice(1)+' entkalken';
+    document.getElementById('pp-due').textContent=fmt(due);
+    var f=document.getElementById('pp-facts'); f.innerHTML='';
+    var facts=['Wasser: '+nameOf(st.hard)+(dh!==null?' (ca. '+String(dh).replace('.',',')+' \u00b0dH, '+place+')':''),
+               'Tassen pro Tag: '+({a:'1\u20132',b:'3\u20135',c:'6\u201310',d:'mehr als 10'})[st.cups],
+               st.filter==='yes'?'mit Wasserfilter':'ohne Wasserfilter'];
+    facts.forEach(function(t){ var li=document.createElement('li'); li.textContent=t; f.appendChild(li); });
     var a=document.getElementById('pp-ics');
     if(a.dataset.u){ URL.revokeObjectURL(a.dataset.u); }
-    var blob=new Blob([makeIcs(list,today)],{type:'text/calendar;charset=utf-8'});
-    var u=URL.createObjectURL(blob); a.href=u; a.dataset.u=u;
+    var u=URL.createObjectURL(new Blob([makeIcs(iv,due)],{type:'text/calendar;charset=utf-8'})); a.href=u; a.dataset.u=u;
     var res=document.getElementById('pp-res'); res.hidden=false;
     res.scrollIntoView({behavior:'smooth',block:'start'});
   }
@@ -2736,6 +2823,21 @@ function ReparaturCheck-Content($p) {
   $shop   = "$base/kaffeemaschinen-kaufen/"
   $auftrag = if ($chrome.auftragsscheinUrl) { $chrome.auftragsscheinUrl } else { "$base/reparaturablauf/" }
   $brandOpts = (@($SD.brands) | ForEach-Object { "<option>$_</option>" }) -join ''
+
+  # Neupreis-Datenbank (neupreise.json, erzeugt von update-neupreise.py) als kompaktes JSON einbetten:
+  # {"stand":"..","m":{"Marke":[["Modell",Preis,ca(0/1)],...]}}
+  $npJson = '{"stand":"","m":{}}'
+  $npFile = "$root\neupreise.json"
+  if (Test-Path $npFile) {
+    $np = Get-Content $npFile -Raw -Encoding UTF8 | ConvertFrom-Json
+    $npParts = foreach ($b in $np.marken.PSObject.Properties) {
+      $items = (@($b.Value) | ForEach-Object {
+        '[' + (ConvertTo-Json -InputObject ([string]$_.m) -Compress) + ',' + [int]$_.p + ',' + $(if ($_.ca -or $_.q -eq 'manuell') { 1 } else { 0 }) + ']'
+      }) -join ','
+      (ConvertTo-Json -InputObject ([string]$b.Name) -Compress) + ':[' + $items + ']'
+    }
+    $npJson = '{"stand":' + (ConvertTo-Json -InputObject ([string]$np.stand) -Compress) + ',"m":{' + ($npParts -join ',') + '}}'
+  }
 
   $html = @"
 <style>
@@ -2773,6 +2875,10 @@ function ReparaturCheck-Content($p) {
 .rc-btns a:hover{background:$($C.accentD)}
 .rc-btns a.ghost:hover{background:#f2f4f6}
 .rc-dis{font-size:12px;line-height:1.6;color:#6b7178;margin:14px 0 0}
+.rc-hint{font-size:12.5px;line-height:1.55;color:#6b7178;margin:8px 0 0}
+.rc select{display:block}
+.rc select+select{margin-top:8px}
+.rc-basis{font-size:12.5px;line-height:1.55;color:#5a6068;margin:-4px 0 14px;padding:0 4px}
 </style>
 <div class="rc">
   <h1>Reparatur-Check</h1>
@@ -2788,12 +2894,20 @@ function ReparaturCheck-Content($p) {
   </div>
 
   <div class="rc-step">
-    <span class="rc-q">2 &middot; Marke</span>
+    <span class="rc-q">2 &middot; Marke und Modell</span>
     <select id="rc-brand"><option value="">Bitte w&auml;hlen</option>$brandOpts<option>andere / unbekannt</option></select>
+    <select id="rc-model" hidden></select>
+    <p class="rc-hint" id="rc-modelhint" hidden></p>
   </div>
 
   <div class="rc-step">
-    <span class="rc-q">3 &middot; Was ist das Problem?</span>
+    <span class="rc-q">3 &middot; Neupreis damals (optional &ndash; falls Sie ihn kennen)</span>
+    <input type="number" id="rc-price" min="0" step="10" placeholder="z. B. 800 &euro;">
+    <p class="rc-hint">Wenn Sie oben ein Modell gew&auml;hlt haben, tragen wir den aktuellen Listenpreis ein. Kennen Sie den damaligen Preis, &uuml;berschreiben Sie den Betrag einfach &ndash; Ihre Angabe z&auml;hlt.</p>
+  </div>
+
+  <div class="rc-step">
+    <span class="rc-q">4 &middot; Was ist das Problem?</span>
     <select id="rc-sym">
       <option value="">Bitte w&auml;hlen</option>
       <option value="kein-wasser">Kein Wasser / kein Kaffee</option>
@@ -2810,19 +2924,15 @@ function ReparaturCheck-Content($p) {
   </div>
 
   <div class="rc-step">
-    <span class="rc-q">4 &middot; Wie alt ist das Ger&auml;t ungef&auml;hr?</span>
+    <span class="rc-q">5 &middot; Wie alt ist das Ger&auml;t ungef&auml;hr?</span>
     <div class="rc-opts" data-k="alter">
       <button type="button" data-v="a">unter 2 Jahre</button>
       <button type="button" data-v="b" class="on">2 &ndash; 5 Jahre</button>
       <button type="button" data-v="c">5 &ndash; 8 Jahre</button>
-      <button type="button" data-v="d">&uuml;ber 8 Jahre</button>
+      <button type="button" data-v="d">8 &ndash; 12 Jahre</button>
+      <button type="button" data-v="e">&uuml;ber 12 Jahre</button>
       <button type="button" data-v="x">wei&szlig; ich nicht</button>
     </div>
-  </div>
-
-  <div class="rc-step">
-    <span class="rc-q">5 &middot; Neupreis damals (optional)</span>
-    <input type="number" id="rc-price" min="0" step="10" placeholder="z. B. 800 &euro;">
   </div>
 
   <button type="button" class="rc-go" id="rc-go">Auswerten</button>
@@ -2832,7 +2942,42 @@ function ReparaturCheck-Content($p) {
 <script>
 (function(){
   var wrap=document.querySelector('.rc'); if(!wrap) return;
+  var NP=$npJson;
   var st={typ:'vollautomat',alter:'b'};
+  var priceSrc='';   // '' | 'own' | 'model'
+  var modelSel=null; // [label, preis, ca]
+  var brandSel=document.getElementById('rc-brand'), modelEl=document.getElementById('rc-model'),
+      modelHint=document.getElementById('rc-modelhint'), priceEl=document.getElementById('rc-price');
+  function fmt(n){ return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
+  function deDate(d){ var p=String(d).split('-'); return p.length===3?p[2]+'.'+p[1]+'.'+p[0]:d; }
+  function resetModel(){
+    modelSel=null; modelHint.hidden=true; modelHint.textContent='';
+    if(priceSrc==='model'){ priceEl.value=''; priceSrc=''; }
+  }
+  brandSel.addEventListener('change',function(){
+    resetModel();
+    var list=NP.m[brandSel.value];
+    modelEl.innerHTML='';
+    if(!list||!list.length){ modelEl.hidden=true; return; }
+    modelEl.appendChild(new Option('Modell w\u00e4hlen (optional)',''));
+    list.forEach(function(m,i){ modelEl.appendChild(new Option(m[0],String(i))); });
+    modelEl.appendChild(new Option('Mein Modell steht nicht dabei','-1'));
+    modelEl.hidden=false;
+  });
+  modelEl.addEventListener('change',function(){
+    resetModel();
+    var v=modelEl.value; if(v===''||v==='-1'){ return; }
+    var m=NP.m[brandSel.value][parseInt(v,10)]; if(!m) return;
+    modelSel=m;
+    if(m[1]>0){
+      priceEl.value=m[1]; priceSrc='model';
+      modelHint.textContent='Den aktuellen Listenpreis'+(m[2]?' (ca.)':'')+' (Stand '+deDate(NP.stand)+') haben wir bei Schritt 3 eingetragen. Ihr Ger\u00e4t hat damals evtl. anders gekostet \u2013 den Betrag k\u00f6nnen Sie dort jederzeit \u00e4ndern.';
+    } else {
+      modelHint.textContent='F\u00fcr dieses Modell haben wir keinen Listenpreis. Kennen Sie den Neupreis, tragen Sie ihn bei Schritt 3 ein \u2013 sonst rechnen wir mit einem Sch\u00e4tzwert.';
+    }
+    modelHint.hidden=false;
+  });
+  priceEl.addEventListener('input',function(){ priceSrc=priceEl.value?'own':''; });
   wrap.querySelectorAll('.rc-opts').forEach(function(g){
     var k=g.getAttribute('data-k');
     g.querySelectorAll('button').forEach(function(b){
@@ -2852,7 +2997,7 @@ function ReparaturCheck-Content($p) {
     'tot':{u:'Netzteil, Hauptschalter, Kabel oder Elektronik &ndash; das muss in der Werkstatt gepr&uuml;ft werden.',self:'',lo:30,hi:200},
     'anderes':{u:'Wir sehen uns das Ger&auml;t an und melden uns mit einem Kostenvoranschlag, bevor etwas gemacht wird.',self:'$base/reparaturablauf/',lo:0,hi:160}
   };
-  var YEARS={a:1,b:3.5,c:6.5,d:10,x:null};
+  // Zeitachse: unter 2 J. Herstellergarantie (selbst verursacht: lohnt sich), 2-8 J. gruen, 8-12 J. gelb, ueber 12 J. rot (offen abwaegen).
 
   document.getElementById('rc-go').addEventListener('click',function(){
     var symK=document.getElementById('rc-sym').value;
@@ -2865,19 +3010,32 @@ function ReparaturCheck-Content($p) {
     if(st.typ==='siebtraeger'){ base=/ECM|Profitec/i.test(brandV)?400:180; }
     var lo=base+s.lo, hi=base+s.hi;
     var mid=(lo+hi)/2;
-    var years=YEARS[st.alter];
     var np=price>0?price:((st.typ==='siebtraeger')?1200:700);
-
+    var heavy=price>0 && (mid/np)>0.6;   // Aufwand hoch im Verhaeltnis zum bekannten Neupreis
     var amp='g',t='',tx='';
-    if(mid>np*0.6){
-      amp='r'; t='Reparatur pr&uuml;fen lassen &ndash; Neuger&auml;t als Alternative';
-      tx='Der voraussichtliche Aufwand liegt bei mehr als der H&auml;lfte des Neuwerts. Eine Reparatur kann sich trotzdem lohnen, wenn Ihnen das Ger&auml;t viel wert ist. Wir pr&uuml;fen es und zeigen Ihnen beide Wege &ndash; Reparatur und Neuger&auml;t &ndash; ehrlich nebeneinander.';
-    } else if((years!==null&&years>=10)||(mid>np*0.4)){
-      amp='y'; t='Reparatur meist sinnvoll &ndash; kurz abw&auml;gen';
-      tx='Der Aufwand liegt im mittleren Bereich. Bei einem gepflegten Ger&auml;t und verf&uuml;gbaren Ersatzteilen lohnt sich die Reparatur in der Regel. Wir pr&uuml;fen das Ger&auml;t und machen einen Kostenvoranschlag, bevor etwas repariert wird.';
-    } else {
+    var age=st.alter;
+    if(age==='a'){
+      amp='g'; t='Noch Herstellergarantie &ndash; Reparatur lohnt sich auf jeden Fall';
+      tx='Bei einem Ger&auml;t unter 2 Jahren greift in der Regel noch die Herstellergarantie. Bitte kl&auml;ren Sie zuerst, ob der Defekt abgedeckt ist, und &ouml;ffnen Sie das Ger&auml;t nicht selbst.'+(brandV==='Jura'?' Als autorisierte JURA-Servicestelle bearbeiten wir Garantief&auml;lle auch direkt.':'')+' Ist der Schaden selbst verursacht (z.&nbsp;B. Sturz, Wasser, Fehlbedienung), gilt die Garantie nicht &ndash; dann lohnt sich die Reparatur auf jeden Fall.';
+    } else if(age==='b'){
       amp='g'; t='Reparatur lohnt sich';
-      tx='Das Ger&auml;t ist noch jung und der Aufwand &uuml;berschaubar. Eine Reparatur ist klar die wirtschaftlichere Wahl.';
+      tx='Das Ger&auml;t ist noch jung. Eine Reparatur ist klar die wirtschaftlichere Wahl.';
+    } else if(age==='c'){
+      amp='g'; t='Reparatur lohnt sich';
+      tx='Ein gepflegtes Ger&auml;t in diesem Alter l&auml;uft nach einer Reparatur in der Regel noch viele Jahre. Die Reparatur ist meist die wirtschaftlichere Wahl.';
+    } else if(age==='d'){
+      amp='y'; t='Reparatur meist sinnvoll &ndash; kurz abw&auml;gen';
+      tx='Bei Ger&auml;ten dieses Alters kommt es auf Zustand und Aufwand an. Bei einem gepflegten Ger&auml;t und verf&uuml;gbaren Ersatzteilen lohnt sich die Reparatur oft. Wir pr&uuml;fen das Ger&auml;t und machen einen Kostenvoranschlag, bevor etwas repariert wird.';
+    } else if(age==='e'){
+      amp='r'; t='Offen abw&auml;gen, was noch drin ist';
+      tx='Bei Ger&auml;ten dieses Alters entscheidet der Zustand: Wie viel Aufwand ist n&ouml;tig, sind Ersatzteile verf&uuml;gbar, was ist das Ger&auml;t Ihnen wert? Wir pr&uuml;fen es ehrlich und zeigen Ihnen beide Wege &ndash; Reparatur und Neuger&auml;t &ndash; nebeneinander.';
+    } else {
+      amp='y'; t='Reparatur pr&uuml;fen lassen';
+      tx='Ohne Altersangabe l&auml;sst sich das schwer sagen. Wir pr&uuml;fen das Ger&auml;t, machen einen Kostenvoranschlag und beraten Sie ehrlich, ob sich die Reparatur lohnt.';
+    }
+    if(heavy && amp==='g' && age!=='a'){
+      amp='y'; t='Reparatur meist sinnvoll &ndash; kurz abw&auml;gen';
+      tx='Der voraussichtliche Aufwand ist im Verh&auml;ltnis zum Wert des Ger&auml;ts sp&uuml;rbar. Wir pr&uuml;fen das Ger&auml;t und machen einen Kostenvoranschlag, bevor etwas repariert wird.';
     }
 
     var selfHtml='';

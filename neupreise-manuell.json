@@ -1,0 +1,22 @@
+{
+  "_note": "Marken ohne sauberen Abruf (Bot-Sperre / kein Preis auf der Herstellerseite). Preise = ca.-Richtwerte (UVP bzw. Mittel der genannten Spanne), Quelle + Stand je Eintrag. Miele/AEG/Spidem: bewusst leer (keine belastbare Quelle) - dort traegt der Kunde den Preis selbst ein. Bitte gelegentlich pruefen/ergaenzen; python3 update-neupreise.py laesst diese Datei unangetastet.",
+  "marken": {
+    "Philips": [
+      { "m": "2200 Series LatteGo (EP22xx)", "p": 400, "ca": true, "u": "https://www.kaufland.de/t/kaffeevollautomaten/philips-lattego-2200/~57668/", "stand": "2026-09" },
+      { "m": "3200 Series LatteGo (EP32xx)", "p": 520, "ca": true, "u": "https://www.billiger.de/baseproducts/65650-philips-3200-series-lattego", "stand": "2026-09" }
+    ],
+    "Saeco": [
+      { "m": "GranAroma", "p": 850, "ca": true, "u": "https://www.coffeeness.de/saeco-granaroma-test/", "stand": "2026-09" },
+      { "m": "Xelsis Suprema", "p": 1700, "ca": true, "u": "https://www.coffeeness.de/saeco-xelsis-suprema-test/", "stand": "2026-09" }
+    ],
+    "Gaggia": [
+      { "m": "Anima Prestige", "p": 665, "ca": true, "u": "https://www.coffeeness.de/gaggia-anima-prestige-test/", "stand": "2026-09" },
+      { "m": "Magenta Prestige", "p": 720, "ca": true, "u": "https://www.gaggia.com/de/kaffeeautomaten/magenta-prestige/", "stand": "2026-09" },
+      { "m": "Cadorna Prestige", "p": 899, "ca": true, "u": "https://www.guenstiger.de/Produkt/Gaggia/Cadorna_Prestige.html", "stand": "2026-09" }
+    ],
+    "La Pavoni": [
+      { "m": "Europiccola (Handhebel)", "p": 800, "ca": true, "u": "https://www.coffeeness.de/la-pavoni-professional-test/", "stand": "2026-09" },
+      { "m": "Professional (Handhebel)", "p": 1000, "ca": true, "u": "https://www.coffeeness.de/la-pavoni-professional-test/", "stand": "2026-09" }
+    ]
+  }
+}
