@@ -497,7 +497,7 @@ a.kt-ic,a.ic{position:relative}
     try{
       fetch(U,{credentials:'include',cache:'no-store',headers:{'Accept':'application/json'}})
         .then(function(r){return r.ok?r.json():null;})
-        .then(function(d){if(d&&d.items_count!=null)paint(d.items_count);})
+        .then(function(d){if(d){if(d.items_count!=null){paint(d.items_count);}}})
         .catch(function(){});
     }catch(e){}
   }
@@ -918,9 +918,9 @@ header.wp-block-template-part{display:contents}
     if(!h || h < 20){
       var img = g.find('.flex-active-slide img')[0] || g.find('.woocommerce-product-gallery__wrapper img')[0];
       var w = vp.width();
-      if(img && img.naturalWidth && w){
+      if(img){ if(img.naturalWidth){ if(w){
         vp.css('height', Math.round(w * img.naturalHeight / img.naturalWidth) + 'px');
-      }
+      } } }
     }
   }
   window.jQuery(window).on('load',function(){
@@ -950,16 +950,18 @@ header.wp-block-template-part{display:contents}
     if(c.indexOf('product_cat-nivona-')===0) isNivona = true;
     if(c==='product_cat-jura-zubehoer' || c==='product_cat-jura-pflegeprodukte' || c==='product_cat-nivona-zubehoer' || c==='product_cat-nivona-pflegeprodukte') skip = true;
   });
-  if(skip || (!isJura && !isNivona)) return;
+  if(skip) return;
+  if(!isJura){ if(!isNivona){ return; } }
   var catId = isJura ? 20 : 37;
   var main = document.querySelector('main');
   if(!main) return;
-  fetch('/wp-json/wc/store/v1/products?category='+catId+'&per_page=4&orderby=popularity')
+  var qs = ['category='+catId,'per_page=4','orderby=popularity'].join(String.fromCharCode(38));
+  fetch('/wp-json/wc/store/v1/products?'+qs)
     .then(function(r){ return r.ok ? r.json() : []; })
     .then(function(items){
       if(!items || !items.length) return;
       var tiles = items.map(function(p){
-        var img = (p.images && p.images[0]) ? (p.images[0].thumbnail || p.images[0].src) : '';
+        var img = (p.images ? p.images[0] : null) ? (p.images[0].thumbnail || p.images[0].src) : '';
         var price = p.prices ? (parseInt(p.prices.price,10)/Math.pow(10,p.prices.currency_minor_unit)).toFixed(2).replace('.',',')+' '+p.prices.currency_symbol : '';
         return '<a class="kt-rz-t" href="'+p.permalink+'">'+
           '<span class="pic" style="background-image:url(\''+img+'\')"></span>'+
