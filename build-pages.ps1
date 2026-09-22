@@ -1336,6 +1336,26 @@ function Start-Content {
 
 # ================= JURA Online-Shop: Markenseite + Kategorieseite =================
 # Geraete kommen live aus WooCommerce (Kategorie-Slug 'jura-kaffeevollautomaten').
+# Karten-Raster (jp2/jk-Grids) zeigten bisher die volle Originalgroesse der
+# Packshots (bis zu 1620px breit, teils >200KB) in einer 186px-Kachel ->
+# unnoetig langsame Ladezeit der Uebersichtsseiten. WordPress erzeugt beim
+# Hochladen bereits kleinere Varianten (WooCommerce "single" = max. 600px,
+# seitenverhaeltnis-treu) - hier per Medien-ID nachschlagen statt die volle
+# Groesse zu verlinken. Cache ueber den ganzen Build-Lauf, da dieselben
+# Bilder oft mehrfach vorkommen (Marken-Uebersicht + Kategorie-Uebersicht).
+$script:ThumbCache = @{}
+function Get-ThumbUrl($imgId, $fallbackUrl) {
+  if (-not $imgId) { return $fallbackUrl }
+  if ($script:ThumbCache.ContainsKey($imgId)) { return $script:ThumbCache[$imgId] }
+  $url = $fallbackUrl
+  try {
+    $m = wp GET "/wp/v2/media/$imgId`?_fields=media_details"
+    if ($m.media_details.sizes.woocommerce_single.source_url) { $url = $m.media_details.sizes.woocommerce_single.source_url }
+    elseif ($m.media_details.sizes.medium_large.source_url) { $url = $m.media_details.sizes.medium_large.source_url }
+  } catch {}
+  $script:ThumbCache[$imgId] = $url
+  return $url
+}
 function Jura-Products($catSlug = 'jura-kaffeevollautomaten') {
   # Hinweis: PS 5.1 gibt eine JSON-Array-Antwort als EIN [object[]] zurueck;
   # daher erst in Variable, dann @() - nicht @(wc ...) direkt (kollabiert auf 1).
@@ -1360,7 +1380,7 @@ function Jura-Products($catSlug = 'jura-kaffeevollautomaten') {
     $pnum  = ($_.regular_price -as [decimal])
     if ((-not $pnum -or $pnum -le 0) -and $_.price) { $pnum = ($_.price -as [decimal]) }
     $de    = [Globalization.CultureInfo]::GetCultureInfo('de-DE')
-    $mainImg = if ($_.images -and $_.images[0]) { $_.images[0].src } else { '' }
+    $mainImg = if ($_.images -and $_.images[0]) { Get-ThumbUrl $_.images[0].id $_.images[0].src } else { '' }
 
     # Farbvarianten (color -> Bild + eigener Preis)
     $variants = @()
@@ -1374,7 +1394,8 @@ function Jura-Products($catSlug = 'jura-kaffeevollautomaten') {
           if ((-not $vpnum -or $vpnum -le 0) -and $v.price) { $vpnum = ($v.price -as [decimal]) }
           if (-not $vpnum -or $vpnum -le 0) { $vpnum = $pnum }
           $vpstr = if ($vpnum -and $vpnum -gt 0) { ([decimal]$vpnum).ToString('N2', $de) + ' &euro;' } else { 'Preis auf Anfrage' }
-          $variants += [pscustomobject]@{ color = "$vc"; img = if ($v.image -and $v.image.src) { $v.image.src } else { $mainImg }; price = $vpnum; priceStr = $vpstr }
+          $vImg = if ($v.image -and $v.image.src) { Get-ThumbUrl $v.image.id $v.image.src } else { $mainImg }
+          $variants += [pscustomobject]@{ color = "$vc"; img = $vImg; price = $vpnum; priceStr = $vpstr }
         }
       }
     }
