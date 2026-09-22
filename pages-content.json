@@ -1700,13 +1700,14 @@
           "x": "Hinweis: Ein Mietgerät nur für die Dauer einer Reparatur finden Sie unter „Mietgerät für die Reparaturzeit“."
         },
         {
-          "t": "btns",
-          "x": [
-            {
-              "label": "Angebot anfragen",
-              "url": "tel:+4961922004363"
-            }
-          ]
+          "t": "h",
+          "lvl": 3,
+          "x": "Mietanfrage für Ihr Event"
+        },
+        {
+          "t": "form",
+          "id": 4,
+          "anchor": "eventmiete"
         }
       ]
     },
