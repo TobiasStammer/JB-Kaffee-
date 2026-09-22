@@ -903,10 +903,31 @@ header.wp-block-template-part{display:contents}
   function fixGallery(){
     var g = window.jQuery('.woocommerce-product-gallery');
     if(!g.length) return;
-    g.find('.flex-viewport').css('height','');
+    var vp = g.find('.flex-viewport');
     g.find('.flex-active-slide').css('width','');
     if(g.data('flexslider')){ try{ g.flexslider('resize'); }catch(e){} }
+    // FlexSlider setzt dem Viewport manchmal GAR KEINE Hoehe (0px oder
+    // leer) - nicht nur nach Farbwechsel, auch schon beim allerersten
+    // Laden (v.a. auf schmalen/mobilen Viewports). Ohne Hoehe clippt
+    // overflow:hidden nicht mehr, die (je volle Breite, float:left)
+    // Slides rutschen dann untereinander -> "riesige" Bilder statt
+    // Miniaturen. flexslider('resize') allein behebt das nicht
+    // zuverlaessig -> Hoehe notfalls selbst aus dem aktiven Bild
+    // berechnen (Seitenverhaeltnis * aktuelle Viewport-Breite).
+    var h = vp.height();
+    if(!h || h < 20){
+      var img = g.find('.flex-active-slide img')[0] || g.find('.woocommerce-product-gallery__wrapper img')[0];
+      var w = vp.width();
+      if(img && img.naturalWidth && w){
+        vp.css('height', Math.round(w * img.naturalHeight / img.naturalWidth) + 'px');
+      }
+    }
   }
+  window.jQuery(window).on('load',function(){
+    setTimeout(fixGallery,80);
+    setTimeout(fixGallery,500);
+    setTimeout(fixGallery,1200);
+  });
   window.jQuery(document.body).on('found_variation woocommerce_gallery_init_gallery woocommerce_gallery_reset_slide_position reset_data', function(){
     setTimeout(fixGallery,60);
     setTimeout(fixGallery,350);
@@ -1497,7 +1518,7 @@ $JURA_CSS = @"
 .jk2-serie:hover{border-color:#b6b6b6}
 .jk2-serie.is-on{border-color:$($C.accent);box-shadow:inset 0 0 0 2px $($C.accent)}
 .jk2-serie .pic{width:100%;height:44px;background:center center no-repeat;background-size:contain}
-.jk2-serie b{font-family:$FONT_HEAD;font-size:12px;color:$($C.head)}
+.jk2-serie b{font-family:$FONT_HEAD;font-size:12px;color:$($C.head);text-align:center}
 .jk2-serie i{font-style:normal;font-size:9.5px;color:#9a9a9a}
 .jk2-bar{position:sticky;top:40px;z-index:60;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px 22px;background:$($C.bg);border-top:1px solid #e2e2e2;border-bottom:1px solid #e2e2e2;padding:11px 2px;margin:16px 0 22px}
 .jk2-bar .grp{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
@@ -1528,9 +1549,6 @@ $JURA_CSS = @"
 .jp2-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px}
 .jp2-row a{font-family:$FONT_HEAD;font-size:12.5px;font-weight:700;color:$($C.accent);text-decoration:none;white-space:nowrap}
 .jp2-row .cmp{font-size:11.5px;color:#777;display:flex;gap:5px;align-items:center;cursor:pointer;user-select:none}
-.jp2-acc .jp2-bd{align-items:center;text-align:center}
-.jp2-acc .jp2-fx{justify-content:center}
-.jp2-acc .jp2-row{justify-content:center;flex-direction:column;gap:6px}
 @media(max-width:520px){.jp2{grid-template-columns:1fr}.jp2-pic{border-right:0;border-bottom:1px solid #eee}}
 .jk2-empty{padding:40px 10px;text-align:center;color:#8a8a8a;font-size:14px}
 @media(max-width:640px){.jabout{grid-template-columns:1fr}.jbanner{grid-template-columns:1fr}}
@@ -1999,7 +2017,7 @@ function Jura-Kategorie-Content($p, $brandKey = 'jura') {
     if ($mahl -match '^\s*2|Zwei|2 ' -or $vz -match 'zwei (Mahlwerke|Keramik|verschiedene)') { $feat += 'mahl2' }
     $featData = ($feat -join ' ')
     @"
-<article class="jp2$(if (-not $sp) { ' jp2-acc' })" data-s="$($pr.serie)" data-name="$shortName" data-serie="$($pr.serie)$sfx" data-price="$($pr.priceStr)" data-pnum="$([int]$pr.price)" data-farben="$cData" data-feat="$featData" data-genuss="$genussData" data-blurb="$([string]$J.seriesBlurb.$($pr.serie))" data-url="$($pr.url)">
+<article class="jp2" data-s="$($pr.serie)" data-name="$shortName" data-serie="$($pr.serie)$sfx" data-price="$($pr.priceStr)" data-pnum="$([int]$pr.price)" data-farben="$cData" data-feat="$featData" data-genuss="$genussData" data-blurb="$([string]$J.seriesBlurb.$($pr.serie))" data-url="$($pr.url)">
   <div class="jp2-pic">$(if ($pr.displayImg) { "<img src=`"$($pr.displayImg)`" alt=`"$shortName`">" } else { "<span style=`"font-size:11px;color:#aaa`">Abbildung folgt</span>" })</div>
   <div class="jp2-bd">
     <span class="jp2-serie">$($pr.serie)$sfx</span>
@@ -2053,7 +2071,7 @@ $JURA_CSS
     <div class="grp"><span class="lbl">Serie</span>$serChips</div>
     <div class="grp"><span class="lbl">Sortieren</span>
       <select id="jsort">
-        <option value="serie">Serie ($($order -join ' &rarr; '))</option>
+        $(if ($SPEC.Count) { "<option value=`"serie`">Serie ($($order -join ' &rarr; '))</option>" })
         <option value="asc">Preis aufsteigend</option>
         <option value="desc">Preis absteigend</option>
         <option value="az">Name A&ndash;Z</option>

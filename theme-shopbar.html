@@ -81,10 +81,31 @@ header.wp-block-template-part{display:contents}
   function fixGallery(){
     var g = window.jQuery('.woocommerce-product-gallery');
     if(!g.length) return;
-    g.find('.flex-viewport').css('height','');
+    var vp = g.find('.flex-viewport');
     g.find('.flex-active-slide').css('width','');
     if(g.data('flexslider')){ try{ g.flexslider('resize'); }catch(e){} }
+    // FlexSlider setzt dem Viewport manchmal GAR KEINE Hoehe (0px oder
+    // leer) - nicht nur nach Farbwechsel, auch schon beim allerersten
+    // Laden (v.a. auf schmalen/mobilen Viewports). Ohne Hoehe clippt
+    // overflow:hidden nicht mehr, die (je volle Breite, float:left)
+    // Slides rutschen dann untereinander -> "riesige" Bilder statt
+    // Miniaturen. flexslider('resize') allein behebt das nicht
+    // zuverlaessig -> Hoehe notfalls selbst aus dem aktiven Bild
+    // berechnen (Seitenverhaeltnis * aktuelle Viewport-Breite).
+    var h = vp.height();
+    if(!h || h < 20){
+      var img = g.find('.flex-active-slide img')[0] || g.find('.woocommerce-product-gallery__wrapper img')[0];
+      var w = vp.width();
+      if(img && img.naturalWidth && w){
+        vp.css('height', Math.round(w * img.naturalHeight / img.naturalWidth) + 'px');
+      }
+    }
   }
+  window.jQuery(window).on('load',function(){
+    setTimeout(fixGallery,80);
+    setTimeout(fixGallery,500);
+    setTimeout(fixGallery,1200);
+  });
   window.jQuery(document.body).on('found_variation woocommerce_gallery_init_gallery woocommerce_gallery_reset_slide_position reset_data', function(){
     setTimeout(fixGallery,60);
     setTimeout(fixGallery,350);
