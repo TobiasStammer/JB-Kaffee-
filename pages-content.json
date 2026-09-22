@@ -283,6 +283,32 @@
     "wordmark": "JURA",
     "logoUrl": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-shop-jura-logo.png",
     "heroImage": "",
+    "heroSlides": [
+      {
+        "name": "JURA E10",
+        "tagline": "Kaffee-Erlebnis mit vier Genusswelten",
+        "img": "https://new.kaffeetechniker.de/wp-content/uploads/2026/08/e10_ea_onyx_grey_overview-1.jpg",
+        "url": "/product/jura-e10-onyx-grey/"
+      },
+      {
+        "name": "JURA GIGA 10",
+        "tagline": "Das Flaggschiff für höchste Ansprüche",
+        "img": "https://new.kaffeetechniker.de/wp-content/uploads/2026/08/giga_10_diamond_black_ea_overview-1.jpg",
+        "url": "/product/jura-giga-10-diamond-black/"
+      },
+      {
+        "name": "JURA Z10",
+        "tagline": "Barista-Kaffeekunst auf Knopfdruck",
+        "img": "https://new.kaffeetechniker.de/wp-content/uploads/2026/08/Overview_Z10_DB-1.jpg",
+        "url": "/product/jura-z10-diamond-black/"
+      },
+      {
+        "name": "JURA J10 twin",
+        "tagline": "Zwei Mahlwerke, doppelte Vielfalt",
+        "img": "https://new.kaffeetechniker.de/wp-content/uploads/2026/08/J10_twin_Diamond_Onyx_EA_Overview_960x1200px-1.jpg",
+        "url": "/product/jura-j10-twin-diamond-onyx/"
+      }
+    ],
     "heroEyebrow": "Autorisierter JURA-Fachhändler &amp; JURA-Servicestelle",
     "heroTitle": "JURA Online-Shop",
     "heroText": "Als autorisierter JURA-Fachhändler beraten wir Sie persönlich, führen jedes Modell vor und übernehmen Wartung und Reparatur in eigener Werkstatt.",

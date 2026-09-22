@@ -1361,6 +1361,20 @@ $JURA_CSS = @"
 .jlogo{display:block;margin:0 auto 20px;height:34px;width:auto}
 .jherofig{max-width:900px;margin:0 auto 34px;border-radius:8px;overflow:hidden;border:1px solid #e2e2e2}
 .jherofig img{display:block;width:100%;height:auto;aspect-ratio:21/9;object-fit:cover}
+.jhslider{position:relative;max-width:900px;margin:0 auto 34px;border-radius:8px;overflow:hidden;border:1px solid #e2e2e2;aspect-ratio:16/7;background:#111}
+.jhslide{position:absolute;inset:0;opacity:0;transition:opacity .6s ease;text-decoration:none;display:block}
+.jhslide.is-on{opacity:1;z-index:1}
+.jhslide img{width:100%;height:100%;object-fit:cover;display:block}
+.jhslide .cap{position:absolute;left:0;right:0;bottom:0;padding:14px 18px 16px;background:linear-gradient(0deg,rgba(0,0,0,.62),rgba(0,0,0,0));color:#fff}
+.jhslide .cap b{display:block;font-family:$FONT_HEAD;font-size:16px;letter-spacing:.02em}
+.jhslide .cap span{display:block;font-size:12.5px;color:#e4e4e4;margin-top:2px}
+.jhs-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.35);color:#fff;border:0;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.jhs-nav:hover{background:rgba(0,0,0,.55)}
+.jhs-prev{left:10px}.jhs-next{right:10px}
+.jhs-dots{position:absolute;right:12px;bottom:12px;z-index:2;display:flex;gap:6px}
+.jhs-dots button{width:7px;height:7px;padding:0;border-radius:50%;border:0;background:rgba(255,255,255,.5);cursor:pointer}
+.jhs-dots button.is-on{background:#fff}
+@media(max-width:640px){.jhslider{aspect-ratio:4/3}}
 .jhero{max-width:640px;margin:0 auto;text-align:center}
 .jhero h1{font-size:20px !important;line-height:1.3 !important;margin:0 0 12px}
 .jhero p{font-size:15.5px;line-height:1.62;color:$($C.text);margin:0 auto 22px;max-width:560px}
@@ -1518,12 +1532,50 @@ function Shop-Promo-Html {
 "@
 }
 
+function Jura-Hero-Slider($slides) {
+  if (-not $slides -or $slides.Count -eq 0) { return '' }
+  $slideHtml = ($slides | ForEach-Object {
+    "<a class=`"jhslide`" href=`"$($_.url)`"><img src=`"$($_.img)`" alt=`"$($_.name)`" loading=`"eager`"><span class=`"cap`"><b>$($_.name)</b><span>$($_.tagline)</span></span></a>"
+  }) -join "`n    "
+  $dotsHtml = (0..($slides.Count - 1) | ForEach-Object { "<button type=`"button`" data-i=`"$_`"></button>" }) -join ''
+  @"
+<div class="jstore"><div class="jhslider" id="jhs">
+    $slideHtml
+    <button type="button" class="jhs-nav jhs-prev" aria-label="Zur&uuml;ck">&lsaquo;</button>
+    <button type="button" class="jhs-nav jhs-next" aria-label="Weiter">&rsaquo;</button>
+    <div class="jhs-dots">$dotsHtml</div>
+</div></div>
+<script>
+(function(){
+  var root = document.getElementById('jhs');
+  if (!root || root.dataset.b) return; root.dataset.b = '1';
+  var slides = root.querySelectorAll('.jhslide');
+  var dots = root.querySelectorAll('.jhs-dots button');
+  var i = 0, timer = null;
+  function show(n){
+    i = (n + slides.length) % slides.length;
+    for (var k = 0; k < slides.length; k++) { slides[k].classList.toggle('is-on', k === i); }
+    for (var d = 0; d < dots.length; d++) { dots[d].classList.toggle('is-on', d === i); }
+  }
+  function next(){ show(i + 1); }
+  function restart(){ if (timer) clearInterval(timer); timer = setInterval(next, 4500); }
+  root.querySelector('.jhs-prev').addEventListener('click', function(){ show(i - 1); restart(); });
+  root.querySelector('.jhs-next').addEventListener('click', function(){ show(i + 1); restart(); });
+  for (var d2 = 0; d2 < dots.length; d2++) { dots[d2].addEventListener('click', function(){ show(parseInt(this.dataset.i, 10)); restart(); }); }
+  show(0);
+  restart();
+})();
+</script>
+"@
+}
 function Jura-Marke-Content($p, $brandKey = 'jura') {
   $J = $data.$brandKey
   $bn = $J.brandName
   $btns = ($J.heroButtons | ForEach-Object { Btn-Html $_.label "$base$($_.url)" $_.style }) -join "`n      "
   $mark = if ($J.logoUrl) { "<img class=`"jlogo`" src=`"$($J.logoUrl)`" alt=`"$bn`">" } else { "<p class=`"jwm`">$($J.wordmark)</p>" }
-  $herofig = if ($J.heroImage) { "<figure class=`"jstore jherofig`"><img src=`"$($J.heroImage)`" alt=`"$bn Kaffeevollautomaten`"></figure>" } else { '' }
+  $herofig = if ($J.heroSlides) {
+    Jura-Hero-Slider $J.heroSlides
+  } elseif ($J.heroImage) { "<figure class=`"jstore jherofig`"><img src=`"$($J.heroImage)`" alt=`"$bn Kaffeevollautomaten`"></figure>" } else { '' }
   $hero = @"
 <div class="jstore">
   $mark
