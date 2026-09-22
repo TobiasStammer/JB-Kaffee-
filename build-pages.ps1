@@ -1895,7 +1895,9 @@ function Jura-Kategorie-Content($p, $brandKey = 'jura') {
     $sd = ShortDisplay $disp
     if ($sd)   { $facts += $sd }
     if ($tank) { $facts += "$tank Tank" }
-    $facts += $genussFact
+    # Genusswelten gibt es nur bei Kaffeevollautomaten, nicht bei Zubehoer/
+    # Pflegeprodukten (die haben keine echten Spezifikationsdaten $sp).
+    if ($sp)   { $facts += $genussFact }
     $factHtml = if ($facts.Count) { "<ul class=`"jp2-fx`">" + (($facts | Select-Object -First 4 | ForEach-Object { "<li>$_</li>" }) -join '') + "</ul>" } else { '' }
 
     $feat = @()
