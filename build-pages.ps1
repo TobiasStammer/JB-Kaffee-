@@ -2546,7 +2546,7 @@ $FORM_CSS
 (function(){
   var m=document.getElementById('we-m'), y=document.getElementById('we-y');
   if(!m||!y) return;
-  var MON=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  var MON=['Januar','Februar','M\u00e4rz','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
   var kind='privat';
   function intv(){ return kind==='gewerblich'?1:2; }
   function z(n){return(n<10?'0':'')+n;}
@@ -2564,7 +2564,7 @@ $FORM_CSS
     var mi=parseInt(m.value,10), yi=parseInt(y.value,10);
     var nEl=document.getElementById('we-next'), a=document.getElementById('we-ics'), box=document.getElementById('we-result');
     syncForm(mi,yi);
-    if(isNaN(mi)||isNaN(yi)){ nEl.textContent='Bitte Monat und Jahr wählen'; box.classList.remove('ready'); a.hidden=true; return; }
+    if(isNaN(mi)||isNaN(yi)){ nEl.textContent='Bitte Monat und Jahr w\u00e4hlen'; box.classList.remove('ready'); a.hidden=true; return; }
     var next=new Date(yi+intv(),mi,1);
     nEl.textContent=MON[next.getMonth()]+' '+next.getFullYear();
     box.classList.add('ready');
@@ -2574,8 +2574,8 @@ $FORM_CSS
       'UID:kt-wartung-'+now.getTime()+'@kaffeetechniker.de',
       'DTSTAMP:'+stamp(now),
       'DTSTART;VALUE=DATE:'+day(dt),
-      'SUMMARY:Kaffeevollautomat: Wartung fällig',
-      'DESCRIPTION:Zeit für die Wartung Ihres Kaffeevollautomaten. Ohne Termin während der Öffnungszeiten vorbeibringen: JB Kaffeemaschinen\\, Wallauer Straße 4\\, 65719 Hofheim-Langenhain. Infos: $base/wartung/',
+      'SUMMARY:Kaffeevollautomat: Wartung f\u00e4llig',
+      'DESCRIPTION:Zeit f\u00fcr die Wartung Ihres Kaffeevollautomaten. Ohne Termin w\u00e4hrend der \u00d6ffnungszeiten vorbeibringen: JB Kaffeemaschinen\\, Wallauer Stra\u00dfe 4\\, 65719 Hofheim-Langenhain. Infos: $base/wartung/',
       'RRULE:FREQ=YEARLY;INTERVAL='+intv(),
       'BEGIN:VALARM','TRIGGER:-P14D','ACTION:DISPLAY','DESCRIPTION:Kaffeevollautomat warten lassen','END:VALARM',
       'END:VEVENT','END:VCALENDAR'];
@@ -2589,7 +2589,7 @@ $FORM_CSS
       kind=b.getAttribute('data-k');
       [].slice.call(document.querySelectorAll('#we-kinds button')).forEach(function(x){ x.classList.remove('on'); });
       b.classList.add('on');
-      document.getElementById('we-hint').textContent='Die Kalender-Datei legt einen Termin an, der sich '+(kind==='gewerblich'?'jährlich':'alle zwei Jahre')+' wiederholt (Handy, Outlook, Google). Zwei Wochen vorher werden Sie erinnert.';
+      document.getElementById('we-hint').textContent='Die Kalender-Datei legt einen Termin an, der sich '+(kind==='gewerblich'?'j\u00e4hrlich':'alle zwei Jahre')+' wiederholt (Handy, Outlook, Google). Zwei Wochen vorher werden Sie erinnert.';
       upd();
     });
   });
