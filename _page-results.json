@@ -100,7 +100,7 @@
     },
     {
         "menu":  "Wartungserinnerung",
-        "titel":  "Wartungserinnerung – alle zwei Jahre rechtzeitig erinnert",
+        "titel":  "Wartungserinnerung – rechtzeitig erinnert",
         "id":  2685,
         "slug":  "wartungserinnerung",
         "status":  "publish",

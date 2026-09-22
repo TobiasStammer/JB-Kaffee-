@@ -54,16 +54,15 @@ $datumVon = DateField 'datum_von' 'Datum von' $true
 $datumBis = DateField 'datum_bis' 'Datum bis' $true
 
 $getraenke = [pscustomobject]@{
-  attributes=[pscustomobject]@{ name='getraenke'; value=@() }
+  attributes=[pscustomobject]@{ type='checkbox'; name='getraenke'; value=@() }
   element='input_checkbox'
   settings=[pscustomobject]@{
     label=('Gew'+$u+'nschte Getr'+$a+'nke'); help_message='Mehrfachauswahl m'+$o+'glich'
     conditional_logics=@(); container_class=''; admin_field_label=('Getr'+$a+'nke'); label_placement=''
     advanced_options=@(
-      [pscustomobject]@{ label='Kaffee & Espresso'; value='Kaffee & Espresso' }
-      [pscustomobject]@{ label='Cappuccino'; value='Cappuccino' }
-      [pscustomobject]@{ label='Latte Macchiato'; value='Latte Macchiato' }
-      [pscustomobject]@{ label=('Hei'+$s+'er Kakao'); value=('Hei'+$s+'er Kakao') }
+      [pscustomobject]@{ label='Kaffee & Espresso'; value='Kaffee & Espresso'; calc_value=''; image=''; id=1 }
+      [pscustomobject]@{ label='Cappuccino'; value='Cappuccino'; calc_value=''; image=''; id=2 }
+      [pscustomobject]@{ label='Latte Macchiato'; value='Latte Macchiato'; calc_value=''; image=''; id=3 }
     )
     validation_rules=[pscustomobject]@{ required=[pscustomobject]@{ message=('Bitte ausw'+$a+'hlen'); value=$false } }
   }
