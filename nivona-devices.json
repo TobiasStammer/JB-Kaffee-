@@ -1,0 +1,54 @@
+{
+  "_note": "NIVONA Einzelgeraete (kein Farbwechsel mehr) - jede Farbe/Modell ein eigenes einfaches Produkt unter dem echten Modellnamen. Abgeglichen gegen nivona.com/de/overview 2026-09-23. CUBE-Sonderfarben (Folierung) und 8000er-Altmodelle (8101/8103/8107/8112) bewusst NICHT aufgenommen.",
+  "categories": {
+    "parent":   { "name": "NIVONA", "slug": "nivona" },
+    "haushalt": { "name": "NIVONA Kaffeevollautomaten", "slug": "nivona-kaffeevollautomaten" }
+  },
+  "shortHtml": "<p>Kaffeevollautomat der Marke NIVONA. Verkauf, Beratung, Vorf&uuml;hrung und Service durch die Joachim Bl&ouml;chle Elektro-Service GmbH in Hofheim-Langenhain. Alle Preise inkl. MwSt.</p>",
+  "devices": [
+    { "sku": "nivona-cube-4102",   "art": "CUBE 4102",     "serie": "CUBE 4'",     "color": "Weiß",      "price": "479.00",  "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_cube4_weiss-BO00enDi.webp",
+      "tx": "Der kompakte Einstieg: nur 19,5 cm breit, One-Touch-Zubereitung, automatisches Tampern und herausnehmbare Br&uuml;heinheit (Click Cup). Ideal, wo wenig Platz ist." },
+    { "sku": "nivona-cube-4106",   "art": "CUBE 4106",     "serie": "CUBE 4'",     "color": "Schwarz",   "price": "479.00",  "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_cube4_schwarz-Jp6dpHzD.webp",
+      "tx": "Der kompakte Einstieg: nur 19,5 cm breit, One-Touch-Zubereitung, automatisches Tampern und herausnehmbare Br&uuml;heinheit (Click Cup). Ideal, wo wenig Platz ist." },
+
+    { "sku": "nivona-nicr-5-50",   "art": "NICR 5'50",     "serie": "5er",         "color": "Schwarz",   "price": "549.00",  "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_5series_schwarz-DBTpwHlk.webp",
+      "tx": "Solide Grundausstattung: Kaffee und Espresso auf Knopfdruck, TFT-Farbdisplay mit Dreh-Bedienung, manueller Spumatore, bis zu 2 Tassen gleichzeitig." },
+    { "sku": "nivona-nicr-5-60",   "art": "NICR 5'60",     "serie": "5er",         "color": "Weiß",      "price": "549.00",  "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_5series_weiss-D2TofRtK.webp",
+      "tx": "Solide Grundausstattung: Kaffee und Espresso auf Knopfdruck, TFT-Farbdisplay mit Dreh-Bedienung, manueller Spumatore, bis zu 2 Tassen gleichzeitig." },
+
+    { "sku": "nivona-nicr-6-95",   "art": "NICR 6'95",     "serie": "6er",         "color": "Titan",     "price": "699.00",  "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_6series_titan-CGm7EHsw.webp",
+      "tx": "Einstieg ins Aroma Balance System: Brühvorgang direkt beeinflussen, Spumatore Mano SoloPlus für Milchschaum, eigene Kaffeerezepte speichern." },
+
+    { "sku": "nivona-nicr-7-93",   "art": "NICR 7'93",     "serie": "7er",         "color": "Grau",      "price": "777.00",  "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_7series_grau-CqxZo51t.webp",
+      "tx": "Cappuccino und Latte Macchiato auf Knopfdruck (OneTouch), OneTouch-Reinigung des Milchsystems, Lieblingskaffee speichern, Reihenfolge von Espresso/Milch veraenderbar." },
+    { "sku": "nivona-nicr-7-90",   "art": "NICR 7'90",     "serie": "7er",         "color": "Schwarz",   "price": "779.00",  "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_7series_schwarz-DouxMlEN.webp",
+      "tx": "Cappuccino und Latte Macchiato auf Knopfdruck (OneTouch), OneTouch-Reinigung des Milchsystems, Lieblingskaffee speichern, Reihenfolge von Espresso/Milch veraenderbar." },
+    { "sku": "nivona-nicr-7-95",   "art": "NICR 7'95",     "serie": "7er",         "color": "Titan",     "price": "849.00",  "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_7series_titan-BQjzW13s.webp",
+      "tx": "Cappuccino und Latte Macchiato auf Knopfdruck (OneTouch), OneTouch-Reinigung des Milchsystems, Lieblingskaffee speichern, Reihenfolge von Espresso/Milch veraenderbar." },
+    { "sku": "nivona-nicr-7-96",   "art": "NICR 7'96",     "serie": "7er",         "color": "Weiß",      "price": "849.00",  "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_7series_weiss-nbBg49DM.webp",
+      "tx": "Cappuccino und Latte Macchiato auf Knopfdruck (OneTouch), OneTouch-Reinigung des Milchsystems, Lieblingskaffee speichern, Reihenfolge von Espresso/Milch veraenderbar." },
+
+    { "sku": "nivona-nivo-7101",   "art": "NIVO 7101",     "serie": "7000er",      "color": "Schwarz",   "price": "999.00",  "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_nivo7000_schwarz-Bxa38DUQ.webp",
+      "tx": "Grosse NIVONA-Technologie im kompakten Format: kratzfestes Glas-Touchdisplay, 5 Profile fuer das Aroma Balance System, herausnehmbare Bruheinheit. Entwickelt und produziert in Europa (Red Dot Award 2026)." },
+    { "sku": "nivona-nivo-7105",   "art": "NIVO 7105",     "serie": "7000er",      "color": "Grau",      "price": "999.00",  "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_nivo7000_grau-DOefjY5e.webp",
+      "tx": "Grosse NIVONA-Technologie im kompakten Format: kratzfestes Glas-Touchdisplay, 5 Profile fuer das Aroma Balance System, herausnehmbare Bruheinheit. Entwickelt und produziert in Europa (Red Dot Award 2026)." },
+
+    { "sku": "nivona-nivo-8111",   "art": "NIVO 8111",     "serie": "8000er",      "color": "Schwarz",   "price": "1199.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_8000er_schwarz-BlEiOSUz.png",
+      "tx": "Cappuccino wie vom Barista, modernes Design mit elegantem Auslauf, fortschrittlichste Bruheinheit, 5 Profile fuer das Aroma Balance System - inkl. Nitro und Chilled Brew." },
+    { "sku": "nivona-nivo-8113",   "art": "NIVO 8113",     "serie": "8000er",      "color": "Titan",     "price": "1249.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_8000er_titan-CWeA0YNC.png",
+      "tx": "Cappuccino wie vom Barista, modernes Design mit elegantem Auslauf, fortschrittlichste Bruheinheit, 5 Profile fuer das Aroma Balance System - inkl. Nitro und Chilled Brew." },
+    { "sku": "nivona-nivo-8117",   "art": "NIVO 8117",     "serie": "8000er",      "color": "Perlenblau","price": "1249.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_8000er_perlenblau-s5VOVyDX.png",
+      "tx": "Cappuccino wie vom Barista, modernes Design mit elegantem Auslauf, fortschrittlichste Bruheinheit, 5 Profile fuer das Aroma Balance System - inkl. Nitro und Chilled Brew." },
+
+    { "sku": "nivona-nivo-9101",   "art": "NIVO 9101",     "serie": "9000er",      "color": "Schwarz",   "price": "1649.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_nivo9000_schwarz-DgfhSzcc.webp",
+      "tx": "Optimaler Milchschaum auch fuer Milch-Alternativen, grosses 7-Zoll-Farbdisplay, fortschrittlichste Bruheinheit, gekuehlter Kaffeegenuss dank Chilled Brew." },
+    { "sku": "nivona-nivo-9103",   "art": "NIVO 9103",     "serie": "9000er",      "color": "Titan",     "price": "1699.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_nivo9000_titan-Cr7_41Qc.webp",
+      "tx": "Optimaler Milchschaum auch fuer Milch-Alternativen, grosses 7-Zoll-Farbdisplay, fortschrittlichste Bruheinheit, gekuehlter Kaffeegenuss dank Chilled Brew." },
+
+    { "sku": "nivona-nicr-10-40",  "art": "NICR 10'40",    "serie": "10er",        "color": "Titan",     "price": "1999.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_10series_titan-ZgfRjqri.webp",
+      "tx": "Fuer den Vieltrinker-Einsatz in Buero und Betrieb: grosser Wassertank und Bohnenbehaelter, selbstreinigendes Milchsystem mit Doppelmilchschlauch, ausgelegt auf bis zu 50 Tassen taeglich." },
+
+    { "sku": "nivona-nivo-8141-pro","art": "NIVO 8'141 Pro","serie": "8000er Pro", "color": "Schwarz",   "price": "1549.00", "img": "https://nivona.com/assets/NIVONA_Frontansicht_Render_nivo8141pro_schwarz-CHeH5-lp.webp",
+      "tx": "Fuer hohe Bezugsmengen im Buero: besonders grosse Auffangschale und Wassertank, Mengenfunktion fuer bis zu 8 Getraenke am Stueck, ausgelegt auf bis zu 50 Tassen taeglich." }
+  ]
+}

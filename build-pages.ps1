@@ -808,11 +808,10 @@ $SHOP_NAV = @(
   @{ label = 'Pflegeprodukte';      slug = 'jura-pflegeprodukte' }
   @{ label = 'Unser Kaffee &amp; Tee'; slug = 'unser-kaffee' }
 )
-$NIVONA_SHOP_SLUGS = @('nivona','nivona-kaffeevollautomaten','nivona-zubehoer','nivona-pflegeprodukte')
+$NIVONA_SHOP_SLUGS = @('nivona','nivona-kaffeevollautomaten','nivona-pflegeprodukte')
 $NIVONA_NAV = @(
   @{ label = 'NIVONA-Shop';         slug = 'nivona' }
   @{ label = 'Kaffeevollautomaten'; slug = 'nivona-kaffeevollautomaten' }
-  @{ label = 'Zubeh&ouml;r';        slug = 'nivona-zubehoer' }
   @{ label = 'Pflegeprodukte';      slug = 'nivona-pflegeprodukte' }
   @{ label = 'Unser Kaffee &amp; Tee'; slug = 'unser-kaffee' }
   @{ label = 'Zum JURA-Shop';       slug = 'jura' }
@@ -896,16 +895,27 @@ header.wp-block-template-part{display:contents}
 // Bugfix Variantenbild: FlexSlider berechnet die Galerie-Hoehe/-Breite beim
 // Farbwechsel manchmal neu, BEVOR das neue Bild geladen ist -> Viewport/Slide
 // bleiben bei 0x0 haengen, das Bild verschwindet (nur die Lupe bleibt sichtbar).
-// Fix: nach jedem Variantenwechsel (mehrfach verzoegert) die kaputten Inline-
-// Styles zuruecksetzen und FlexSlider zum Neuberechnen zwingen.
+// Fix: nach jedem Variantenwechsel die kaputten Inline-Styles zuruecksetzen
+// und FlexSlider neu berechnen lassen - wiederholt im Kurzintervall (statt
+// nur zu 3 festen Zeitpunkten), bis der Viewport eine plausible Hoehe hat.
+// Feste Verzoegerungen (80/500/1200ms) reichten nicht, wenn das Bild auf
+// langsamen Verbindungen (IONOS-Hosting) erst spaeter fertig laedt - dann
+// blieb die Galerie dauerhaft kaputt, weil kein weiterer Versuch mehr kam.
 (function(){
   if(!window.jQuery) return;
+  function galleryWidth(g, vp){
+    // vp.width() kann im kaputten Zustand ebenfalls 0 sein - dann auf die
+    // Breite des Wrappers bzw. der ganzen Galerie ausweichen.
+    return vp.width() || g.find('.woocommerce-product-gallery__wrapper').width() || g.width() || 0;
+  }
   function fixGallery(){
     var g = window.jQuery('.woocommerce-product-gallery');
-    if(!g.length) return;
+    if(!g.length) return true;
     var vp = g.find('.flex-viewport');
     g.find('.flex-active-slide').css('width','');
     if(g.data('flexslider')){ try{ g.flexslider('resize'); }catch(e){} }
+    var h = vp.height();
+    if(h && h >= 20) return true;
     // FlexSlider setzt dem Viewport manchmal GAR KEINE Hoehe (0px oder
     // leer) - nicht nur nach Farbwechsel, auch schon beim allerersten
     // Laden (v.a. auf schmalen/mobilen Viewports). Ohne Hoehe clippt
@@ -914,27 +924,25 @@ header.wp-block-template-part{display:contents}
     // Miniaturen. flexslider('resize') allein behebt das nicht
     // zuverlaessig -> Hoehe notfalls selbst aus dem aktiven Bild
     // berechnen (Seitenverhaeltnis * aktuelle Viewport-Breite).
-    var h = vp.height();
-    if(!h || h < 20){
-      var img = g.find('.flex-active-slide img')[0] || g.find('.woocommerce-product-gallery__wrapper img')[0];
-      var w = vp.width();
-      if(img){ if(img.naturalWidth){ if(w){
-        vp.css('height', Math.round(w * img.naturalHeight / img.naturalWidth) + 'px');
-      } } }
+    var img = g.find('.flex-active-slide img')[0] || g.find('.woocommerce-product-gallery__wrapper img')[0];
+    var w = galleryWidth(g, vp);
+    if(img && img.naturalWidth && w){
+      vp.css('height', Math.round(w * img.naturalHeight / img.naturalWidth) + 'px');
+      return true;
     }
+    return false;
   }
-  window.jQuery(window).on('load',function(){
-    setTimeout(fixGallery,80);
-    setTimeout(fixGallery,500);
-    setTimeout(fixGallery,1200);
-  });
-  window.jQuery(document.body).on('found_variation woocommerce_gallery_init_gallery woocommerce_gallery_reset_slide_position reset_data', function(){
-    setTimeout(fixGallery,60);
-    setTimeout(fixGallery,350);
-    setTimeout(fixGallery,900);
-  });
+  function fixGalleryUntilStable(){
+    var tries = 0;
+    (function tick(){
+      if(fixGallery() || ++tries > 25) return;
+      setTimeout(tick, 200);
+    })();
+  }
+  window.jQuery(window).on('load', fixGalleryUntilStable);
+  window.jQuery(document.body).on('found_variation woocommerce_gallery_init_gallery woocommerce_gallery_reset_slide_position reset_data', fixGalleryUntilStable);
   window.jQuery(document).on('load','.woocommerce-product-gallery__wrapper img',function(){
-    setTimeout(fixGallery,30);
+    fixGalleryUntilStable();
   });
 })();
 // "Empfohlenes Zubehoer": auf JURA/NIVONA-Geraete-Produktseiten (nicht auf
@@ -1199,12 +1207,12 @@ function Store-Html {
 $(Sec-Head $SD.storeEyebrow $SD.storeTitle '')
 <div style="max-width:$SECW;margin:0 auto;border:1px solid #e2e2e2;border-radius:8px;overflow:hidden;background:#ffffff;font-family:$FONT_BODY">
   $img
-  <div style="padding:28px 30px">
+  <div style="padding:28px clamp(16px,5vw,30px)">
     <div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
-      <div style="flex:1 1 260px">$paras</div>
+      <div style="flex:1 1 min(260px,100%);min-width:0">$paras</div>
       $badge
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;border-top:1px solid $($C.line);padding-top:22px;margin-top:22px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(250px,100%),1fr));gap:14px;border-top:1px solid $($C.line);padding-top:22px;margin-top:22px">
       <div style="background:$($C.soft);border-radius:8px;padding:16px 20px 18px">
         <div style="display:flex;align-items:center;gap:8px;color:$($C.accent);font-family:$FONT_HEAD;font-weight:700;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;padding-bottom:9px;margin-bottom:10px;border-bottom:1px solid $($C.line)">$iconPin $($SD.storeAddrTitle)</div>
         <div style="font-size:14px;line-height:1.85;color:$($C.text)">$addr</div>
@@ -1258,7 +1266,7 @@ function Benefits-Html {
 "@ }) -join "`n    "
   @"
 $(Sec-Head $SD.benefitsEyebrow $SD.benefitsTitle '')
-<div style="max-width:$SECW;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:18px 44px;font-family:$FONT_BODY">
+<div style="max-width:$SECW;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(400px,100%),1fr));gap:18px 44px;font-family:$FONT_BODY">
     $checks
 </div>
 "@
