@@ -1512,6 +1512,13 @@
       "excerpt": "Melden Sie sich an und werden Sie rechtzeitig an die Wartung Ihres Kaffeevollautomaten erinnert (privat alle zwei Jahre, gewerblich jährlich) – oder legen Sie sich den Termin selbst in den Kalender. Plus Entkalkungsplan für die Pflege zwischendurch."
     },
     {
+      "slug": "wasserhaerte",
+      "kind": "wasserhaerte",
+      "menu": "Wasserhärte ermitteln",
+      "title": "Wasserhärte ermitteln – Richtwert für Ihren Wohnort",
+      "excerpt": "Wie hart ist Ihr Wasser? Per Postleitzahl den Richtwert abfragen und den passenden Härtegrad am Kaffeevollautomaten einstellen."
+    },
+    {
       "slug": "reparatur-check",
       "kind": "reparatur-check",
       "menu": "Reparatur-Check",

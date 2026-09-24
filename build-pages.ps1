@@ -463,8 +463,8 @@ $NAVTREE = @(
       @{ slug = 'hilfe-stoerungen' }
       @{ slug = 'hilfe-reinigung-pflege' }
       @{ slug = 'hilfe-ratgeber' }
+      @{ slug = 'wasserhaerte'; label = 'Wasserh&auml;rte ermitteln' }
       @{ slug = 'kaffee-quiz'; label = 'Kaffee-Quiz: Testen Sie Ihr Wissen' }
-      @{ slug = 'hilfethemen'; label = 'Alle Hilfethemen &rarr;' }
     ) }
   @{ slug = 'ueber-uns'; label = '&Uuml;ber uns'; kids = @(
       @{ slug = 'ueber-uns'; label = 'Das Unternehmen' }
@@ -2861,7 +2861,7 @@ $FORM_CSS
         <button type="button" id="pp-plzgo">H&auml;rte ermitteln</button>
       </div>
       <div class="pp-plzres" id="pp-plzres" hidden></div>
-      <p class="pp-hint">Die Abfrage l&auml;uft &uuml;ber <a href="https://wasser-haerte.de" target="_blank" rel="noopener">wasser-haerte.de</a>; dabei werden Ihre IP-Adresse und die PLZ an den Dienst &uuml;bermittelt. Es ist ein Richtwert f&uuml;r Ihre Gemeinde &ndash; den genauen Wert nennt Ihr Wasserversorger, einen Teststreifen erhalten Sie auch bei uns im Gesch&auml;ft.</p>
+      <p class="pp-hint">Die Abfrage l&auml;uft &uuml;ber <a href="https://wasser-haerte.de" target="_blank" rel="noopener">wasser-haerte.de</a>; dabei werden Ihre IP-Adresse und die PLZ an den Dienst &uuml;bermittelt. Es ist ein Richtwert f&uuml;r Ihre Gemeinde &ndash; den genauen Wert nennt Ihr Wasserversorger, einen Teststreifen erhalten Sie auch bei uns im Gesch&auml;ft. Mehr dazu auf unserer Seite <a href="$base/wasserhaerte/">Wasserh&auml;rte</a>.</p>
     </div>
   </div>
 
@@ -3421,6 +3421,130 @@ $js
   ) -join "`n`n")
 }
 
+# ---------- Hilfe & Wissen: Wasserhaerte ermitteln ----------
+function Wasserhaerte-Content($p) {
+  $tEntk = "$base/pflege-entkalken/"
+  $tFilt = "$base/pflege-wasserfilter/"
+  $html = @"
+<style>
+.wh{max-width:820px;margin:0 auto;font-family:$FONT_BODY;color:$($C.text)}
+.wh h1{font-family:$FONT_HEAD;font-size:24px;line-height:1.25;margin:0 0 10px;color:$($C.head)}
+.wh .lead{font-size:15.5px;line-height:1.6;color:#444;margin:0 0 24px;max-width:660px}
+.wh h2{font-family:$FONT_HEAD;font-size:18px;line-height:1.3;margin:34px 0 10px;color:$($C.head)}
+.wh p,.wh li{font-size:15px;line-height:1.65}
+.wh a{color:$($C.accent)}
+.wh-card{background:#fff;border:1px solid $($C.line);border-radius:12px;padding:20px 22px}
+.wh-lbl{display:block;font-family:$FONT_HEAD;font-size:14.5px;font-weight:700;color:$($C.head);margin:0 0 10px}
+.wh-row{display:flex;flex-wrap:wrap;gap:9px}
+.wh-row input{width:140px;padding:11px 12px;border:1px solid #c4c4c4;border-radius:7px;font-size:16px;font-family:$FONT_BODY;letter-spacing:.06em;background:#fff}
+.wh-row button{background:$($C.accent);color:#fff;border:0;border-radius:7px;padding:11px 20px;font-family:$FONT_HEAD;font-size:13.5px;font-weight:700;cursor:pointer}
+.wh-row button:hover{background:$($C.accentD)}
+.wh-res{margin:14px 0 0;font-size:14.5px;line-height:1.55}
+.wh-res .ok{background:#eef7f0;border:1px solid #63a375;border-radius:8px;padding:12px 14px;color:#2f5d3f}
+.wh-res .err{background:#fbeeee;border:1px solid #d08a8a;border-radius:8px;padding:12px 14px;color:#8a3b3b}
+.wh-pick{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0 0}
+.wh-pick button{background:#fff;border:1px solid #ccd1d8;border-radius:999px;padding:6px 12px;font-size:12.5px;cursor:pointer;font-family:$FONT_BODY}
+.wh-pick button.on{border-color:$($C.accent);box-shadow:inset 0 0 0 1px $($C.accent);font-weight:700}
+.wh-hint{font-size:12.5px;line-height:1.55;color:#6b7178;margin:12px 0 0}
+.wh-tbl{width:100%;border-collapse:collapse;background:#fff;border:1px solid $($C.line);font-size:14px}
+.wh-tbl th,.wh-tbl td{padding:10px 12px;text-align:left;border-bottom:1px solid #ececec;line-height:1.45}
+.wh-tbl th{background:$($C.soft);font-family:$FONT_HEAD;font-size:12.5px;color:$($C.head)}
+.wh-tbl tr:last-child td{border-bottom:0}
+.wh-tbl tr.on td{background:#eef2f7;font-weight:700}
+.wh-steps{padding-left:20px;margin:0}
+.wh-steps li{margin:0 0 6px}
+.wh-btns{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 0}
+.wh-btn{display:inline-block;background:$($C.accent);color:#fff!important;border-radius:6px;padding:11px 20px;font-family:$FONT_HEAD;font-size:13.5px;font-weight:700;text-decoration:none}
+.wh-btn.ghost{background:transparent;color:$($C.accent)!important;border:1px solid #ccd1d8}
+@media(max-width:560px){.wh-tbl{font-size:13px}.wh-tbl th,.wh-tbl td{padding:8px 8px}}
+</style>
+<div class="wh">
+  <h1>Wasserh&auml;rte ermitteln</h1>
+  <p class="lead">Die Wasserh&auml;rte bestimmt, wie schnell Ihr Kaffeevollautomat verkalkt &ndash; und welchen H&auml;rtegrad Sie am Ger&auml;t einstellen sollten. Hier finden Sie den Richtwert f&uuml;r Ihren Wohnort.</p>
+
+  <div class="wh-card">
+    <span class="wh-lbl">Wasserh&auml;rte &uuml;ber die Postleitzahl abfragen</span>
+    <div class="wh-row">
+      <input type="text" id="wh-plz" inputmode="numeric" maxlength="5" placeholder="PLZ" autocomplete="postal-code" aria-label="Postleitzahl">
+      <button type="button" id="wh-go">H&auml;rte ermitteln</button>
+    </div>
+    <div class="wh-res" id="wh-res" hidden></div>
+    <p class="wh-hint">Die Abfrage l&auml;uft &uuml;ber <a href="https://wasser-haerte.de" target="_blank" rel="noopener">wasser-haerte.de</a>, erst nach Klick auf &bdquo;H&auml;rte ermitteln&ldquo;; dabei werden Ihre IP-Adresse und die PLZ an den Dienst &uuml;bermittelt. Es ist ein Richtwert f&uuml;r Ihre Gemeinde &ndash; den genauen Wert nennt Ihr Wasserversorger.</p>
+  </div>
+
+  <h2>Die H&auml;rtebereiche im &Uuml;berblick</h2>
+  <table class="wh-tbl" id="wh-tbl">
+    <thead><tr><th>Bereich</th><th>&deg;dH</th><th>Einstufung</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>0 &ndash; 7</td><td>weich</td></tr>
+      <tr><td>2</td><td>8 &ndash; 14</td><td>mittel</td></tr>
+      <tr><td>3</td><td>15 &ndash; 21</td><td>hart</td></tr>
+      <tr><td>4</td><td>22 &ndash; 28</td><td>sehr hart</td></tr>
+    </tbody>
+  </table>
+  <p class="wh-hint">Die Einteilung der Stufen kann je nach Hersteller und Ger&auml;t abweichen &ndash; ma&szlig;geblich ist die Bedienungsanleitung Ihres Vollautomaten.</p>
+
+  <h2>Wasserh&auml;rte selbst pr&uuml;fen</h2>
+  <ul class="wh-steps">
+    <li><b>Wasserversorger:</b> Auf der Wasserrechnung oder der Internetseite Ihres Versorgers steht der aktuelle H&auml;rtebereich.</li>
+    <li><b>Teststreifen:</b> Kurz ins Leitungswasser tauchen und die Farbe ablesen &ndash; Teststreifen erhalten Sie auch bei uns im Gesch&auml;ft.</li>
+  </ul>
+
+  <h2>Warum der Wert am Ger&auml;t wichtig ist</h2>
+  <p>Aus dem eingestellten H&auml;rtegrad und der verbrauchten Wassermenge berechnet die Elektronik, wann entkalkt werden muss. Steht der Wert zu niedrig, verkalken Boiler, Pumpe und Leitungen &ndash; steht er zu hoch, wird unn&ouml;tig oft entkalkt.</p>
+
+  <div class="wh-btns">
+    <a class="wh-btn" href="$tEntk">Anleitung Entkalken</a>
+    <a class="wh-btn ghost" href="$tFilt">Wasserfilter verwenden</a>
+    <a class="wh-btn ghost" href="$base/wartungserinnerung/">Entkalkungsplan erstellen</a>
+  </div>
+</div>
+<script>
+(function(){
+  var plzEl=document.getElementById('wh-plz'), resEl=document.getElementById('wh-res');
+  function catOf(v){ return (8.4>v)?'weich':((14>=v)?'mittel':'hart'); }
+  function bereich(v){ return (7.5>v)?1:((14.5>v)?2:((21.5>v)?3:4)); }
+  function showMsg(cls,text){ resEl.hidden=false; resEl.innerHTML=''; var d=document.createElement('div'); d.className=cls; d.textContent=text; resEl.appendChild(d); return d; }
+  function mark(v){
+    var rows=document.querySelectorAll('#wh-tbl tbody tr'), b=bereich(v), i;
+    for(i=0;i<rows.length;i++){ rows[i].className=(i+1===b)?'on':''; }
+  }
+  function applyEntry(e,box,pick){
+    var v=parseFloat(e.haerte_dh); if(isNaN(v)) return;
+    var b=bereich(v);
+    box.textContent='Wasserhärte in '+e.name+': ca. '+String(v).replace('.',',')+' °dH – '+catOf(v)+' (Härtebereich '+b+').';
+    mark(v);
+    if(pick){ [].slice.call(pick.children).forEach(function(x){ x.classList.toggle('on', x.getAttribute('data-n')===e.name); }); }
+  }
+  function lookup(){
+    var q=plzEl.value.replace(/\D/g,'');
+    if(q.length!==5){ showMsg('err','Bitte eine fünfstellige Postleitzahl eingeben.'); return; }
+    showMsg('ok','Einen Moment …');
+    fetch('https://wasser-haerte.de/api/search.php?q='+q).then(function(r){ return r.json(); }).then(function(list){
+      list=(list||[]).filter(function(x){ return String(x.plz)===q; });
+      if(!list.length){ showMsg('err','Zu dieser Postleitzahl haben wir keine Angabe gefunden. Fragen Sie bitte Ihren Wasserversorger oder nutzen Sie einen Teststreifen.'); return; }
+      var box=showMsg('ok','');
+      var pick=null;
+      if(list.length>1){
+        pick=document.createElement('div'); pick.className='wh-pick';
+        list.forEach(function(e){ var b=document.createElement('button'); b.type='button'; b.setAttribute('data-n',e.name); b.textContent=e.name+' ('+String(e.haerte_dh).replace('.',',')+' °dH)'; b.addEventListener('click',function(){ applyEntry(e,box,pick); }); pick.appendChild(b); });
+        resEl.appendChild(pick);
+      }
+      applyEntry(list[0],box,pick);
+    }).catch(function(){ showMsg('err','Die Abfrage ist gerade nicht möglich. Bitte versuchen Sie es später erneut oder fragen Sie Ihren Wasserversorger.'); });
+  }
+  document.getElementById('wh-go').addEventListener('click',lookup);
+  plzEl.addEventListener('keydown',function(ev){ if(ev.key==='Enter'){ ev.preventDefault(); lookup(); } });
+})();
+</script>
+"@
+  Wrap-Page (@(
+    (Pick-Header $p.slug),
+    (Zone $C.bg '44px' '58px' (Html-Block $html)),
+    (Footer-Zone)
+  ) -join "`n`n")
+}
+
 # ---------- Anlegen / Aktualisieren (immer draft) ----------
 $results = @()
 foreach ($p in $data.pages) {
@@ -3433,6 +3557,7 @@ foreach ($p in $data.pages) {
     'jura-kategorie-pflege'   { Jura-Kategorie-Content $p 'jura-pflegeprodukte'; break }
     'kaffee-tee'    { KaffeeTee-Content $p; break }
     'wartungserinnerung' { Wartungserinnerung-Content $p; break }
+    'wasserhaerte'  { Wasserhaerte-Content $p; break }
     'reparatur-check' { ReparaturCheck-Content $p; break }
     'faq-kategorie' { Faq-Kat-Content $p; break }
     'quiz'          { Quiz-Content $p; break }
