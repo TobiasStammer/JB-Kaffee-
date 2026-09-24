@@ -457,14 +457,14 @@ $NAVTREE = @(
       @{ label = 'NIVONA Online-Shop &rsaquo;'; url = "$base/nivona/" }
       @{ slug = 'kaffeemaschine-mieten'; label = 'Mieten &amp; Leasen' }
       @{ slug = 'unser-kaffee'; label = 'Unser Kaffee &amp; Tee' }
-      @{ slug = 'unser-kaffee-wissen'; label = 'Kaffee: Herkunft &amp; R&ouml;stung' }
-      @{ slug = 'unser-tee-wissen'; label = 'Tee: Teekultur &amp; Sorten' }
     ) }
   @{ slug = 'hilfethemen'; label = 'Hilfe &amp; Wissen'; kids = @(
       @{ slug = 'hilfe-stoerungen' }
       @{ slug = 'hilfe-reinigung-pflege' }
       @{ slug = 'hilfe-ratgeber' }
       @{ slug = 'wasserhaerte'; label = 'Wasserh&auml;rte ermitteln' }
+      @{ slug = 'unser-kaffee-wissen'; label = 'Kaffee: Herkunft &amp; R&ouml;stung' }
+      @{ slug = 'unser-tee-wissen'; label = 'Tee: Teekultur &amp; Sorten' }
       @{ slug = 'kaffee-quiz'; label = 'Kaffee-Quiz: Testen Sie Ihr Wissen' }
     ) }
   @{ slug = 'ueber-uns'; label = '&Uuml;ber uns'; kids = @(
