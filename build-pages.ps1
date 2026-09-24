@@ -1,4 +1,4 @@
-# build-pages.ps1 - Baut die 10 Seiten im Design "Klassisch" (DESIGN-KLASSISCH-UMSETZUNG.md)
+﻿# build-pages.ps1 - Baut die 10 Seiten im Design "Klassisch" (DESIGN-KLASSISCH-UMSETZUNG.md)
 # Aktualisierte Fassung: Anthrazit statt Schwarz, nur 3 Farbzonen von oben nach unten
 #   Anthrazit (Kopf)  ->  Hell #eeeeee (durchgehend, Hero..Vorteile)  ->  Anthrazit (CTA+Footer verschmolzen)
 # Inhalte/Texte: pages-content.json (UTF-8). Alle Seiten bleiben STATUS = draft.
@@ -947,6 +947,18 @@ header.wp-block-template-part{display:contents}
   window.jQuery(document).on('load','.woocommerce-product-gallery__wrapper img',function(){
     fixGalleryUntilStable();
   });
+})();
+// "Weitere Farben": JURA-Farbvarianten sind Einzelprodukte. Der Block .kt-farben
+// steht in der Produktbeschreibung (HTML erlaubt, die Kurzbeschreibung nicht) und
+// wird hier direkt unter den Kurztext geschoben.
+(function(){
+  function move(){
+    if(!document.body.classList.contains('single-product')) return;
+    var k = document.querySelector('.kt-farben');
+    var ex = document.querySelector('.wp-block-post-excerpt');
+    if(k && ex && ex.parentNode) ex.parentNode.insertBefore(k, ex.nextSibling);
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', move); else move();
 })();
 // "Empfohlenes Zubehoer": auf JURA/NIVONA-Geraete-Produktseiten (nicht auf
 // Zubehoer/Pflege-Seiten selbst) unten eine Kachelreihe mit 4 Zubehoer-
