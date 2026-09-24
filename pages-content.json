@@ -1501,6 +1501,25 @@
             "Werden zusätzlich Ersatzteile für einen Defekt nötig, erhalten Sie vorab einen Kostenvoranschlag",
             "Alle Preise und Dauer: <a href=\"/reparaturkosten/\">Dauer &amp; Kosten</a>"
           ]
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "x": "Mietgerät während der Wartung"
+        },
+        {
+          "t": "p",
+          "x": "Auch während der Wartung müssen Sie nicht auf Ihren Kaffee verzichten: Auf Wunsch stellen wir Ihnen ein Mietgerät zur Verfügung. Preise und die verfügbaren Modelle finden Sie auf der Seite zum Mietgerät. Die Anzahl der Geräte ist begrenzt – reservieren Sie am besten schon vor dem Werkstatttermin."
+        },
+        {
+          "t": "btns",
+          "keep": true,
+          "x": [
+            {
+              "label": "Mietgerät ansehen und reservieren",
+              "url": "/leihgeraete/"
+            }
+          ]
         }
       ]
     },
