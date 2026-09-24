@@ -2007,12 +2007,22 @@ function Jura-Kategorie-Content($p, $brandKey = 'jura') {
     $sp = Get-Content $specFile -Raw -Encoding UTF8 | ConvertFrom-Json
     foreach ($pn in $sp.PSObject.Properties) { if ($pn.Name -notmatch '^_') { $SPEC[$pn.Name] = $pn.Value } }
   }
+  $SPECALIAS = @{}
+  $varFile = "$root\$brandKey-variants.json"
+  if (Test-Path $varFile) {
+    $vj = Get-Content $varFile -Raw -Encoding UTF8 | ConvertFrom-Json
+    if ($vj.colors) { foreach ($g in $vj.colors.PSObject.Properties) { foreach ($c in @($g.Value)) { $SPECALIAS["$($c.art)"] = $g.Name } } }
+  }
   function SpecOf($sku) {
     # WC-SKU traegt bei Farbvarianten die interne Produkt-ID in Klammern
     # (z.B. "15609 (1099)"), jura-specs.json ist aber nach der reinen
     # JURA-Artikelnummer indiziert - Klammerzusatz vor dem Lookup abtrennen.
     $base = "$sku" -replace '\s*\(.*\)\s*$', ''
-    if ($base -and $SPEC.ContainsKey($base)) { $SPEC[$base] } else { $null }
+    if ($base -and $SPEC.ContainsKey($base)) { return $SPEC[$base] }
+    # Zweit-/Weitere Farben sind eigene Produkte (z.B. 15613 = Z10 Aluminium White)
+    # und teilen sich die Specs mit der Haupt-Artikelnummer der Farbgruppe.
+    if ($base -and $SPECALIAS.ContainsKey($base) -and $SPEC.ContainsKey($SPECALIAS[$base])) { return $SPEC[$SPECALIAS[$base]] }
+    $null
   }
   function Td($spec, $rx) { if ($spec) { ([string](($spec.techdaten | Where-Object { $_.k -match $rx }).v | Select-Object -First 1)) } else { '' } }
   function ShortDisplay($v) {
