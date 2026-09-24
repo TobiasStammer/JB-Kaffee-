@@ -2174,7 +2174,6 @@ $JURA_CSS
         <option value="az">Name A&ndash;Z</option>
       </select>
     </div>
-    $farbBar
     $featBar
   </div>
   <div class="jk2-grid" id="jk2grid">
