@@ -129,7 +129,7 @@ function Native-Blocks($blocks) {
             $u = $brandMedia[$slug]
             $logo = if ($u) { "<img src=`"$u`" alt=`"$($_.name)`" style=`"max-height:32px;max-width:108px;width:auto;object-fit:contain`">" }
                     else    { "<span style=`"font-family:$FONT_HEAD;font-weight:700;font-size:14px;color:$($C.head)`">$($_.name)</span>" }
-            "<div id=`"brand-$slug`" style=`"scroll-margin-top:90px;display:grid;grid-template-columns:120px 1fr;gap:20px;align-items:baseline;padding:15px 0;border-top:1px solid #e6e6e6`"><div style=`"font-family:$FONT_HEAD;font-weight:700;font-size:13.5px;color:$($C.head);display:flex;align-items:center;min-height:20px`">$logo</div><div style=`"font-size:14px;line-height:1.65;color:$($C.text)`">$($_.models)</div></div>"
+            "<div id=`"brand-$slug`" style=`"scroll-margin-top:16px;display:grid;grid-template-columns:120px 1fr;gap:20px;align-items:baseline;padding:15px 0;border-top:1px solid #e6e6e6`"><div style=`"font-family:$FONT_HEAD;font-weight:700;font-size:13.5px;color:$($C.head);display:flex;align-items:center;min-height:20px`">$logo</div><div style=`"font-size:14px;line-height:1.65;color:$($C.text)`">$($_.models)</div></div>"
           }) -join "`n"
           "<h3 class=`"kt-bmsec`">$($g.h)</h3>`n<div style=`"font-family:$FONT_BODY`">`n$rows`n</div>"
         }
@@ -144,7 +144,7 @@ function Native-Blocks($blocks) {
             $li = ($_.points | ForEach-Object { "<li>$_</li>" }) -join ''
             $body += "<ul>$li</ul>"
           }
-          $sid = if ($b.nav) { " id=`"kt-step-$($_.n)`" style=`"scroll-margin-top:84px`"" } else { '' }
+          $sid = if ($b.nav) { " id=`"kt-step-$($_.n)`" style=`"scroll-margin-top:16px`"" } else { '' }
           "  <div class=`"kt-step`"$sid><span class=`"kt-step-n`">$($_.n)</span><div><h3>$($_.h)</h3>$body</div></div>"
         }) -join "`n"
         # optionale Kachel-Navigation oben (Icon + kurze Beschreibung, Klick springt zum Schritt)
@@ -674,7 +674,7 @@ function Header-Zone($activeSlug) {
   # :focus-within fuer Tastatur/Touch; unter 860px klappen die Untermenues dauerhaft auf)
   $navCss = @"
 <style>
-html{overflow-x:clip}
+html{overflow-x:clip;scroll-padding-top:56px}
 .kt-page *,.kt-intro *,.kt-brands *,.kt-steps *{box-sizing:border-box}
 .kt-topbar{max-width:$MAXW;margin:0 auto;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px 20px;font-family:$FONT_BODY}
 .kt-topbar .kt-phone{font-size:13px;color:#333333;white-space:nowrap}
@@ -824,7 +824,7 @@ $NIVONA_NAV = @(
 function Shop-Bar-CSS {
   @"
 <style>
-html{overflow-x:clip}
+html{overflow-x:clip;scroll-padding-top:56px}
 /* Theme setzt global .wp-site-blocks{overflow:clip} - das bricht position:sticky
    in Safari/iOS (bekannter WebKit-Bug), auch wenn der Ausschnitt hoch genug waere.
    Waagerechtes Clipping bleibt oben an html erhalten, hier nur die Y-Achse loesen,
