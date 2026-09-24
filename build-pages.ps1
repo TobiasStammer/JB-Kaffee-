@@ -2815,18 +2815,6 @@ $FORM_CSS
 .pp-opts button small{display:block;font-size:11px;color:#8a8a8a;margin-top:2px}
 .pp-hint{font-size:12.5px;line-height:1.55;color:#6b7178;margin:11px 0 0}
 .pp-hint a{color:$($C.accent)}
-.pp-plz{margin:14px 0 0;background:$($C.soft);border-radius:10px;padding:14px 16px}
-.pp-plzl{display:block;font-size:13.5px;font-weight:600;color:$($C.head);margin:0 0 9px}
-.pp-plzrow{display:flex;flex-wrap:wrap;gap:9px}
-.pp-plzrow input{width:130px;padding:10px 12px;border:1px solid #c4c4c4;border-radius:7px;font-size:16px;font-family:$FONT_BODY;letter-spacing:.06em;background:#fff}
-.pp-plzrow button{background:$($C.accent);color:#fff;border:0;border-radius:7px;padding:10px 18px;font-family:$FONT_HEAD;font-size:13.5px;font-weight:700;cursor:pointer}
-.pp-plzrow button:hover{background:$($C.accentD)}
-.pp-plzres{margin:11px 0 0;font-size:14px;line-height:1.55}
-.pp-plzres .ok{background:#eef7f0;border:1px solid #63a375;border-radius:8px;padding:10px 13px;color:#2f5d3f}
-.pp-plzres .err{background:#fbeeee;border:1px solid #d08a8a;border-radius:8px;padding:10px 13px;color:#8a3b3b}
-.pp-plzpick{display:flex;flex-wrap:wrap;gap:7px;margin:9px 0 0}
-.pp-plzpick button{background:#fff;border:1px solid #ccd1d8;border-radius:999px;padding:6px 12px;font-size:12.5px;cursor:pointer;font-family:$FONT_BODY}
-.pp-plzpick button.on{border-color:$($C.accent);box-shadow:inset 0 0 0 1px $($C.accent);font-weight:700}
 .pp-go{display:inline-block;background:$($C.accent);color:#fff;border:0;border-radius:6px;padding:13px 30px;font-family:$FONT_HEAD;font-size:15px;font-weight:700;letter-spacing:.01em;cursor:pointer;margin:6px 0 0}
 .pp-go:hover{background:$($C.accentD)}
 .pp-res{margin:26px 0 0;background:#fff;border:1px solid $($C.line);border-left:4px solid $($C.accent);border-radius:12px;padding:22px 24px 22px}
@@ -2854,15 +2842,7 @@ $FORM_CSS
       <button type="button" data-v="mittel"><b>Mittel</b><small>8,4 &ndash; 14 &deg;dH</small></button>
       <button type="button" data-v="hart" class="on"><b>Hart</b><small>&uuml;ber 14 &deg;dH</small></button>
     </div>
-    <div class="pp-plz">
-      <span class="pp-plzl">Wasserh&auml;rte nicht bekannt? Ermitteln Sie sie &uuml;ber Ihre Postleitzahl:</span>
-      <div class="pp-plzrow">
-        <input type="text" id="pp-plz" inputmode="numeric" maxlength="5" placeholder="PLZ" autocomplete="postal-code" aria-label="Postleitzahl">
-        <button type="button" id="pp-plzgo">H&auml;rte ermitteln</button>
-      </div>
-      <div class="pp-plzres" id="pp-plzres" hidden></div>
-      <p class="pp-hint">Die Abfrage l&auml;uft &uuml;ber <a href="https://wasser-haerte.de" target="_blank" rel="noopener">wasser-haerte.de</a>; dabei werden Ihre IP-Adresse und die PLZ an den Dienst &uuml;bermittelt. Es ist ein Richtwert f&uuml;r Ihre Gemeinde &ndash; den genauen Wert nennt Ihr Wasserversorger, einen Teststreifen erhalten Sie auch bei uns im Gesch&auml;ft. Mehr dazu auf unserer Seite <a href="$base/wasserhaerte/">Wasserh&auml;rte</a>.</p>
-    </div>
+    <p class="pp-hint">Wasserh&auml;rte nicht bekannt? Den Richtwert f&uuml;r Ihren Wohnort finden Sie auf unserer Seite <a href="$base/wasserhaerte/">Wasserh&auml;rte ermitteln</a>.</p>
   </div>
 
   <div class="pp-step">
@@ -2913,36 +2893,7 @@ $FORM_CSS
     });
   });
 
-  // Wasserhaerte ueber die PLZ (wasser-haerte.de, Abfrage erst auf Klick)
-  var plzEl=document.getElementById('pp-plz'), resEl=document.getElementById('pp-plzres');
-  function catOf(v){ return (8.4>v)?'weich':((14>=v)?'mittel':'hart'); }
   function nameOf(c){ return c==='weich'?'weich':(c==='mittel'?'mittel':'hart'); }
-  function showMsg(cls,text){ resEl.hidden=false; resEl.innerHTML=''; var d=document.createElement('div'); d.className=cls; d.textContent=text; resEl.appendChild(d); return d; }
-  function applyEntry(e,box,pick){
-    var v=parseFloat(e.haerte_dh); if(isNaN(v)) return;
-    st.hard=catOf(v); place=e.name; dh=v; paint();
-    box.textContent='Wasserh\u00e4rte in '+e.name+': ca. '+String(v).replace('.',',')+' \u00b0dH \u2013 '+nameOf(st.hard)+'. Wir haben oben \u201e'+(st.hard==='weich'?'Weich':(st.hard==='mittel'?'Mittel':'Hart'))+'\u201c f\u00fcr Sie ausgew\u00e4hlt.';
-    if(pick){ [].slice.call(pick.children).forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-n')===e.name); }); }
-  }
-  function lookup(){
-    var q=plzEl.value.replace(/\D/g,'');
-    if(q.length!==5){ showMsg('err','Bitte eine f\u00fcnfstellige Postleitzahl eingeben.'); return; }
-    showMsg('ok','Einen Moment \u2026');
-    fetch('https://wasser-haerte.de/api/search.php?q='+q).then(function(r){ return r.json(); }).then(function(list){
-      list=(list||[]).filter(function(x){ return String(x.plz)===q; });
-      if(!list.length){ showMsg('err','Zu dieser Postleitzahl haben wir keine Angabe gefunden. Bitte w\u00e4hlen Sie den H\u00e4rtebereich oben selbst aus.'); return; }
-      var box=showMsg('ok','');
-      var pick=null;
-      if(list.length>1){
-        pick=document.createElement('div'); pick.className='pp-plzpick';
-        list.forEach(function(e){ var b=document.createElement('button'); b.type='button'; b.setAttribute('data-n',e.name); b.textContent=e.name+' ('+String(e.haerte_dh).replace('.',',')+' \u00b0dH)'; b.addEventListener('click',function(){ applyEntry(e,box,pick); }); pick.appendChild(b); });
-        resEl.appendChild(pick);
-      }
-      applyEntry(list[0],box,pick);
-    }).catch(function(){ showMsg('err','Die Abfrage ist gerade nicht m\u00f6glich. Bitte w\u00e4hlen Sie den H\u00e4rtebereich oben selbst aus.'); });
-  }
-  document.getElementById('pp-plzgo').addEventListener('click',lookup);
-  plzEl.addEventListener('keydown',function(ev){ if(ev.key==='Enter'){ ev.preventDefault(); lookup(); } });
 
   var base={weich:56,mittel:42,hart:26};
   var MON=['Jan.','Feb.','M\u00e4rz','Apr.','Mai','Juni','Juli','Aug.','Sept.','Okt.','Nov.','Dez.'];

@@ -1,0 +1,136 @@
+﻿wp-lib geladen. Befehle: wp <Method> <Path> [Body], Test-KtWpConnection
+wc-lib geladen. Befehle: wc <Method> <Path> [Body]
+[aktualisiert (publish)] start            ID 19   status=publish
+[aktualisiert (publish)] reparatur        ID 20   status=publish
+[aktualisiert (publish)] marken           ID 21   status=publish
+[aktualisiert (publish)] reparaturablauf  ID 22   status=publish
+[aktualisiert (publish)] reparaturauftrag ID 3177 status=publish
+[aktualisiert (publish)] reparaturdauer   ID 23   status=publish
+[aktualisiert (publish)] reparaturkosten  ID 24   status=publish
+[aktualisiert (publish)] gewaehrleistung  ID 25   status=publish
+[aktualisiert (publish)] hinweise-nach-der-reparatur ID 942  status=publish
+[aktualisiert (publish)] leihgeraete      ID 28   status=publish
+[aktualisiert (publish)] wartung          ID 27   status=publish
+[aktualisiert (publish)] wartungserinnerung ID 2685 status=publish
+[aktualisiert (publish)] wasserhaerte     ID 4644 status=publish
+[aktualisiert (publish)] reparatur-check  ID 2627 status=publish
+[aktualisiert (publish)] wertgarantie     ID 110  status=publish
+[aktualisiert (publish)] kaffeemaschinen-kaufen ID 111  status=publish
+[aktualisiert (publish)] kaffeemaschine-mieten ID 112  status=publish
+[aktualisiert (publish)] kaffeemaschine-leasen ID 113  status=publish
+[aktualisiert (publish)] pflegemittel     ID 114  status=publish
+[aktualisiert (publish)] unser-kaffee     ID 115  status=publish
+[aktualisiert (publish)] unser-kaffee-wissen ID 915  status=publish
+[aktualisiert (publish)] unser-tee-wissen ID 3956 status=publish
+[aktualisiert (publish)] jura             ID 508  status=publish
+[aktualisiert (publish)] jura-kaffeevollautomaten ID 509  status=publish
+[aktualisiert (publish)] jura-zubehoer    ID 716  status=publish
+[aktualisiert (publish)] jura-pflegeprodukte ID 717  status=publish
+[aktualisiert (publish)] jura-professional ID 766  status=publish
+[aktualisiert (publish)] nivona           ID 1073 status=publish
+[aktualisiert (publish)] nivona-kaffeevollautomaten ID 1074 status=publish
+[aktualisiert (publish)] nivona-pflegeprodukte ID 3865 status=publish
+[aktualisiert (publish)] hilfethemen      ID 116  status=publish
+[aktualisiert (publish)] ueber-uns        ID 117  status=publish
+[aktualisiert (publish)] anfahrt          ID 118  status=publish
+[aktualisiert (publish)] jobs             ID 119  status=publish
+[aktualisiert (publish)] kontakt          ID 120  status=publish
+[aktualisiert (publish)] impressum        ID 121  status=publish
+[aktualisiert (publish)] datenschutz      ID 122  status=publish
+[aktualisiert (publish)] agb              ID 123  status=publish
+[aktualisiert (publish)] widerruf         ID 124  status=publish
+[aktualisiert (publish)] stoerung-kein-wasser ID 999  status=publish
+[aktualisiert (publish)] stoerung-kaffee-langsam ID 1000 status=publish
+[aktualisiert (publish)] stoerung-bruehgruppe ID 1001 status=publish
+[aktualisiert (publish)] stoerung-abtropfschale ID 1002 status=publish
+[aktualisiert (publish)] stoerung-wassertank-meldung ID 1003 status=publish
+[aktualisiert (publish)] stoerung-entlueften ID 1004 status=publish
+[aktualisiert (publish)] stoerung-undicht ID 1005 status=publish
+[aktualisiert (publish)] stoerung-kaffeesatz-nass ID 1006 status=publish
+[aktualisiert (publish)] stoerung-milchschaum ID 1007 status=publish
+[aktualisiert (publish)] stoerung-kaffee-kalt ID 1008 status=publish
+[aktualisiert (publish)] jura-fehlercodes ID 1009 status=publish
+[aktualisiert (publish)] pflege-entkalken ID 1010 status=publish
+[aktualisiert (publish)] pflege-wasserfilter ID 1011 status=publish
+[aktualisiert (publish)] pflege-milchsystem ID 1012 status=publish
+[aktualisiert (publish)] pflege-bruehgruppe ID 1013 status=publish
+[aktualisiert (publish)] ratgeber-reparieren-lohnt-sich ID 1014 status=publish
+[aktualisiert (publish)] ratgeber-kaufberatung ID 1015 status=publish
+[aktualisiert (publish)] ratgeber-systeme-vergleich ID 1016 status=publish
+[aktualisiert (publish)] ratgeber-siebtraeger ID 1017 status=publish
+[aktualisiert (publish)] hilfe-stoerungen ID 4088 status=publish
+[aktualisiert (publish)] hilfe-reinigung-pflege ID 4089 status=publish
+[aktualisiert (publish)] hilfe-ratgeber   ID 4090 status=publish
+[aktualisiert (publish)] kaffee-quiz      ID 4091 status=publish
+
+Uebersicht (alle als Entwurf):
+
+menu                                    id slug                           status 
+----                                    -- ----                           ------ 
+Start                                   19 start                          publish
+Reparatur                               20 reparatur                      publish
+Marken                                  21 marken                         publish
+Reparaturablauf                         22 reparaturablauf                publish
+Auftragsschein                        3177 reparaturauftrag               publish
+Reparaturdauer                          23 reparaturdauer                 publish
+Dauer & Kosten                          24 reparaturkosten                publish
+Gewährleistung                          25 gewaehrleistung                publish
+Hinweise nach der Reparatur            942 hinweise-nach-der-reparatur    publish
+Mietgerät für die Reparaturzeit         28 leihgeraete                    publish
+Wartung                                 27 wartung                        publish
+Wartungserinnerung                    2685 wartungserinnerung             publish
+Wasserhärte ermitteln                 4644 wasserhaerte                   publish
+Reparatur-Check                       2627 reparatur-check                publish
+WERTGARANTIE Reparaturschutz           110 wertgarantie                   publish
+Neue Kaffeemaschinen                   111 kaffeemaschinen-kaufen         publish
+Mieten & Leasen                        112 kaffeemaschine-mieten          publish
+Kaffeemaschine leasen                  113 kaffeemaschine-leasen          publish
+Pflegemittel & Zubehör                 114 pflegemittel                   publish
+Unser Kaffee & Tee                     115 unser-kaffee                   publish
+Kaffee: Herkunft & Röstung             915 unser-kaffee-wissen            publish
+Tee: Teekultur &amp; Sorten           3956 unser-tee-wissen               publish
+JURA Online-Shop                       508 jura                           publish
+JURA Kaffeevollautomaten               509 jura-kaffeevollautomaten       publish
+JURA Zubehör                           716 jura-zubehoer                  publish
+JURA Pflegeprodukte                    717 jura-pflegeprodukte            publish
+JURA Professional                      766 jura-professional              publish
+NIVONA Online-Shop                    1073 nivona                         publish
+NIVONA Kaffeevollautomaten            1074 nivona-kaffeevollautomaten     publish
+NIVONA Pflegeprodukte                 3865 nivona-pflegeprodukte          publish
+Hilfe & Wissen                         116 hilfethemen                    publish
+Das Unternehmen                        117 ueber-uns                      publish
+Anfahrt & Standort                     118 anfahrt                        publish
+Jobs & Karriere                        119 jobs                           publish
+Kontakt                                120 kontakt                        publish
+Impressum                              121 impressum                      publish
+Datenschutz                            122 datenschutz                    publish
+AGB                                    123 agb                            publish
+Widerrufsbelehrung                     124 widerruf                       publish
+Kein Wasser, kein Kaffee               999 stoerung-kein-wasser           publish
+Kaffee läuft langsam                  1000 stoerung-kaffee-langsam        publish
+Brühgruppe lässt sich nicht einsetzen 1001 stoerung-bruehgruppe           publish
+Abtropfschale klemmt                  1002 stoerung-abtropfschale         publish
+„Wassertank füllen“ trotz vollem Tank 1003 stoerung-wassertank-meldung    publish
+„Entlüften“ / „System füllen“         1004 stoerung-entlueften            publish
+Undichtigkeit, Wasser unter dem Gerät 1005 stoerung-undicht               publish
+Kaffeesatz zu nass                    1006 stoerung-kaffeesatz-nass       publish
+Milchschaum gelingt nicht             1007 stoerung-milchschaum           publish
+Kaffee zu kalt / schmeckt nicht       1008 stoerung-kaffee-kalt           publish
+JURA-Fehlermeldungen                  1009 jura-fehlercodes               publish
+Richtig entkalken                     1010 pflege-entkalken               publish
+Wasserfilter verwenden                1011 pflege-wasserfilter            publish
+Milchsystem reinigen                  1012 pflege-milchsystem             publish
+Brühgruppe & Kaffeeweg reinigen       1013 pflege-bruehgruppe             publish
+Reparieren lohnt sich                 1014 ratgeber-reparieren-lohnt-sich publish
+Kaufberatung Kaffeevollautomat        1015 ratgeber-kaufberatung          publish
+Systeme im Vergleich                  1016 ratgeber-systeme-vergleich     publish
+Siebträger & Espresso                 1017 ratgeber-siebtraeger           publish
+Störung selbst beheben                4088 hilfe-stoerungen               publish
+Reinigung &amp; Pflege                4089 hilfe-reinigung-pflege         publish
+Reparieren, kaufen, vergleichen       4090 hilfe-ratgeber                 publish
+Kaffee-Quiz                           4091 kaffee-quiz                    publish
+
+
+Vorschau je Seite: wp-admin -> Seiten -> <Titel> -> Vorschau
+theme-shopbar.html geschrieben (fuer build-theme-nav.ps1).
+theme-footer.html geschrieben (fuer build-theme-footer.ps1).

@@ -112,9 +112,9 @@
         "titel":  "Wasserhärte ermitteln – Richtwert für Ihren Wohnort",
         "id":  4644,
         "slug":  "wasserhaerte",
-        "status":  "draft",
-        "link":  "https://new.kaffeetechniker.de/?page_id=4644",
-        "aktion":  "neu (draft)"
+        "status":  "publish",
+        "link":  "https://new.kaffeetechniker.de/wasserhaerte/",
+        "aktion":  "aktualisiert (publish)"
     },
     {
         "menu":  "Reparatur-Check",
