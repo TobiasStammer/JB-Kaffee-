@@ -352,6 +352,9 @@ $SHEET_CSS = @"
 .kt-sheet>.wp-block-group:last-of-type{border-bottom-left-radius:16px;border-bottom-right-radius:16px;overflow:clip}
 @media(max-width:560px){
   .kt-sheet{border-radius:9px}
+  /* schmale Raender auf dem Handy: mehr Platz fuer Inhalte */
+  .entry-content.wp-block-post-content{padding-left:8px !important;padding-right:8px !important}
+  .kt-sheet>.wp-block-group{padding-left:14px !important;padding-right:14px !important}
   .kt-sheet>.wp-block-group:first-of-type{border-top-left-radius:9px;border-top-right-radius:9px}
   .kt-sheet>.wp-block-group:last-of-type{border-bottom-left-radius:9px;border-bottom-right-radius:9px}
 }
