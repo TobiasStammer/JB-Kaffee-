@@ -38,7 +38,8 @@
     ],
     "15828": [
       { "name": "Dark Inox", "art": "15828", "img": "https://api.jura.com/media/global/images/home-products/e-line-2026/e6-ed-dark-inox/e6_ed_darkinox_packshot.jpg" },
-      { "name": "Piano Black", "art": "15642", "img": "https://api.jura.com/media/global/images/home-products/e-line-2026/e6-ed-piano-black/e6_ed_pb_packshot.jpg" }
+      { "name": "Piano Black", "art": "15642", "img": "https://api.jura.com/media/global/images/home-products/e-line-2026/e6-ed-piano-black/e6_ed_pb_packshot.jpg" },
+      { "name": "Piano White", "art": "15643", "img": "https://api.jura.com/media/global/images/home-products/e-line-2026/e6-ed-piano-white/e6_ed_pw_packshot.jpg" }
     ],
     "15435": [
       { "name": "Piano Black", "art": "15435", "img": "https://api.jura.com/media/global/images/home-products/e-line-2021/e4/e4-piano-black-ea-15435/e4_ea_pianoblack_packshot.jpg" },
