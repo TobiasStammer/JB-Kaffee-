@@ -1595,6 +1595,13 @@
           "x": "Kaffeevollautomaten von JURA liefern beste Kaffeequalität, lassen sich einfach bedienen und produzieren die verschiedensten Kaffee- und Milchprodukte auf Knopfdruck – frisch gemahlen statt gekapselt, mit innovativer Technik in modernem Design. Als autorisierter JURA-Fachhändler bieten wir die komplette JURA-Palette für Haushalt und Gastronomie an und können Sie dank langjähriger Erfahrung kompetent beraten und Geräte vorführen."
         },
         {
+          "t": "gallery",
+          "x": [
+            "laden-jura-insel2",
+            "laden-jura-aussteller"
+          ]
+        },
+        {
           "t": "h",
           "lvl": 2,
           "icon": "coffee",
@@ -1603,6 +1610,12 @@
         {
           "t": "p",
           "x": "Nivona Kaffeevollautomaten verbinden modernste Technik mit einfacher Bedienung und ausgezeichnetem Kaffeegeschmack. Ob Espresso, Kaffee oder Milchspezialitäten – Kaffeegenuss auf Knopfdruck. Wir beraten Sie gerne und unterstützen Sie mit Verkauf, Service und Reparatur aus einer Hand."
+        },
+        {
+          "t": "gallery",
+          "x": [
+            "laden-nivona"
+          ]
         },
         {
           "t": "p",
@@ -2558,6 +2571,24 @@
                 }
               ]
             }
+          ]
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "icon": "check",
+          "x": "Unser Geschäft"
+        },
+        {
+          "t": "p",
+          "x": "In unserem Ladengeschäft in Hofheim-Langenhain zeigen wir Ihnen JURA und NIVONA Kaffeevollautomaten zum Ausprobieren – dazu Pflegeprodukte, Zubehör sowie Kaffee aus eigener Röstung und lose Teemischungen."
+        },
+        {
+          "t": "gallery",
+          "x": [
+            "laden-gesamt",
+            "laden-gang",
+            "laden-jura-insel"
           ]
         },
         {

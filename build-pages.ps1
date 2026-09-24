@@ -98,6 +98,7 @@ function Native-Blocks($blocks) {
         $ts = "<style>.kt-tbl{width:100%;border-collapse:collapse;font-size:14px;margin:6px 0}.kt-tbl th,.kt-tbl td{text-align:left;padding:9px 12px;border-bottom:1px solid #e6e6e6}.kt-tbl th{font-family:$FONT_HEAD;color:$($C.head);font-weight:700;background:$($C.soft)}.kt-tbl td:last-child,.kt-tbl th:last-child{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}.kt-tbl tr:last-child td{border-bottom:0}</style>"
         "<!-- wp:html -->`n$ts`n<figure style=`"margin:0;overflow-x:auto`"><table class=`"kt-tbl`">$thead$tbody</table>$cap</figure>`n<!-- /wp:html -->"
       }
+      'gallery' { "<!-- wp:html -->`n$(Laden-Gallery $b.x)`n<!-- /wp:html -->" }
       'image' {
         $cap = if ($b.caption) { "`n  <figcaption style=`"text-align:center;font-size:13px;color:$($C.text);margin-top:8px`">$($b.caption)</figcaption>" } else { '' }
         $mw  = if ($b.max) { $b.max } else { '820px' }
@@ -1674,6 +1675,34 @@ function Jura-Hero-Slider($slides) {
 </script>
 "@
 }
+# Ladenfotos (name -> Medien-URL + Alt-Text), befuellt von upload-laden.ps1
+$ladenMedia = @{}; $ladenAlt = @{}
+if (Test-Path "$root\laden-media.json") {
+  (Get-Content "$root\laden-media.json" -Raw -Encoding UTF8 | ConvertFrom-Json).PSObject.Properties | ForEach-Object { $ladenMedia[$_.Name] = $_.Value }
+  (Get-Content "$root\assets\laden\alt.json" -Raw -Encoding UTF8 | ConvertFrom-Json).PSObject.Properties | ForEach-Object { $ladenAlt[$_.Name] = $_.Value }
+}
+# Foto-Reihe aus den Ladenbildern: Namen-Liste, optionale Bildunterschriften (Hashtable name -> Text)
+function Laden-Gallery($names, $caps = @{}) {
+  $figs = foreach ($n in @($names)) {
+    $u = $ladenMedia[$n]; if (-not $u) { continue }
+    $c = if ($caps[$n]) { "<figcaption>$($caps[$n])</figcaption>" } else { '' }
+    "<figure><img src=`"$u`" alt=`"$($ladenAlt[$n])`" loading=`"lazy`">$c</figure>"
+  }
+  if (-not $figs) { return '' }
+  $cnt = @($figs).Count
+  @"
+<style>
+.kt-lg{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px;margin:18px auto;max-width:1000px}
+.kt-lg.n1{grid-template-columns:1fr;max-width:720px}
+.kt-lg figure{margin:0;border-radius:10px;overflow:hidden;background:#fff;border:1px solid $($C.line);box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.kt-lg img{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover}
+.kt-lg figcaption{font-family:$FONT_BODY;font-size:12.5px;line-height:1.5;color:#6b7178;padding:8px 12px}
+</style>
+<div class="kt-lg n$cnt">
+  $($figs -join "`n  ")
+</div>
+"@
+}
 function Jura-Marke-Content($p, $brandKey = 'jura') {
   $J = $data.$brandKey
   $bn = $J.brandName
@@ -1786,6 +1815,11 @@ $techJs
   $zones += (Zone $bandColors[$bi]     '42px' '34px' (Html-Block $banner));   $bi++
   $zones += (Zone $bandColors[$bi]     '44px' '44px' (Html-Block $about));    $bi++
   $zones += (Zone $bandColors[$bi]     '46px' '52px' (Html-Block $techHtml))
+  $ladenNames = if ($brandKey -eq 'jura') { @('laden-jura-wand','laden-jura-aussteller','laden-jura-pflege') } else { @('laden-nivona','laden-nivona-ecke') }
+  $ladenHtml = Laden-Gallery $ladenNames
+  if ($ladenHtml) {
+    $zones += (Zone $C.white '40px' '44px' (Html-Block ((Sec-Head 'Im Gesch&auml;ft' 'Bei uns live erleben' 'Sehen, anfassen, probieren: In unserem Ladengesch&auml;ft in Hofheim-Langenhain k&ouml;nnen Sie die Ger&auml;te direkt ausprobieren.') + "`n" + $ladenHtml)))
+  }
   $zones += (Footer-Zone)
   Wrap-Page ($zones -join "`n`n")
 }
@@ -2275,6 +2309,7 @@ $KAFFEETEE_JS
   Wrap-Page (@(
     (Pick-Header $p.slug),
     (Zone $C.bg '44px' '60px' (Html-Block $body)),
+    (Zone $C.bg '0' '56px' (Html-Block (Laden-Gallery @('laden-kaffee-regal','laden-kaffee-bohnen','laden-tee-regal','laden-tee-rote-liebe')))),
     (Footer-Zone)
   ) -join "`n`n")
 }
