@@ -1589,6 +1589,7 @@ $JURA_CSS = @"
 .jp2-fx{list-style:none;margin:0 0 9px;padding:0;display:flex;flex-wrap:wrap;gap:5px 6px}
 .jp2-fx li{font-size:11px;line-height:1;color:#4a4a4a;background:$($C.soft);border-radius:4px;padding:5px 8px;font-family:$FONT_BODY;white-space:nowrap}
 .jp2-tx{font-size:12.5px;line-height:1.5;color:#6b6b6b;margin:0 0 10px}
+.jp2 h3 .jp2-col{font-weight:400;color:#6b6b6b}
 .jp2-sw{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 12px}
 .jp2-sw button{width:18px;height:18px;border-radius:50%;border:1px solid rgba(0,0,0,.28);cursor:pointer;padding:0}
 .jp2-sw button.is-on{box-shadow:0 0 0 2px #fff,0 0 0 4px $($C.accent)}
@@ -2065,8 +2066,12 @@ function Jura-Kategorie-Content($p, $brandKey = 'jura') {
       $on = if ($_.img -eq $pr.displayImg) { ' is-on' } else { '' }
       "<button class=`"jsw$on`" data-img=`"$($_.img)`" data-c=`"$($_.color)`" data-price=`"$($_.priceStr)`" title=`"$($_.color)`" aria-label=`"$($_.color)`" style=`"background:$(FbHex $_.color)`"></button>"
     }) -join ''
+    # Einzelprodukt: Farbe steht im Namen (ohne Farb-Button); "(EB · Aluminium White)" -> "Aluminium White"
+    $colName = if ($pr.name -match '\([^)]*·\s*([^)]+)\)\s*$') { $matches[1].Trim() } elseif ($vs.Count -eq 1 -and $vs[0].color) { [string]$vs[0].color } else { '' }
+    $fullName = if ($colName -and $vs.Count -le 1) { "$shortName $colName" } else { $shortName }
+    $titleHtml = if ($colName -and $vs.Count -le 1) { "$shortName <span class=`"jp2-col`">$colName</span>" } else { $shortName }
+    $sw = if ($vs.Count -gt 1) { "<div class=`"jp2-sw`">$sw</div>" } else { '' }
     $txt = if ($vs.Count -gt 1) { "$($vs.Count) Farben &middot; " + ((@($vs | ForEach-Object { $_.color })) -join ', ') }
-           elseif ($vs[0].color) { $vs[0].color }
            else { [string]$J.seriesBlurb.$($pr.serie) }
     $cData = (@($vs | ForEach-Object { $_.color }) -join '|')
 
@@ -2109,14 +2114,14 @@ function Jura-Kategorie-Content($p, $brandKey = 'jura') {
     if ($mahl -match '^\s*2|Zwei|2 ' -or $vz -match 'zwei (Mahlwerke|Keramik|verschiedene)') { $feat += 'mahl2' }
     $featData = ($feat -join ' ')
     @"
-<article class="jp2" data-s="$($pr.serie)" data-name="$shortName" data-serie="$($pr.serie)$sfx" data-price="$($pr.priceStr)" data-pnum="$([int]$pr.price)" data-farben="$cData" data-feat="$featData" data-genuss="$genussData" data-blurb="$([string]$J.seriesBlurb.$($pr.serie))" data-url="$($pr.url)">
-  <div class="jp2-pic">$(if ($pr.displayImg) { "<img src=`"$($pr.displayImg)`" alt=`"$shortName`">" } else { "<span style=`"font-size:11px;color:#aaa`">Abbildung folgt</span>" })</div>
+<article class="jp2" data-s="$($pr.serie)" data-name="$fullName" data-serie="$($pr.serie)$sfx" data-price="$($pr.priceStr)" data-pnum="$([int]$pr.price)" data-farben="$cData" data-feat="$featData" data-genuss="$genussData" data-blurb="$([string]$J.seriesBlurb.$($pr.serie))" data-url="$($pr.url)">
+  <div class="jp2-pic">$(if ($pr.displayImg) { "<img src=`"$($pr.displayImg)`" alt=`"$fullName`">" } else { "<span style=`"font-size:11px;color:#aaa`">Abbildung folgt</span>" })</div>
   <div class="jp2-bd">
     <span class="jp2-serie">$($pr.serie)$sfx</span>
-    <h3><a href="$($pr.url)">$shortName</a></h3>
+    <h3><a href="$($pr.url)">$titleHtml</a></h3>
     $factHtml
     <p class="jp2-tx">$txt</p>
-    <div class="jp2-sw">$sw</div>
+    $sw
     <div class="jp2-price">$($pr.priceStr)</div>
     <div class="jp2-row"><a href="$($pr.url)">Details ansehen &rarr;</a><label class="cmp"><input type="checkbox" class="cmpbox"> Vergleichen</label></div>
   </div>
