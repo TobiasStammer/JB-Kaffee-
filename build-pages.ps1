@@ -2014,7 +2014,7 @@ function Jura-Kategorie-Content($p, $brandKey = 'jura') {
   $varFile = "$root\$brandKey-variants.json"
   if (Test-Path $varFile) {
     $vj = Get-Content $varFile -Raw -Encoding UTF8 | ConvertFrom-Json
-    if ($vj.colors) { foreach ($g in $vj.colors.PSObject.Properties) { foreach ($c in @($g.Value)) { $SPECALIAS["$($c.art)"] = $g.Name } } }
+    if ($vj.colors) { foreach ($vg in $vj.colors.PSObject.Properties) { foreach ($vcol in @($vg.Value)) { $SPECALIAS["$($vcol.art)"] = $vg.Name } } }
   }
   function SpecOf($sku) {
     # WC-SKU traegt bei Farbvarianten die interne Produkt-ID in Klammern
