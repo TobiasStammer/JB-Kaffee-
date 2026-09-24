@@ -1830,6 +1830,8 @@ $JURA_KAT_JS = @'
   var grid=document.getElementById('jk2grid'); if(!grid) return;
   var cards=[].slice.call(grid.querySelectorAll('.jp2'));
   var origOrder=cards.slice();
+  // Ziel unter die klebende Menue- und Filterleiste scrollen (sonst verdecken sie die ersten Karten)
+  function toGrid(){ var bar=document.getElementById('jk2bar'); var off=(bar?bar.offsetHeight:0)+40+16; window.scrollTo({top:grid.getBoundingClientRect().top+window.pageYOffset-off,behavior:'smooth'}); }
   var serTiles=[].slice.call(document.querySelectorAll('#jk2series .jk2-serie'));
   var serChips=[].slice.call(document.querySelectorAll('#jk2bar .jk2-chip'));
   var fdots=[].slice.call(document.querySelectorAll('#jk2bar .jk2-fdot'));
@@ -1865,7 +1867,7 @@ $JURA_KAT_JS = @'
     serChips.forEach(function(t){ t.classList.toggle('is-on',t.getAttribute('data-s')===s); });
     apply();
   }
-  serTiles.forEach(function(t){ t.addEventListener('click',function(e){ e.preventDefault(); setSerie(t.getAttribute('data-s')); grid.scrollIntoView({behavior:'smooth',block:'start'}); }); });
+  serTiles.forEach(function(t){ t.addEventListener('click',function(e){ e.preventDefault(); setSerie(t.getAttribute('data-s')); toGrid(); }); });
   serChips.forEach(function(t){ t.addEventListener('click',function(){ setSerie(t.getAttribute('data-s')); }); });
 
   fdots.forEach(function(d){
@@ -1897,7 +1899,7 @@ $JURA_KAT_JS = @'
     var q=(new URLSearchParams(location.search)).get('genuss'); if(!q) return;
     var b=genussBtns.filter(function(x){return x.getAttribute('data-g')===q;})[0]; if(!b) return;
     activeGenuss.push(q); b.classList.add('is-on'); apply();
-    grid.scrollIntoView({behavior:'smooth',block:'start'});
+    toGrid();
   })();
 
   function applySort(){
