@@ -3009,7 +3009,7 @@
         },
         {
           "t": "p",
-          "x": "Die Einrichtung eines Kundenkontos ist freiwillig und erleichtert künftige Bestellungen. Sie können Ihr Konto jederzeit löschen lassen. Für die Zahlungsabwicklung setzen wir externe Zahlungsdienstleister ein; Näheres dazu finden Sie in den beiden folgenden Abschnitten."
+          "x": "Die Einrichtung eines Kundenkontos ist freiwillig und erleichtert künftige Bestellungen. Sie können Ihr Konto jederzeit löschen lassen. Für die Zahlungsabwicklung setzen wir externe Zahlungsdienstleister ein; Näheres dazu finden Sie in den folgenden Abschnitten."
         },
         {
           "t": "h",
@@ -3019,17 +3019,27 @@
         },
         {
           "t": "p",
-          "x": "Bei Zahlung per Karte wird die Zahlung über WooPayments abgewickelt, technisch bereitgestellt von Stripe, Inc. bzw. Stripe Payments Europe, Limited, 1 Grand Canal Street Lower, Dublin, Irland (\"Stripe\"). Dabei werden die zur Zahlungsabwicklung erforderlichen Daten (u. a. Name, Rechnungsadresse, Bestell- und Zahlungsbetrag, Zahlungsmitteldaten) an Stripe übermittelt. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Erfüllung des Kaufvertrags). Es kann hierbei zu einer Übermittlung von Daten in die USA kommen; diese stützt sich auf das EU-US Data Privacy Framework bzw. auf Standardvertragsklauseln der EU-Kommission. Näheres regelt die Datenschutzerklärung von Stripe (stripe.com/de/privacy)."
+          "x": "Bei Zahlung per Kredit-/Debitkarte, Apple Pay oder Google Pay wird die Zahlung über WooPayments abgewickelt, technisch bereitgestellt von Stripe, Inc. bzw. Stripe Payments Europe, Limited, 1 Grand Canal Street Lower, Dublin, Irland (\"Stripe\"). Dabei werden die zur Zahlungsabwicklung erforderlichen Daten (u. a. Name, Rechnungsadresse, Bestell- und Zahlungsbetrag, Zahlungsmitteldaten) an Stripe übermittelt. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Erfüllung des Kaufvertrags). Es kann hierbei zu einer Übermittlung von Daten in die USA kommen; diese stützt sich auf das EU-US Data Privacy Framework bzw. auf Standardvertragsklauseln der EU-Kommission. Näheres regelt die Datenschutzerklärung von Stripe (stripe.com/de/privacy)."
         },
         {
           "t": "h",
           "lvl": 2,
-          "x": "Zahlungsabwicklung mit Klarna",
+          "x": "Zahlungsabwicklung mit PayPal",
           "icon": "shield"
         },
         {
           "t": "p",
-          "x": "Bei Auswahl der Zahlungsart Klarna übermitteln wir die zur Zahlungsabwicklung erforderlichen Daten (u. a. Name, Anschrift, Kontakt- und Bestelldaten) an die Klarna Bank AB (publ), Sveavägen 46, 111 34 Stockholm, Schweden (\"Klarna\"). Klarna kann zur Absicherung des eigenen Forderungsausfallrisikos eine Bonitätsprüfung durchführen und hierfür Daten an Wirtschaftsauskunfteien übermitteln bzw. von diesen abrufen. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO. Näheres regelt die Datenschutzerklärung von Klarna (klarna.com/de/datenschutz)."
+          "x": "Bei Auswahl der Zahlungsart PayPal werden die zur Zahlungsabwicklung erforderlichen Daten (u. a. Name, Anschrift, E-Mail-Adresse, Bestell- und Zahlungsbetrag) an PayPal (Europe) S.à r.l. et Cie, S.C.A., 22-24 Boulevard Royal, L-2449 Luxemburg (\"PayPal\") übermittelt. PayPal kann zur Absicherung des eigenen Zahlungsausfallrisikos eine Bonitätsprüfung durchführen und hierfür Daten an Wirtschaftsauskunfteien übermitteln bzw. von diesen abrufen. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Erfüllung des Kaufvertrags). Auf Seiten mit PayPal-Zahlungsschaltfläche (z. B. Warenkorb und Kasse) wird zudem ein Skript von PayPal geladen; dabei wird u. a. Ihre IP-Adresse an PayPal übertragen (Art. 6 Abs. 1 lit. f DSGVO bzw. § 25 Abs. 2 TDDDG, da zur Bereitstellung der von Ihnen gewünschten Zahlungsart erforderlich). Eine Übermittlung von Daten in Drittländer, insbesondere die USA, kann nicht ausgeschlossen werden; sie stützt sich auf das EU-US Data Privacy Framework bzw. auf Standardvertragsklauseln der EU-Kommission. Näheres regelt die Datenschutzerklärung von PayPal (paypal.com/de/webapps/mpp/ua/privacy-full)."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "x": "Zahlungsabwicklung mit Amazon Pay",
+          "icon": "shield"
+        },
+        {
+          "t": "p",
+          "x": "Bei Auswahl der Zahlungsart Amazon Pay werden die zur Zahlungsabwicklung erforderlichen Daten (u. a. Name, Anschrift, E-Mail-Adresse, Bestell- und Zahlungsbetrag) zwischen uns, unserem Zahlungsdienstleister und Amazon Payments Europe s.c.a., 38 avenue John F. Kennedy, L-1855 Luxemburg (\"Amazon Pay\") ausgetauscht. Sie melden sich dabei mit Ihrem Amazon-Konto an; Amazon Pay verarbeitet Ihre Daten dafür in eigener Verantwortung. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Erfüllung des Kaufvertrags). Eine Übermittlung von Daten in Drittländer, insbesondere die USA, kann nicht ausgeschlossen werden; sie stützt sich auf das EU-US Data Privacy Framework bzw. auf Standardvertragsklauseln der EU-Kommission. Näheres regelt die Datenschutzerklärung von Amazon (amazon.de)."
         },
         {
           "t": "h",
@@ -3135,7 +3145,9 @@
           "t": "ul",
           "x": [
             "Kreditkarte / Debitkarte (Zahlungsabwicklung über unseren Zahlungsdienstleister)",
-            "Klarna (je nach Verfügbarkeit und Bonitätsprüfung durch Klarna)",
+            "PayPal",
+          "Amazon Pay",
+          "Apple Pay / Google Pay (je nach Endgerät und Browser)",
             "Vorkasse (Überweisung auf unser Geschäftskonto; die Bankverbindung teilen wir Ihnen nach Bestelleingang mit; die Ware wird nach Zahlungseingang versandt)"
           ]
         },
