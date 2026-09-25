@@ -37,8 +37,29 @@ if ( ! function_exists( 'ktc_filter_html' ) ) {
 			},
 			$html
 		);
+		// YouTube-Vorschaubilder ueber den eigenen Server laden (kein Kontakt des Besuchers zu Google vor dem Klick)
+		$html = preg_replace( '#https://i\.ytimg\.com/vi/([A-Za-z0-9_-]{11})/hqdefault\.jpg#', home_url( '/ktc-assets/yt/$1.jpg' ), $html );
 		return $html;
 	}
+
+	// Route: /ktc-assets/yt/<ID>.jpg – holt das Vorschaubild serverseitig einmalig und cached es im Upload-Ordner
+	add_action( 'init', function () {
+		$p = isset( $_SERVER['REQUEST_URI'] ) ? strtok( $_SERVER['REQUEST_URI'], '?' ) : '';
+		if ( ! preg_match( '#^/ktc-assets/yt/([A-Za-z0-9_-]{11})\.jpg$#', $p, $m ) ) { return; }
+		$u   = wp_upload_dir();
+		$dir = $u['basedir'] . '/ktc-yt';
+		$f   = $dir . '/' . $m[1] . '.jpg';
+		if ( ! is_readable( $f ) ) {
+			wp_mkdir_p( $dir );
+			$r = wp_remote_get( 'https://i.ytimg.com/vi/' . $m[1] . '/hqdefault.jpg', array( 'timeout' => 10 ) );
+			if ( is_wp_error( $r ) || 200 !== wp_remote_retrieve_response_code( $r ) ) { status_header( 404 ); exit; }
+			file_put_contents( $f, wp_remote_retrieve_body( $r ) );
+		}
+		header( 'Content-Type: image/jpeg' );
+		header( 'Cache-Control: public, max-age=31536000, immutable' );
+		readfile( $f );
+		exit;
+	}, 0 );
 
 	add_action( 'template_redirect', function () {
 		if ( is_admin() || is_feed() || wp_doing_ajax() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {

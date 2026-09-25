@@ -2960,6 +2960,10 @@
           "x": "Die WooCommerce-Funktion zur automatischen Erfassung der Bestellherkunft (Sourcebuster-Cookies mit der Bezeichnung „sbjs_“) haben wir deaktiviert; es werden keine entsprechenden Cookies mehr gesetzt. Im Zahlungsprozess kann unser Zahlungsdienstleister Stripe (WooPayments) ein technisch notwendiges Cookie zur Betrugsprävention setzen (z. B. „__stripe_mid“); dies ist zur sicheren Abwicklung der von Ihnen angestoßenen Zahlung erforderlich (Art. 6 Abs. 1 lit. f DSGVO bzw. § 25 Abs. 2 TDDDG)."
         },
         {
+          "t": "p",
+          "x": "Beim ersten Besuch zeigen wir einen Cookie-Hinweis. Externe Inhalte (Google Maps, Wertgarantie-Widget) laden wir nur, wenn Sie zustimmen. Ihre Auswahl speichern wir im lokalen Speicher Ihres Browsers (Schlüssel „ktc_consent“, ohne Übermittlung an uns oder Dritte), damit der Hinweis nicht bei jedem Aufruf erscheint. Über die Schaltfläche „Cookie-Einstellungen“ unten links können Sie Ihre Auswahl jederzeit ändern oder widerrufen."
+        },
+        {
           "t": "h",
           "lvl": 2,
           "icon": "mail",
@@ -3055,11 +3059,31 @@
           "t": "h",
           "lvl": 2,
           "icon": "info",
+          "x": "Kartendarstellung (Google Maps)"
+        },
+        {
+          "t": "p",
+          "x": "Auf der Seite „Anfahrt &amp; Standort“ können wir eine Karte von Google Maps (Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland) anzeigen. Die Karte wird erst geladen, wenn Sie im Cookie-Hinweis zustimmen oder auf „Karte laden“ klicken. Erst dann wird eine Verbindung zu Google hergestellt; dabei werden u. a. Ihre IP-Adresse und der Seitenaufruf an Google übermittelt, ggf. auch in die USA. Rechtsgrundlage ist Ihre Einwilligung (Art. 6 Abs. 1 lit. a DSGVO, § 25 Abs. 1 TDDDG). Sie können die Einwilligung jederzeit über „Cookie-Einstellungen“ (Schaltfläche unten links) widerrufen. Näheres regelt die Datenschutzerklärung von Google. Ohne Ihre Zustimmung bieten wir Links zu den Routenplanern an."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "icon": "info",
+          "x": "Wertgarantie-Widget (Reparaturschutz)"
+        },
+        {
+          "t": "p",
+          "x": "Auf der Seite „Wertgarantie“ binden wir ein Widget der WERTGARANTIE-Gruppe zum Abschluss eines Reparaturschutzes ein. Das Skript wird von den Servern des Anbieters (siteconnect.wertgarantie-services.de) geladen, und zwar erst, wenn Sie im Cookie-Hinweis zustimmen oder auf „Widget laden“ klicken. Dabei werden u. a. Ihre IP-Adresse und technische Browserdaten an den Anbieter übermittelt. Rechtsgrundlage ist Ihre Einwilligung (Art. 6 Abs. 1 lit. a DSGVO, § 25 Abs. 1 TDDDG); sie ist jederzeit über „Cookie-Einstellungen“ widerrufbar. Was Sie im Widget eingeben, verarbeitet der Anbieter in eigener Verantwortung; Näheres siehe dessen Datenschutzerklärung."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "icon": "info",
           "x": "Eingebundene Videos (YouTube)"
         },
         {
           "t": "p",
-          "x": "Auf der Seite „Wartung“ binden wir ein Video von YouTube ein. Wir nutzen den erweiterten Datenschutzmodus (Domain youtube-nocookie.com). Beim Aufruf der Seite wird zunächst nur ein Vorschaubild angezeigt; erst wenn Sie das Video durch Klick starten, wird eine Verbindung zu Google/YouTube (Google Ireland Limited) hergestellt und es können Daten – einschließlich Ihrer IP-Adresse – an Google übermittelt werden, ggf. auch in die USA. Rechtsgrundlage ist Ihre durch den Klick erteilte Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Näheres regelt die Datenschutzerklärung von Google."
+          "x": "Auf mehreren Seiten (u. a. „Wartung“ und „JURA“) binden wir Videos von YouTube ein. Wir nutzen den erweiterten Datenschutzmodus (Domain youtube-nocookie.com). Beim Aufruf der Seite wird zunächst nur ein Vorschaubild angezeigt, das unser Server bereitstellt (kein Kontakt Ihres Browsers zu Google); erst wenn Sie das Video durch Klick starten, wird eine Verbindung zu Google/YouTube (Google Ireland Limited) hergestellt und es können Daten – einschließlich Ihrer IP-Adresse – an Google übermittelt werden, ggf. auch in die USA. Rechtsgrundlage ist Ihre durch den Klick erteilte Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Näheres regelt die Datenschutzerklärung von Google."
         },
         {
           "t": "h",
@@ -3069,7 +3093,7 @@
         },
         {
           "t": "p",
-          "x": "Soweit im Rahmen der oben genannten Dienste (WhatsApp, YouTube) Daten in die USA übermittelt werden, stützt sich diese Übermittlung auf das EU-US Data Privacy Framework bzw. auf Standardvertragsklauseln der EU-Kommission. Eine Datenübermittlung findet nur statt, wenn Sie den jeweiligen Dienst aktiv nutzen."
+          "x": "Soweit im Rahmen der oben genannten Dienste (WhatsApp, YouTube, Google Maps, Wertgarantie) Daten in die USA übermittelt werden, stützt sich diese Übermittlung auf das EU-US Data Privacy Framework bzw. auf Standardvertragsklauseln der EU-Kommission. Eine Datenübermittlung findet nur statt, wenn Sie den jeweiligen Dienst aktiv nutzen."
         },
         {
           "t": "h",
@@ -3146,8 +3170,8 @@
           "x": [
             "Kreditkarte / Debitkarte (Zahlungsabwicklung über unseren Zahlungsdienstleister)",
             "PayPal",
-          "Amazon Pay",
-          "Apple Pay / Google Pay (je nach Endgerät und Browser)",
+            "Amazon Pay",
+            "Apple Pay / Google Pay (je nach Endgerät und Browser)",
             "Vorkasse (Überweisung auf unser Geschäftskonto; die Bankverbindung teilen wir Ihnen nach Bestelleingang mit; die Ware wird nach Zahlungseingang versandt)"
           ]
         },
