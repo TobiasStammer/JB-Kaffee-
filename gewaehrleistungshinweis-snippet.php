@@ -1,8 +1,8 @@
 /* kaffeetechniker.de - EU-Hinweis "Gesetzliche Gewaehrleistung" (harmonisierter Hinweis, DVO (EU) 2025/1960, Pflicht ab 27.09.2026).
  * Eingebunden wird das PNG aus der Gewaehrleistungslabel/-Vorlage der EU-Kommission in der vom Betreiber gewuenschten Kurzfassung
  * (Mediathek-ID siehe KT_GW_PNG_ID; Rechtspruefung durch Anwalt/Haendlerbund ist Sache des Betreibers).
- * Einbau: Produktseiten (unter "In den Warenkorb"), Kasse (vor "Zahlungspflichtig bestellen"), Seiten AGB + Gewaehrleistung (unter der Ueberschrift).
- * Kein PDF-Anhang an Kundenmails (vom Betreiber nicht gewuenscht, 2026-09-28).
+ * Einbau: Kasse (vor "Zahlungspflichtig bestellen"), Seiten AGB + Gewaehrleistung (unter der Ueberschrift).
+ * Nicht auf den Produktseiten (vom Betreiber entfernt, 2026-09-28). Kein PDF-Anhang an Kundenmails (vom Betreiber nicht gewuenscht, 2026-09-28).
  * Deploy: scratchpad/gewaehrleistungshinweis.ps1 */
 
 if ( ! function_exists( 'kt_gw_notice' ) ) {
@@ -22,14 +22,6 @@ if ( ! function_exists( 'kt_gw_notice' ) ) {
 			. '<p style="margin:6px 0 0;font-size:12px;line-height:1.4;color:#666">EU-Hinweis zur gesetzlichen Gewährleistung &ndash; zum Vergrößern anklicken.</p></div>';
 	}
 }
-
-// Produktseiten: unter dem Warenkorb-Bereich
-add_filter( 'render_block', function ( $html, $block ) {
-	if ( isset( $block['blockName'] ) && 'woocommerce/add-to-cart-form' === $block['blockName'] ) {
-		return $html . kt_gw_notice( 170, 'product' );
-	}
-	return $html;
-}, 20, 2 );
 
 // Kasse (Block-Checkout): direkt vor dem Bestell-Button
 add_filter( 'render_block', function ( $html, $block ) {
