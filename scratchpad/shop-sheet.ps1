@@ -203,7 +203,7 @@ body.woocommerce-order-received h1,
 body.woocommerce-order-received .wp-block-post-title,
 body.woocommerce-order-received .entry-title {
   font-size: clamp(22px, 2.4vw, 26px) !important; line-height: 1.25 !important; margin: 0 0 12px !important;
-  max-width: none !important; margin-inline: 0 !important; padding-inline: 0 !important; text-align: left !important;
+  max-width: none !important; margin-inline: 0 !important; padding-inline: 0 !important; text-align: center !important;
 }
 body.woocommerce-order-received .wp-block-woocommerce-order-confirmation-status,
 body.woocommerce-order-received .wc-block-order-confirmation-status {
