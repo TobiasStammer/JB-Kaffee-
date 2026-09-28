@@ -1,0 +1,194 @@
+﻿[
+    {
+        "id":  4541,
+        "name":  "NIVONA NICR 10\u002740 (Titan)",
+        "sku":  "nivona-nicr-10-40",
+        "regular_price":  "1999.00"
+    },
+    {
+        "id":  4539,
+        "name":  "NIVONA NIVO 9103 (Titan)",
+        "sku":  "nivona-nivo-9103",
+        "regular_price":  "1699.00"
+    },
+    {
+        "id":  4537,
+        "name":  "NIVONA NIVO 9101 (Schwarz)",
+        "sku":  "nivona-nivo-9101",
+        "regular_price":  "1649.00"
+    },
+    {
+        "id":  4525,
+        "name":  "NIVONA NICR 7\u002796 (Weiß)",
+        "sku":  "nivona-nicr-7-96",
+        "regular_price":  "849.00"
+    },
+    {
+        "id":  4523,
+        "name":  "NIVONA NICR 7\u002795 (Titan)",
+        "sku":  "nivona-nicr-7-95",
+        "regular_price":  "849.00"
+    },
+    {
+        "id":  4521,
+        "name":  "NIVONA NICR 7\u002790 (Schwarz)",
+        "sku":  "nivona-nicr-7-90",
+        "regular_price":  "779.00"
+    },
+    {
+        "id":  4517,
+        "name":  "NIVONA NICR 6\u002795 (Titan)",
+        "sku":  "nivona-nicr-6-95",
+        "regular_price":  "699.00"
+    },
+    {
+        "id":  4515,
+        "name":  "NIVONA NICR 5\u002760 (Weiß)",
+        "sku":  "nivona-nicr-5-60",
+        "regular_price":  "549.00"
+    },
+    {
+        "id":  4513,
+        "name":  "NIVONA NICR 5\u002750 (Schwarz)",
+        "sku":  "nivona-nicr-5-50",
+        "regular_price":  "549.00"
+    },
+    {
+        "id":  4511,
+        "name":  "NIVONA CUBE 4106 (Schwarz)",
+        "sku":  "nivona-cube-4106",
+        "regular_price":  "479.00"
+    },
+    {
+        "id":  4509,
+        "name":  "NIVONA CUBE 4102 (Weiß)",
+        "sku":  "nivona-cube-4102",
+        "regular_price":  "479.00"
+    },
+    {
+        "id":  3827,
+        "name":  "NIVONA CreamClean Milchsystemreiniger",
+        "sku":  "nivona-creamclean",
+        "regular_price":  "13.95"
+    },
+    {
+        "id":  3822,
+        "name":  "NIVONA Reinigungstabletten",
+        "sku":  "nivona-reinigungstabletten",
+        "regular_price":  "13.95"
+    },
+    {
+        "id":  3818,
+        "name":  "NIVONA PREMIUM Flüssigentkalker",
+        "sku":  "nivona-fluessigentkalker",
+        "regular_price":  "13.95"
+    },
+    {
+        "id":  3810,
+        "name":  "NIVONA CLARIS Frischwasserfilter",
+        "sku":  "nivona-claris-filter",
+        "regular_price":  "13.95"
+    },
+    {
+        "id":  4874,
+        "name":  "JURA E6 (ED · Piano White)",
+        "sku":  "15643",
+        "regular_price":  "979.00"
+    },
+    {
+        "id":  3744,
+        "name":  "JURA Z10 (EC · Obsidian Black)",
+        "sku":  "15836",
+        "regular_price":  "2595.00"
+    },
+    {
+        "id":  464,
+        "name":  "JURA ENA 8 (Full Metropolitan Black)",
+        "sku":  "15493",
+        "regular_price":  "1049.00"
+    },
+    {
+        "id":  456,
+        "name":  "JURA E6 (ED · Dark Inox)",
+        "sku":  "15828 (4355)",
+        "regular_price":  "899.00"
+    },
+    {
+        "id":  454,
+        "name":  "JURA E8 (ED · Midnight Silver)",
+        "sku":  "15712 (1131)",
+        "regular_price":  "1149.00"
+    },
+    {
+        "id":  639,
+        "name":  "JURA Milch-Karaffe",
+        "sku":  "jura-milch-karaffe",
+        "regular_price":  "49.99"
+    },
+    {
+        "id":  637,
+        "name":  "JURA Glas-Milchbehälter",
+        "sku":  "jura-glas-milchbehaelter",
+        "regular_price":  "24.99"
+    },
+    {
+        "id":  640,
+        "name":  "JURA Milchschäumer Hot \u0026amp; Cold",
+        "sku":  "jura-milchschaeumer-hot-cold",
+        "regular_price":  "99.00"
+    },
+    {
+        "id":  664,
+        "name":  "JURA Wireless Transmitter",
+        "sku":  "jura-wireless-transmitter",
+        "regular_price":  "26.99"
+    },
+    {
+        "id":  662,
+        "name":  "JURA Wi-Fi Connect V2",
+        "sku":  "jura-wifi-connect-v2",
+        "regular_price":  "26.99"
+    },
+    {
+        "id":  660,
+        "name":  "JURA Smart Connect",
+        "sku":  "jura-smart-connect",
+        "regular_price":  "26.99"
+    },
+    {
+        "id":  698,
+        "name":  "JURA Glacette",
+        "sku":  "jura-glacette",
+        "regular_price":  "29.99"
+    },
+    {
+        "id":  623,
+        "name":  "JURA 2-Phasen-Entkalkungstabletten (3 × 3 Stück)",
+        "sku":  "jura-2-phasen-entkalkungstabletten",
+        "regular_price":  "13.99"
+    },
+    {
+        "id":  621,
+        "name":  "JURA 3-Phasen-Reinigungstabletten (6 Stück)",
+        "sku":  "jura-3-phasen-reinigungstabletten",
+        "regular_price":  "9.99"
+    },
+    {
+        "id":  625,
+        "name":  "JURA Milchsystem-Reiniger Mini-Tabs 90 g",
+        "sku":  "jura-milchsystem-reiniger-minitabs",
+        "regular_price":  "14.99"
+    },
+    {
+        "id":  691,
+        "name":  "JURA Zubehörset für Milchsysteme",
+        "sku":  "jura-zubehoerset-milchsysteme",
+        "regular_price":  "18.99"
+    },
+    {
+        "id":  658,
+        "name":  "JURA Sirupaufsatz (2er-Set)",
+        "sku":  "jura-sirupaufsatz-2er",
+        "regular_price":  "9.99"
+    }
+]
