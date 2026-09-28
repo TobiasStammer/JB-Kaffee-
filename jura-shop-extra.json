@@ -1,4 +1,4 @@
-﻿{
+{
   "_note": "JURA Zubehör + Pflegeprodukte, Namen/Preise (UVP) und Bilder von de.jura.com (2026-09). status=draft. Bild-Basis maintenance/accessories = https://api.jura.com/media/global/images/home-products/",
   "imgBaseCare": "https://api.jura.com/media/global/images/home-products/maintenance-products/",
   "imgBaseAcc": "https://api.jura.com/media/global/images/home-products/accessories/",
@@ -27,28 +27,28 @@
     {
       "sku": "jura-claris-verlaengerung",
       "name": "JURA Verlängerung zur Filterpatrone CLARIS",
-      "price": "6.99",
+      "price": "11.90",
       "img": "extensions-claris-smart-blue-white/overview_clarisextensions.jpg",
       "desc": "Adapter zur Verlängerung der CLARIS Filterpatrone – für den passenden Sitz im Wassertank je nach Gerätemodell."
     },
     {
       "sku": "jura-3-phasen-reinigungstabletten",
       "name": "JURA 3-Phasen-Reinigungstabletten (6 Stück)",
-      "price": "9.99",
+      "price": "9.90",
       "img": "cleaning-tabs/overview_3in1cleaningtabs6er.jpg",
       "desc": "Für das integrierte Reinigungsprogramm: lösen Kaffeefett rückstandslos und schützen so Aroma und Hygiene. 6 Tabletten."
     },
     {
       "sku": "jura-2-phasen-entkalkungstabletten",
       "name": "JURA 2-Phasen-Entkalkungstabletten (3 × 3 Stück)",
-      "price": "13.99",
+      "price": "13.90",
       "img": "descaling-tabs/overview_decalctabs.jpg",
       "desc": "Für das Entkalkungsprogramm von JURA-Vollautomaten ohne Wasserfilter. Entfernt Kalk schonend und materialgerecht. 9 Tabletten."
     },
     {
       "sku": "jura-milchsystem-reiniger-minitabs",
       "name": "JURA Milchsystem-Reiniger Mini-Tabs 90 g",
-      "price": "14.99",
+      "price": "14.90",
       "img": "mini-tabs-click-and-clean/overviewminitabsclickclean.jpg",
       "desc": "Tägliche Reinigung des Milchsystems auf Knopfdruck – TÜV-zertifizierte Hygiene. Dose mit 90 g."
     },
@@ -92,21 +92,21 @@
     {
       "sku": "jura-glas-milchbehaelter",
       "name": "JURA Glas-Milchbehälter",
-      "price": "24.99",
+      "price": "24.90",
       "img": "acc_glassmilkcontainer.jpg",
       "desc": "Milchbehälter aus Glas (0,5 l) mit Deckel – geschmacksneutral, spülmaschinenfest und leicht zu reinigen."
     },
     {
       "sku": "jura-milch-karaffe",
       "name": "JURA Milch-Karaffe",
-      "price": "49.99",
+      "price": "49.90",
       "img": "milk-carafe/milchkaraffe_ea_packshot_overview.jpg",
       "desc": "Isolierte Milch-Karaffe für kompatible JURA-Geräte – hält die Milch ohne externe Kühlung länger frisch."
     },
     {
       "sku": "jura-milchschaeumer-hot-cold",
       "name": "JURA Milchschäumer Hot & Cold",
-      "price": "99.00",
+      "price": "99.90",
       "img": "https://api.jura.com/media/global/images/home-products/milk-frother/image-gallery-automatic-milk-frother-hot-and-cold/Website_Overview_Zubeh%C3%B6r_psf_Milkfrother_1000x751px.jpg",
       "desc": "Elektrischer Standgerät-Milchschäumer für warmen und kalten Milchschaum – ideal als Ergänzung zu Geräten ohne Milchsystem."
     },
@@ -169,28 +169,28 @@
     {
       "sku": "jura-sirupaufsatz-2er",
       "name": "JURA Sirupaufsatz (2er-Set)",
-      "price": "9.99",
+      "price": "9.90",
       "img": "Syrup-attachment/Sirupaufsatz_overview_1000x751.jpg",
       "desc": "Sirupaufsatz für Geräte mit separatem Milch-/Sirupauslauf. 2 Stück."
     },
     {
       "sku": "jura-smart-connect",
       "name": "JURA Smart Connect",
-      "price": "26.99",
+      "price": "26.90",
       "img": "https://api.jura.com/media/global/images/professional-products/accessories/apps/smart-connect/overview_smart_connect.jpg",
       "desc": "Bluetooth-Funksender für die Buchse an der Geräterückseite – verbindet den Vollautomaten mit der J.O.E.® App oder Cool Control."
     },
     {
       "sku": "jura-wifi-connect-v2",
       "name": "JURA Wi-Fi Connect V2",
-      "price": "26.99",
+      "price": "26.90",
       "img": "wifiV2/overview_WiFI_V2.jpg",
       "desc": "WLAN-Modul zur Einbindung des Geräts ins Heimnetz – für Fernsteuerung und Statistiken über J.O.E.®."
     },
     {
       "sku": "jura-wireless-transmitter",
       "name": "JURA Wireless Transmitter",
-      "price": "26.99",
+      "price": "26.90",
       "img": "wireless-transmitter/big_wireless_transmitter.jpg",
       "desc": "Funksender zur drahtlosen Verbindung von Vollautomat und Cool Control."
     },
@@ -281,7 +281,7 @@
     {
       "sku": "jura-zubehoerset-milchsysteme",
       "name": "JURA Zubehörset für Milchsysteme",
-      "price": "18.99",
+      "price": "18.90",
       "img": "accsethp/accsethp3/overview_accsethp3_v2.jpg",
       "desc": "Ersatzteil-Set für das Milchsystem (Dichtungen, Ventile, Auslaufteile) – hält die Milchschaumqualität konstant."
     },
@@ -309,7 +309,7 @@
     {
       "sku": "jura-glacette",
       "name": "JURA Glacette",
-      "price": "29.99",
+      "price": "29.90",
       "img": "Glacette/black/overview_glacette.jpg",
       "desc": "Isolierbehälter für Eiswürfel – hält das Eis für Cold-Brew-Spezialitäten länger fest."
     }

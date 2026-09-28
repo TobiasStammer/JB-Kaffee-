@@ -1,14 +1,13 @@
 /* kaffeetechniker.de - EU-Hinweis "Gesetzliche Gewaehrleistung" (harmonisierter Hinweis, DVO (EU) 2025/1960, Pflicht ab 27.09.2026).
- * Das Design ist verbindlich und wird NICHT veraendert: es wird nur das unveraenderte Original der EU-Kommission (PNG aus der offiziellen SVG,
- * PDF farbig) eingebunden. Dateien: Mediathek-ID 4894 (PNG), 4895 (PDF); Quelle siehe Gewaehrleistungslabel/ im Repo.
- * Einbau: Produktseiten (unter "In den Warenkorb"), Kasse (vor "Zahlungspflichtig bestellen"), Seiten AGB + Gewaehrleistung (unter der Ueberschrift),
- * PDF als Anhang der Kundenmails (Bestellung eingegangen/abgeschlossen = dauerhafter Datentraeger).
+ * Eingebunden wird das PNG aus der Gewaehrleistungslabel/-Vorlage der EU-Kommission in der vom Betreiber gewuenschten Kurzfassung
+ * (Mediathek-ID siehe KT_GW_PNG_ID; Rechtspruefung durch Anwalt/Haendlerbund ist Sache des Betreibers).
+ * Einbau: Produktseiten (unter "In den Warenkorb"), Kasse (vor "Zahlungspflichtig bestellen"), Seiten AGB + Gewaehrleistung (unter der Ueberschrift).
+ * Kein PDF-Anhang an Kundenmails (vom Betreiber nicht gewuenscht, 2026-09-28).
  * Deploy: scratchpad/gewaehrleistungshinweis.ps1 */
 
 if ( ! function_exists( 'kt_gw_notice' ) ) {
 
-	define( 'KT_GW_PNG_ID', 4894 );
-	define( 'KT_GW_PDF_ID', 4895 );
+	define( 'KT_GW_PNG_ID', 4898 );
 
 	function kt_gw_notice( $width = 170, $context = 'product' ) {
 		$url = wp_get_attachment_url( KT_GW_PNG_ID );
@@ -58,14 +57,3 @@ add_filter( 'the_content', function ( $content ) {
 	$new    = preg_replace( '#(</h1>)#i', '$1' . str_replace( '$', '\$', $notice ), $content, 1, $n );
 	return $n ? $new : $content;
 }, 20 );
-
-// PDF als Anhang der Kundenmails (dauerhafter Datentraeger): Bestellung eingegangen / abgeschlossen
-add_filter( 'woocommerce_email_attachments', function ( $attachments, $email_id ) {
-	if ( in_array( $email_id, array( 'customer_on_hold_order', 'customer_processing_order', 'customer_completed_order' ), true ) ) {
-		$file = get_attached_file( KT_GW_PDF_ID );
-		if ( $file && file_exists( $file ) ) {
-			$attachments[] = $file;
-		}
-	}
-	return $attachments;
-}, 10, 2 );
