@@ -14,6 +14,8 @@ Quelle der Vorlage: https://commission.europa.eu/publications/practical-guidelin
 | Gewaehrleistungshinweis-DE-kurz.png | Kurzfassung (ohne Schlussabsatz) fürs Web, in der Mediathek (siehe media-ids.json) |
 | Gewaehrleistungshinweis-DE-farbig-kurz.pdf / -sw-kurz.pdf | Kurzfassung als A4-Ausdruck für den Laden |
 
-Einbau auf der Website: Code-Snippet "KT EU-Hinweis Gesetzliche Gewaehrleistung" (../gewaehrleistungshinweis-snippet.php,
+Stand 2026-09-28: Auf der Website ist der Hinweis auf Wunsch des Betreibers komplett entfernt (Snippet deaktiviert, nicht gelöscht). Nur im Laden hängt der Ausdruck.
+
+Früherer Einbau auf der Website: Code-Snippet "KT EU-Hinweis Gesetzliche Gewaehrleistung" (../gewaehrleistungshinweis-snippet.php,
 Deploy ../scratchpad/gewaehrleistungshinweis.ps1): Produktseiten, Kasse, AGB + Gewährleistung. Kein PDF-Anhang an Kundenmails.
 Laden: A4-Ausdruck, gut sichtbar (Kasse/Wand).
