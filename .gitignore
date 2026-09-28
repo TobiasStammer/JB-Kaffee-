@@ -12,3 +12,6 @@ desktop.ini
 
 # generierte Vorschau (wird jederzeit neu gebaut)
 vorschau.html
+
+# Bestelluebersichten (PDF mit Kundendaten) - nie committen
+/Bestellungen/
