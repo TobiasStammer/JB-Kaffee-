@@ -196,6 +196,35 @@ body.woocommerce-page .wc-block-components-text-input label,
 body.woocommerce-page .wc-block-components-text-input input,
 body.woocommerce-page .wc-block-components-checkout-step .wc-block-components-radio-control__label { font-size: 15px !important; }
 
+/* ----- Bestellbestaetigung (order-received): kompakt wie die uebrige Seite ----- */
+body.woocommerce-order-received main { max-width: 940px; margin-inline: auto; padding-inline: clamp(16px, 4vw, 44px) !important; }
+body.woocommerce-order-received .wp-block-woocommerce-order-confirmation-status,
+body.woocommerce-order-received .wc-block-order-confirmation-status {
+  font-size: 20px !important; line-height: 1.35 !important; font-weight: 700; margin: 0 0 8px !important;
+}
+body.woocommerce-order-received .wc-block-order-confirmation-status p { font-size: inherit !important; margin: 0 !important; }
+body.woocommerce-order-received .wc-block-order-confirmation-status-description,
+body.woocommerce-order-received .wc-block-order-confirmation-status-description p { font-size: 15px !important; line-height: 1.6 !important; }
+body.woocommerce-order-received .wc-block-order-confirmation-summary,
+body.woocommerce-order-received .wc-block-order-confirmation-summary * { font-size: 14px !important; line-height: 1.5 !important; }
+body.woocommerce-order-received .wc-block-order-confirmation-summary { margin: 14px 0 6px !important; }
+body.woocommerce-order-received main h2,
+body.woocommerce-order-received main h3,
+body.woocommerce-order-received main .wp-block-heading {
+  font-size: 17px !important; line-height: 1.3 !important; margin: 26px 0 10px !important;
+}
+body.woocommerce-order-received .wc-block-order-confirmation-totals table,
+body.woocommerce-order-received .wc-block-order-confirmation-totals table *,
+body.woocommerce-order-received .wc-block-order-confirmation-shipping-address *,
+body.woocommerce-order-received .wc-block-order-confirmation-billing-address *,
+body.woocommerce-order-received .wc-block-order-confirmation-additional-fields * { font-size: 14.5px !important; line-height: 1.55 !important; }
+body.woocommerce-order-received .wc-block-order-confirmation-totals th,
+body.woocommerce-order-received .wc-block-order-confirmation-totals td { padding: 9px 14px !important; }
+body.woocommerce-order-received .wc-block-order-confirmation-shipping-address,
+body.woocommerce-order-received .wc-block-order-confirmation-billing-address { padding: 12px 16px !important; }
+body.woocommerce-order-received .wc-block-order-confirmation-create-account h3 { font-size: 16px !important; }
+body.woocommerce-order-received .wc-block-order-confirmation-create-account li { font-size: 14.5px !important; }
+
 /* ----- Mein Konto (Anmelden/Registrieren + Kundenbereich): Groessen wie die uebrige Seite ----- */
 body.woocommerce-account .wp-block-post-title,
 body.woocommerce-account main h1 { font-size: 22px !important; line-height: 1.3 !important; margin: 0 0 18px !important; }
