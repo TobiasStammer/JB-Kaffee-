@@ -198,6 +198,13 @@ body.woocommerce-page .wc-block-components-checkout-step .wc-block-components-ra
 
 /* ----- Bestellbestaetigung (order-received): kompakt wie die uebrige Seite ----- */
 body.woocommerce-order-received main { max-width: 940px; margin-inline: auto; padding-inline: clamp(16px, 4vw, 44px) !important; }
+/* Seitenueberschrift ("Bestellung eingegangen") auf die Groesse von Warenkorb/Konto (26px) */
+body.woocommerce-order-received h1,
+body.woocommerce-order-received .wp-block-post-title,
+body.woocommerce-order-received .entry-title {
+  font-size: clamp(22px, 2.4vw, 26px) !important; line-height: 1.25 !important; margin: 0 0 12px !important;
+  max-width: 940px; margin-inline: auto !important; padding-inline: clamp(16px, 4vw, 44px) !important; box-sizing: border-box;
+}
 body.woocommerce-order-received .wp-block-woocommerce-order-confirmation-status,
 body.woocommerce-order-received .wc-block-order-confirmation-status {
   font-size: 20px !important; line-height: 1.35 !important; font-weight: 700; margin: 0 0 8px !important;
