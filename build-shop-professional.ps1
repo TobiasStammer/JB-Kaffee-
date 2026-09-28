@@ -35,7 +35,7 @@ foreach ($p in $data.items) {
 <div class="jura-pd">
 <p style="font-size:14px;line-height:1.6;margin:0 0 10px"><strong>Empfohlene Tagesleistung:</strong> $(Enc $p.tages)</p>
 <p style="font-size:14px;line-height:1.6;margin:0 0 10px">$(Enc $p.desc)</p>
-<h2 style="font-size:15px;line-height:1.3;font-weight:700;margin:20px 0 8px">Preis auf Anfrage</h2>
+<h2 style="font-size:15px;line-height:1.3;font-weight:700;margin:20px 0 8px">Beratung und Angebot</h2>
 <p style="font-size:14px;line-height:1.6;margin:0 0 10px">JURA Professional-Ger&auml;te konfigurieren wir gemeinsam mit Ihnen (Festwasseranschluss, Milchl&ouml;sung, Zahlsystem, Wartungsvertrag). Sie erhalten von uns ein auf Ihren Bedarf zugeschnittenes Angebot &ndash; inkl. Aufstellung, Einweisung und Service vor Ort.</p>
 <hr style="border:0;border-top:1px solid #e2e2e2;margin:16px 0">
 <p style="font-size:14px;line-height:1.6;margin:0 0 10px"><strong><a href="$base/jura/">$(Enc $T.markenLink)</a></strong></p>
@@ -43,7 +43,7 @@ foreach ($p in $data.items) {
 <p style="font-size:12px;color:#888">$(Enc $T.footer)</p>
 </div>
 "@
-  $short = "<p>JURA Professional-Kaffeevollautomat, $(Enc $p.tages). Preis auf Anfrage &ndash; Beratung, Angebot und Service durch Ihre JURA-Servicestelle in Hofheim-Langenhain.</p>"
+  $short = "<p>JURA Professional-Kaffeevollautomat, $(Enc $p.tages). Beratung, Angebot und Service durch Ihre JURA-Servicestelle in Hofheim-Langenhain.</p>"
 
   $body = @{
     name               = $p.name
