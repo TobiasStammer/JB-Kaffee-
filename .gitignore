@@ -15,3 +15,6 @@ vorschau.html
 
 # Bestelluebersichten (PDF mit Kundendaten) - nie committen
 /Bestellungen/
+
+# EU-Hinweis: heruntergeladene ZIP-Archive nicht committen
+/Gewaehrleistungslabel/_download/
