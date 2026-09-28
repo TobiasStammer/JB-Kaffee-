@@ -7,7 +7,7 @@
 if ( ! function_exists( 'kt_email_exists_msg' ) ) {
 	function kt_email_exists_msg() {
 		return sprintf(
-			'Diese E-Mail-Adresse ist bereits registriert. Bitte <a href="%s">melde dich an</a> oder <a href="%s">setze dein Passwort zur&uuml;ck</a>.',
+			'Diese E-Mail-Adresse ist bereits registriert. Bitte <a href="%s">melden Sie sich an</a> oder <a href="%s">setzen Sie Ihr Passwort zur&uuml;ck</a>.',
 			esc_url( wc_get_page_permalink( 'myaccount' ) ),
 			esc_url( wc_lostpassword_url() )
 		);
