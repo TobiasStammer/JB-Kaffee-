@@ -195,6 +195,65 @@ body.woocommerce-page .wc-block-components-totals-item { font-size: 14.5px !impo
 body.woocommerce-page .wc-block-components-text-input label,
 body.woocommerce-page .wc-block-components-text-input input,
 body.woocommerce-page .wc-block-components-checkout-step .wc-block-components-radio-control__label { font-size: 15px !important; }
+
+/* ----- Mein Konto (Anmelden/Registrieren + Kundenbereich): Groessen wie die uebrige Seite ----- */
+body.woocommerce-account .wp-block-post-title,
+body.woocommerce-account main h1 { font-size: 22px !important; line-height: 1.3 !important; margin: 0 0 18px !important; }
+body.woocommerce-account .woocommerce {
+  max-width: 940px !important; margin-inline: auto !important; font-size: 15px; line-height: 1.6;
+}
+/* doppeltes Seiten-Padding (main + post-content) auf dem Konto-Bereich nicht addieren */
+body.woocommerce-account .wp-block-post-content { padding-inline: 0 !important; }
+body.woocommerce-account .woocommerce h2,
+body.woocommerce-account .woocommerce h3 { font-size: 17px !important; line-height: 1.3 !important; margin: 0 0 14px !important; }
+body.woocommerce-account .woocommerce label { font-size: 14px !important; font-weight: 600; }
+body.woocommerce-account .woocommerce input.input-text,
+body.woocommerce-account .woocommerce select,
+body.woocommerce-account .woocommerce textarea { font-size: 15px !important; padding: 10px 12px !important; }
+body.woocommerce-account .woocommerce .button,
+body.woocommerce-account .woocommerce button.button { font-size: 14px !important; padding: 10px 20px !important; }
+body.woocommerce-account .woocommerce-form .form-row { margin: 0 0 14px !important; }
+body.woocommerce-account .woocommerce-privacy-policy-text p,
+body.woocommerce-account .woocommerce-form-register > p:not(.form-row) { font-size: 13px !important; color: #666; margin: 0 0 14px !important; }
+/* Anmelden + Registrieren: zwei gleich hohe Karten */
+body.woocommerce-account #customer_login {
+  display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: start;
+  width: 100% !important; max-width: none !important; justify-content: stretch !important;
+}
+@media (max-width: 720px) {
+  body.woocommerce-account #customer_login { grid-template-columns: minmax(0, 1fr); }
+}
+/* WooCommerce-Clearfix (::before/::after) wuerde im Raster zu leeren Zellen */
+body.woocommerce-account #customer_login::before,
+body.woocommerce-account #customer_login::after,
+body.woocommerce-account .woocommerce::before,
+body.woocommerce-account .woocommerce::after { content: none !important; display: none !important; }
+body.woocommerce-account #customer_login .u-column1,
+body.woocommerce-account #customer_login .u-column2 {
+  float: none !important; width: auto !important; margin: 0 !important; box-sizing: border-box;
+  border: 1px solid #e6e6e6; border-radius: 10px; padding: 22px 24px;
+}
+/* Kundenbereich: Menue links, Inhalt rechts */
+body.woocommerce-account .woocommerce:has(.woocommerce-MyAccount-navigation) {
+  display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 12px 36px; align-items: start;
+}
+body.woocommerce-account .woocommerce-notices-wrapper { grid-column: 1 / -1; }
+body.woocommerce-account .woocommerce-MyAccount-navigation,
+body.woocommerce-account .woocommerce-MyAccount-content { float: none !important; width: auto !important; margin: 0 !important; }
+body.woocommerce-account .woocommerce-MyAccount-navigation ul { list-style: none; margin: 0; padding: 0; }
+body.woocommerce-account .woocommerce-MyAccount-navigation li { margin: 0 0 3px; padding: 0; }
+body.woocommerce-account .woocommerce-MyAccount-navigation li a {
+  display: block; padding: 9px 14px; border-radius: 6px; font-size: 14.5px; color: #334155; text-decoration: none;
+}
+body.woocommerce-account .woocommerce-MyAccount-navigation li a:hover { background: #f3f4f6; }
+body.woocommerce-account .woocommerce-MyAccount-navigation li.is-active a { background: #eceff3; font-weight: 700; color: #1e293b; }
+body.woocommerce-account .woocommerce-MyAccount-content p { margin: 0 0 12px; }
+body.woocommerce-account .woocommerce-MyAccount-content table { font-size: 14px; }
+@media (max-width: 720px) {
+  body.woocommerce-account .woocommerce:has(.woocommerce-MyAccount-navigation) { grid-template-columns: 1fr; }
+  body.woocommerce-account #customer_login .u-column1,
+  body.woocommerce-account #customer_login .u-column2 { padding: 18px; }
+}
 '@
 
 $new = $css.TrimEnd() + "`n" + $add
