@@ -72,6 +72,25 @@ add_action( 'rest_api_init', function () {
 				$out['overview_html'] = $oo ? kt_ov_html( $oo ) : 'keine Bestellung';
 				$out['overview_url']  = $oo ? preg_replace( '/_wpnonce=[a-z0-9]+/i', '_wpnonce=XXX', kt_ov_url( $oo->get_id() ) ) : null;
 			}
+			if ( $req['sitemapgrep'] ) {
+				$base = WP_PLUGIN_DIR . '/beyondseo';
+				$hits = array();
+				if ( is_dir( $base ) ) {
+					$it = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $base, FilesystemIterator::SKIP_DOTS ) );
+					foreach ( $it as $f ) {
+						if ( $f->isFile() && '.php' === substr( $f->getFilename(), -4 ) && false === strpos( str_replace( '\', '/', $f->getPathname() ), '/vendor/' ) ) {
+							foreach ( file( $f->getPathname() ) as $i => $line ) {
+								if ( preg_match( '/sitemap.*(\.xml|rewrite|template_redirect|query_var|home_url|site_url)|(add_rewrite|wp_sitemaps_enabled).*sitemap|robots_txt.*sitemap/i', $line ) ) {
+									$hits[] = str_replace( $base, '', str_replace( '\', '/', $f->getPathname() ) ) . ':' . ( $i + 1 ) . ': ' . substr( trim( $line ), 0, 190 );
+								}
+							}
+						}
+					}
+				}
+				$out['sitemapgrep'] = $hits;
+				$out['core_sitemaps_enabled'] = wp_sitemaps_get_server() ? wp_sitemaps_get_server()->sitemaps_enabled() : null;
+				$out['blog_public'] = get_option( 'blog_public' );
+			}
 			if ( $req['seogrep'] ) {
 				$base = WP_PLUGIN_DIR . '/beyondseo';
 				$hits = array();
