@@ -196,6 +196,23 @@ body.woocommerce-page .wc-block-components-text-input label,
 body.woocommerce-page .wc-block-components-text-input input,
 body.woocommerce-page .wc-block-components-checkout-step .wc-block-components-radio-control__label { font-size: 15px !important; }
 
+/* ----- Warenkorb + Kasse: mobil genug Breite (Zeilen-Grid braucht ~330px), lange Beschreibung in der Position aus ----- */
+body.woocommerce-cart .wc-block-components-product-metadata__description,
+body.woocommerce-checkout .wc-block-components-product-metadata__description { display: none !important; }
+@media (max-width: 600px) {
+  body.woocommerce-page.woocommerce-cart .wp-site-blocks .wp-block-post-content,
+  body.woocommerce-page.woocommerce-checkout .wp-site-blocks .wp-block-post-content { padding-inline: 0 !important; }
+  /* aeusseres main: 12px, inneres (verschachteltes) main: 0 -> Inhalt ~335px breit statt 295px */
+  body.woocommerce-page.woocommerce-cart .wp-site-blocks main,
+  body.woocommerce-page.woocommerce-checkout .wp-site-blocks main { padding-inline: 12px !important; }
+  body.woocommerce-page.woocommerce-cart .wp-site-blocks main main,
+  body.woocommerce-page.woocommerce-checkout .wp-site-blocks main main { padding-inline: 0 !important; }
+}
+
+/* Kasse: Versand-/Zahlart-Zeilen duerfen umbrechen (Name + Preis ragten mobil ueber den Rand) */
+body.woocommerce-checkout .wc-block-components-radio-control__label-group { flex-wrap: wrap !important; gap: 2px 12px; }
+body.woocommerce-checkout .wc-block-components-radio-control__secondary-label { margin-left: 0 !important; white-space: normal; }
+
 /* ----- Bestellbestaetigung (order-received): kompakt wie die uebrige Seite ----- */
 body.woocommerce-order-received main { max-width: 940px; margin-inline: auto; padding-inline: clamp(16px, 4vw, 44px) !important; }
 /* Seitenueberschrift ("Bestellung eingegangen") auf die Groesse von Warenkorb/Konto (26px) */
