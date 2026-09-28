@@ -10,7 +10,7 @@ if ( ! function_exists( 'kt_gw_notice' ) ) {
 	define( 'KT_GW_PNG_ID', 4894 );
 	define( 'KT_GW_PDF_ID', 4895 );
 
-	function kt_gw_notice( $width = 340, $context = 'product' ) {
+	function kt_gw_notice( $width = 170, $context = 'product' ) {
 		$url = wp_get_attachment_url( KT_GW_PNG_ID );
 		if ( ! $url ) {
 			return '';
@@ -27,7 +27,7 @@ if ( ! function_exists( 'kt_gw_notice' ) ) {
 // Produktseiten: unter dem Warenkorb-Bereich
 add_filter( 'render_block', function ( $html, $block ) {
 	if ( isset( $block['blockName'] ) && 'woocommerce/add-to-cart-form' === $block['blockName'] ) {
-		return $html . kt_gw_notice( 340, 'product' );
+		return $html . kt_gw_notice( 170, 'product' );
 	}
 	return $html;
 }, 20, 2 );
@@ -35,14 +35,14 @@ add_filter( 'render_block', function ( $html, $block ) {
 // Kasse (Block-Checkout): direkt vor dem Bestell-Button
 add_filter( 'render_block', function ( $html, $block ) {
 	if ( isset( $block['blockName'] ) && 'woocommerce/checkout-actions-block' === $block['blockName'] ) {
-		return kt_gw_notice( 300, 'checkout' ) . $html;
+		return kt_gw_notice( 150, 'checkout' ) . $html;
 	}
 	return $html;
 }, 20, 2 );
 
 // Kasse (klassisch), falls jemals genutzt
 add_action( 'woocommerce_review_order_before_submit', function () {
-	echo kt_gw_notice( 300, 'checkout' ); // phpcs:ignore WordPress.Security.EscapeOutput
+	echo kt_gw_notice( 150, 'checkout' ); // phpcs:ignore WordPress.Security.EscapeOutput
 } );
 
 // Seiten AGB + Gewaehrleistung: unter der Hauptueberschrift (die Seiten bringen Kopf/Fuss im Inhalt mit)
@@ -54,7 +54,7 @@ add_filter( 'the_content', function ( $content ) {
 	if ( ! in_array( $slug, array( 'agb', 'gewaehrleistung' ), true ) || false !== strpos( $content, 'kt-gw-page' ) ) {
 		return $content;
 	}
-	$notice = kt_gw_notice( 520, 'page' );
+	$notice = kt_gw_notice( 260, 'page' );
 	$new    = preg_replace( '#(</h1>)#i', '$1' . str_replace( '$', '\$', $notice ), $content, 1, $n );
 	return $n ? $new : $content;
 }, 20 );
