@@ -8,7 +8,7 @@ add_action( 'init', function () {
 	$host = isset( $_SERVER['HTTP_HOST'] ) ? strtolower( preg_replace( '/:\d+$/', '', (string) wp_unslash( $_SERVER['HTTP_HOST'] ) ) ) : '';
 	if ( 'new.kaffeetechniker.de' === $host ) {
 		$uri = isset( $_SERVER['REQUEST_URI'] ) ? (string) wp_unslash( $_SERVER['REQUEST_URI'] ) : '/';
-		wp_redirect( 'https://www.kaffeetechniker.de' . $uri, 301 ); // phpcs:ignore WordPress.Security.SafeRedirect
+		wp_redirect( 'https://kaffeetechniker.de' . $uri, 301 ); // phpcs:ignore WordPress.Security.SafeRedirect
 		exit;
 	}
 }, 0 );
