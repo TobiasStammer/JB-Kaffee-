@@ -213,6 +213,16 @@ body.woocommerce-checkout .wc-block-components-product-metadata__description { d
 body.woocommerce-checkout .wc-block-components-radio-control__label-group { flex-wrap: wrap !important; gap: 2px 12px; }
 body.woocommerce-checkout .wc-block-components-radio-control__secondary-label { margin-left: 0 !important; white-space: normal; }
 
+/* Wertgarantie-Seite mobil zu breit: .kt-sec ist ein CSS-Grid-Element (.kt-secs { display:grid }) und ignoriert
+   dabei die Grid-Spurbreite, weil Grid-Elemente per Default min-width:auto haben (schrumpfen nicht unter den
+   Inhalt). Das WERTGARANTIE-Widget braucht ~370px, die Karte hat aber nur ~313px -> Karte + ganze Seite werden
+   ueber den Bildschirmrand hinaus breit. Fix: min-width:0 auf .kt-sec (Standard-Reset fuer Grid/Flex-Kinder,
+   unschaedlich fuer alle anderen Karten) + eigener Scrollbalken nur fuers Widget als Notfallnetz. */
+.kt-sec { min-width: 0; }
+#wg-hyve-site-connect, .wg-hyve-site-connect-container {
+  max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;
+}
+
 /* ----- Bestellbestaetigung (order-received): kompakt wie die uebrige Seite ----- */
 body.woocommerce-order-received main { max-width: 940px; margin-inline: auto; padding-inline: clamp(16px, 4vw, 44px) !important; }
 /* Seitenueberschrift ("Bestellung eingegangen") auf die Groesse von Warenkorb/Konto (26px) */
