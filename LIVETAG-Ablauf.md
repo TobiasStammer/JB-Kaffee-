@@ -42,7 +42,8 @@ Aufgabenteilung: **[DU]** = im IONOS-Konto / Zahlungsanbieter-Konten, **[CLAUDE]
 
 ## 8. Nacharbeit (am selben Tag)
 - [DU] Google Search Console: Property `https://www.kaffeetechniker.de` anlegen, Sitemap `https://www.kaffeetechniker.de/wp-sitemap.xml` einreichen.
-- [DU] Google-Unternehmensprofil, Social-Links, Flyer/QR-Codes auf `www` pruefen.
+- [ERLEDIGT] Google-Unternehmensprofil existiert bereits (4,9 Sterne, 146 Rezensionen, verifiziert) - Website-Link zeigt auf `www.kaffeetechniker.de`, funktioniert dank Weiterleitung, Umstellung auf ohne-www optional/kosmetisch.
+- [DU] Social-Links, Flyer/QR-Codes auf `kaffeetechniker.de` (ohne www) pruefen, falls vorhanden.
 - [DU] SSH-Zugang bei IONOS von Passwort auf Schluessel umstellen und Passwoerter erneuern.
 - [CLAUDE] Notizen/Repo aktualisieren.
 

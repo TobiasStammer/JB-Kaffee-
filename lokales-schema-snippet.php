@@ -6,8 +6,10 @@
  * Fuer ein lokales Handwerks-/Verkaufsgeschaeft der wichtigste Hebel: Google kann Adresse, Oeffnungszeiten,
  * Telefon direkt im Suchergebnis zeigen (Rich Snippet / Local Pack). Alle Angaben 1:1 aus Impressum/Kontakt/
  * Anfahrt uebernommen (NAP-Konsistenz), Name exakt wie im Seitentitel ("-" nicht "–"). Geo-Koordinaten per
- * Google Maps ermittelt (2026-09-29). Kein Google-Unternehmensprofil fuer die Adresse gefunden - das ist
- * Sache des Betreibers, deckt sich nicht automatisch mit diesem Schema.
+ * Google Maps ermittelt (2026-09-29). Google-Unternehmensprofil existiert bereits (4,9 Sterne, 146 Rezensionen,
+ * verifiziert) - reine Adresssuche in Maps hatte es zunaechst nicht angezeigt, war aber ein Fehler der Pruefung,
+ * nicht ein fehlendes Profil. Website-Link dort zeigt auf https://www.kaffeetechniker.de (mit www, funktioniert
+ * dank automatischer Weiterleitung).
  * Einbau: Code Snippets, PHP, "Ueberall ausfuehren" (Deploy: scratchpad/lokales-schema.ps1). */
 add_action( 'wp_head', function () {
 	$logo = wp_get_attachment_image_url( 149, 'full' );
