@@ -1,5 +1,5 @@
 /* kaffeetechniker.de - Preisangaben nach PAngV/BGB + deutsche Beschriftungen.
- * 1) Am Preis (Produktseite, Listen, verwandte Produkte; nicht extern/Warenkorb/Kasse): "inkl. MwSt., zzgl. Versandkosten" (Link auf AGB Abschnitt 3)
+ * 1) Am Preis (Produktseite, Listen, verwandte Produkte; nicht extern/Warenkorb/Kasse): "inkl. MwSt., zzgl. Versandkosten" (Link auf /versand-und-zahlung/ mit den echten Betraegen, statt vorher auf die AGB, wo nur "siehe Produktseite" stand - zirkulaerer Verweis ohne konkrete Zahl)
  * 2) Grundpreis bei Kaffee/Tee (Menge aus dem Produktnamen "... 1000 g"): bis 250 g je 100 g, sonst je 1 kg (PAngV). Auch in der Kartenliste "Unser Kaffee".
  * 3) Preislisten-Seiten (eigene Kartenlisten): Hinweiszeile unter der Ueberschrift.
  * 4) "SKU:" -> "Artikelnummer:", "Category:" -> "Kategorie:" usw. auf der Produktseite.
@@ -8,7 +8,7 @@
 if ( ! function_exists( 'kt_pn_link' ) ) {
 
 	function kt_pn_link() {
-		return '<a href="' . esc_url( home_url( '/agb/#3-preise-versandkosten-und-zahlung' ) ) . '" style="color:inherit;text-decoration:underline">Versandkosten</a>';
+		return '<a href="' . esc_url( home_url( '/versand-und-zahlung/' ) ) . '" style="color:inherit;text-decoration:underline">Versandkosten</a>';
 	}
 
 	function kt_grams_from_name( $name ) {
