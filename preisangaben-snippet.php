@@ -46,11 +46,17 @@ if ( ! function_exists( 'kt_volume_ml' ) ) {
 
 // 1) + 2) am Preis
 add_filter( 'woocommerce_get_price_html', function ( $html, $product ) {
-	if ( '' === $html || is_admin() || is_cart() || is_checkout() || is_account_page() || $product->is_type( 'external' ) ) {
+	if ( '' === $html || is_admin() || is_cart() || is_checkout() || is_account_page() ) {
 		return $html;
 	}
+	// Profi-Geraete (externe/Anfrage-Produkte, "Professional"-Linie): Preise sind brutto
+	// (gepr�ft gegen glatte Nettopreise), aber ohne eigenen Checkout/Versand bei uns ->
+	// nur "inkl. MwSt.", ohne Versandkosten-Zusatz/-Link.
+	if ( $product->is_type( 'external' ) ) {
+		return $html . '<span class="kt-pn" style="display:block;margin-top:2px;font-size:12px;font-weight:400;line-height:1.4;color:#666">inkl. MwSt.</span>';
+	}
 	$out = $html . '<span class="kt-pn" style="display:block;margin-top:2px;font-size:12px;font-weight:400;line-height:1.4;color:#666">inkl. MwSt., zzgl. ' . kt_pn_link() . '</span>';
-	if ( has_term( array( 'kaffee', 'tee' ), 'product_cat', $product->get_id() ) ) {
+	if ( has_term( array( 'kaffee', 'tee', 'jura-pflegeprodukte', 'nivona-pflegeprodukte' ), 'product_cat', $product->get_id() ) ) {
 		$gp = kt_unit_price_text( (float) wc_get_price_to_display( $product ), kt_grams_from_name( $product->get_name() ) );
 		if ( $gp ) {
 			$out .= '<span class="kt-gp" style="display:block;font-size:12px;font-weight:400;line-height:1.4;color:#666">' . $gp . '</span>';
