@@ -265,8 +265,8 @@ add_action( 'wp_footer', function () {
   var AMP = String.fromCharCode(38);
   var AE = String.fromCharCode(228), OE = String.fromCharCode(246);
   var LISTS = {
-    top: ['CLARIS Smart+','Cool Control 1.0','Tassenw'+AE+'rmer$','Smart Connect','Glacette','Glas-Milchbeh','Milch-Karaffe','Zubeh'+OE+'rset f','Espressotassen'],
-    mid: ['CLARIS Smart+','Cool Control 0.6','Tassenw'+AE+'rmer S','Smart Connect','Glas-Milchbeh','Glacette','Milch-Karaffe','Zubeh'+OE+'rset f','Latte-macchiato-Glas'],
+    top: ['CLARIS Smart+','Cool Control 1.0','Tassenw'+AE+'rmer$','Wi-Fi Connect V2','Glacette','Glas-Milchbeh','Milch-Karaffe','Zubeh'+OE+'rset f','Espressotassen'],
+    mid: ['CLARIS Smart+','Cool Control 0.6','Tassenw'+AE+'rmer S','Wi-Fi Connect V2','Glas-Milchbeh','Glacette','Milch-Karaffe','Zubeh'+OE+'rset f','Latte-macchiato-Glas'],
     low: ['CLARIS Smart+','Milch-Karaffe','Latte-macchiato-Glas','Espressotassen','Zubeh'+OE+'rset f','Cappuccinotassen','Lungotasse','Kaffeel'+OE+'ffel','Auswechselbarer Milchauslauf']
   };
   function hit(nm,n){ if(n.slice(-1)==='$'){ n=n.slice(0,-1); return nm.length>=n.length && nm.lastIndexOf(n)===nm.length-n.length; } return nm.indexOf(n)>-1; }
