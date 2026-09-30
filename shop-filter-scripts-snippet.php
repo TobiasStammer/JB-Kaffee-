@@ -259,30 +259,36 @@ add_action( 'wp_footer', function () {
   });
   if(skip) return;
   if(!isJura && !isNivona) return;
-  var catId = isJura ? 20 : 37;
+  var catId = isJura ? 20 : 37, pflId = isJura ? 21 : 38;
   var main = document.querySelector('main');
   if(!main) return;
   var AMP = String.fromCharCode(38);
   var AE = String.fromCharCode(228), OE = String.fromCharCode(246);
   var LISTS = {
-    top: ['Cool Control 1.0','Tassenw'+AE+'rmer$','Smart Connect','Glacette','Glas-Milchbeh','Milch-Karaffe','Zubeh'+OE+'rset f','Espressotassen'],
-    mid: ['Cool Control 0.6','Tassenw'+AE+'rmer S','Smart Connect','Glas-Milchbeh','Glacette','Milch-Karaffe','Zubeh'+OE+'rset f','Latte-macchiato-Glas'],
-    low: ['Milch-Karaffe','Latte-macchiato-Glas','Espressotassen','Zubeh'+OE+'rset f','Cappuccinotassen','Lungotasse','Kaffeel'+OE+'ffel','Auswechselbarer Milchauslauf']
+    top: ['CLARIS Smart+','Cool Control 1.0','Tassenw'+AE+'rmer$','Smart Connect','Glacette','Glas-Milchbeh','Milch-Karaffe','Zubeh'+OE+'rset f','Espressotassen'],
+    mid: ['CLARIS Smart+','Cool Control 0.6','Tassenw'+AE+'rmer S','Smart Connect','Glas-Milchbeh','Glacette','Milch-Karaffe','Zubeh'+OE+'rset f','Latte-macchiato-Glas'],
+    low: ['CLARIS Smart+','Milch-Karaffe','Latte-macchiato-Glas','Espressotassen','Zubeh'+OE+'rset f','Cappuccinotassen','Lungotasse','Kaffeel'+OE+'ffel','Auswechselbarer Milchauslauf']
   };
   function hit(nm,n){ if(n.slice(-1)==='$'){ n=n.slice(0,-1); return nm.length>=n.length && nm.lastIndexOf(n)===nm.length-n.length; } return nm.indexOf(n)>-1; }
   function money(p){ return p.prices ? (parseInt(p.prices.price,10)/Math.pow(10,p.prices.currency_minor_unit)).toFixed(2).replace('.',',')+' '+p.prices.currency_symbol : ''; }
   function getJson(u){ return fetch(u).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }); }
   Promise.all([
     getJson('/wp-json/wc/store/v1/products/'+pid),
-    getJson('/wp-json/wc/store/v1/products?category='+catId+AMP+'per_page=100'+AMP+'orderby=popularity')
+    getJson('/wp-json/wc/store/v1/products?category='+catId+AMP+'per_page=100'+AMP+'orderby=popularity'),
+    getJson('/wp-json/wc/store/v1/products?category='+pflId+AMP+'per_page=100')
   ]).then(function(res){
-    var dev = res[0], all = res[1];
+    var dev = res[0], all = res[1], pfl = res[2] || [];
     if(!all || !all.length) return;
     var picks = [];
+    var filt = null;
+    for(var k=0;k<pfl.length;k++){ if(isJura ? pfl[k].name.indexOf('CLARIS Smart+')>-1 && pfl[k].name.indexOf('Filterpatrone')>-1 : pfl[k].name.indexOf('Frischwasserfilter')>-1){ filt = pfl[k]; break; } }
+    if(filt) picks.push(filt);
+    all = all.filter(function(p){ return p !== filt; });
     if(isJura){
       var euro = dev && dev.prices ? parseInt(dev.prices.price,10)/Math.pow(10,dev.prices.currency_minor_unit) : 0;
       var names = euro >= 1500 ? LISTS.top : (euro >= 800 ? LISTS.mid : LISTS.low);
       names.forEach(function(n){
+        if(n==='CLARIS Smart+') return;
         for(var i=0;i<all.length;i++){
           if(hit(all[i].name,n) && picks.indexOf(all[i])<0){ picks.push(all[i]); break; }
         }
