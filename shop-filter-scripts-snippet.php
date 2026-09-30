@@ -263,11 +263,11 @@ add_action( 'wp_footer', function () {
   var main = document.querySelector('main');
   if(!main) return;
   var AMP = String.fromCharCode(38);
-  var AE = String.fromCharCode(228);
+  var AE = String.fromCharCode(228), OE = String.fromCharCode(246);
   var LISTS = {
-    top: ['Cool Control 1.0','Tassenw'+AE+'rmer$','Smart Connect','Glacette'],
-    mid: ['Cool Control 0.6','Tassenw'+AE+'rmer S','Smart Connect','Glas-Milchbeh'],
-    low: ['Milch-Karaffe','Latte-macchiato-Glas','Espressotassen','Zubeh'+String.fromCharCode(246)+'rset f']
+    top: ['Cool Control 1.0','Tassenw'+AE+'rmer$','Smart Connect','Glacette','Glas-Milchbeh','Milch-Karaffe','Zubeh'+OE+'rset f','Espressotassen'],
+    mid: ['Cool Control 0.6','Tassenw'+AE+'rmer S','Smart Connect','Glas-Milchbeh','Glacette','Milch-Karaffe','Zubeh'+OE+'rset f','Latte-macchiato-Glas'],
+    low: ['Milch-Karaffe','Latte-macchiato-Glas','Espressotassen','Zubeh'+OE+'rset f','Cappuccinotassen','Lungotasse','Kaffeel'+OE+'ffel','Auswechselbarer Milchauslauf']
   };
   function hit(nm,n){ if(n.slice(-1)==='$'){ n=n.slice(0,-1); return nm.length>=n.length && nm.lastIndexOf(n)===nm.length-n.length; } return nm.indexOf(n)>-1; }
   function money(p){ return p.prices ? (parseInt(p.prices.price,10)/Math.pow(10,p.prices.currency_minor_unit)).toFixed(2).replace('.',',')+' '+p.prices.currency_symbol : ''; }
@@ -288,8 +288,8 @@ add_action( 'wp_footer', function () {
         }
       });
     }
-    for(var j=0;j<all.length && picks.length<4;j++){ if(picks.indexOf(all[j])<0) picks.push(all[j]); }
-    picks = picks.slice(0,4);
+    for(var j=0;j<all.length && picks.length<8;j++){ if(picks.indexOf(all[j])<0) picks.push(all[j]); }
+    picks = picks.slice(0,8);
     var tiles = picks.map(function(p){
       var img = (p.images ? p.images[0] : null) ? (p.images[0].thumbnail || p.images[0].src) : '';
       return '<a class="kt-rz-t" href="'+p.permalink+'">'+
