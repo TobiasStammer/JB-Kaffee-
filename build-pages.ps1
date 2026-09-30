@@ -1185,7 +1185,7 @@ function Services-Html {
 "@ }) -join "`n    "
   @"
 $(Sec-Head $SD.servicesEyebrow $SD.servicesTitle '')
-<div style="max-width:$SECW;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;font-family:$FONT_BODY">
+<div style="max-width:$SECW;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:14px;font-family:$FONT_BODY">
     $cards
 </div>
 "@

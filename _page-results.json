@@ -5,7 +5,7 @@
         "id":  19,
         "slug":  "start",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/",
+        "link":  "https://kaffeetechniker.de/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -14,7 +14,7 @@
         "id":  20,
         "slug":  "reparatur",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/reparatur/",
+        "link":  "https://kaffeetechniker.de/reparatur/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -23,7 +23,7 @@
         "id":  21,
         "slug":  "marken",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/marken/",
+        "link":  "https://kaffeetechniker.de/marken/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -32,7 +32,7 @@
         "id":  22,
         "slug":  "reparaturablauf",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/reparaturablauf/",
+        "link":  "https://kaffeetechniker.de/reparaturablauf/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -41,17 +41,17 @@
         "id":  3177,
         "slug":  "reparaturauftrag",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/reparaturauftrag/",
+        "link":  "https://kaffeetechniker.de/reparaturauftrag/",
         "aktion":  "aktualisiert (publish)"
     },
     {
         "menu":  "Reparaturdauer",
         "titel":  "Reparaturdauer",
-        "id":  23,
+        "id":  4942,
         "slug":  "reparaturdauer",
-        "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/reparaturdauer/",
-        "aktion":  "aktualisiert (publish)"
+        "status":  "draft",
+        "link":  "https://kaffeetechniker.de/?page_id=4942",
+        "aktion":  "neu (draft)"
     },
     {
         "menu":  "Dauer \u0026 Kosten",
@@ -59,17 +59,17 @@
         "id":  24,
         "slug":  "reparaturkosten",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/reparaturkosten/",
+        "link":  "https://kaffeetechniker.de/reparaturkosten/",
         "aktion":  "aktualisiert (publish)"
     },
     {
         "menu":  "Gewährleistung",
         "titel":  "Gewährleistung auf Reparaturen",
-        "id":  25,
+        "id":  4944,
         "slug":  "gewaehrleistung",
-        "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/gewaehrleistung/",
-        "aktion":  "aktualisiert (publish)"
+        "status":  "draft",
+        "link":  "https://kaffeetechniker.de/?page_id=4944",
+        "aktion":  "neu (draft)"
     },
     {
         "menu":  "Hinweise nach der Reparatur",
@@ -77,7 +77,7 @@
         "id":  942,
         "slug":  "hinweise-nach-der-reparatur",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/hinweise-nach-der-reparatur/",
+        "link":  "https://kaffeetechniker.de/hinweise-nach-der-reparatur/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -86,7 +86,7 @@
         "id":  28,
         "slug":  "leihgeraete",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/leihgeraete/",
+        "link":  "https://kaffeetechniker.de/leihgeraete/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -95,7 +95,7 @@
         "id":  27,
         "slug":  "wartung",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/wartung/",
+        "link":  "https://kaffeetechniker.de/wartung/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -104,7 +104,7 @@
         "id":  2685,
         "slug":  "wartungserinnerung",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/wartungserinnerung/",
+        "link":  "https://kaffeetechniker.de/wartungserinnerung/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -113,7 +113,7 @@
         "id":  4644,
         "slug":  "wasserhaerte",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/wasserhaerte/",
+        "link":  "https://kaffeetechniker.de/wasserhaerte/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -122,7 +122,7 @@
         "id":  2627,
         "slug":  "reparatur-check",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/reparatur-check/",
+        "link":  "https://kaffeetechniker.de/reparatur-check/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -131,7 +131,7 @@
         "id":  110,
         "slug":  "wertgarantie",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/wertgarantie/",
+        "link":  "https://kaffeetechniker.de/wertgarantie/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -140,7 +140,7 @@
         "id":  111,
         "slug":  "kaffeemaschinen-kaufen",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/kaffeemaschinen-kaufen/",
+        "link":  "https://kaffeetechniker.de/kaffeemaschinen-kaufen/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -149,7 +149,7 @@
         "id":  112,
         "slug":  "kaffeemaschine-mieten",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/kaffeemaschine-mieten/",
+        "link":  "https://kaffeetechniker.de/kaffeemaschine-mieten/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -158,7 +158,7 @@
         "id":  113,
         "slug":  "kaffeemaschine-leasen",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/kaffeemaschine-leasen/",
+        "link":  "https://kaffeetechniker.de/kaffeemaschine-leasen/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -167,7 +167,7 @@
         "id":  114,
         "slug":  "pflegemittel",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/pflegemittel/",
+        "link":  "https://kaffeetechniker.de/pflegemittel/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -176,7 +176,7 @@
         "id":  115,
         "slug":  "unser-kaffee",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/unser-kaffee/",
+        "link":  "https://kaffeetechniker.de/unser-kaffee/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -185,7 +185,7 @@
         "id":  915,
         "slug":  "unser-kaffee-wissen",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/unser-kaffee-wissen/",
+        "link":  "https://kaffeetechniker.de/unser-kaffee-wissen/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -194,7 +194,7 @@
         "id":  3956,
         "slug":  "unser-tee-wissen",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/unser-tee-wissen/",
+        "link":  "https://kaffeetechniker.de/unser-tee-wissen/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -203,7 +203,7 @@
         "id":  508,
         "slug":  "jura",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/jura/",
+        "link":  "https://kaffeetechniker.de/jura/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -212,7 +212,7 @@
         "id":  509,
         "slug":  "jura-kaffeevollautomaten",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/jura-kaffeevollautomaten/",
+        "link":  "https://kaffeetechniker.de/jura-kaffeevollautomaten/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -221,7 +221,7 @@
         "id":  716,
         "slug":  "jura-zubehoer",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/jura-zubehoer/",
+        "link":  "https://kaffeetechniker.de/jura-zubehoer/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -230,7 +230,7 @@
         "id":  717,
         "slug":  "jura-pflegeprodukte",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/jura-pflegeprodukte/",
+        "link":  "https://kaffeetechniker.de/jura-pflegeprodukte/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -239,7 +239,7 @@
         "id":  766,
         "slug":  "jura-professional",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/jura-professional/",
+        "link":  "https://kaffeetechniker.de/jura-professional/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -248,7 +248,7 @@
         "id":  1073,
         "slug":  "nivona",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/nivona/",
+        "link":  "https://kaffeetechniker.de/nivona/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -257,7 +257,7 @@
         "id":  1074,
         "slug":  "nivona-kaffeevollautomaten",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/nivona-kaffeevollautomaten/",
+        "link":  "https://kaffeetechniker.de/nivona-kaffeevollautomaten/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -266,7 +266,7 @@
         "id":  3865,
         "slug":  "nivona-pflegeprodukte",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/nivona-pflegeprodukte/",
+        "link":  "https://kaffeetechniker.de/nivona-pflegeprodukte/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -275,7 +275,7 @@
         "id":  116,
         "slug":  "hilfethemen",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/hilfethemen/",
+        "link":  "https://kaffeetechniker.de/hilfethemen/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -284,7 +284,7 @@
         "id":  117,
         "slug":  "ueber-uns",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/ueber-uns/",
+        "link":  "https://kaffeetechniker.de/ueber-uns/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -293,7 +293,7 @@
         "id":  118,
         "slug":  "anfahrt",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/anfahrt/",
+        "link":  "https://kaffeetechniker.de/anfahrt/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -302,7 +302,7 @@
         "id":  119,
         "slug":  "jobs",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/jobs/",
+        "link":  "https://kaffeetechniker.de/jobs/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -311,7 +311,7 @@
         "id":  120,
         "slug":  "kontakt",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/kontakt/",
+        "link":  "https://kaffeetechniker.de/kontakt/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -320,7 +320,7 @@
         "id":  121,
         "slug":  "impressum",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/impressum/",
+        "link":  "https://kaffeetechniker.de/impressum/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -329,7 +329,7 @@
         "id":  122,
         "slug":  "datenschutz",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/datenschutz/",
+        "link":  "https://kaffeetechniker.de/datenschutz/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -338,7 +338,7 @@
         "id":  123,
         "slug":  "agb",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/agb/",
+        "link":  "https://kaffeetechniker.de/agb/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -347,7 +347,7 @@
         "id":  124,
         "slug":  "widerruf",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/widerruf/",
+        "link":  "https://kaffeetechniker.de/widerruf/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -356,7 +356,7 @@
         "id":  999,
         "slug":  "stoerung-kein-wasser",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/stoerung-kein-wasser/",
+        "link":  "https://kaffeetechniker.de/stoerung-kein-wasser/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -365,7 +365,7 @@
         "id":  1000,
         "slug":  "stoerung-kaffee-langsam",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/stoerung-kaffee-langsam/",
+        "link":  "https://kaffeetechniker.de/stoerung-kaffee-langsam/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -374,7 +374,7 @@
         "id":  1001,
         "slug":  "stoerung-bruehgruppe",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/stoerung-bruehgruppe/",
+        "link":  "https://kaffeetechniker.de/stoerung-bruehgruppe/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -383,7 +383,7 @@
         "id":  1002,
         "slug":  "stoerung-abtropfschale",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/stoerung-abtropfschale/",
+        "link":  "https://kaffeetechniker.de/stoerung-abtropfschale/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -392,7 +392,7 @@
         "id":  1003,
         "slug":  "stoerung-wassertank-meldung",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/stoerung-wassertank-meldung/",
+        "link":  "https://kaffeetechniker.de/stoerung-wassertank-meldung/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -401,7 +401,7 @@
         "id":  1004,
         "slug":  "stoerung-entlueften",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/stoerung-entlueften/",
+        "link":  "https://kaffeetechniker.de/stoerung-entlueften/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -410,7 +410,7 @@
         "id":  1005,
         "slug":  "stoerung-undicht",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/stoerung-undicht/",
+        "link":  "https://kaffeetechniker.de/stoerung-undicht/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -419,7 +419,7 @@
         "id":  1006,
         "slug":  "stoerung-kaffeesatz-nass",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/stoerung-kaffeesatz-nass/",
+        "link":  "https://kaffeetechniker.de/stoerung-kaffeesatz-nass/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -428,7 +428,7 @@
         "id":  1007,
         "slug":  "stoerung-milchschaum",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/stoerung-milchschaum/",
+        "link":  "https://kaffeetechniker.de/stoerung-milchschaum/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -437,7 +437,7 @@
         "id":  1008,
         "slug":  "stoerung-kaffee-kalt",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/stoerung-kaffee-kalt/",
+        "link":  "https://kaffeetechniker.de/stoerung-kaffee-kalt/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -446,7 +446,7 @@
         "id":  1009,
         "slug":  "jura-fehlercodes",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/jura-fehlercodes/",
+        "link":  "https://kaffeetechniker.de/jura-fehlercodes/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -455,7 +455,7 @@
         "id":  1010,
         "slug":  "pflege-entkalken",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/pflege-entkalken/",
+        "link":  "https://kaffeetechniker.de/pflege-entkalken/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -464,7 +464,7 @@
         "id":  1011,
         "slug":  "pflege-wasserfilter",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/pflege-wasserfilter/",
+        "link":  "https://kaffeetechniker.de/pflege-wasserfilter/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -473,7 +473,7 @@
         "id":  1012,
         "slug":  "pflege-milchsystem",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/pflege-milchsystem/",
+        "link":  "https://kaffeetechniker.de/pflege-milchsystem/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -482,7 +482,7 @@
         "id":  1013,
         "slug":  "pflege-bruehgruppe",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/pflege-bruehgruppe/",
+        "link":  "https://kaffeetechniker.de/pflege-bruehgruppe/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -491,7 +491,7 @@
         "id":  1014,
         "slug":  "ratgeber-reparieren-lohnt-sich",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/ratgeber-reparieren-lohnt-sich/",
+        "link":  "https://kaffeetechniker.de/ratgeber-reparieren-lohnt-sich/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -500,7 +500,7 @@
         "id":  1015,
         "slug":  "ratgeber-kaufberatung",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/ratgeber-kaufberatung/",
+        "link":  "https://kaffeetechniker.de/ratgeber-kaufberatung/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -509,7 +509,7 @@
         "id":  1016,
         "slug":  "ratgeber-systeme-vergleich",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/ratgeber-systeme-vergleich/",
+        "link":  "https://kaffeetechniker.de/ratgeber-systeme-vergleich/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -518,7 +518,7 @@
         "id":  1017,
         "slug":  "ratgeber-siebtraeger",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/ratgeber-siebtraeger/",
+        "link":  "https://kaffeetechniker.de/ratgeber-siebtraeger/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -527,7 +527,7 @@
         "id":  4088,
         "slug":  "hilfe-stoerungen",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/hilfe-stoerungen/",
+        "link":  "https://kaffeetechniker.de/hilfe-stoerungen/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -536,7 +536,7 @@
         "id":  4089,
         "slug":  "hilfe-reinigung-pflege",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/hilfe-reinigung-pflege/",
+        "link":  "https://kaffeetechniker.de/hilfe-reinigung-pflege/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -545,7 +545,7 @@
         "id":  4090,
         "slug":  "hilfe-ratgeber",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/hilfe-ratgeber/",
+        "link":  "https://kaffeetechniker.de/hilfe-ratgeber/",
         "aktion":  "aktualisiert (publish)"
     },
     {
@@ -554,7 +554,7 @@
         "id":  4091,
         "slug":  "kaffee-quiz",
         "status":  "publish",
-        "link":  "https://new.kaffeetechniker.de/kaffee-quiz/",
+        "link":  "https://kaffeetechniker.de/kaffee-quiz/",
         "aktion":  "aktualisiert (publish)"
     }
 ]
