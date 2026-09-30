@@ -1,4 +1,4 @@
-# wc-lib.ps1 - Helper fuer die WooCommerce REST API (v3) von new.kaffeetechniker.de
+# wc-lib.ps1 - Helper fuer die WooCommerce REST API (v3) von kaffeetechniker.de
 # Schluessel (WC_CK / WC_CS) kommen aus kaffeetechniker-integration.env - NICHT ausgeben.
 #   . .\wc-lib.ps1
 #   wc GET  products?per_page=5

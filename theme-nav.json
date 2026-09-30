@@ -1,7 +1,7 @@
 {
   "_note": "Menü für die Extendable-Theme-Kopfzeile = die JURA-SHOP-Leiste (Produkt-/Warenkorb-/Kasse-/Konto-Seiten). Erster Eintrag = Telefonnummer. UTF-8, echte Umlaute. Slug '' = Startseite /; url überschreibt slug.",
   "items": [
-    { "label": "← Zur Startseite", "url": "https://new.kaffeetechniker.de/" },
+    { "label": "← Zur Startseite", "url": "https://kaffeetechniker.de/" },
     { "label": "Anrufen: 06192 2004363", "url": "tel:+4961922004363" },
     { "label": "JURA-Shop", "slug": "jura" },
     { "label": "Kaffeevollautomaten", "slug": "jura-kaffeevollautomaten" },

@@ -11,7 +11,7 @@
       "badge": "JB",
       "line1": "JOACHIM BLÖCHLE",
       "line2": "ELEKTRO-SERVICE GMBH",
-      "logoUrl": "https://new.kaffeetechniker.de/wp-content/uploads/2026/08/jb-logo-kaffeemaschinen-scaled.png",
+      "logoUrl": "https://kaffeetechniker.de/wp-content/uploads/2026/08/jb-logo-kaffeemaschinen-scaled.png",
       "logoAlt": "JB Kaffeemaschinen Service &amp; Verkauf"
     },
     "cta": {
@@ -19,7 +19,7 @@
       "button": "Jetzt Kaffeemaschine reparieren lassen",
       "url": "tel:+4961922004363"
     },
-    "auftragsscheinUrl": "https://new.kaffeetechniker.de/reparaturauftrag/",
+    "auftragsscheinUrl": "https://kaffeetechniker.de/reparaturauftrag/",
     "announce": {
       "enabled": false,
       "text": "Betriebsferien 10.09.&ndash;10.10.2026 &ndash; ab dem 10.10. sind wir wieder f&uuml;r Sie da. Danke f&uuml;r Ihr Verst&auml;ndnis!"
@@ -32,7 +32,7 @@
       "btnLabel": "JURA A8 ansehen",
       "btnUrl": "/product/jura-a8-piano-black/",
       "video": "",
-      "image": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/a8_ea_sa_pb_image2.jpg"
+      "image": "https://kaffeetechniker.de/wp-content/uploads/2026/09/a8_ea_sa_pb_image2.jpg"
     },
     "footer": {
       "companyName": "Joachim Blöchle Elektro-Service GmbH",
@@ -67,8 +67,8 @@
     }
   },
   "start": {
-    "juraBadgeUrl": "https://new.kaffeetechniker.de/wp-content/uploads/2026/08/jura-servicestelle.jpg",
-    "storeImageUrl": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-laden-ladenfront-fassade.jpg",
+    "juraBadgeUrl": "https://kaffeetechniker.de/wp-content/uploads/2026/08/jura-servicestelle.jpg",
+    "storeImageUrl": "https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-laden-ladenfront-fassade.jpg",
     "storeImageAlt": "Unser Ladengeschäft JB Kaffeemaschinen – Service & Verkauf in der Wallauer Straße 4 in Hofheim-Langenhain",
     "heroH1": "Kaffeemaschine defekt oder Wartung fällig?",
     "heroP": "Wir reparieren und warten Kaffeevollautomaten aller gängigen Marken in eigener Werkstatt &ndash; und verkaufen neue Geräte von JURA und Nivona. Alles aus einer Hand in Hofheim-Langenhain.",
@@ -171,25 +171,25 @@
         "t": "Kaffeevollautomaten",
         "x": "15 Modelle von ENA bis GIGA",
         "url": "/jura-kaffeevollautomaten/",
-        "img": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-shop-cat-kaffeevollautomaten.jpg"
+        "img": "https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-shop-cat-kaffeevollautomaten.jpg"
       },
       {
         "t": "Professional",
         "x": "Für Büro & Gastronomie",
         "url": "/jura-professional/",
-        "img": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-laden-shop-professional.jpg"
+        "img": "https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-laden-shop-professional.jpg"
       },
       {
         "t": "Zubehör",
         "x": "Milchbehälter, Tassen, Smart Connect",
         "url": "/jura-zubehoer/",
-        "img": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-shop-cat-zubehoer.jpg"
+        "img": "https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-shop-cat-zubehoer.jpg"
       },
       {
         "t": "Pflegeprodukte",
         "x": "Filter, Reinigung, Entkalkung",
         "url": "/jura-pflegeprodukte/",
-        "img": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-shop-cat-pflegeprodukte.jpg"
+        "img": "https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-shop-cat-pflegeprodukte.jpg"
       }
     ],
     "brandsEyebrow": "Marken",
@@ -281,37 +281,37 @@
     "katCrumbTail": "Kaffeevollautomaten Haushalt",
     "serieSuffix": "-Linie",
     "wordmark": "JURA",
-    "logoUrl": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-shop-jura-logo.png",
+    "logoUrl": "https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-shop-jura-logo.png",
     "heroImage": "",
     "heroSlides": [
       {
         "name": "JURA A8",
         "tagline": "Neu im Sortiment – der schmalste Vollautomat, nur 19 cm breit",
-        "img": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/a8_ea_sa_pb_image2.jpg",
+        "img": "https://kaffeetechniker.de/wp-content/uploads/2026/09/a8_ea_sa_pb_image2.jpg",
         "url": "/product/jura-a8-piano-black/"
       },
       {
         "name": "JURA E10",
         "tagline": "Kaffee-Erlebnis mit vier Genusswelten",
-        "img": "https://new.kaffeetechniker.de/wp-content/uploads/2026/08/e10_ea_onyx_grey_overview-1.jpg",
+        "img": "https://kaffeetechniker.de/wp-content/uploads/2026/08/e10_ea_onyx_grey_overview-1.jpg",
         "url": "/product/jura-e10-onyx-grey/"
       },
       {
         "name": "JURA GIGA 10",
         "tagline": "Das Flaggschiff für höchste Ansprüche",
-        "img": "https://new.kaffeetechniker.de/wp-content/uploads/2026/08/giga_10_diamond_black_ea_overview-1.jpg",
+        "img": "https://kaffeetechniker.de/wp-content/uploads/2026/08/giga_10_diamond_black_ea_overview-1.jpg",
         "url": "/product/jura-giga-10-diamond-black/"
       },
       {
         "name": "JURA Z10",
         "tagline": "Barista-Kaffeekunst auf Knopfdruck",
-        "img": "https://new.kaffeetechniker.de/wp-content/uploads/2026/08/Overview_Z10_DB-1.jpg",
+        "img": "https://kaffeetechniker.de/wp-content/uploads/2026/08/Overview_Z10_DB-1.jpg",
         "url": "/product/jura-z10-diamond-black/"
       },
       {
         "name": "JURA J10 twin",
         "tagline": "Zwei Mahlwerke, doppelte Vielfalt",
-        "img": "https://new.kaffeetechniker.de/wp-content/uploads/2026/08/J10_twin_Diamond_Onyx_EA_Overview_960x1200px-1.jpg",
+        "img": "https://kaffeetechniker.de/wp-content/uploads/2026/08/J10_twin_Diamond_Onyx_EA_Overview_960x1200px-1.jpg",
         "url": "/product/jura-j10-twin-diamond-onyx/"
       }
     ],
@@ -348,28 +348,28 @@
         "x": "15 Modelle von der kompakten ENA bis zur GIGA – für jede Haushaltsgröße und jeden Anspruch.",
         "url": "/jura-kaffeevollautomaten/",
         "cta": "Zu den Geräten",
-        "img": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-shop-cat-kaffeevollautomaten.jpg"
+        "img": "https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-shop-cat-kaffeevollautomaten.jpg"
       },
       {
         "t": "Professional",
         "x": "Kaffeevollautomaten für Büro und Gastronomie – 10 bis über 200 Tassen am Tag.",
         "url": "/jura-professional/",
         "cta": "Professional ansehen",
-        "img": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-laden-shop-professional.jpg"
+        "img": "https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-laden-shop-professional.jpg"
       },
       {
         "t": "Zubehör",
         "x": "Milchbehälter, Glaskaraffen, JURA Smart Connect, Tassen und mehr – passend zu Ihrem Gerät.",
         "url": "/jura-zubehoer/",
         "cta": "Zubehör ansehen",
-        "img": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-shop-cat-zubehoer.jpg"
+        "img": "https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-shop-cat-zubehoer.jpg"
       },
       {
         "t": "Pflegeprodukte",
         "x": "Original JURA CLARIS Wasserfilter, Reinigungs- und Entkalkungstabletten, Milchsystem-Reiniger.",
         "url": "/jura-pflegeprodukte/",
         "cta": "Pflege ansehen",
-        "img": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-shop-cat-pflegeprodukte.jpg"
+        "img": "https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-shop-cat-pflegeprodukte.jpg"
       }
     ],
     "techTitle": "JURA Schlüsseltechnologien",
@@ -505,14 +505,14 @@
         "x": "Von der kompakten CUBE 4' bis zur voll ausgestatteten NIVO 9000 und 10er-Serie – für jede Haushaltsgröße.",
         "url": "/nivona-kaffeevollautomaten/",
         "cta": "Zu den Geräten",
-        "img": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-nivona-cat-kaffeevollautomaten.jpg"
+        "img": "https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-nivona-cat-kaffeevollautomaten.jpg"
       },
       {
         "t": "Pflegeprodukte",
         "x": "Original NIVONA CLARIS Wasserfilter, Reinigungstabletten, Flüssigentkalker und Milchsystemreiniger.",
         "url": "/nivona-pflegeprodukte/",
         "cta": "Pflege ansehen",
-        "img": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-nivona-cat-pflege.jpg"
+        "img": "https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-nivona-cat-pflege.jpg"
       }
     ],
     "techTitle": "NIVONA Technik – kurz erklärt",
@@ -624,7 +624,7 @@
         },
         {
           "t": "image",
-          "src": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-reparatur-detail.jpg",
+          "src": "https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-reparatur-detail.jpg",
           "alt": "Reparatur eines Kaffeevollautomaten in unserer Werkstatt in Hofheim-Langenhain",
           "max": "820px"
         },
@@ -917,7 +917,7 @@
         },
         {
           "t": "image",
-          "src": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-werkstatt-bank.jpg",
+          "src": "https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-werkstatt-bank.jpg",
           "alt": "Arbeitsplatz in unserer Werkstatt für Kaffeevollautomaten",
           "max": "820px"
         },
@@ -969,7 +969,7 @@
         },
         {
           "t": "html",
-          "x": "<style>\n.ra{max-width:760px;margin:8px 0 0;font-family:'Source Sans 3','Source Sans Pro',system-ui,sans-serif;color:#1c1c1c;font-size:15px;line-height:1.6}\n.ra h3{font-family:Tahoma,Arial,sans-serif;font-size:15px !important;line-height:1.3 !important;margin:26px 0 10px;padding:0 0 6px;border-bottom:1px solid #e2e2e2;color:#1c1c1c}\n.ra h3:first-of-type{margin-top:4px}\n.ra .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px}\n@media(max-width:560px){.ra .grid{grid-template-columns:1fr}}\n.ra label{display:block;font-size:13px;font-weight:600;color:#334155;margin:0 0 4px}\n.ra .req::after{content:\" *\";color:#c0392b}\n.ra input[type=text],.ra input[type=tel],.ra input[type=email],.ra textarea,.ra select{\n  width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid #c4c4c4;border-radius:5px;\n  font-size:15px;font-family:inherit;background:#fff;color:#1c1c1c;line-height:1.4}\n.ra textarea{min-height:96px;resize:vertical}\n.ra input:focus,.ra textarea:focus,.ra select:focus{outline:none;border-color:#334155;box-shadow:0 0 0 3px rgba(51,65,85,.12)}\n.ra .full{grid-column:1 / -1}\n.ra fieldset{border:0;margin:0;padding:0}\n.ra .opts{display:flex;flex-wrap:wrap;gap:8px 10px;margin-top:2px}\n.ra .opt{display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:400;color:#1c1c1c;\n  border:1px solid #cfcfcf;border-radius:6px;padding:8px 12px;cursor:pointer;background:#fff}\n.ra .opt input{accent-color:#334155;margin:0}\n.ra .opt.checked{border-color:#334155;background:#f2f4f6}\n.ra .hint{font-size:12px;color:#777;margin:3px 0 0;font-weight:400}\n.ra .sub{margin:8px 0 0;padding:10px 12px;background:#f6f7f9;border:1px solid #e3e6ea;border-radius:7px}\n.ra .sub[hidden]{display:none}\n.ra .bring{margin:4px 0 0;padding:12px 14px;background:#f6f7f9;border:1px solid #e3e6ea;border-radius:7px;\n  font-size:13.5px;line-height:1.6;color:#333}\n.ra .bring b{color:#1c1c1c}\n.ra .go{margin-top:22px;display:inline-flex;align-items:center;gap:9px;background:#334155;color:#fff;border:0;\n  border-radius:5px;padding:13px 26px;font-family:Tahoma,Arial,sans-serif;font-weight:700;font-size:15px;cursor:pointer}\n.ra .go:hover{background:#1e293b}\n.ra .go[disabled]{opacity:.6;cursor:default}\n.ra .err{margin-top:12px;padding:11px 14px;background:#fbeeee;border:1px solid #d8a0a0;color:#8a3b3b;\n  border-radius:6px;font-size:13.5px;line-height:1.6}\n.ra .err[hidden]{display:none}\n.ra .ok{margin-top:14px;padding:14px 16px;background:#eef7f0;border:1px solid #63a375;color:#2f5d3f;\n  border-radius:6px;font-size:14.5px;line-height:1.65}\n.ra .ok[hidden]{display:none}\n.ra .ok a{color:#2f5d3f;font-weight:700}\n.ra .note{font-size:12.5px;color:#777;line-height:1.6;margin:16px 0 0}\n.ra .invalid{border-color:#d8a0a0 !important;background:#fdf3f3}\n</style>\n\n<div class=\"ra\">\n<form id=\"ra-form\" novalidate>\n\n  <h3>Ihre Kontaktdaten</h3>\n  <div class=\"grid\">\n    <div><label class=\"req\" for=\"ra-nn\">Nachname</label><input type=\"text\" id=\"ra-nn\" name=\"nachname\" autocomplete=\"family-name\"></div>\n    <div><label class=\"req\" for=\"ra-vn\">Vorname</label><input type=\"text\" id=\"ra-vn\" name=\"vorname\" autocomplete=\"given-name\"></div>\n    <div class=\"full\"><label class=\"req\" for=\"ra-str\">Stra&szlig;e und Hausnummer</label><input type=\"text\" id=\"ra-str\" name=\"strasse\" autocomplete=\"street-address\"></div>\n    <div><label class=\"req\" for=\"ra-plz\">PLZ, Ort</label><input type=\"text\" id=\"ra-plz\" name=\"plzort\"></div>\n    <div><label class=\"req\" for=\"ra-tel\">Telefon</label><input type=\"tel\" id=\"ra-tel\" name=\"telefon\" autocomplete=\"tel\"></div>\n  </div>\n\n  <h3>Ihr Ger&auml;t</h3>\n  <div class=\"grid\">\n    <div><label class=\"req\" for=\"ra-her\">Hersteller</label><input type=\"text\" id=\"ra-her\" name=\"hersteller\" placeholder=\"z. B. JURA, De&rsquo;Longhi, ECM\"></div>\n    <div><label class=\"req\" for=\"ra-typ\">Ger&auml;tetyp / Modell</label><input type=\"text\" id=\"ra-typ\" name=\"typ\" placeholder=\"z. B. E8, Magnifica S\"></div>\n    <div class=\"full\"><label class=\"req\" for=\"ra-snr\">Ger&auml;te-Nr. / Seriennummer</label><input type=\"text\" id=\"ra-snr\" name=\"seriennr\"></div>\n  </div>\n  <div class=\"bring\">\n    <b>Bitte alles mitgeben, was zum Ger&auml;t geh&ouml;rt:</b> Milchbeh&auml;lter, Cappuccinatore / Schaumd&uuml;se, alle Deckel\n    (Wasser &amp; Bohnen), Abtropfschale und -gitter, Wasserauslauf und Milchschlauch. Ger&auml;te k&ouml;nnen nur\n    <b>ohne Verpackung, Kisten oder T&uuml;ten</b> angenommen werden. Was fehlt oder besch&auml;digt ist, halten wir bei der Abgabe gemeinsam fest.\n  </div>\n\n  <h3>Auftrag</h3>\n  <div>\n    <label class=\"req\">Was sollen wir tun?</label>\n    <div class=\"opts\" data-group=\"auftrag\">\n      <label class=\"opt\"><input type=\"radio\" name=\"auftrag\" value=\"Nur Fehler\"> Nur Fehler beheben</label>\n      <label class=\"opt\"><input type=\"radio\" name=\"auftrag\" value=\"Wartung\"> Wartung</label>\n      <label class=\"opt\"><input type=\"radio\" name=\"auftrag\" value=\"Wartung mit Fehler\"> Wartung mit Fehlerbehebung</label>\n    </div>\n  </div>\n  <div class=\"full\" style=\"margin-top:14px\">\n    <label class=\"req\" for=\"ra-frg\">Kostenfreigabe bis</label>\n    <input type=\"text\" id=\"ra-frg\" name=\"freigabe\" placeholder=\"z. B. 250 &euro; &ndash; oder &bdquo;nach R&uuml;cksprache&ldquo;\">\n    <p class=\"hint\">Bis zu diesem Betrag d&uuml;rfen wir ohne R&uuml;ckfrage reparieren. Wird es teurer, melden wir uns vorher bei Ihnen.</p>\n  </div>\n  <div class=\"full\" style=\"margin-top:14px\">\n    <label class=\"req\" for=\"ra-fb\">Fehlerbeschreibung</label>\n    <textarea id=\"ra-fb\" name=\"fehler\" placeholder=\"Was funktioniert nicht? Seit wann? Fehlermeldung im Display?\"></textarea>\n  </div>\n\n  <h3>Wasserfilter &amp; Mietger&auml;t</h3>\n  <div class=\"grid\">\n    <div>\n      <label class=\"req\">Nutzen Sie einen Wasserfilter?</label>\n      <div class=\"opts\" data-group=\"filter\">\n        <label class=\"opt\"><input type=\"radio\" name=\"filter\" value=\"ja\"> ja</label>\n        <label class=\"opt\"><input type=\"radio\" name=\"filter\" value=\"nein\"> nein</label>\n      </div>\n      <div class=\"sub\" id=\"ra-filter-sub\" hidden>\n        <label class=\"req\">Filter erneuern? <span style=\"font-weight:400;color:#777\">(+15&nbsp;&euro;)</span></label>\n        <div class=\"opts\" data-group=\"filter_neu\">\n          <label class=\"opt\"><input type=\"radio\" name=\"filter_neu\" value=\"ja\"> ja</label>\n          <label class=\"opt\"><input type=\"radio\" name=\"filter_neu\" value=\"nein\"> nein</label>\n        </div>\n      </div>\n    </div>\n    <div>\n      <label class=\"req\">Mietger&auml;t f&uuml;r die Reparaturzeit?</label>\n      <div class=\"opts\" data-group=\"miete\">\n        <label class=\"opt\"><input type=\"radio\" name=\"miete\" value=\"ja\"> ja</label>\n        <label class=\"opt\"><input type=\"radio\" name=\"miete\" value=\"nein\"> nein</label>\n      </div>\n      <p class=\"hint\">Verf&uuml;gbarkeit begrenzt &ndash; wir best&auml;tigen bei der Abgabe.</p>\n    </div>\n  </div>\n\n  <button type=\"submit\" class=\"go\" id=\"ra-go\">Auftragsschein erstellen (PDF)</button>\n  <div class=\"err\" id=\"ra-err\" hidden></div>\n  <div class=\"ok\" id=\"ra-ok\" hidden></div>\n\n  <p class=\"note\">\n    Ihre Angaben werden nur f&uuml;r die Auftragsbearbeitung genutzt und nicht &uuml;bermittelt &ndash; das PDF entsteht direkt in Ihrem Browser.\n  </p>\n</form>\n</div>\n\n<script src=\"https://new.kaffeetechniker.de/ktc-assets/pdf-lib.min.js\"></script>\n<script>\n(function(){\n  var TPL='https://new.kaffeetechniker.de/wp-content/uploads/2026/09/rep-auftrag-vorlage.pdf';\n  var f=document.getElementById('ra-form'); if(!f) return;\n\n  // Radio-Optik + Unterfelder\n  f.querySelectorAll('.opts').forEach(function(g){\n    g.addEventListener('change',function(){\n      g.querySelectorAll('.opt').forEach(function(o){ o.classList.toggle('checked', o.querySelector('input').checked); });\n    });\n  });\n  var filterSub=document.getElementById('ra-filter-sub');\n  f.querySelectorAll('input[name=filter]').forEach(function(r){\n    r.addEventListener('change',function(){ filterSub.hidden=(f.querySelector('input[name=filter]:checked')||{}).value!=='ja'; });\n  });\n\n  function val(n){ var e=f.elements[n]; return e?String(e.value||'').trim():''; }\n  function radio(n){ var e=f.querySelector('input[name=\"'+n+'\"]:checked'); return e?e.value:''; }\n  function markBad(el,bad){ if(el) el.classList.toggle('invalid',!!bad); }\n\n  var errBox=document.getElementById('ra-err'), okBox=document.getElementById('ra-ok'), btn=document.getElementById('ra-go');\n\n  function validate(){\n    var miss=[];\n    [['nachname','Nachname'],['vorname','Vorname'],['strasse','Straße und Hausnummer'],['plzort','PLZ, Ort'],\n     ['telefon','Telefon'],['hersteller','Hersteller'],['typ','Gerätetyp / Modell'],['seriennr','Geräte-Nr.'],\n     ['freigabe','Kostenfreigabe bis'],['fehler','Fehlerbeschreibung']]\n     .forEach(function(p){ var v=val(p[0]); markBad(f.elements[p[0]],!v); if(!v) miss.push(p[1]); });\n    [['auftrag','Auftrag'],['filter','Wasserfilter'],['miete','Mietgerät']]\n     .forEach(function(p){ if(!radio(p[0])) miss.push(p[1]); });\n    if(radio('filter')==='ja' && !radio('filter_neu')) miss.push('Filter erneuern?');\n    return miss;\n  }\n\n  function wrap(text,font,size,maxW){\n    var out=[]; (text||'').split(/\\r?\\n/).forEach(function(para){\n      var words=para.split(/\\s+/), line='';\n      words.forEach(function(w){\n        var t=line?line+' '+w:w;\n        if(font.widthOfTextAtSize(t,size)>maxW && line){ out.push(line); line=w; } else line=t;\n      });\n      out.push(line);\n    });\n    return out;\n  }\n\n  f.addEventListener('submit',function(e){\n    e.preventDefault();\n    okBox.hidden=true;\n    var miss=validate();\n    if(miss.length){\n      errBox.innerHTML='Bitte füllen Sie noch aus: <b>'+miss.join(', ')+'</b>.';\n      errBox.hidden=false; errBox.scrollIntoView({behavior:'smooth',block:'center'});\n      return;\n    }\n    errBox.hidden=true;\n    if(typeof PDFLib==='undefined'){ errBox.textContent='PDF-Bibliothek konnte nicht geladen werden. Bitte Seite neu laden.'; errBox.hidden=false; return; }\n    btn.disabled=true; btn.textContent='PDF wird erstellt …';\n    build().catch(function(err){\n      btn.disabled=false; btn.textContent='Auftragsschein erstellen (PDF)';\n      errBox.textContent='Es ist ein Fehler aufgetreten: '+err+'. Bitte versuchen Sie es erneut oder rufen Sie uns an: 06192 2004363.';\n      errBox.hidden=false;\n    });\n  });\n\n  async function build(){\n    var buf=await fetch(TPL).then(function(r){ if(!r.ok) throw 'Vorlage nicht erreichbar ('+r.status+')'; return r.arrayBuffer(); });\n    var doc=await PDFLib.PDFDocument.load(buf);\n    var page=doc.getPages()[0];\n    var H=page.getHeight();\n    var font=await doc.embedFont(PDFLib.StandardFonts.Helvetica);\n    var bold=await doc.embedFont(PDFLib.StandardFonts.HelveticaBold);\n    // topY = Abstand von oben (px). Checkbox X sitzt bei Box-Ecke + Versatz.\n    function T(str,x,topY,size){ page.drawText(String(str||''),{x:x,y:H-topY,size:size||10,font:font,color:PDFLib.rgb(0.08,0.08,0.1)}); }\n    function X(bx,by){ page.drawText('X',{x:bx+3.5,y:H-(by+24),size:12,font:bold,color:PDFLib.rgb(0,0,0)}); }\n\n    T(val('nachname'),108,182);\n    T(val('vorname'),100,214);\n    T(val('strasse'),90,246.5);\n    T(val('plzort'),98,279.5);\n    T(val('telefon'),95,312.5);\n    T(val('hersteller'),104,519.5);\n    T(val('typ'),105,547);\n    T(val('seriennr'),108,574.5);\n\n    var a=radio('auftrag');\n    if(a==='Nur Fehler') X(337.0,366.7);\n    else if(a==='Wartung') X(337.0,393.9);\n    else if(a==='Wartung mit Fehler') X(337.0,421.0);\n\n    if(radio('filter')==='ja') X(159.5,591.6); else X(213.8,590.9);\n    if(radio('filter')==='ja'){ if(radio('filter_neu')==='ja') X(314.3,590.9); else X(359.9,590.9); }\n    if(radio('miete')==='ja') X(159.8,619.2); else X(213.8,618.6);\n\n    // Kostenfreigabe + Fehlerbeschreibung: freie Flaeche unter der Beschriftung, ab ~672 nach unten\n    var frg=val('freigabe');\n    if(/^\\d+([.,]\\d{1,2})?$/.test(frg)) frg+=' \\u20AC';\n    page.drawText('Kostenfreigabe bis: '+frg,{x:56,y:H-676,size:10.5,font:bold,color:PDFLib.rgb(0.08,0.08,0.1)});\n\n    var lines=wrap(val('fehler'),font,9.5,668);\n    var topY=706, lh=12.5;\n    lines.forEach(function(ln){\n      if(topY>850) return;\n      page.drawText(ln,{x:56,y:H-topY,size:9.5,font:font,color:PDFLib.rgb(0.08,0.08,0.1)});\n      topY+=lh;\n    });\n\n    var bytes=await doc.save();\n    var blob=new Blob([bytes],{type:'application/pdf'});\n    var url=URL.createObjectURL(blob);\n    var name=('Reparaturauftrag_'+val('nachname')).replace(/[^A-Za-z0-9_\\-]/g,'_')+'.pdf';\n\n    var w=window.open(url,'_blank');\n    okBox.innerHTML='Ihr Auftragsschein ist fertig. '\n      +(w?'Er wurde in einem neuen Tab geöffnet &ndash; bitte dort <b>drucken</b>. ':'')\n      +'<a href=\"'+url+'\" download=\"'+name+'\">PDF herunterladen</a> &nbsp;&middot;&nbsp; '\n      +'<a href=\"#\" id=\"ra-print\">Jetzt drucken</a><br>'\n      +'Bitte ausdrucken, <b>unterschreiben</b> und mit dem Gerät abgeben.';\n    okBox.hidden=false; okBox.scrollIntoView({behavior:'smooth',block:'center'});\n    var pl=document.getElementById('ra-print');\n    if(pl) pl.addEventListener('click',function(ev){ ev.preventDefault();\n      var fr=document.createElement('iframe'); fr.style.display='none'; fr.src=url;\n      document.body.appendChild(fr); fr.onload=function(){ try{ fr.contentWindow.focus(); fr.contentWindow.print(); }catch(e){ window.open(url,'_blank'); } };\n    });\n    btn.disabled=false; btn.textContent='Auftragsschein erneut erstellen (PDF)';\n  }\n})();\n</script>\n"
+          "x": "<style>\n.ra{max-width:760px;margin:8px 0 0;font-family:'Source Sans 3','Source Sans Pro',system-ui,sans-serif;color:#1c1c1c;font-size:15px;line-height:1.6}\n.ra h3{font-family:Tahoma,Arial,sans-serif;font-size:15px !important;line-height:1.3 !important;margin:26px 0 10px;padding:0 0 6px;border-bottom:1px solid #e2e2e2;color:#1c1c1c}\n.ra h3:first-of-type{margin-top:4px}\n.ra .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px}\n@media(max-width:560px){.ra .grid{grid-template-columns:1fr}}\n.ra label{display:block;font-size:13px;font-weight:600;color:#334155;margin:0 0 4px}\n.ra .req::after{content:\" *\";color:#c0392b}\n.ra input[type=text],.ra input[type=tel],.ra input[type=email],.ra textarea,.ra select{\n  width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid #c4c4c4;border-radius:5px;\n  font-size:15px;font-family:inherit;background:#fff;color:#1c1c1c;line-height:1.4}\n.ra textarea{min-height:96px;resize:vertical}\n.ra input:focus,.ra textarea:focus,.ra select:focus{outline:none;border-color:#334155;box-shadow:0 0 0 3px rgba(51,65,85,.12)}\n.ra .full{grid-column:1 / -1}\n.ra fieldset{border:0;margin:0;padding:0}\n.ra .opts{display:flex;flex-wrap:wrap;gap:8px 10px;margin-top:2px}\n.ra .opt{display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:400;color:#1c1c1c;\n  border:1px solid #cfcfcf;border-radius:6px;padding:8px 12px;cursor:pointer;background:#fff}\n.ra .opt input{accent-color:#334155;margin:0}\n.ra .opt.checked{border-color:#334155;background:#f2f4f6}\n.ra .hint{font-size:12px;color:#777;margin:3px 0 0;font-weight:400}\n.ra .sub{margin:8px 0 0;padding:10px 12px;background:#f6f7f9;border:1px solid #e3e6ea;border-radius:7px}\n.ra .sub[hidden]{display:none}\n.ra .bring{margin:4px 0 0;padding:12px 14px;background:#f6f7f9;border:1px solid #e3e6ea;border-radius:7px;\n  font-size:13.5px;line-height:1.6;color:#333}\n.ra .bring b{color:#1c1c1c}\n.ra .go{margin-top:22px;display:inline-flex;align-items:center;gap:9px;background:#334155;color:#fff;border:0;\n  border-radius:5px;padding:13px 26px;font-family:Tahoma,Arial,sans-serif;font-weight:700;font-size:15px;cursor:pointer}\n.ra .go:hover{background:#1e293b}\n.ra .go[disabled]{opacity:.6;cursor:default}\n.ra .err{margin-top:12px;padding:11px 14px;background:#fbeeee;border:1px solid #d8a0a0;color:#8a3b3b;\n  border-radius:6px;font-size:13.5px;line-height:1.6}\n.ra .err[hidden]{display:none}\n.ra .ok{margin-top:14px;padding:14px 16px;background:#eef7f0;border:1px solid #63a375;color:#2f5d3f;\n  border-radius:6px;font-size:14.5px;line-height:1.65}\n.ra .ok[hidden]{display:none}\n.ra .ok a{color:#2f5d3f;font-weight:700}\n.ra .note{font-size:12.5px;color:#777;line-height:1.6;margin:16px 0 0}\n.ra .invalid{border-color:#d8a0a0 !important;background:#fdf3f3}\n</style>\n\n<div class=\"ra\">\n<form id=\"ra-form\" novalidate>\n\n  <h3>Ihre Kontaktdaten</h3>\n  <div class=\"grid\">\n    <div><label class=\"req\" for=\"ra-nn\">Nachname</label><input type=\"text\" id=\"ra-nn\" name=\"nachname\" autocomplete=\"family-name\"></div>\n    <div><label class=\"req\" for=\"ra-vn\">Vorname</label><input type=\"text\" id=\"ra-vn\" name=\"vorname\" autocomplete=\"given-name\"></div>\n    <div class=\"full\"><label class=\"req\" for=\"ra-str\">Stra&szlig;e und Hausnummer</label><input type=\"text\" id=\"ra-str\" name=\"strasse\" autocomplete=\"street-address\"></div>\n    <div><label class=\"req\" for=\"ra-plz\">PLZ, Ort</label><input type=\"text\" id=\"ra-plz\" name=\"plzort\"></div>\n    <div><label class=\"req\" for=\"ra-tel\">Telefon</label><input type=\"tel\" id=\"ra-tel\" name=\"telefon\" autocomplete=\"tel\"></div>\n  </div>\n\n  <h3>Ihr Ger&auml;t</h3>\n  <div class=\"grid\">\n    <div><label class=\"req\" for=\"ra-her\">Hersteller</label><input type=\"text\" id=\"ra-her\" name=\"hersteller\" placeholder=\"z. B. JURA, De&rsquo;Longhi, ECM\"></div>\n    <div><label class=\"req\" for=\"ra-typ\">Ger&auml;tetyp / Modell</label><input type=\"text\" id=\"ra-typ\" name=\"typ\" placeholder=\"z. B. E8, Magnifica S\"></div>\n    <div class=\"full\"><label class=\"req\" for=\"ra-snr\">Ger&auml;te-Nr. / Seriennummer</label><input type=\"text\" id=\"ra-snr\" name=\"seriennr\"></div>\n  </div>\n  <div class=\"bring\">\n    <b>Bitte alles mitgeben, was zum Ger&auml;t geh&ouml;rt:</b> Milchbeh&auml;lter, Cappuccinatore / Schaumd&uuml;se, alle Deckel\n    (Wasser &amp; Bohnen), Abtropfschale und -gitter, Wasserauslauf und Milchschlauch. Ger&auml;te k&ouml;nnen nur\n    <b>ohne Verpackung, Kisten oder T&uuml;ten</b> angenommen werden. Was fehlt oder besch&auml;digt ist, halten wir bei der Abgabe gemeinsam fest.\n  </div>\n\n  <h3>Auftrag</h3>\n  <div>\n    <label class=\"req\">Was sollen wir tun?</label>\n    <div class=\"opts\" data-group=\"auftrag\">\n      <label class=\"opt\"><input type=\"radio\" name=\"auftrag\" value=\"Nur Fehler\"> Nur Fehler beheben</label>\n      <label class=\"opt\"><input type=\"radio\" name=\"auftrag\" value=\"Wartung\"> Wartung</label>\n      <label class=\"opt\"><input type=\"radio\" name=\"auftrag\" value=\"Wartung mit Fehler\"> Wartung mit Fehlerbehebung</label>\n    </div>\n  </div>\n  <div class=\"full\" style=\"margin-top:14px\">\n    <label class=\"req\" for=\"ra-frg\">Kostenfreigabe bis</label>\n    <input type=\"text\" id=\"ra-frg\" name=\"freigabe\" placeholder=\"z. B. 250 &euro; &ndash; oder &bdquo;nach R&uuml;cksprache&ldquo;\">\n    <p class=\"hint\">Bis zu diesem Betrag d&uuml;rfen wir ohne R&uuml;ckfrage reparieren. Wird es teurer, melden wir uns vorher bei Ihnen.</p>\n  </div>\n  <div class=\"full\" style=\"margin-top:14px\">\n    <label class=\"req\" for=\"ra-fb\">Fehlerbeschreibung</label>\n    <textarea id=\"ra-fb\" name=\"fehler\" placeholder=\"Was funktioniert nicht? Seit wann? Fehlermeldung im Display?\"></textarea>\n  </div>\n\n  <h3>Wasserfilter &amp; Mietger&auml;t</h3>\n  <div class=\"grid\">\n    <div>\n      <label class=\"req\">Nutzen Sie einen Wasserfilter?</label>\n      <div class=\"opts\" data-group=\"filter\">\n        <label class=\"opt\"><input type=\"radio\" name=\"filter\" value=\"ja\"> ja</label>\n        <label class=\"opt\"><input type=\"radio\" name=\"filter\" value=\"nein\"> nein</label>\n      </div>\n      <div class=\"sub\" id=\"ra-filter-sub\" hidden>\n        <label class=\"req\">Filter erneuern? <span style=\"font-weight:400;color:#777\">(+15&nbsp;&euro;)</span></label>\n        <div class=\"opts\" data-group=\"filter_neu\">\n          <label class=\"opt\"><input type=\"radio\" name=\"filter_neu\" value=\"ja\"> ja</label>\n          <label class=\"opt\"><input type=\"radio\" name=\"filter_neu\" value=\"nein\"> nein</label>\n        </div>\n      </div>\n    </div>\n    <div>\n      <label class=\"req\">Mietger&auml;t f&uuml;r die Reparaturzeit?</label>\n      <div class=\"opts\" data-group=\"miete\">\n        <label class=\"opt\"><input type=\"radio\" name=\"miete\" value=\"ja\"> ja</label>\n        <label class=\"opt\"><input type=\"radio\" name=\"miete\" value=\"nein\"> nein</label>\n      </div>\n      <p class=\"hint\">Verf&uuml;gbarkeit begrenzt &ndash; wir best&auml;tigen bei der Abgabe.</p>\n    </div>\n  </div>\n\n  <button type=\"submit\" class=\"go\" id=\"ra-go\">Auftragsschein erstellen (PDF)</button>\n  <div class=\"err\" id=\"ra-err\" hidden></div>\n  <div class=\"ok\" id=\"ra-ok\" hidden></div>\n\n  <p class=\"note\">\n    Ihre Angaben werden nur f&uuml;r die Auftragsbearbeitung genutzt und nicht &uuml;bermittelt &ndash; das PDF entsteht direkt in Ihrem Browser.\n  </p>\n</form>\n</div>\n\n<script src=\"https://kaffeetechniker.de/ktc-assets/pdf-lib.min.js\"></script>\n<script>\n(function(){\n  var TPL='https://kaffeetechniker.de/wp-content/uploads/2026/09/rep-auftrag-vorlage.pdf';\n  var f=document.getElementById('ra-form'); if(!f) return;\n\n  // Radio-Optik + Unterfelder\n  f.querySelectorAll('.opts').forEach(function(g){\n    g.addEventListener('change',function(){\n      g.querySelectorAll('.opt').forEach(function(o){ o.classList.toggle('checked', o.querySelector('input').checked); });\n    });\n  });\n  var filterSub=document.getElementById('ra-filter-sub');\n  f.querySelectorAll('input[name=filter]').forEach(function(r){\n    r.addEventListener('change',function(){ filterSub.hidden=(f.querySelector('input[name=filter]:checked')||{}).value!=='ja'; });\n  });\n\n  function val(n){ var e=f.elements[n]; return e?String(e.value||'').trim():''; }\n  function radio(n){ var e=f.querySelector('input[name=\"'+n+'\"]:checked'); return e?e.value:''; }\n  function markBad(el,bad){ if(el) el.classList.toggle('invalid',!!bad); }\n\n  var errBox=document.getElementById('ra-err'), okBox=document.getElementById('ra-ok'), btn=document.getElementById('ra-go');\n\n  function validate(){\n    var miss=[];\n    [['nachname','Nachname'],['vorname','Vorname'],['strasse','Straße und Hausnummer'],['plzort','PLZ, Ort'],\n     ['telefon','Telefon'],['hersteller','Hersteller'],['typ','Gerätetyp / Modell'],['seriennr','Geräte-Nr.'],\n     ['freigabe','Kostenfreigabe bis'],['fehler','Fehlerbeschreibung']]\n     .forEach(function(p){ var v=val(p[0]); markBad(f.elements[p[0]],!v); if(!v) miss.push(p[1]); });\n    [['auftrag','Auftrag'],['filter','Wasserfilter'],['miete','Mietgerät']]\n     .forEach(function(p){ if(!radio(p[0])) miss.push(p[1]); });\n    if(radio('filter')==='ja' && !radio('filter_neu')) miss.push('Filter erneuern?');\n    return miss;\n  }\n\n  function wrap(text,font,size,maxW){\n    var out=[]; (text||'').split(/\\r?\\n/).forEach(function(para){\n      var words=para.split(/\\s+/), line='';\n      words.forEach(function(w){\n        var t=line?line+' '+w:w;\n        if(font.widthOfTextAtSize(t,size)>maxW && line){ out.push(line); line=w; } else line=t;\n      });\n      out.push(line);\n    });\n    return out;\n  }\n\n  f.addEventListener('submit',function(e){\n    e.preventDefault();\n    okBox.hidden=true;\n    var miss=validate();\n    if(miss.length){\n      errBox.innerHTML='Bitte füllen Sie noch aus: <b>'+miss.join(', ')+'</b>.';\n      errBox.hidden=false; errBox.scrollIntoView({behavior:'smooth',block:'center'});\n      return;\n    }\n    errBox.hidden=true;\n    if(typeof PDFLib==='undefined'){ errBox.textContent='PDF-Bibliothek konnte nicht geladen werden. Bitte Seite neu laden.'; errBox.hidden=false; return; }\n    btn.disabled=true; btn.textContent='PDF wird erstellt …';\n    build().catch(function(err){\n      btn.disabled=false; btn.textContent='Auftragsschein erstellen (PDF)';\n      errBox.textContent='Es ist ein Fehler aufgetreten: '+err+'. Bitte versuchen Sie es erneut oder rufen Sie uns an: 06192 2004363.';\n      errBox.hidden=false;\n    });\n  });\n\n  async function build(){\n    var buf=await fetch(TPL).then(function(r){ if(!r.ok) throw 'Vorlage nicht erreichbar ('+r.status+')'; return r.arrayBuffer(); });\n    var doc=await PDFLib.PDFDocument.load(buf);\n    var page=doc.getPages()[0];\n    var H=page.getHeight();\n    var font=await doc.embedFont(PDFLib.StandardFonts.Helvetica);\n    var bold=await doc.embedFont(PDFLib.StandardFonts.HelveticaBold);\n    // topY = Abstand von oben (px). Checkbox X sitzt bei Box-Ecke + Versatz.\n    function T(str,x,topY,size){ page.drawText(String(str||''),{x:x,y:H-topY,size:size||10,font:font,color:PDFLib.rgb(0.08,0.08,0.1)}); }\n    function X(bx,by){ page.drawText('X',{x:bx+3.5,y:H-(by+24),size:12,font:bold,color:PDFLib.rgb(0,0,0)}); }\n\n    T(val('nachname'),108,182);\n    T(val('vorname'),100,214);\n    T(val('strasse'),90,246.5);\n    T(val('plzort'),98,279.5);\n    T(val('telefon'),95,312.5);\n    T(val('hersteller'),104,519.5);\n    T(val('typ'),105,547);\n    T(val('seriennr'),108,574.5);\n\n    var a=radio('auftrag');\n    if(a==='Nur Fehler') X(337.0,366.7);\n    else if(a==='Wartung') X(337.0,393.9);\n    else if(a==='Wartung mit Fehler') X(337.0,421.0);\n\n    if(radio('filter')==='ja') X(159.5,591.6); else X(213.8,590.9);\n    if(radio('filter')==='ja'){ if(radio('filter_neu')==='ja') X(314.3,590.9); else X(359.9,590.9); }\n    if(radio('miete')==='ja') X(159.8,619.2); else X(213.8,618.6);\n\n    // Kostenfreigabe + Fehlerbeschreibung: freie Flaeche unter der Beschriftung, ab ~672 nach unten\n    var frg=val('freigabe');\n    if(/^\\d+([.,]\\d{1,2})?$/.test(frg)) frg+=' \\u20AC';\n    page.drawText('Kostenfreigabe bis: '+frg,{x:56,y:H-676,size:10.5,font:bold,color:PDFLib.rgb(0.08,0.08,0.1)});\n\n    var lines=wrap(val('fehler'),font,9.5,668);\n    var topY=706, lh=12.5;\n    lines.forEach(function(ln){\n      if(topY>850) return;\n      page.drawText(ln,{x:56,y:H-topY,size:9.5,font:font,color:PDFLib.rgb(0.08,0.08,0.1)});\n      topY+=lh;\n    });\n\n    var bytes=await doc.save();\n    var blob=new Blob([bytes],{type:'application/pdf'});\n    var url=URL.createObjectURL(blob);\n    var name=('Reparaturauftrag_'+val('nachname')).replace(/[^A-Za-z0-9_\\-]/g,'_')+'.pdf';\n\n    var w=window.open(url,'_blank');\n    okBox.innerHTML='Ihr Auftragsschein ist fertig. '\n      +(w?'Er wurde in einem neuen Tab geöffnet &ndash; bitte dort <b>drucken</b>. ':'')\n      +'<a href=\"'+url+'\" download=\"'+name+'\">PDF herunterladen</a> &nbsp;&middot;&nbsp; '\n      +'<a href=\"#\" id=\"ra-print\">Jetzt drucken</a><br>'\n      +'Bitte ausdrucken, <b>unterschreiben</b> und mit dem Gerät abgeben.';\n    okBox.hidden=false; okBox.scrollIntoView({behavior:'smooth',block:'center'});\n    var pl=document.getElementById('ra-print');\n    if(pl) pl.addEventListener('click',function(ev){ ev.preventDefault();\n      var fr=document.createElement('iframe'); fr.style.display='none'; fr.src=url;\n      document.body.appendChild(fr); fr.onload=function(){ try{ fr.contentWindow.focus(); fr.contentWindow.print(); }catch(e){ window.open(url,'_blank'); } };\n    });\n    btn.disabled=false; btn.textContent='Auftragsschein erneut erstellen (PDF)';\n  }\n})();\n</script>\n"
         }
       ]
     },
@@ -1388,7 +1388,7 @@
         },
         {
           "t": "image",
-          "src": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-werkstatt-lager.jpg",
+          "src": "https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-werkstatt-lager.jpg",
           "alt": "Kaffeevollautomaten in unserer Werkstatt in Hofheim-Langenhain",
           "max": "820px"
         },
@@ -1601,7 +1601,7 @@
         },
         {
           "t": "html",
-          "x": "<style>.kt-wb{display:grid;gap:14px;margin:16px 0 6px}.kt-wb a{display:grid;grid-template-columns:158px minmax(0,1fr);align-items:stretch;background:#ffffff;border:1px solid #e2e2e2;border-radius:11px;overflow:hidden;text-decoration:none;transition:border-color .12s,box-shadow .12s;min-height:118px}.kt-wb a:hover{border-color:#b6b6b6;box-shadow:0 3px 16px rgba(0,0,0,.08)}.kt-wb .pic{background:#f4f4f2 center center no-repeat;background-size:cover}.kt-wb .bd{padding:16px 20px;display:flex;flex-direction:column;justify-content:center}.kt-wb .ey{font-family:Tahoma,Arial,sans-serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#334155;font-weight:700;margin-bottom:4px}.kt-wb b{font-family:Tahoma,Arial,sans-serif;font-size:17px;line-height:1.25;color:#1c1c1c;margin-bottom:4px}.kt-wb .tx{font-size:13.5px;line-height:1.5;color:#666666}.kt-wb em{font-style:normal;font-family:Tahoma,Arial,sans-serif;color:#334155;font-weight:700;font-size:12.5px;margin-top:9px}@media(max-width:560px){.kt-wb a{grid-template-columns:104px minmax(0,1fr);min-height:104px}.kt-wb .bd{padding:13px 15px}}</style><div class=\"kt-wb\"><a href=\"/anfahrt/\"><span class=\"pic\" style=\"background-image:url('https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-ladenfront.jpg')\"></span><span class=\"bd\"><span class=\"ey\">Lokal</span><b>Im Geschäft in Hofheim-Langenhain</b><span class=\"tx\">JURA-Ausstellung ausprobieren, persönliche Beratung, Vorführung – und das Gerät gleich mitnehmen.</span><em>Anfahrt &amp; Öffnungszeiten &rarr;</em></span></a><a href=\"/jura/\"><span class=\"pic\" style=\"background-image:url('https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-shop-cat-kaffeevollautomaten.jpg')\"></span><span class=\"bd\"><span class=\"ey\">Online</span><b>JURA</b><span class=\"tx\">Alle Modelle von der schmalen ENA bis zur GIGA – vom autorisierten Fachhändler, mit Service aus eigener Werkstatt.</span><em>Zum JURA-Shop &rarr;</em></span></a><a href=\"/nivona/\"><span class=\"pic\" style=\"background-image:url('https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-nivona-cat-kaffeevollautomaten.jpg')\"></span><span class=\"bd\"><span class=\"ey\">Online</span><b>Nivona</b><span class=\"tx\">Solide Technik, faire Preise, einfache Bedienung – der Nürnberger Hersteller im Überblick.</span><em>Zum Nivona-Shop &rarr;</em></span></a></div>"
+          "x": "<style>.kt-wb{display:grid;gap:14px;margin:16px 0 6px}.kt-wb a{display:grid;grid-template-columns:158px minmax(0,1fr);align-items:stretch;background:#ffffff;border:1px solid #e2e2e2;border-radius:11px;overflow:hidden;text-decoration:none;transition:border-color .12s,box-shadow .12s;min-height:118px}.kt-wb a:hover{border-color:#b6b6b6;box-shadow:0 3px 16px rgba(0,0,0,.08)}.kt-wb .pic{background:#f4f4f2 center center no-repeat;background-size:cover}.kt-wb .bd{padding:16px 20px;display:flex;flex-direction:column;justify-content:center}.kt-wb .ey{font-family:Tahoma,Arial,sans-serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#334155;font-weight:700;margin-bottom:4px}.kt-wb b{font-family:Tahoma,Arial,sans-serif;font-size:17px;line-height:1.25;color:#1c1c1c;margin-bottom:4px}.kt-wb .tx{font-size:13.5px;line-height:1.5;color:#666666}.kt-wb em{font-style:normal;font-family:Tahoma,Arial,sans-serif;color:#334155;font-weight:700;font-size:12.5px;margin-top:9px}@media(max-width:560px){.kt-wb a{grid-template-columns:104px minmax(0,1fr);min-height:104px}.kt-wb .bd{padding:13px 15px}}</style><div class=\"kt-wb\"><a href=\"/anfahrt/\"><span class=\"pic\" style=\"background-image:url('https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-ladenfront.jpg')\"></span><span class=\"bd\"><span class=\"ey\">Lokal</span><b>Im Geschäft in Hofheim-Langenhain</b><span class=\"tx\">JURA-Ausstellung ausprobieren, persönliche Beratung, Vorführung – und das Gerät gleich mitnehmen.</span><em>Anfahrt &amp; Öffnungszeiten &rarr;</em></span></a><a href=\"/jura/\"><span class=\"pic\" style=\"background-image:url('https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-shop-cat-kaffeevollautomaten.jpg')\"></span><span class=\"bd\"><span class=\"ey\">Online</span><b>JURA</b><span class=\"tx\">Alle Modelle von der schmalen ENA bis zur GIGA – vom autorisierten Fachhändler, mit Service aus eigener Werkstatt.</span><em>Zum JURA-Shop &rarr;</em></span></a><a href=\"/nivona/\"><span class=\"pic\" style=\"background-image:url('https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-nivona-cat-kaffeevollautomaten.jpg')\"></span><span class=\"bd\"><span class=\"ey\">Online</span><b>Nivona</b><span class=\"tx\">Solide Technik, faire Preise, einfache Bedienung – der Nürnberger Hersteller im Überblick.</span><em>Zum Nivona-Shop &rarr;</em></span></a></div>"
         },
         {
           "t": "h",
@@ -1843,7 +1843,7 @@
         },
         {
           "t": "image",
-          "src": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-unser-kaffee-beutel.jpg",
+          "src": "https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-unser-kaffee-beutel.jpg",
           "alt": "Unser Kaffee – eigene Röstung im 1000-g-Beutel mit Aromaventil",
           "max": "620px"
         },
@@ -2029,7 +2029,7 @@
         },
         {
           "t": "image",
-          "src": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-tee-sortierung.jpg",
+          "src": "https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-tee-sortierung.jpg",
           "alt": "Sortierte schwarze Teeblätter nach Blattgröße",
           "max": "620px"
         },
@@ -2073,7 +2073,7 @@
         },
         {
           "t": "image",
-          "src": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-tee-zeremonie.jpg",
+          "src": "https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-tee-zeremonie.jpg",
           "alt": "Teekanne, Tassen und Sahnekännchen im ostfriesischen Blaudekor",
           "max": "460px"
         },
@@ -2093,7 +2093,7 @@
         },
         {
           "t": "html",
-          "x": "<div class=\"tw tw-sorts\">\n<style>\n.tw-sorts{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:4px 0 2px}\n.tw-sort{border:1px solid #e7ddd0;border-radius:10px;overflow:hidden;background:#fcfaf6}\n.tw-sort img{display:block;width:100%;height:130px;object-fit:cover;object-position:bottom center}\n.tw-sort-b{padding:10px 12px 12px}\n.tw-sort-h{font-family:Tahoma,Arial,sans-serif;font-weight:700;font-size:13.5px;color:#2b2b2b;margin-bottom:3px}\n.tw-sort-a{font-size:11px;color:#8b5e3c;font-weight:700;text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px}\n.tw-sort-x{font-size:12px;line-height:1.45;color:#5a5248}\n@media(max-width:620px){.tw-sorts{grid-template-columns:1fr 1fr}}\n@media(max-width:420px){.tw-sorts{grid-template-columns:1fr}}\n</style>\n<div class=\"tw-sort\"><img src=\"https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-tee-earl-grey.jpg\" alt=\"JB Unser Tee Earl Grey\"><div class=\"tw-sort-b\"><div class=\"tw-sort-h\">Earl Grey</div><div class=\"tw-sort-a\">Schwarzer Tee</div><div class=\"tw-sort-x\">Kr&auml;ftig, mit Bergamotte-Aroma.</div></div></div>\n<div class=\"tw-sort\"><img src=\"https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-tee-bluetenzeit.jpg\" alt=\"JB Unser Tee Bl&uuml;tenzeit\"><div class=\"tw-sort-b\"><div class=\"tw-sort-h\">Bl&uuml;tenzeit</div><div class=\"tw-sort-a\">Gr&uuml;ner Tee</div><div class=\"tw-sort-x\">Fein, mit einer Fruchtkomposition aromatisiert.</div></div></div>\n<div class=\"tw-sort\"><img src=\"https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-tee-beerenzauber.jpg\" alt=\"JB Unser Tee Beerenzauber\"><div class=\"tw-sort-b\"><div class=\"tw-sort-h\">Beerenzauber</div><div class=\"tw-sort-a\">Fr&uuml;chtetee</div><div class=\"tw-sort-x\">Kirsch-, Erdbeer-, Brombeer- und Johannisbeer-Geschmack.</div></div></div>\n<div class=\"tw-sort\"><img src=\"https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-tee-rote-liebe.jpg\" alt=\"JB Unser Tee Rote Liebe\"><div class=\"tw-sort-b\"><div class=\"tw-sort-h\">Rote Liebe</div><div class=\"tw-sort-a\">Fr&uuml;chtetee</div><div class=\"tw-sort-x\">Reife Erdbeeren mit Vanilleso&szlig;e.</div></div></div>\n<div class=\"tw-sort\"><img src=\"https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-tee-frische-kraft.jpg\" alt=\"JB Unser Tee Frische Kraft\"><div class=\"tw-sort-b\"><div class=\"tw-sort-h\">Frische Kraft</div><div class=\"tw-sort-a\">Kr&auml;utertee</div><div class=\"tw-sort-x\">Belebend, mit Limonen-Grapefruit-Geschmack.</div></div></div>\n<div class=\"tw-sort\"><img src=\"https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-tee-erdbeer-sahne.jpg\" alt=\"JB Unser Tee Erdbeer-Sahne\"><div class=\"tw-sort-b\"><div class=\"tw-sort-h\">Erdbeer-Sahne</div><div class=\"tw-sort-a\">Rooibos-Tee</div><div class=\"tw-sort-x\">Koffeinfrei, mit Erdbeer-Sahne-Geschmack.</div></div></div>\n</div>"
+          "x": "<div class=\"tw tw-sorts\">\n<style>\n.tw-sorts{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:4px 0 2px}\n.tw-sort{border:1px solid #e7ddd0;border-radius:10px;overflow:hidden;background:#fcfaf6}\n.tw-sort img{display:block;width:100%;height:130px;object-fit:cover;object-position:bottom center}\n.tw-sort-b{padding:10px 12px 12px}\n.tw-sort-h{font-family:Tahoma,Arial,sans-serif;font-weight:700;font-size:13.5px;color:#2b2b2b;margin-bottom:3px}\n.tw-sort-a{font-size:11px;color:#8b5e3c;font-weight:700;text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px}\n.tw-sort-x{font-size:12px;line-height:1.45;color:#5a5248}\n@media(max-width:620px){.tw-sorts{grid-template-columns:1fr 1fr}}\n@media(max-width:420px){.tw-sorts{grid-template-columns:1fr}}\n</style>\n<div class=\"tw-sort\"><img src=\"https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-tee-earl-grey.jpg\" alt=\"JB Unser Tee Earl Grey\"><div class=\"tw-sort-b\"><div class=\"tw-sort-h\">Earl Grey</div><div class=\"tw-sort-a\">Schwarzer Tee</div><div class=\"tw-sort-x\">Kr&auml;ftig, mit Bergamotte-Aroma.</div></div></div>\n<div class=\"tw-sort\"><img src=\"https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-tee-bluetenzeit.jpg\" alt=\"JB Unser Tee Bl&uuml;tenzeit\"><div class=\"tw-sort-b\"><div class=\"tw-sort-h\">Bl&uuml;tenzeit</div><div class=\"tw-sort-a\">Gr&uuml;ner Tee</div><div class=\"tw-sort-x\">Fein, mit einer Fruchtkomposition aromatisiert.</div></div></div>\n<div class=\"tw-sort\"><img src=\"https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-tee-beerenzauber.jpg\" alt=\"JB Unser Tee Beerenzauber\"><div class=\"tw-sort-b\"><div class=\"tw-sort-h\">Beerenzauber</div><div class=\"tw-sort-a\">Fr&uuml;chtetee</div><div class=\"tw-sort-x\">Kirsch-, Erdbeer-, Brombeer- und Johannisbeer-Geschmack.</div></div></div>\n<div class=\"tw-sort\"><img src=\"https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-tee-rote-liebe.jpg\" alt=\"JB Unser Tee Rote Liebe\"><div class=\"tw-sort-b\"><div class=\"tw-sort-h\">Rote Liebe</div><div class=\"tw-sort-a\">Fr&uuml;chtetee</div><div class=\"tw-sort-x\">Reife Erdbeeren mit Vanilleso&szlig;e.</div></div></div>\n<div class=\"tw-sort\"><img src=\"https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-tee-frische-kraft.jpg\" alt=\"JB Unser Tee Frische Kraft\"><div class=\"tw-sort-b\"><div class=\"tw-sort-h\">Frische Kraft</div><div class=\"tw-sort-a\">Kr&auml;utertee</div><div class=\"tw-sort-x\">Belebend, mit Limonen-Grapefruit-Geschmack.</div></div></div>\n<div class=\"tw-sort\"><img src=\"https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-tee-erdbeer-sahne.jpg\" alt=\"JB Unser Tee Erdbeer-Sahne\"><div class=\"tw-sort-b\"><div class=\"tw-sort-h\">Erdbeer-Sahne</div><div class=\"tw-sort-a\">Rooibos-Tee</div><div class=\"tw-sort-x\">Koffeinfrei, mit Erdbeer-Sahne-Geschmack.</div></div></div>\n</div>"
         },
         {
           "t": "h",
@@ -2428,17 +2428,17 @@
               "title": "Gründung und Aufbau",
               "imgs": [
                 {
-                  "src": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-gesch-rasierer-stadthausstr.jpg",
+                  "src": "https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-gesch-rasierer-stadthausstr.jpg",
                   "alt": "Elektro-Rasierer-Spezialgeschäft Blöchle in der Mainzer Stadthausstraße",
                   "cap": "Das Elektro-Rasierer-Spezialgeschäft in der Mainzer Stadthausstraße."
                 },
                 {
-                  "src": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-gesch-beratung-1960er.jpg",
+                  "src": "https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-gesch-beratung-1960er.jpg",
                   "alt": "Beratung im Rasierer-Fachgeschäft in den 1960er-Jahren",
                   "cap": "Beratung im Geschäft, 1960er-Jahre."
                 },
                 {
-                  "src": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-gesch-mainz-1961.jpg",
+                  "src": "https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-gesch-mainz-1961.jpg",
                   "alt": "Mainzer Innenstadt im Wiederaufbau um 1961",
                   "cap": "Mainz um 1961: die Innenstadt im Wiederaufbau."
                 }
@@ -2464,7 +2464,7 @@
                   "yr": "Oktober 1986",
                   "b": "25-jähriges Bestehen",
                   "x": "Ein Vierteljahrhundert kontinuierliches Wachstum, getragen von treuen Kunden und engagierten Mitarbeitern.",
-                  "img": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-gesch-anzeige-1986.jpg",
+                  "img": "https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-gesch-anzeige-1986.jpg",
                   "imgAlt": "Zeitungsanzeige zu den Jubiläumswochen im Oktober 1986",
                   "imgCap": "Zeitungsanzeige zu den Jubiläumswochen im Oktober 1986 – das Geschäft firmiert jetzt als „Joachim Blöchle“ in der Stadthausstraße 2."
                 },
@@ -2495,7 +2495,7 @@
                   "yr": "1998",
                   "b": "Umzug an den Philipp-von-Zabern-Platz",
                   "x": "Von der Lotharstraße 20 an den Philipp-von-Zabern-Platz 5 in Mainz – noch mehr Platz für Werkstatt und Kundenservice.",
-                  "img": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-gesch-laden-mainz-nr20.jpg",
+                  "img": "https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-gesch-laden-mainz-nr20.jpg",
                   "imgAlt": "Eckladen des JB Elektro-Rasierer-Spezialgeschäfts in Mainz",
                   "imgCap": "Das Ladenlokal in Mainz mit der markanten JB-Ecke."
                 },
@@ -2526,7 +2526,7 @@
               "id": "generation",
               "span": "2011 – 2018",
               "title": "Neue Generation",
-              "img": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-gesch-birkenfeld-2.jpg",
+              "img": "https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-gesch-birkenfeld-2.jpg",
               "imgAlt": "Eingang des Geschäfts im Birkenfeld 74a mit Schaufenster „Unser Kaffee“",
               "imgCap": "2018 kommt „Unser Kaffee“ dazu – hier im Schaufenster am Birkenfeld 74a.",
               "items": [
@@ -2552,7 +2552,7 @@
               "id": "fachbetrieb",
               "span": "seit 2019",
               "title": "Autorisierter Fachbetrieb",
-              "img": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-gesch-wallauer.jpg",
+              "img": "https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-gesch-wallauer.jpg",
               "imgAlt": "Heutiges Ladengeschäft in der Wallauer Straße 4 in Hofheim-Langenhain",
               "imgCap": "Seit 2020/2021 der heutige Standort in der Wallauer Straße 4.",
               "items": [
@@ -2622,7 +2622,7 @@
         },
         {
           "t": "image",
-          "src": "https://new.kaffeetechniker.de/wp-content/uploads/2026/09/kt-gesch-werkstatt.jpg",
+          "src": "https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-gesch-werkstatt.jpg",
           "alt": "Werkstattarbeitsplatz für die Reparatur von Kaffeevollautomaten in Hofheim-Langenhain",
           "max": "820px"
         },
@@ -3125,7 +3125,7 @@
       "blocks": [
         {
           "t": "p",
-          "x": "Diese Allgemeinen Geschäftsbedingungen (AGB) gelten für Reparatur- und Wartungsaufträge in unserer Werkstatt sowie für Bestellungen in unserem Online-Shop unter new.kaffeetechniker.de."
+          "x": "Diese Allgemeinen Geschäftsbedingungen (AGB) gelten für Reparatur- und Wartungsaufträge in unserer Werkstatt sowie für Bestellungen in unserem Online-Shop unter kaffeetechniker.de."
         },
         {
           "t": "h",
@@ -3135,7 +3135,7 @@
         },
         {
           "t": "p",
-          "x": "Vertragspartner ist die Joachim Blöchle Elektro-Service GmbH, Wallauer Straße 4, 65719 Hofheim-Langenhain (Kontaktdaten siehe <a href=\"https://new.kaffeetechniker.de/impressum/\">Impressum</a>). Diese AGB gelten gegenüber Verbrauchern im Sinne des § 13 BGB und Unternehmern im Sinne des § 14 BGB, soweit nachfolgend nicht nach Kundengruppe unterschieden wird. Abweichende, entgegenstehende oder ergänzende Allgemeine Geschäftsbedingungen des Kunden werden nur dann und insoweit Vertragsbestandteil, als wir ihrer Geltung ausdrücklich schriftlich zugestimmt haben."
+          "x": "Vertragspartner ist die Joachim Blöchle Elektro-Service GmbH, Wallauer Straße 4, 65719 Hofheim-Langenhain (Kontaktdaten siehe <a href=\"https://kaffeetechniker.de/impressum/\">Impressum</a>). Diese AGB gelten gegenüber Verbrauchern im Sinne des § 13 BGB und Unternehmern im Sinne des § 14 BGB, soweit nachfolgend nicht nach Kundengruppe unterschieden wird. Abweichende, entgegenstehende oder ergänzende Allgemeine Geschäftsbedingungen des Kunden werden nur dann und insoweit Vertragsbestandteil, als wir ihrer Geltung ausdrücklich schriftlich zugestimmt haben."
         },
         {
           "t": "h",
@@ -3215,7 +3215,7 @@
         },
         {
           "t": "p",
-          "x": "Reparierte oder gewartete Geräte sind innerhalb von 30 Tagen nach Benachrichtigung über die Fertigstellung abzuholen bzw. ist deren Rücksendung zu veranlassen. Für nicht abgeholte Geräte können wir nach angemessener Nachfristsetzung eine marktübliche Einlagerungsgebühr berechnen. Informationen zu Leihgeräten während der Reparaturzeit finden Sie unter <a href=\"https://new.kaffeetechniker.de/leihgeraete/\">Mietgerät für die Reparaturzeit</a>."
+          "x": "Reparierte oder gewartete Geräte sind innerhalb von 30 Tagen nach Benachrichtigung über die Fertigstellung abzuholen bzw. ist deren Rücksendung zu veranlassen. Für nicht abgeholte Geräte können wir nach angemessener Nachfristsetzung eine marktübliche Einlagerungsgebühr berechnen. Informationen zu Leihgeräten während der Reparaturzeit finden Sie unter <a href=\"https://kaffeetechniker.de/leihgeraete/\">Mietgerät für die Reparaturzeit</a>."
         },
         {
           "t": "h",
@@ -3249,7 +3249,7 @@
         },
         {
           "t": "p",
-          "x": "Informationen zur Verarbeitung Ihrer personenbezogenen Daten finden Sie in unserer <a href=\"https://new.kaffeetechniker.de/datenschutz/\">Datenschutzerklärung</a>."
+          "x": "Informationen zur Verarbeitung Ihrer personenbezogenen Daten finden Sie in unserer <a href=\"https://kaffeetechniker.de/datenschutz/\">Datenschutzerklärung</a>."
         },
         {
           "t": "h",
@@ -3259,7 +3259,7 @@
         },
         {
           "t": "p",
-          "x": "Es gilt das Recht der Bundesrepublik Deutschland unter Ausschluss des UN-Kaufrechts; bei Verbrauchern gilt dies nur insoweit, als hierdurch der gewährte Schutz durch zwingende Bestimmungen des Rechts des Staates, in dem der Verbraucher seinen gewöhnlichen Aufenthalt hat, nicht eingeschränkt wird. Ist der Kunde Kaufmann, juristische Person des öffentlichen Rechts oder öffentlich-rechtliches Sondervermögen, ist Gerichtsstand für alle Streitigkeiten aus diesem Vertragsverhältnis unser Geschäftssitz Hofheim am Taunus. Sollten einzelne Bestimmungen dieser AGB unwirksam sein oder werden, bleibt die Wirksamkeit der übrigen Bestimmungen hiervon unberührt. Hinweise zur Streitbeilegung finden Sie in unserem <a href=\"https://new.kaffeetechniker.de/impressum/\">Impressum</a>."
+          "x": "Es gilt das Recht der Bundesrepublik Deutschland unter Ausschluss des UN-Kaufrechts; bei Verbrauchern gilt dies nur insoweit, als hierdurch der gewährte Schutz durch zwingende Bestimmungen des Rechts des Staates, in dem der Verbraucher seinen gewöhnlichen Aufenthalt hat, nicht eingeschränkt wird. Ist der Kunde Kaufmann, juristische Person des öffentlichen Rechts oder öffentlich-rechtliches Sondervermögen, ist Gerichtsstand für alle Streitigkeiten aus diesem Vertragsverhältnis unser Geschäftssitz Hofheim am Taunus. Sollten einzelne Bestimmungen dieser AGB unwirksam sein oder werden, bleibt die Wirksamkeit der übrigen Bestimmungen hiervon unberührt. Hinweise zur Streitbeilegung finden Sie in unserem <a href=\"https://kaffeetechniker.de/impressum/\">Impressum</a>."
         }
       ]
     },
@@ -3271,7 +3271,7 @@
       "blocks": [
         {
           "t": "p",
-          "x": "Diese Widerrufsbelehrung gilt für Verbraucherinnen und Verbraucher, die Waren über unseren Online-Shop unter new.kaffeetechniker.de bestellen."
+          "x": "Diese Widerrufsbelehrung gilt für Verbraucherinnen und Verbraucher, die Waren über unseren Online-Shop unter kaffeetechniker.de bestellen."
         },
         {
           "t": "h",

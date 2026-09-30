@@ -1,4 +1,4 @@
-# wp-lib.ps1 - Helper für die WordPress REST API von new.kaffeetechniker.de
+# wp-lib.ps1 - Helper für die WordPress REST API von kaffeetechniker.de
 # Verwendung:  . .\wp-lib.ps1   (dot-source), danach z. B.:
 #   wp GET  /wp/v2/posts?per_page=5
 #   wp POST /wp/v2/posts @{ title='Titel'; status='draft'; content='<p>Hallo</p>' }

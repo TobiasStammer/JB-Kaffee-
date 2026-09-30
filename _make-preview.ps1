@@ -158,7 +158,7 @@ $doc = @"
     $navHtml
   </nav>
   <div class="main">
-    <div class="toolbar"><b>Vorschau</b> new.kaffeetechniker.de &mdash; Stand $(Get-Date -Format 'yyyy-MM-dd') &mdash; <span id="cur"></span></div>
+    <div class="toolbar"><b>Vorschau</b> kaffeetechniker.de &mdash; Stand $(Get-Date -Format 'yyyy-MM-dd') &mdash; <span id="cur"></span></div>
     <div class="frame">
       $pagesHtml
     </div>

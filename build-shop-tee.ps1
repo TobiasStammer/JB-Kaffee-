@@ -18,7 +18,7 @@ if (-not $catId) {
   $catId = $c.id; Write-Host "[cat neu] tee id=$catId"
 } else { Write-Host "[cat vorhanden] tee id=$catId" }
 
-$img = 'https://new.kaffeetechniker.de/wp-content/uploads/2026/09'
+$img = 'https://kaffeetechniker.de/wp-content/uploads/2026/09'
 $foot = 'Lose Teemischung. Hergestellt f&uuml;r die Joachim Bl&ouml;chle Elektro-Service GmbH, Wallauer Stra&szlig;e 4, 65719 Hofheim-Langenhain. MHD: siehe Beutelboden. Preise inkl. MwSt.'
 
 $items = @(
