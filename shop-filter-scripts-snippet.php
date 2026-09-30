@@ -242,42 +242,67 @@ add_action( 'wp_footer', function () {
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', move); else move();
 })();
 // "Empfohlenes Zubehoer": auf JURA/NIVONA-Geraete-Produktseiten (nicht auf
-// Zubehoer/Pflege-Seiten selbst) unten eine Kachelreihe mit 4 Zubehoer-
-// Produkten aus der passenden Kategorie einblenden (WC Store API, oeffentlich).
+// Zubehoer/Pflege-Seiten selbst) unten 4 passende Zubehoer-Kacheln. Auswahl nach
+// Preisklasse des Geraets (Anlehnung an JURA-Empfehlungen: Cool Control, Tassenwaermer,
+// Smart Connect, Glacette, Milchsystem-Zubehoer). Nur einmal einfuegen (.kt-rz).
 (function(){
   function init(){
   var body = document.body;
   if(!body.classList.contains('single-product')) return;
-  var isJura = false, isNivona = false, skip = false;
+  if(document.querySelector('.kt-rz')) return;
+  var isJura = false, isNivona = false, skip = false, pid = 0;
   body.classList.forEach(function(c){
     if(c.indexOf('product_cat-jura-')===0) isJura = true;
     if(c.indexOf('product_cat-nivona-')===0) isNivona = true;
+    if(c.indexOf('postid-')===0) pid = parseInt(c.substring(7),10);
     if(c==='product_cat-jura-zubehoer' || c==='product_cat-jura-pflegeprodukte' || c==='product_cat-nivona-zubehoer' || c==='product_cat-nivona-pflegeprodukte') skip = true;
   });
   if(skip) return;
-  if(!isJura){ if(!isNivona){ return; } }
+  if(!isJura && !isNivona) return;
   var catId = isJura ? 20 : 37;
   var main = document.querySelector('main');
   if(!main) return;
-  var qs = ['category='+catId,'per_page=4','orderby=popularity'].join(String.fromCharCode(38));
-  fetch('/wp-json/wc/store/v1/products?'+qs)
-    .then(function(r){ return r.ok ? r.json() : []; })
-    .then(function(items){
-      if(!items || !items.length) return;
-      var tiles = items.map(function(p){
-        var img = (p.images ? p.images[0] : null) ? (p.images[0].thumbnail || p.images[0].src) : '';
-        var price = p.prices ? (parseInt(p.prices.price,10)/Math.pow(10,p.prices.currency_minor_unit)).toFixed(2).replace('.',',')+' '+p.prices.currency_symbol : '';
-        return '<a class="kt-rz-t" href="'+p.permalink+'">'+
-          '<span class="pic" style="background-image:url(\''+img+'\')"></span>'+
-          '<span class="nm">'+p.name+'</span>'+
-          '<span class="pr">'+price+'</span></a>';
-      }).join('');
-      var sec = document.createElement('div');
-      sec.className = 'kt-rz';
-      sec.innerHTML = '<h2>Empfohlenes Zubeh&ouml;r</h2><div class="kt-rz-grid">'+tiles+'</div>';
-      main.appendChild(sec);
-    })
-    .catch(function(){});
+  var AMP = String.fromCharCode(38);
+  var AE = String.fromCharCode(228);
+  var LISTS = {
+    top: ['Cool Control 1.0','Tassenw'+AE+'rmer$','Smart Connect','Glacette'],
+    mid: ['Cool Control 0.6','Tassenw'+AE+'rmer S','Smart Connect','Glas-Milchbeh'],
+    low: ['Milch-Karaffe','Latte-macchiato-Glas','Espressotassen','Zubeh'+String.fromCharCode(246)+'rset f']
+  };
+  function hit(nm,n){ if(n.slice(-1)==='$'){ n=n.slice(0,-1); return nm.length>=n.length && nm.lastIndexOf(n)===nm.length-n.length; } return nm.indexOf(n)>-1; }
+  function money(p){ return p.prices ? (parseInt(p.prices.price,10)/Math.pow(10,p.prices.currency_minor_unit)).toFixed(2).replace('.',',')+' '+p.prices.currency_symbol : ''; }
+  function getJson(u){ return fetch(u).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }); }
+  Promise.all([
+    getJson('/wp-json/wc/store/v1/products/'+pid),
+    getJson('/wp-json/wc/store/v1/products?category='+catId+AMP+'per_page=100'+AMP+'orderby=popularity')
+  ]).then(function(res){
+    var dev = res[0], all = res[1];
+    if(!all || !all.length) return;
+    var picks = [];
+    if(isJura){
+      var euro = dev && dev.prices ? parseInt(dev.prices.price,10)/Math.pow(10,dev.prices.currency_minor_unit) : 0;
+      var names = euro >= 1500 ? LISTS.top : (euro >= 800 ? LISTS.mid : LISTS.low);
+      names.forEach(function(n){
+        for(var i=0;i<all.length;i++){
+          if(hit(all[i].name,n) && picks.indexOf(all[i])<0){ picks.push(all[i]); break; }
+        }
+      });
+    }
+    for(var j=0;j<all.length && picks.length<4;j++){ if(picks.indexOf(all[j])<0) picks.push(all[j]); }
+    picks = picks.slice(0,4);
+    var tiles = picks.map(function(p){
+      var img = (p.images ? p.images[0] : null) ? (p.images[0].thumbnail || p.images[0].src) : '';
+      return '<a class="kt-rz-t" href="'+p.permalink+'">'+
+        '<span class="pic" style="background-image:url(\''+img+'\')"></span>'+
+        '<span class="nm">'+p.name+'</span>'+
+        '<span class="pr">'+money(p)+'</span></a>';
+    }).join('');
+    if(document.querySelector('.kt-rz')) return;
+    var sec = document.createElement('div');
+    sec.className = 'kt-rz';
+    sec.innerHTML = '<h2>Empfohlenes Zubeh&ouml;r</h2><div class="kt-rz-grid">'+tiles+'</div>';
+    main.appendChild(sec);
+  });
   }
   if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);}else{init();}
 })();
