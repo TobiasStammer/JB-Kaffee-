@@ -58,6 +58,11 @@ if ( ! function_exists( 'kt_old_redirect_map' ) ) {
 		'/shop/jura/jura-j-serie-c139696642' => '/jura-kaffeevollautomaten/',
 		'/shop/jura/jura-j10-ea-piano-black-p428058799' => '/product/jura-j10-piano-black/',
 		'/shop/jura/jura-milchsystem-reiniger-mini-tabs-mit-dosierer-90g-p431132934' => '/product/jura-milchsystem-reiniger-mini-tabs-90-g/',
+		'/shop/jura/jura-e6-eb-piano-black-p428062761' => '/product/jura-e6-ed-piano-black/',
+		'/shop/jura/jura-e8-ec-piano-black-p428052179' => '/product/jura-e8-ed-piano-black/',
+		'/shop/jura/milchschaumer-hot-cold-p431132940' => '/product/jura-milchschaeumer-hot-cold/',
+		'/shop/jura/jura-e6-eb-platin-p428049409' => '/jura-kaffeevollautomaten/',
+		'/shop/jura/jura-s8-ea-chrom-p427995274' => '/jura-kaffeevollautomaten/',
 		'/shop/jura/jura-s-serie-c125027501' => '/jura-kaffeevollautomaten/',
 		'/shop/jura/jura-s8-eb-dark-inox-p369531574' => '/jura-kaffeevollautomaten/',
 		'/shop/jura/jura-s8-eb-piano-black-p694914317' => '/jura-kaffeevollautomaten/',
@@ -101,6 +106,15 @@ add_action( 'template_redirect', function () {
 	}
 	$map = kt_old_redirect_map();
 	$to  = isset( $map[ $path ] ) ? $map[ $path ] : '';
+	// Alte Shop-Adresse mit abweichendem Namenstext (z. B. "-ec-" statt "-ed-"): ueber die Produkt-/Kategorie-ID (-pNNN / -cNNN) zuordnen
+	if ( ! $to && 0 === strpos( $path, '/shop/jura/' ) && preg_match( '/-([pc]\d{6,})$/', $path, $m ) ) {
+		foreach ( $map as $k => $v ) {
+			if ( substr( $k, -strlen( $m[1] ) - 1 ) === '-' . $m[1] ) {
+				$to = $v;
+				break;
+			}
+		}
+	}
 	if ( ! $to && 0 === strpos( $path, '/shop/jura/' ) ) { // unbekannte alte Shop-Adresse: auf die Jura-Seite
 		$to = '/jura/';
 	}
