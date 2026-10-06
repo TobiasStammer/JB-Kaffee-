@@ -6,6 +6,7 @@
  * - description/seller.name: doppelt kodierte HTML-Entities (&amp;#228;) decodiert.
  * - Verbesserungshinweise (Search Console): offers.shippingDetails (Versand DE nach Klasse, brutto, frei ab 1.500 EUR),
  *   offers.hasMerchantReturnPolicy (14 Tage Widerruf, Rücksendekosten traegt der Kunde, lt. Widerrufsbelehrung),
+ *   deliveryTime (Bearbeitung 0-2 + Transit 1-3 Werktage) und returnShippingFeesAmount (= Hinversandkosten, Naeherung) ergaenzt (05./06.10.),
  *   brand (JURA / NIVONA / JB aus dem Produktnamen). GTIN liegt nicht vor.
  * Einbau: Code Snippets, PHP, "Ueberall ausfuehren" (Deploy: scratchpad/produkt-schema.ps1). */
 add_filter( 'woocommerce_structured_data_product', function ( $markup, $product ) {
