@@ -19,3 +19,5 @@ Stand 2026-09-28: Auf der Website ist der Hinweis auf Wunsch des Betreibers komp
 Früherer Einbau auf der Website: Code-Snippet "KT EU-Hinweis Gesetzliche Gewaehrleistung" (../gewaehrleistungshinweis-snippet.php,
 Deploy ../scratchpad/gewaehrleistungshinweis.ps1): Produktseiten, Kasse, AGB + Gewährleistung. Kein PDF-Anhang an Kundenmails.
 Laden: A4-Ausdruck, gut sichtbar (Kasse/Wand).
+
+**Stand 2026-10-06:** Hinweis wieder auf der Website, nur im Warenkorb (/cart/), 240 px breit, Klick öffnet Originalgröße. Verwendet wird jetzt das **unveränderte** Original-PNG (Gewaehrleistungshinweis-DE-original.png, Mediathek-ID 5066, siehe media-ids.json), nicht mehr die Kurzfassung. Snippet 14 aktiv; Kasse, AGB, Gewährleistung und Produktseiten ohne Hinweis.
