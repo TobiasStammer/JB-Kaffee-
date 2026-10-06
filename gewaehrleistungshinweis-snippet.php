@@ -1,6 +1,6 @@
 /* kaffeetechniker.de - EU-Hinweis "Gesetzliche Gewaehrleistung" (harmonisierter Hinweis, DVO (EU) 2025/1960, Pflicht ab 27.09.2026).
  * Eingebunden wird das unveraenderte Original-PNG (DE, farbig) der EU-Kommission (Mediathek-ID KT_GW_PNG_ID, Datei Gewaehrleistungslabel/Gewaehrleistungshinweis-DE-original.png).
- * Einbau: Warenkorb, direkt unter dem Warenkorb-Block (ausserhalb des React-Roots), 400 px breit mit Klick auf Originalgroesse.
+ * Einbau: Warenkorb (unter dem Warenkorb-Block, ausserhalb des React-Roots) und Kasse (vor "Zahlungspflichtig bestellen"), je 400 px breit mit Klick auf Originalgroesse.
  * Rechtspruefung durch Anwalt/Haendlerbund ist Sache des Betreibers.
  * Deploy: scratchpad/gewaehrleistungshinweis.ps1 */
 
@@ -29,3 +29,16 @@ add_filter( 'render_block', function ( $html, $block ) {
 	}
 	return $html;
 }, 20, 2 );
+
+// Kasse (Block-Checkout): direkt vor dem Bestell-Button
+add_filter( 'render_block', function ( $html, $block ) {
+	if ( isset( $block['blockName'] ) && 'woocommerce/checkout-actions-block' === $block['blockName'] ) {
+		return kt_gw_notice( 400, 'checkout' ) . $html;
+	}
+	return $html;
+}, 20, 2 );
+
+// Kasse (klassisch), falls jemals genutzt
+add_action( 'woocommerce_review_order_before_submit', function () {
+	echo kt_gw_notice( 400, 'checkout' ); // phpcs:ignore WordPress.Security.EscapeOutput
+} );
