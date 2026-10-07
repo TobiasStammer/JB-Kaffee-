@@ -1,5 +1,5 @@
 /* kaffeetechniker.de - Knopf "Bestelluebersicht drucken" in WooCommerce (Bestellung + Bestellliste).
- * Oeffnet eine druckfertige Uebersicht (Positionen, MwSt, Versand, PayPal-Gebuehren) und startet den Druckdialog.
+ * Oeffnet eine druckfertige Uebersicht (Positionen, MwSt, Versand, PayPal-/Karten-Gebuehren) und startet den Druckdialog.
  * Gleiche Darstellung wie das PDF aus bestellung-uebersicht.ps1. Nur mit Recht manage_woocommerce.
  * Einbau: Code Snippets, PHP, "Ueberall ausfuehren" (Deploy: scratchpad/bestelluebersicht-button.ps1). */
 
@@ -100,6 +100,30 @@ if ( ! function_exists( 'kt_ov_eur' ) ) {
 				. '<p class="note">Die Geb&uuml;hr wird von PayPal einbehalten und ist nicht Teil der Kundenrechnung. Angaben laut PayPal-Daten der Bestellung; ma&szlig;geblich ist die PayPal-Abrechnung.</p>';
 		} elseif ( 0 === strpos( (string) $order->get_payment_method(), 'ppcp' ) ) {
 			$feeblock = '<h2>Zahlungsabwicklung (PayPal)</h2><p class="note">Zu dieser Bestellung liegen keine PayPal-Geb&uuml;hrendaten vor.</p>';
+		} elseif ( 'woocommerce_payments' === $order->get_payment_method() ) {
+			// WooPayments (Karte, Apple/Google Pay): Gebuehr + Netto in den Bestell-Metadaten
+			$wfee = $order->get_meta( '_wcpay_transaction_fee' );
+			if ( '' !== (string) $wfee ) {
+				$fee   = (float) $wfee;
+				$gross = (float) $order->get_total();
+				$wnet  = $order->get_meta( '_wcpay_net' );
+				$netin = '' !== (string) $wnet ? (float) $wnet : $gross - $fee;
+				$quote = $gross > 0 ? number_format( $fee / $gross * 100, 2, ',', '.' ) . '&nbsp;%' : '-';
+				$brand = '';
+				$pmd   = $order->get_meta( '_wcpay_payment_method_details' );
+				if ( is_string( $pmd ) ) {
+					$pmd = json_decode( $pmd, true );
+				}
+				if ( is_array( $pmd ) && ! empty( $pmd['card']['brand'] ) ) {
+					$brand = ' (' . esc_html( ucfirst( $pmd['card']['brand'] ) ) . ')';
+				}
+				$feeblock = '<h2>Zahlungsabwicklung (Kartenzahlung' . $brand . ')</h2><table class="sum"><tr><td>Zahlungseingang brutto (Kundenzahlung)</td><td class="r">' . kt_ov_eur( $gross ) . '</td></tr>'
+					. '<tr><td>Kartengeb&uuml;hr WooPayments (' . $quote . ' vom Bruttobetrag)</td><td class="r">-' . kt_ov_eur( $fee ) . '</td></tr>'
+					. '<tr class="tot"><td>Nettoeingang (Auszahlungsbetrag)</td><td class="r">' . kt_ov_eur( $netin ) . '</td></tr></table>'
+					. '<p class="note">Die Geb&uuml;hr wird von WooPayments/Stripe einbehalten und ist nicht Teil der Kundenrechnung. Angaben laut Bestelldaten; ma&szlig;geblich ist die WooPayments-Abrechnung.</p>';
+			} else {
+				$feeblock = '<h2>Zahlungsabwicklung (Kartenzahlung)</h2><p class="note">Zu dieser Bestellung liegen keine Geb&uuml;hrendaten vor.</p>';
+			}
 		}
 		$note = $order->get_customer_note() ? '<h2>Kundenhinweis</h2><p>' . esc_html( $order->get_customer_note() ) . '</p>' : '';
 		$nr   = esc_html( $order->get_order_number() );
