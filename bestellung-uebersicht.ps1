@@ -1,6 +1,6 @@
 # Bestelluebersicht als PDF (fuer Steuerberater / zur Rechnung legen)
 # Aufruf:  .\bestellung-uebersicht.ps1 -Id 4888        (Ausgabe: .\Bestellungen\Bestellung-4888.pdf)
-# Nutzt die WooCommerce-REST-Daten (Positionen, Versand, MwSt, PayPal-Gebuehren) und Edge zum PDF-Druck.
+# Nutzt die WooCommerce-REST-Daten (Positionen, Versand, MwSt, PayPal-/Karten-Gebuehren) und Edge zum PDF-Druck.
 # Nur ASCII im Skript (PS 5.1 liest .ps1 als ANSI) - deutsche Texte als HTML-Entities.
 param(
   [Parameter(Mandatory = $true)][int]$Id,
@@ -82,6 +82,23 @@ if ($fees -and $fees.paypal_fee) {
     '<p class="note">Die Geb&uuml;hr wird von PayPal einbehalten und ist nicht Teil der Kundenrechnung. Angaben laut PayPal-Daten der Bestellung; ma&szlig;geblich ist die PayPal-Abrechnung.</p>'
 } elseif ($o.payment_method -like 'ppcp*') {
   $feeBlock = '<h2>Zahlungsabwicklung (PayPal)</h2><p class="note">Zu dieser Bestellung liegen keine PayPal-Geb&uuml;hrendaten vor.</p>'
+} elseif ($o.payment_method -eq 'woocommerce_payments') {
+  # WooPayments (Karte, Apple/Google Pay): Gebuehr + Netto stehen in den Bestell-Metadaten
+  $wFee = Meta '_wcpay_transaction_fee'; $wNet = Meta '_wcpay_net'
+  $cardInfo = ''
+  $pmd = Meta '_wcpay_payment_method_details'
+  if ($pmd) { try { $pj = $pmd | ConvertFrom-Json; if ($pj.card.brand) { $cardInfo = ' (' + (Hx (($pj.card.brand.Substring(0,1).ToUpper() + $pj.card.brand.Substring(1)))) + ')' } } catch {} }
+  if ($wFee) {
+    $fee = Num $wFee; $gross = $total
+    $netIn = if ($wNet) { Num $wNet } else { $gross - $fee }
+    $quote = if ($gross -gt 0) { ($fee / $gross * 100).ToString('N2', $de) + '&nbsp;%' } else { '-' }
+    $feeBlock = '<h2>Zahlungsabwicklung (Kartenzahlung' + $cardInfo + ')</h2><table class="sum"><tr><td>Zahlungseingang brutto (Kundenzahlung)</td><td class="r">' + (Eur $gross) + '</td></tr>' +
+      '<tr><td>Kartengeb&uuml;hr WooPayments (' + $quote + ' vom Bruttobetrag)</td><td class="r">-' + (Eur $fee) + '</td></tr>' +
+      '<tr class="tot"><td>Nettoeingang (Auszahlungsbetrag)</td><td class="r">' + (Eur $netIn) + '</td></tr></table>' +
+      '<p class="note">Die Geb&uuml;hr wird von WooPayments/Stripe einbehalten und ist nicht Teil der Kundenrechnung. Angaben laut Bestelldaten; ma&szlig;geblich ist die WooPayments-Abrechnung.</p>'
+  } else {
+    $feeBlock = '<h2>Zahlungsabwicklung (Kartenzahlung)</h2><p class="note">Zu dieser Bestellung liegen keine Geb&uuml;hrendaten vor.</p>'
+  }
 }
 $note = if ($o.customer_note) { '<h2>Kundenhinweis</h2><p>' + (Hx $o.customer_note) + '</p>' } else { '' }
 
