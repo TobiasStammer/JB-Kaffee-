@@ -105,6 +105,7 @@ if ( ! function_exists( 'kt_old_redirect_map' ) ) {
 		'/privacy' => '/datenschutz/',
 		'/cookies' => '/datenschutz/',
 		'/terms' => '/agb/',
+		'/wir-suchen-dich' => '/jobs/',
 		'/test' => '/',
 		'/unser_kaffee' => '/unser-kaffee/',
 		'/über-uns' => '/ueber-uns/',
