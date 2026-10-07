@@ -88,6 +88,23 @@ if ( ! function_exists( 'kt_old_redirect_map' ) ) {
 		'/shop/jura/wifi-connect-p431147569' => '/product/jura-wi-fi-connect-v2/',
 		'/shop/jura/wireless-transmitter-p431146789' => '/product/jura-wireless-transmitter/',
 		'/shop/jura/zubehor-c123401001' => '/jura-zubehoer/',
+		'/reparatur-von-kaffeemaschinen.html' => '/reparatur/',
+		'/reparatur-jura-kaffeemaschine.html' => '/reparatur/',
+		'/werkstatt-joachim-bloechle-gmbh-hofheim.html' => '/ueber-uns/',
+		'/impressum-joachim-bloechle-gmbh-hofheim-langenhain.html' => '/impressum/',
+		'/joachim-bloechle-gmbh-allgemeine-geschaeftsbedingungen.html' => '/agb/',
+		'/marken-wir-reparieren-jura-saeco-delonghi-siemens-krups-aeg-spidem-lapavoni.html' => '/marken/',
+		'/pflege-von-kaffeemaschinen/kaffeemaschine-defekt-erste-hilfe-fehler.html' => '/hilfe-stoerungen/',
+		'/pflege-von-kaffeemaschinen/kaffeemaschine-verkalkt-entkalken-anleitung.html' => '/pflege-entkalken/',
+		'/pflege-von-kaffeemaschinen/kaffeemaschinen-vergleich-vollautomat-siebtraeger-pad-kapsel.html' => '/ratgeber-systeme-vergleich/',
+		'/pflege-von-kaffeemaschinen/kaffeevollautomaten-kaufberatung-kauf-jura-saeco.html' => '/ratgeber-kaufberatung/',
+		'/pflege-von-kaffeemaschinen/milch-aufschaeumen-fuer-cappuccino-anleitung-und-systeme.html' => '/pflege-milchsystem/',
+		'/pflege-von-kaffeemaschinen/reparatur-kaffeemaschine-lohnt-sich.html' => '/ratgeber-reparieren-lohnt-sich/',
+		'/pflege-von-kaffeemaschinen/siebtraeger-perfekter-espresso-barista.html' => '/ratgeber-siebtraeger/',
+		'/pflege-von-kaffeemaschinen/wasserfilter-fuer-kaffeemaschinen-claris.html' => '/pflege-wasserfilter/',
+		'/privacy' => '/datenschutz/',
+		'/cookies' => '/datenschutz/',
+		'/terms' => '/agb/',
 		'/test' => '/',
 		'/unser_kaffee' => '/unser-kaffee/',
 		'/über-uns' => '/ueber-uns/',
@@ -101,6 +118,9 @@ add_action( 'template_redirect', function () {
 	}
 	$uri  = isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
 	$path = rtrim( strtolower( rawurldecode( (string) wp_parse_url( $uri, PHP_URL_PATH ) ) ), '/' );
+	if ( 0 === strpos( $path, '/index.php/' ) ) { // alte Adressen mit index.php-Praefix
+		$path = substr( $path, 10 );
+	}
 	if ( '' === $path ) {
 		return;
 	}
