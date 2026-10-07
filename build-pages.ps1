@@ -6,6 +6,7 @@
 #
 #   .\build-pages.ps1
 
+param([string]$Only = '')   # nur diese Seite (Slug) bauen, z.B. -Only kaffeegetraenke
 $ErrorActionPreference = 'Stop'
 $root = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
 . "$root\wp-lib.ps1" | Out-Null
@@ -396,6 +397,11 @@ if (Test-Path $faqFile) {
   $faq = Get-Content $faqFile -Raw -Encoding UTF8 | ConvertFrom-Json
   $FAQ_HUB = $faq.hub
   $data.pages = @($data.pages) + @($faq.pages)
+}
+# Zusatzseiten (pages-extra-*.json, gleiche Struktur wie pages-content.json)
+foreach ($ef in (Get-ChildItem "$root\pages-extra-*.json" -ErrorAction SilentlyContinue)) {
+  $ex = Get-Content $ef.FullName -Raw -Encoding UTF8 | ConvertFrom-Json
+  $data.pages = @($data.pages) + @($ex.pages)
 }
 
 $base = (Import-KtEnv)['WP_URL'].TrimEnd('/')
@@ -3510,6 +3516,7 @@ function Wasserhaerte-Content($p) {
 # ---------- Anlegen / Aktualisieren (immer draft) ----------
 $results = @()
 foreach ($p in $data.pages) {
+  if ($Only -and $p.slug -ne $Only) { continue }
   $content = switch ($p.kind) {
     'jura-marke'    { Jura-Marke-Content $p; break }
     'jura-kategorie'{ Jura-Kategorie-Content $p; break }
@@ -3551,7 +3558,7 @@ foreach ($p in $data.pages) {
   Write-Host ("[{0,-11}] {1,-16} ID {2,-4} status={3}" -f $action, $p.slug, $res.id, $res.status)
 }
 
-$results | ConvertTo-Json -Depth 5 | Set-Content "$root\_page-results.json" -Encoding utf8
+if (-not $Only) { $results | ConvertTo-Json -Depth 5 | Set-Content "$root\_page-results.json" -Encoding utf8 }
 Write-Host "`nUebersicht (alle als Entwurf):" -ForegroundColor Cyan
 $results | Format-Table menu, id, slug, status -AutoSize
 Write-Host "Vorschau je Seite: wp-admin -> Seiten -> <Titel> -> Vorschau"
