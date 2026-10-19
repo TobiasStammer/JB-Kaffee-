@@ -109,26 +109,6 @@ add_action( 'init', function () {
 			if ( ! preg_match( '/^[0-9A-Za-z][0-9A-Za-z \-\.\/]{2,38}$/', $kn ) ) {
 				$out( [ 'ok' => false, 'msg' => 'Kartennummer: nur Ziffern, Buchstaben, Leerzeichen und Bindestrich (3-39 Zeichen).' ] );
 			}
-			// Schutz: Zahlungskarten-Nummern (15-19 Ziffern, Luhn-gueltig) werden nicht gespeichert.
-			$digits = preg_replace( '/\D/', '', $kn );
-			if ( preg_match( '/^[\d \-]+$/', $kn ) && strlen( $digits ) >= 15 && strlen( $digits ) <= 19 ) {
-				$sum = 0;
-				$alt = false;
-				for ( $i = strlen( $digits ) - 1; $i >= 0; $i-- ) {
-					$d = (int) $digits[ $i ];
-					if ( $alt ) {
-						$d *= 2;
-						if ( $d > 9 ) {
-							$d -= 9;
-						}
-					}
-					$sum += $d;
-					$alt  = ! $alt;
-				}
-				if ( 0 === $sum % 10 ) {
-					$out( [ 'ok' => false, 'msg' => 'Das sieht nach einer Bank-/Kreditkartennummer aus. Diese bitte nicht erfassen.' ] );
-				}
-			}
 			$dup = $wpdb->get_row( $wpdb->prepare( "SELECT vorname, nachname FROM $table WHERE karte = %s LIMIT 1", $kn ), ARRAY_A );
 			if ( $dup ) {
 				$out( [ 'ok' => false, 'msg' => 'Diese Kartennummer ist schon erfasst (' . $dup['vorname'] . ' ' . $dup['nachname'] . ').' ] );
