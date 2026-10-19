@@ -1,5 +1,5 @@
 /* kaffeetechniker.de - Interne Kartenerfassung "Paolos nahkauf BOX" (versteckte Seite, kein WP-Seitentyp).
- * URL: /<KT_KE_SLUG>/ - nicht verlinkt, noindex, Zugang nur mit Kennwort (Sitzungs-Cookie 12 h).
+ * URL: /<KT_KE_SLUG>/ - nicht verlinkt, noindex, Zugang nur mit Kennwort (Cookie 365 Tage).
  * Erfasst Vorname, Name, Kartennummer; Liste mit Suche, Loeschen, CSV-Export (Excel/Semikolon) und Druck.
  * Speicherung: eigene Tabelle {prefix}kt_karten. Alle Aktionen laufen als JSON-POST auf dieselbe URL
  * (kein Seitencache-Problem, kein %2B im Body).
@@ -76,7 +76,7 @@ add_action( 'init', function () {
 			$pw = isset( $in['pw'] ) ? trim( (string) $in['pw'] ) : '';
 			if ( '' !== $pw && hash_equals( KT_KE_HASH, hash( 'sha256', $pw ) ) ) {
 				delete_transient( $lk );
-				$exp = time() + 12 * HOUR_IN_SECONDS;
+				$exp = time() + 365 * DAY_IN_SECONDS;
 				$set_cookie( $exp . '.' . hash_hmac( 'sha256', (string) $exp, $key ), $exp );
 				$out( [ 'ok' => true ] );
 			}
@@ -245,6 +245,7 @@ function api(a,d){
    .then(function(r){return r.json()}).catch(function(){return {ok:false,msg:'Keine Verbindung zum Server.'}});
 }
 function show(app){$('#login').classList.toggle('hide',app);$('#app').classList.toggle('hide',!app);if(app)$('#vn').focus();else $('#pw').focus()}
+function mask(k){k=String(k);return k.length<=4?k:'•••• '+k.slice(-4)}
 function fmt(s){var m=/^(\d{4})-(\d\d)-(\d\d) (\d\d):(\d\d)/.exec(s||'');return m?m[3]+'.'+m[2]+'.'+m[1]+' '+m[4]+':'+m[5]:(s||'')}
 function render(){
   var q=$('#q').value.trim().toLowerCase(),tb=$('#tb'),n=0;tb.textContent='';
@@ -252,9 +253,9 @@ function render(){
     var nr=rows.length-i;
     if(q&&(r.vorname+' '+r.nachname+' '+r.karte).toLowerCase().indexOf(q)<0)return;
     n++;var tr=document.createElement('tr');
-    [nr,r.vorname,r.nachname,r.karte,fmt(r.created)].forEach(function(v,j){var td=document.createElement('td');if(j===3)td.className='k';td.textContent=v;tr.appendChild(td)});
+    [nr,r.vorname,r.nachname,r.karte,fmt(r.created)].forEach(function(v,j){var td=document.createElement('td');if(j===3){td.className='k';td.textContent=mask(v);td.title='Klicken: Nummer ein-/ausblenden';td.style.cursor='pointer';var on=false;td.onclick=function(){on=!on;td.textContent=on?v:mask(v)}}else td.textContent=v;tr.appendChild(td)});
     var tx=document.createElement('td');tx.className='x';var b=document.createElement('button');b.type='button';b.className='mini';b.textContent='Löschen';
-    b.onclick=function(){if(confirm('Eintrag löschen?\n'+r.vorname+' '+r.nachname+' – '+r.karte))api('del',{id:r.id}).then(function(j){if(j.ok){rows=j.rows;render()}else if(j.auth===false)show(false)})};
+    b.onclick=function(){if(confirm('Eintrag löschen?\n'+r.vorname+' '+r.nachname+' – '+mask(r.karte)))api('del',{id:r.id}).then(function(j){if(j.ok){rows=j.rows;render()}else if(j.auth===false)show(false)})};
     tx.appendChild(b);tr.appendChild(tx);tb.appendChild(tr);
   });
   $('#cnt').textContent='('+(q?n+' von ':'')+rows.length+')';
