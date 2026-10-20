@@ -14,6 +14,7 @@ import sqlite3
 import threading
 import time
 import uuid
+import xml.etree.ElementTree as ET
 import zipfile
 from datetime import date, datetime
 from email.message import EmailMessage
@@ -509,6 +510,98 @@ def finde_betrag(text):
     return brutto, float(satz)
 
 
+def _lokal(tag):
+    return tag.rsplit("}", 1)[-1]
+
+
+def _suche(el, *pfad):
+    """Erstes Element, das ueber die lokalen Tag-Namen (je Schritt beliebig tief) erreichbar ist."""
+    cur = [el]
+    for name in pfad:
+        nxt = []
+        for c in cur:
+            nxt += [x for x in c.iter() if x is not c and _lokal(x.tag) == name]
+        cur = nxt
+        if not cur:
+            return None
+    return cur[0]
+
+
+def _txt(el, *pfad):
+    x = _suche(el, *pfad) if el is not None else None
+    return (x.text or "").strip() if x is not None else ""
+
+
+def _num(t):
+    try:
+        return float(t)
+    except (TypeError, ValueError):
+        return None
+
+
+def pdf_xml(pfad):
+    """Eingebettete XML-Datei (ZUGFeRD/Factur-X/XRechnung) einer PDF oder None."""
+    try:
+        for name, daten in PdfReader(str(pfad)).attachments.items():
+            if name.lower().endswith(".xml") and daten:
+                return daten[0]
+    except Exception:  # noqa: BLE001
+        pass
+    return None
+
+
+def lese_erechnung(pfad):
+    """Liest Nummer, Datum, Betraege usw. aus der eingebetteten XML einer E-Rechnung (CII oder UBL)."""
+    if pfad.suffix.lower() != ".pdf":
+        return None
+    roh = pdf_xml(pfad)
+    if not roh:
+        return None
+    try:
+        root = ET.fromstring(roh)
+    except ET.ParseError:
+        return None
+    wurzel = _lokal(root.tag)
+    if wurzel == "CrossIndustryInvoice":
+        nr = _txt(root, "ExchangedDocument", "ID")
+        typ = _txt(root, "ExchangedDocument", "TypeCode")
+        d = _txt(root, "ExchangedDocument", "IssueDateTime", "DateTimeString")
+        datum = f"{d[:4]}-{d[4:6]}-{d[6:8]}" if re.fullmatch(r"\d{8}", d) else ""
+        summ = _suche(root, "SpecifiedTradeSettlementHeaderMonetarySummation")
+        brutto = _num(_txt(summ, "GrandTotalAmount"))
+        netto = _num(_txt(summ, "TaxBasisTotalAmount"))
+        satz, best = None, -1.0
+        for t in root.iter():
+            if _lokal(t.tag) == "ApplicableTradeTax":
+                b, pz = _num(_txt(t, "BasisAmount")), _num(_txt(t, "RateApplicablePercent"))
+                if b is not None and pz is not None and b > best:
+                    satz, best = pz, b
+        if satz is None:
+            satz = _num(_txt(root, "RateApplicablePercent"))
+        verk = _txt(root, "SellerTradeParty", "Name")
+        kauf = _txt(root, "BuyerTradeParty", "Name")
+    elif wurzel in ("Invoice", "CreditNote"):
+        nr = _txt(root, "ID")
+        typ = _txt(root, "InvoiceTypeCode") or ("381" if wurzel == "CreditNote" else "380")
+        datum = _txt(root, "IssueDate")
+        brutto = _num(_txt(root, "LegalMonetaryTotal", "TaxInclusiveAmount"))
+        netto = _num(_txt(root, "LegalMonetaryTotal", "TaxExclusiveAmount"))
+        satz = _num(_txt(root, "TaxSubtotal", "TaxCategory", "Percent"))
+        verk = _txt(root, "AccountingSupplierParty", "RegistrationName") or _txt(root, "AccountingSupplierParty", "Name")
+        kauf = _txt(root, "AccountingCustomerParty", "RegistrationName") or _txt(root, "AccountingCustomerParty", "Name")
+    else:
+        return None
+    m = re.fullmatch(r"(\d{7})\s*/\s*\d+", nr)  # Kasse schreibt '2610205 / 1'
+    if m:
+        nr = m.group(1)
+    if brutto is not None and typ in ("381", "396"):
+        brutto = -abs(brutto)
+    if satz is not None:
+        satz = float(round(satz))
+    return dict(nr=nr, datum=datum, brutto=brutto, netto=netto, satz=satz if satz is not None else 19.0,
+                verkaeufer=verk, kaeufer=kauf, typ=typ)
+
+
 def lieferanten_liste(cfg):
     """Namen aus den Einstellungen. Zeilenformat: "Name" oder "Name = Kategorie"."""
     return [z.split("=")[0].strip() for z in (cfg.get("lieferanten") or "").splitlines() if z.strip()]
@@ -600,10 +693,11 @@ def eingang_einlesen():
             shutil.move(str(f), str(fertig / f"doppelt_{int(time.time())}_{f.name}"))
             continue
         text = pdf_text(f) if f.suffix.lower() == ".pdf" else ""
-        art = klassifiziere(text, f.stem, regeln)
+        ex = lese_erechnung(f)
+        art = klassifiziere(text + ("\n" + ex["nr"] if ex else ""), f.stem, regeln)
         lief = ""
         if art in (UNKLAR, EINGANG):
-            lief = finde_lieferant(text, f.stem, lieferanten_liste(cfg))
+            lief = finde_lieferant(text + ("\n" + ex["verkaeufer"] if ex else ""), f.stem, lieferanten_liste(cfg))
             if lief:
                 art = EINGANG
         mtime = date.fromtimestamp(f.stat().st_mtime).isoformat()
@@ -620,11 +714,23 @@ def eingang_einlesen():
             b = finde_endsumme(text)
             if b is not None:
                 brutto, satz = b, finde_ausgang_satz(text)
+        anzeige = lief or art
+        nr_beleg = finde_nummer(text)
+        if ex:  # E-Rechnung: strukturierte Daten sind verlaesslicher als der Text
+            nr_beleg = ex["nr"] or nr_beleg
+            datum = ex["datum"] or datum
+            if art in (EINGANG,) + AUSGANG_RECHNUNGEN and ex["brutto"] is not None:
+                brutto, satz = ex["brutto"], ex["satz"]
+                hinweis = " | E-Rechnung (XML) gelesen" if art == EINGANG else ""
+            if art in AUSGANG_RECHNUNGEN and ex["kaeufer"]:
+                anzeige = ex["kaeufer"]
+            elif art == EINGANG and not lief and ex["verkaeufer"]:
+                anzeige = ex["verkaeufer"]
         name = f"{uuid.uuid4().hex}{f.suffix.lower()}"
         (BELEGE / name).write_bytes(daten)
         c.execute("INSERT INTO rechnungen(datum,lieferant,rechnungsnr,brutto,mwst_satz,kategorie,konto,status,"
                   "notiz,datei,guid,angelegt,belegart,hash) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                  (datum, lief or art, finde_nummer(text), brutto, satz, kat, KATEGORIEN[kat] if art == EINGANG else "",
+                  (datum, anzeige, nr_beleg, brutto, satz, kat, KATEGORIEN[kat] if art == EINGANG else "",
                    "offen", f.name + hinweis, name,
                    str(uuid.uuid4()), datetime.now().isoformat(timespec="seconds"), art, h))
         c.commit()
@@ -654,18 +760,20 @@ def neu_pruefen():
     n = 0
     for r in db().execute("SELECT * FROM rechnungen WHERE datei IS NOT NULL AND "
                           "(belegart=? OR (belegart=? AND (brutto=0 OR konto='' OR konto IS NULL)) OR "
-                          "(belegart IN (?,?,?) AND brutto=0))",
+                          "(belegart IN (?,?,?) AND (brutto=0 OR lieferant=belegart)))",
                           (UNKLAR, EINGANG) + AUSGANG_RECHNUNGEN).fetchall():
         pfad = BELEGE / r["datei"]
         if not pfad.exists() or pfad.suffix.lower() != ".pdf":
             continue
         text = pdf_text(pfad)
+        ex = lese_erechnung(pfad)
         art = r["belegart"]
         lief = r["lieferant"]
         if art == UNKLAR:
-            art = klassifiziere(text, Path(r["notiz"] or "").stem, regeln)
+            art = klassifiziere(text + ("\n" + ex["nr"] if ex else ""), Path(r["notiz"] or "").stem, regeln)
             if art in (UNKLAR, EINGANG):
-                lief = finde_lieferant(text, Path(r["notiz"] or "").stem, liste)
+                lief = finde_lieferant(text + ("\n" + ex["verkaeufer"] if ex else ""),
+                                       Path(r["notiz"] or "").stem, liste)
                 if lief:
                     art = EINGANG
             lief = lief or art
@@ -679,7 +787,17 @@ def neu_pruefen():
             b = finde_endsumme(text)
             if b is not None:
                 brutto, satz = b, finde_ausgang_satz(text)
-        nr = r["rechnungsnr"] or finde_nummer(text)
+        nr = r["rechnungsnr"] or (ex["nr"] if ex and ex["nr"] else finde_nummer(text))
+        if ex:
+            if art in (EINGANG,) + AUSGANG_RECHNUNGEN and not r["brutto"] and ex["brutto"] is not None:
+                brutto, satz = ex["brutto"], ex["satz"]
+                if art == EINGANG:
+                    notiz = notiz.replace(" | Betrag automatisch gelesen - bitte pruefen", "")
+                    notiz += " | E-Rechnung (XML) gelesen"
+            if art in AUSGANG_RECHNUNGEN and ex["kaeufer"] and lief in (r["belegart"], art, UNKLAR, ""):
+                lief = ex["kaeufer"]
+            elif art == EINGANG and lief in (UNKLAR, "") and ex["verkaeufer"]:
+                lief = ex["verkaeufer"]
         kat, konto = r["kategorie"], r["konto"] or ""
         if art == EINGANG:
             if kat == "Sonstiges":
@@ -958,7 +1076,9 @@ MONAT = """
 <form method=post action="{{url_for('paket')}}" class=card>
 <h2>Monatspaket für Unternehmen online</h2><input type=hidden name=m value="{{m}}">
 <p>Fügt pro Belegart alle PDFs/Bilder von {{m}} zu <b>einer</b> PDF zusammen
-(z. B. <code>{{m}}_Kassenbuch.pdf</code>) und legt sie in einen Ordner. Diese Dateien lädst du in
+(z. B. <code>{{m}}_Kassenbuch.pdf</code>) und legt sie in einen Ordner.
+<b>E-Rechnungen</b> (PDF mit eingebetteter XML, z. B. deine Ausgangsrechnungen) werden dabei <b>nicht</b> zusammengefügt,
+sondern einzeln als unveränderte Originale im Unterordner <code>E-Rechnungen</code> abgelegt, damit der XML-Anhang erhalten bleibt. Diese Dateien lädst du in
 DATEV Unternehmen online unter „Belege“ hoch.</p>
 <button>Monatspaket erstellen &amp; Ordner öffnen</button></form>
 <form class=card style="background:none;padding:0"><small>Pro Datei entsteht ein Beleg mit Datum = Monatsende. Rechnungseingänge mit Beträgen besser über „+ Neue Rechnung“ erfassen.</small>
@@ -984,15 +1104,22 @@ def monat():
                 name = f"{uuid.uuid4().hex}{ext}"
                 up.save(BELEGE / name)
                 datum, nr, brutto, satz = ende, "", 0, 0
+                kunde = b
                 if b in AUSGANG_RECHNUNGEN and ext == ".pdf":
                     text = pdf_text(BELEGE / name)
                     datum, nr = finde_datum(text, ende), finde_nummer(text)
                     be = finde_endsumme(text)
                     if be is not None:
                         brutto, satz = be, finde_ausgang_satz(text)
+                    ex = lese_erechnung(BELEGE / name)
+                    if ex:
+                        datum, nr = ex["datum"] or datum, ex["nr"] or nr
+                        if ex["brutto"] is not None:
+                            brutto, satz = ex["brutto"], ex["satz"]
+                        kunde = ex["kaeufer"] or b
                 db().execute("INSERT INTO rechnungen(datum,lieferant,rechnungsnr,brutto,mwst_satz,kategorie,"
                              "konto,status,notiz,datei,guid,angelegt,belegart) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                             (datum, b, nr, brutto, satz, "Sonstiges", "", "offen", Path(up.filename).name, name,
+                             (datum, kunde, nr, brutto, satz, "Sonstiges", "", "offen", Path(up.filename).name, name,
                               str(uuid.uuid4()), datetime.now().isoformat(timespec="seconds"), b))
                 n += 1
                 liste_hochgeladen = liste_hochgeladen or b == "Rechnungsausgangliste"
@@ -1039,19 +1166,29 @@ def paket():
                             "IS NOT NULL ORDER BY datum, id", (m, b)).fetchall()
         if not rows:
             continue
+        slug = re.sub(r"[^A-Za-z0-9_.-]+", "_", f"{m}_{b}")
+        erech = [r for r in rows if pdf_xml(BELEGE / r["datei"])]
+        normal = [r for r in rows if r not in erech]
+        if erech:  # E-Rechnungen: Originaldatei samt XML-Anhang unveraendert, nie zusammenfuegen
+            (ziel / "E-Rechnungen").mkdir(exist_ok=True)
+            for r in erech:
+                nr = re.sub(r"[^A-Za-z0-9_.-]+", "_", r["rechnungsnr"] or str(r["id"]))
+                shutil.copy2(BELEGE / r["datei"], ziel / "E-Rechnungen" / f"{slug}_{nr}.pdf")
+            fertig.append(f"E-Rechnungen/{slug}_*.pdf ({len(erech)} Originale mit XML, einzeln)")
         w = PdfWriter()
-        for r in rows:
+        for r in normal:
             try:
                 _in_pdf(w, BELEGE / r["datei"])
             except Exception as e:  # noqa: BLE001
                 fehler.append(f'{r["notiz"] or r["datei"]}: {e}')
-        if not len(w.pages):
-            continue
-        name = re.sub(r"[^A-Za-z0-9_.-]+", "_", f"{m}_{b}") + ".pdf"
-        with open(ziel / name, "wb") as fh:
-            w.write(fh)
+        if len(w.pages):
+            name = slug + ".pdf"
+            with open(ziel / name, "wb") as fh:
+                w.write(fh)
+            fertig.append(f"{name} ({len(normal)} Dateien, {(ziel / name).stat().st_size / 1e6:.1f} MB)")
         w.close()
-        fertig.append(f"{name} ({len(rows)} Dateien, {(ziel / name).stat().st_size / 1e6:.1f} MB)")
+        if not erech and not normal:
+            continue
         for r in rows:
             db().execute("UPDATE rechnungen SET status='an DATEV gesendet', gesendet=? WHERE id=?",
                          (datetime.now().isoformat(timespec="seconds"), r["id"]))
