@@ -60,8 +60,8 @@ STANDARD_ORDNER = r"Z:\Buchhaltung\Eingang"
 # Zuordnungsregeln: "Belegart = stichwort, stichwort" - erste passende Zeile gewinnt.
 # Gesucht wird im PDF-Text und im Dateinamen (Gross/Klein egal).
 # "nr:261" = Rechnungsnummer beginnt mit 261.
-STANDARD_LIEFERANTEN = """Jura Gastro
-Jura
+STANDARD_LIEFERANTEN = """Jura Gastro = Wareneinkauf
+Jura = Wareneinkauf
 Amazon
 BND
 VW Leasing
@@ -275,7 +275,7 @@ EINST = """
 <div><label>SMTP-Passwort</label><input type=password name=smtp_pass value="{{s.smtp_pass}}"></div></div>
 <h3>Automatischer Eingang (Kassensoftware &rarr; PDF)</h3>
 <label>Eingangsordner (hier speicherst du die PDFs aus der Kasse ab)</label><input name=eingang_ordner value="{{s.eingang_ordner}}">
-<label>Lieferanten (ein Name pro Zeile; längere Namen zuerst, z. B. „Jura Gastro“ vor „Jura“)</label>
+<label>Lieferanten (ein Name pro Zeile, optional <code>Name = Kategorie</code>; längere Namen zuerst, z. B. „Jura Gastro“ vor „Jura“)</label>
 <textarea name=lieferanten rows=8>{{s.lieferanten}}</textarea>
 <label>Zuordnungsregeln (eine Zeile je Belegart: <code>Belegart = stichwort, stichwort</code>; oberste passende Zeile gewinnt)</label>
 <textarea name=regeln rows=8 style="font-family:monospace">{{s.regeln}}</textarea>
@@ -487,7 +487,16 @@ def finde_betrag(text):
 
 
 def lieferanten_liste(cfg):
-    return [z.strip() for z in (cfg.get("lieferanten") or "").splitlines() if z.strip()]
+    """Namen aus den Einstellungen. Zeilenformat: "Name" oder "Name = Kategorie"."""
+    return [z.split("=")[0].strip() for z in (cfg.get("lieferanten") or "").splitlines() if z.strip()]
+
+
+def lieferant_kategorie(cfg, name):
+    for z in (cfg.get("lieferanten") or "").splitlines():
+        n, _, k = z.partition("=")
+        if n.strip() == name and k.strip() in KATEGORIEN:
+            return k.strip()
+    return "Sonstiges"
 
 
 def finde_lieferant(text, dateiname, liste):
@@ -577,6 +586,7 @@ def eingang_einlesen():
         mtime = date.fromtimestamp(f.stat().st_mtime).isoformat()
         datum = finde_datum(text, mtime)
         brutto, satz, hinweis = 0, 0, ""
+        kat = lieferant_kategorie(cfg, lief) if lief else "Sonstiges"
         if art == EINGANG:
             b, sz = finde_betrag(text)
             if b:
@@ -585,7 +595,8 @@ def eingang_einlesen():
         (BELEGE / name).write_bytes(daten)
         c.execute("INSERT INTO rechnungen(datum,lieferant,rechnungsnr,brutto,mwst_satz,kategorie,konto,status,"
                   "notiz,datei,guid,angelegt,belegart,hash) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                  (datum, lief or art, finde_nummer(text), brutto, satz, "Sonstiges", "", "offen", f.name + hinweis, name,
+                  (datum, lief or art, finde_nummer(text), brutto, satz, kat, KATEGORIEN[kat] if art == EINGANG else "",
+                   "offen", f.name + hinweis, name,
                    str(uuid.uuid4()), datetime.now().isoformat(timespec="seconds"), art, h))
         c.commit()
         if ziel_alt.exists():
@@ -613,7 +624,8 @@ def neu_pruefen():
     liste = lieferanten_liste(cfg)
     n = 0
     for r in db().execute("SELECT * FROM rechnungen WHERE datei IS NOT NULL AND "
-                          "(belegart=? OR (belegart=? AND brutto=0))", (UNKLAR, EINGANG)).fetchall():
+                          "(belegart=? OR (belegart=? AND (brutto=0 OR konto='' OR konto IS NULL)))",
+                          (UNKLAR, EINGANG)).fetchall():
         pfad = BELEGE / r["datei"]
         if not pfad.exists() or pfad.suffix.lower() != ".pdf":
             continue
@@ -634,9 +646,16 @@ def neu_pruefen():
                 brutto, satz = b, sz
                 notiz += " | Betrag automatisch gelesen - bitte pruefen"
         nr = r["rechnungsnr"] or finde_nummer(text)
-        if (art, lief, brutto, nr) != (r["belegart"], r["lieferant"], r["brutto"], r["rechnungsnr"]):
+        kat, konto = r["kategorie"], r["konto"] or ""
+        if art == EINGANG:
+            if kat == "Sonstiges":
+                kat = lieferant_kategorie(cfg, lief)
+            konto = konto or KATEGORIEN[kat]
+        if (art, lief, brutto, nr, kat, konto) != (r["belegart"], r["lieferant"], r["brutto"],
+                                                   r["rechnungsnr"], r["kategorie"], r["konto"] or ""):
             db().execute("UPDATE rechnungen SET belegart=?, lieferant=?, brutto=?, mwst_satz=?, notiz=?, "
-                         "rechnungsnr=? WHERE id=?", (art, lief, brutto, satz, notiz, nr, r["id"]))
+                         "rechnungsnr=?, kategorie=?, konto=? WHERE id=?",
+                         (art, lief, brutto, satz, notiz, nr, kat, konto, r["id"]))
             n += 1
     db().commit()
     flash(f"{n} Belege neu zugeordnet bzw. mit Betrag versehen." if n else "Nichts zu aktualisieren.")
@@ -787,7 +806,7 @@ def buchungsstapel_csv(rows, s):
         bu = {19: "9", 7: "8"}.get(int(r["mwst_satz"]), "")
         text = f'{r["lieferant"]} {r["rechnungsnr"] or ""}'.strip()[:60].replace('"', "'")
         link = f'BEDI "{r["guid"]}"' if r["datei"] else ""
-        felder = [_betrag(abs(r["brutto"])), "H" if r["brutto"] < 0 else "S", "EUR", "", "", "", r["konto"], s["gegenkonto"], bu,
+        felder = [_betrag(abs(r["brutto"])), "H" if r["brutto"] < 0 else "S", "EUR", "", "", "", r["konto"] or KATEGORIEN.get(r["kategorie"], "4980"), s["gegenkonto"], bu,
                   d.strftime("%d%m"), (r["rechnungsnr"] or "").replace('"', "")[:36], "", "", text,
                   "", "", "", "", "", link]
         zahl = {0, 3, 4, 6, 7, 8, 9}
