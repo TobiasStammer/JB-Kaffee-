@@ -213,7 +213,8 @@ INDEX = """
 <form method=post action="{{url_for('eingang_jetzt')}}" class=card style="display:flex;gap:14px;align-items:center">
  <span style="flex:1">Eingangsordner: <code>{{ordner}}</code>
  {% if unklar %} &middot; <a href="{{url_for('index',belegart=UNKLAR)}}"><b style="color:#b45309">{{unklar}} nicht zugeordnet</b></a>{% endif %}</span>
- <button class=sek>Jetzt einlesen</button></form>
+ <button class=sek>Jetzt einlesen</button>
+ <button class=sek formaction="{{url_for('neu_pruefen')}}">Neu prüfen</button></form>
 <form method=post action="{{url_for('export')}}">
 <table><tr><th></th><th>Datum</th><th>Belegart</th><th>Lieferant</th><th>Rechnungsnr.</th><th>Kategorie</th>
 <th class=r>Netto</th><th class=r>Brutto</th><th>Status</th><th>Beleg</th><th></th></tr>
@@ -423,34 +424,50 @@ def regeln_parsen(text):
     return out
 
 
-BETRAG_RE = re.compile(r"(?<![\d.,])(\d{1,3}(?:\.\d{3})+,\d{2}|\d+,\d{2})(?!\d)")
+BETRAG_RE = re.compile(r"(?<![\d.,])(\d{1,3}(?:[. \u00a0\u202f]\d{3})+,\d{2}|\d+,\d{2})(?!\d)")
 BRUTTO_KW = re.compile(r"gesamtbetrag|rechnungsbetrag|endbetrag|zu zahlen|zahlbetrag|gesamtsumme|"
                        r"summe brutto|brutto|total|gesamt|summe|betrag", re.I)
+INKL_RE = re.compile(r"inkl\.?\s*(?:mwst|ust|mehrwertsteuer|umsatzsteuer)|incl\.?\s*(?:mwst|ust)|"
+                     r"gesamt\w*\s*brutto|brutto\s*gesamt", re.I)
+NETTO_RE = re.compile(r"netto|ohne\s*(?:mwst|ust|mehrwertsteuer)|zwischensumme", re.I)
 
 
 def _zahl(t):
-    return float(t.replace(".", "").replace(",", "."))
+    return float(re.sub(r"[. \u00a0\u202f]", "", t).replace(",", "."))
+
+
+def _betraege(zeilen, i):
+    """Betraege der Zeile i; steht keiner dort, der erste der Folgezeile."""
+    gef = [_zahl(x) for x in BETRAG_RE.findall(zeilen[i])]
+    if not gef and i + 1 < len(zeilen):
+        gef = [_zahl(x) for x in BETRAG_RE.findall(zeilen[i + 1])][:1]
+    return gef
 
 
 def finde_betrag(text):
-    """Liest Brutto und MwSt-Satz aus Rechnungstext. Gibt (brutto, satz) oder (None, None) zurueck."""
+    """Liest Brutto und MwSt-Satz aus Rechnungstext. Gibt (brutto, satz) oder (None, None) zurueck.
+    Bei Gutschriften ist der Betrag negativ."""
     zeilen = text.splitlines()
-    kandidaten, netto = [], []
+    inkl, kandidaten, netto = [], [], []
     for i, z in enumerate(zeilen):
         zl = z.lower()
-        if "netto" in zl:
-            netto += [_zahl(x) for x in BETRAG_RE.findall(z)]
+        if NETTO_RE.search(z):
+            netto += _betraege(zeilen, i)
+        if INKL_RE.search(z):
+            inkl += _betraege(zeilen, i)
+            continue
         if "brutto" in zl and "netto" in zl:  # beides in einer Zeile: nur Betraege hinter "brutto"
             z = z[zl.index("brutto"):]
             zl = zl[zl.index("brutto"):]
-        if BRUTTO_KW.search(z) and not re.search(r"zwischensumme|netto|mwst|ust|steuer", zl):
-            gef = [_zahl(x) for x in BETRAG_RE.findall(z)]
-            if not gef and i + 1 < len(zeilen):  # Betrag steht in der Folgezeile
-                gef = [_zahl(x) for x in BETRAG_RE.findall(zeilen[i + 1])][:1]
-            kandidaten += gef
-    if not kandidaten:
+            zeilen = zeilen[:i] + [z] + zeilen[i + 1:]
+        if BRUTTO_KW.search(z) and not re.search(r"zwischensumme|netto|mwst|ust|steuer|skonto|ohne", zl):
+            kandidaten += _betraege(zeilen, i)
+    if inkl:
+        brutto = max(inkl)
+    elif kandidaten:
+        brutto = max(kandidaten)
+    else:
         return None, None
-    brutto = max(kandidaten)
     satz = None
     for n in sorted(set(netto), reverse=True):
         if 0 < n < brutto:
@@ -464,6 +481,8 @@ def finde_betrag(text):
     if satz is None:
         saetze = {int(x) for x in re.findall(r"(\d{1,2})(?:,0+)?\s*%", text) if x in ("19", "7")}
         satz = 19 if 19 in saetze or not saetze else 7
+    if re.search(r"gutschrift", text[:400], re.I):
+        brutto = -brutto
     return brutto, float(satz)
 
 
@@ -513,7 +532,10 @@ def finde_datum(text, fallback):
 def finde_nummer(text):
     m = re.search(r"(?:Rechnungs?-?\s?(?:nummer|nr\.?)|Beleg-?\s?Nr\.?)\s*:?\s*([A-Za-z0-9][A-Za-z0-9\-/]*)",
                   text, re.I)
-    return m.group(1) if m else ""
+    if m:
+        return m.group(1)
+    g = re.search(r"Gutschrift\s*(?:Nr\.?)?\s*:?\s*([A-Za-z0-9][A-Za-z0-9\-/]*)", text[:400], re.I)
+    return g.group(1) if g else ""
 
 
 def eingang_einlesen():
@@ -581,6 +603,44 @@ def _waechter():
         except Exception as e:  # noqa: BLE001
             print("Eingang:", e)
         time.sleep(10)
+
+
+@app.route("/eingang/neu-pruefen", methods=["POST"])
+def neu_pruefen():
+    """Wendet Regeln, Lieferantenliste und Betragserkennung erneut auf noch unfertige Belege an."""
+    cfg = settings()
+    regeln = regeln_parsen(cfg["regeln"])
+    liste = lieferanten_liste(cfg)
+    n = 0
+    for r in db().execute("SELECT * FROM rechnungen WHERE datei IS NOT NULL AND "
+                          "(belegart=? OR (belegart=? AND brutto=0))", (UNKLAR, EINGANG)).fetchall():
+        pfad = BELEGE / r["datei"]
+        if not pfad.exists() or pfad.suffix.lower() != ".pdf":
+            continue
+        text = pdf_text(pfad)
+        art = r["belegart"]
+        lief = r["lieferant"]
+        if art == UNKLAR:
+            art = klassifiziere(text, Path(r["notiz"] or "").stem, regeln)
+            if art in (UNKLAR, EINGANG):
+                lief = finde_lieferant(text, Path(r["notiz"] or "").stem, liste)
+                if lief:
+                    art = EINGANG
+            lief = lief or art
+        brutto, satz, notiz = r["brutto"], r["mwst_satz"], r["notiz"] or ""
+        if art == EINGANG and not brutto:
+            b, sz = finde_betrag(text)
+            if b:
+                brutto, satz = b, sz
+                notiz += " | Betrag automatisch gelesen - bitte pruefen"
+        nr = r["rechnungsnr"] or finde_nummer(text)
+        if (art, lief, brutto, nr) != (r["belegart"], r["lieferant"], r["brutto"], r["rechnungsnr"]):
+            db().execute("UPDATE rechnungen SET belegart=?, lieferant=?, brutto=?, mwst_satz=?, notiz=?, "
+                         "rechnungsnr=? WHERE id=?", (art, lief, brutto, satz, notiz, nr, r["id"]))
+            n += 1
+    db().commit()
+    flash(f"{n} Belege neu zugeordnet bzw. mit Betrag versehen." if n else "Nichts zu aktualisieren.")
+    return redirect(url_for("index"))
 
 
 @app.route("/eingang/jetzt", methods=["POST"])
@@ -727,7 +787,7 @@ def buchungsstapel_csv(rows, s):
         bu = {19: "9", 7: "8"}.get(int(r["mwst_satz"]), "")
         text = f'{r["lieferant"]} {r["rechnungsnr"] or ""}'.strip()[:60].replace('"', "'")
         link = f'BEDI "{r["guid"]}"' if r["datei"] else ""
-        felder = [_betrag(r["brutto"]), "S", "EUR", "", "", "", r["konto"], s["gegenkonto"], bu,
+        felder = [_betrag(abs(r["brutto"])), "H" if r["brutto"] < 0 else "S", "EUR", "", "", "", r["konto"], s["gegenkonto"], bu,
                   d.strftime("%d%m"), (r["rechnungsnr"] or "").replace('"', "")[:36], "", "", text,
                   "", "", "", "", "", link]
         zahl = {0, 3, 4, 6, 7, 8, 9}
