@@ -423,7 +423,11 @@ def eingang_einlesen():
     cfg.update({r["k"]: r["v"] for r in c.execute("SELECT k, v FROM settings")})
     ordner = Path(cfg["eingang_ordner"] or STANDARD_ORDNER)
     fertig = ordner / "verarbeitet"
-    fertig.mkdir(parents=True, exist_ok=True)
+    try:
+        fertig.mkdir(parents=True, exist_ok=True)
+    except OSError:  # Laufwerk (z. B. Z:) nicht erreichbar
+        c.close()
+        return 0
     regeln = regeln_parsen(cfg["regeln"])
     n = 0
     for f in sorted(ordner.iterdir()):
@@ -713,6 +717,9 @@ def _mailen(ids, s):
 
 if __name__ == "__main__":
     init_db()
-    Path(STANDARD_ORDNER).mkdir(parents=True, exist_ok=True)
+    try:
+        Path(STANDARD_ORDNER).mkdir(parents=True, exist_ok=True)
+    except OSError:
+        print("Eingangsordner nicht erreichbar:", STANDARD_ORDNER)
     threading.Thread(target=_waechter, daemon=True).start()
     app.run(host="127.0.0.1", port=5055, debug=False)
