@@ -55,6 +55,7 @@ BELEGARTEN = ["Rechnungsausgang Service", "Rechnungsausgang Verkauf", "Rechnungs
               "Rechnungsausgangliste"]
 EINGANG = "Rechnungseingang Lieferanten"
 UNKLAR = "Nicht zugeordnet"
+AUSGANG_RECHNUNGEN = ("Rechnungsausgang Service", "Rechnungsausgang Verkauf", "Rechnungsausgang eBay")
 BELEGARTEN_ALLE = BELEGARTEN + [UNKLAR]
 STANDARD_ORDNER = r"Z:\Buchhaltung\Eingang"
 # Zuordnungsregeln: "Belegart = stichwort, stichwort" - erste passende Zeile gewinnt.
@@ -228,8 +229,12 @@ INDEX = """
  <td>{% if r.datei %}<a href="{{url_for('beleg',rid=r.id)}}" target=_blank>öffnen</a>{% else %}<small>fehlt</small>{% endif %}</td>
  <td><a href="{{url_for('bearbeiten',rid=r.id)}}">bearbeiten</a></td></tr>
 {% else %}<tr><td colspan=11>Noch keine Rechnungen.</td></tr>{% endfor %}
-<tr><th colspan=6 class=r>Summe ({{rows|length}})</th><th class=r>{{'%.2f'|format(sn)|replace('.',',')}}</th>
-<th class=r>{{'%.2f'|format(sb)|replace('.',',')}}</th><th colspan=3></th></tr></table>
+{% if summen|length<2 %}<tr><th colspan=6 class=r>Summe ({{rows|length}})</th><th class=r>{{'%.2f'|format(sn)|replace('.',',')}}</th>
+<th class=r>{{'%.2f'|format(sb)|replace('.',',')}}</th><th colspan=3></th></tr>{% endif %}</table>
+{% if summen|length>1 %}<table style="margin-top:14px;max-width:560px"><tr><th>Summe je Belegart</th><th class=r>Anzahl</th>
+<th class=r>Netto</th><th class=r>Brutto</th></tr>
+{% for z in summen %}<tr><td>{{z.art}}</td><td class=r>{{z.n}}</td><td class=r>{{'%.2f'|format(z.netto)|replace('.',',')}}</td>
+<td class=r>{{'%.2f'|format(z.brutto)|replace('.',',')}}</td></tr>{% endfor %}</table>{% endif %}
 <p style="display:flex;gap:10px">
 <button name=aktion value=zip>DATEV-Export (ZIP) für markierte</button>
 <button class=sek name=aktion value=mail>Per E-Mail an DATEV senden</button></p>
@@ -293,6 +298,15 @@ def lade(rid):
     return r
 
 
+STAND = str(os.path.getmtime(__file__))
+
+
+@app.route("/__stand")
+def stand():
+    """Versionskennung (Aenderungszeit von app.py); der Starter prueft damit, ob der laufende Server aktuell ist."""
+    return STAND
+
+
 @app.route("/")
 def index():
     q = request.args.get("q", "").strip()
@@ -317,7 +331,13 @@ def index():
         d = dict(r)
         d["netto"] = netto(r["brutto"], r["mwst_satz"])
         rows.append(type("R", (), d))
-    return page(INDEX, rows=rows, q=q, status=status, STATUS=STATUS, monat=monat,
+    summen = {}
+    for r in rows:
+        z = summen.setdefault(r.belegart, dict(art=r.belegart, n=0, netto=0.0, brutto=0.0))
+        z["n"] += 1
+        z["netto"] += r.netto
+        z["brutto"] += r.brutto
+    return page(INDEX, summen=list(summen.values()), rows=rows, q=q, status=status, STATUS=STATUS, monat=monat,
                 belegart=belegart, BELEGARTEN=BELEGARTEN_ALLE, UNKLAR=UNKLAR,
                 ordner=settings()["eingang_ordner"], ausg_fehlt=len(fehlende_ausgangsrechnungen()[0]),
                 unklar=db().execute("SELECT COUNT(*) FROM rechnungen WHERE belegart=?", (UNKLAR,)).fetchone()[0],
@@ -593,6 +613,10 @@ def eingang_einlesen():
             b, sz = finde_betrag(text)
             if b:
                 brutto, satz, hinweis = b, sz, " | Betrag automatisch gelesen - bitte pruefen"
+        elif art in AUSGANG_RECHNUNGEN:
+            b = finde_endsumme(text)
+            if b is not None:
+                brutto, satz = b, finde_ausgang_satz(text)
         name = f"{uuid.uuid4().hex}{f.suffix.lower()}"
         (BELEGE / name).write_bytes(daten)
         c.execute("INSERT INTO rechnungen(datum,lieferant,rechnungsnr,brutto,mwst_satz,kategorie,konto,status,"
@@ -626,8 +650,9 @@ def neu_pruefen():
     liste = lieferanten_liste(cfg)
     n = 0
     for r in db().execute("SELECT * FROM rechnungen WHERE datei IS NOT NULL AND "
-                          "(belegart=? OR (belegart=? AND (brutto=0 OR konto='' OR konto IS NULL)))",
-                          (UNKLAR, EINGANG)).fetchall():
+                          "(belegart=? OR (belegart=? AND (brutto=0 OR konto='' OR konto IS NULL)) OR "
+                          "(belegart IN (?,?,?) AND brutto=0))",
+                          (UNKLAR, EINGANG) + AUSGANG_RECHNUNGEN).fetchall():
         pfad = BELEGE / r["datei"]
         if not pfad.exists() or pfad.suffix.lower() != ".pdf":
             continue
@@ -647,6 +672,10 @@ def neu_pruefen():
             if b:
                 brutto, satz = b, sz
                 notiz += " | Betrag automatisch gelesen - bitte pruefen"
+        if art in AUSGANG_RECHNUNGEN and not brutto:
+            b = finde_endsumme(text)
+            if b is not None:
+                brutto, satz = b, finde_ausgang_satz(text)
         nr = r["rechnungsnr"] or finde_nummer(text)
         kat, konto = r["kategorie"], r["konto"] or ""
         if art == EINGANG:
@@ -690,6 +719,12 @@ def finde_endsumme(text):
         return kasse_zahl(m.group(1))
     b, _ = finde_betrag(text)
     return b
+
+
+def finde_ausgang_satz(text):
+    """MwSt-Satz aus Kassenrechnung ('MwSt.: 19% = 399.00 EUR, Netto ...'); sonst 19."""
+    m = re.search(r"MwSt\.?:?\s*(\d{1,2})\s*%", text)
+    return float(m.group(1)) if m and m.group(1) in ("19", "7", "0") else 19.0
 
 
 def parse_ausgangsliste(text):
@@ -826,7 +861,8 @@ def abgleich():
                 mit += 1
                 z["rid"] = r["id"]
                 pfad = BELEGE / r["datei"]
-                pb = finde_endsumme(pdf_text(pfad)) if pfad.suffix.lower() == ".pdf" else None
+                pb = r["brutto"] if r["brutto"] else (
+                    finde_endsumme(pdf_text(pfad)) if pfad.suffix.lower() == ".pdf" else None)
                 z["pdf_betrag"] = pb
                 if pb is None:
                     z.update(text="PDF da, Betrag nicht lesbar", farbe="#6b7178")
@@ -900,9 +936,16 @@ def monat():
                     continue
                 name = f"{uuid.uuid4().hex}{ext}"
                 up.save(BELEGE / name)
+                datum, nr, brutto, satz = ende, "", 0, 0
+                if b in AUSGANG_RECHNUNGEN and ext == ".pdf":
+                    text = pdf_text(BELEGE / name)
+                    datum, nr = finde_datum(text, ende), finde_nummer(text)
+                    be = finde_endsumme(text)
+                    if be is not None:
+                        brutto, satz = be, finde_ausgang_satz(text)
                 db().execute("INSERT INTO rechnungen(datum,lieferant,rechnungsnr,brutto,mwst_satz,kategorie,"
                              "konto,status,notiz,datei,guid,angelegt,belegart) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                             (ende, b, "", 0, 0, "Sonstiges", "", "offen", Path(up.filename).name, name,
+                             (datum, b, nr, brutto, satz, "Sonstiges", "", "offen", Path(up.filename).name, name,
                               str(uuid.uuid4()), datetime.now().isoformat(timespec="seconds"), b))
                 n += 1
         db().commit()

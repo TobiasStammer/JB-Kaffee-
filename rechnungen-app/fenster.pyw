@@ -49,8 +49,30 @@ def browser_finden():
     return next((k for k in kandidaten if Path(k).exists()), None)
 
 
+def server_aktuell():
+    """True, wenn der laufende Server dieselbe app.py-Version hat wie die Datei auf der Platte."""
+    try:
+        import urllib.request
+        with urllib.request.urlopen(URL + "__stand", timeout=3) as r:
+            return r.read().decode().strip() == str(os.path.getmtime(BASE / "app.py"))
+    except Exception:  # noqa: BLE001  (alte Version ohne /__stand oder keine Antwort)
+        return False
+
+
+def alten_server_beenden():
+    ps = (f"Get-NetTCPConnection -LocalPort {PORT} -State Listen -ErrorAction SilentlyContinue | "
+          "ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }")
+    subprocess.run(["powershell", "-NoProfile", "-Command", ps], creationflags=NOWIN, check=False)
+    for _ in range(50):
+        if not port_offen():
+            return
+        time.sleep(0.1)
+
+
 def main():
     pakete_pruefen()
+    if port_offen() and not server_aktuell():
+        alten_server_beenden()
     if not port_offen():
         import app as A
         from werkzeug.serving import make_server
