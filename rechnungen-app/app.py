@@ -84,7 +84,8 @@ Rechnungsausgang eBay = ebay
 Rechnungsausgang Service = nr:263
 Rechnungsausgang Verkauf = nr:261
 Rechnungseingang Lieferanten = eingangsrechnung, lieferant"""
-STATUS = ["offen", "bezahlt", "an DATEV gesendet"]
+STATUS = ["noch nicht gesendet", "an DATEV gesendet"]   # DATEV-Stand
+ZAHLUNG = ["offen", "teilweise", "bezahlt"]
 
 SETTINGS_DEFAULT = {
     "beraternr": "", "mandantennr": "", "wj_beginn": f"{date.today().year}-01-01",
@@ -118,10 +119,17 @@ def init_db():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         datum TEXT, lieferant TEXT, rechnungsnr TEXT,
         brutto REAL, mwst_satz REAL DEFAULT 19,
-        kategorie TEXT, konto TEXT, status TEXT DEFAULT 'offen',
+        kategorie TEXT, konto TEXT, status TEXT DEFAULT 'noch nicht gesendet',
         notiz TEXT, datei TEXT, guid TEXT,
         angelegt TEXT, gesendet TEXT);
     """)
+    try:
+        c.execute("ALTER TABLE rechnungen ADD COLUMN zahlung TEXT DEFAULT 'offen'")
+    except sqlite3.OperationalError:
+        pass
+    # frueher mischte 'status' Zahlung und DATEV-Stand
+    c.execute("UPDATE rechnungen SET zahlung='bezahlt', status='noch nicht gesendet' WHERE status='bezahlt'")
+    c.execute("UPDATE rechnungen SET status='noch nicht gesendet' WHERE status='offen'")
     try:
         c.execute("ALTER TABLE rechnungen ADD COLUMN hash TEXT")
     except sqlite3.OperationalError:
@@ -179,7 +187,7 @@ button:hover,.btn:hover{background:var(--accentd)}
 button.sek,.btn.sek{background:#fff;color:var(--accent);border:1px solid var(--accent)}
 button.sek:hover,.btn.sek:hover{background:var(--soft)}
 .msg{padding:11px 15px;margin-bottom:14px;background:var(--soft);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:6px}
-.st-offen{color:#b45309;font-weight:600}.st-bezahlt{color:#047857;font-weight:600}.st-an{color:var(--accent);font-weight:600}
+.st-neu{color:#6b7178}.st-an{color:var(--accent);font-weight:600}.z-offen{color:#b45309;font-weight:600}.z-teilweise{color:#1d4ed8;font-weight:600}.z-bezahlt{color:#047857;font-weight:600}
 small{color:#6b7178} code{background:var(--soft);padding:1px 5px;border-radius:3px}
 @media(max-width:700px){nav.band a{padding:10px 8px;font-size:13px}}
 """
@@ -211,8 +219,10 @@ INDEX = """
  <div><label>Monat</label><input type=month name=monat value="{{monat}}"></div>
  <div><label>Belegart</label><select name=belegart><option value="">alle</option>
   {% for b in BELEGARTEN %}<option {{'selected' if b==belegart}}>{{b}}</option>{% endfor %}</select></div>
- <div><label>Status</label><select name=status><option value="">alle</option>
+ <div><label>DATEV</label><select name=status><option value="">alle</option>
   {% for s in STATUS %}<option {{'selected' if s==status}}>{{s}}</option>{% endfor %}</select></div>
+ <div><label>Zahlung</label><select name=zahlung><option value="">alle</option>
+  {% for z in ZAHLUNG %}<option {{'selected' if z==zahlung}}>{{z}}</option>{% endfor %}</select></div>
  <button>Filtern</button></form>
 <form method=post action="{{url_for('eingang_jetzt')}}" class=card style="display:flex;gap:14px;align-items:center">
  <span style="flex:1">Eingangsordner: <code>{{ordner}}</code>
@@ -222,17 +232,18 @@ INDEX = """
  <button class=sek formaction="{{url_for('neu_pruefen')}}">Neu prüfen</button></form>
 <form method=post action="{{url_for('export')}}">
 <table><tr><th></th><th>Datum</th><th>Belegart</th><th>Lieferant</th><th>Rechnungsnr.</th><th>Kategorie</th>
-<th class=r>Netto</th><th class=r>Brutto</th><th>Status</th><th>Beleg</th><th></th></tr>
+<th class=r>Netto</th><th class=r>Brutto</th><th>Zahlung</th><th>DATEV</th><th>Beleg</th><th></th></tr>
 {% for r in rows %}<tr>
  <td><input type=checkbox name=ids value="{{r.id}}" style="width:auto" {{'checked' if r.status!='an DATEV gesendet'}}></td>
  <td>{{r.datum}}</td><td><small>{{r.belegart}}</small></td><td>{{r.lieferant}}</td><td>{{r.rechnungsnr}}</td><td>{{r.kategorie}} <small>({{r.konto}})</small></td>
  <td class=r>{{'%.2f'|format(r.netto)|replace('.',',')}}</td><td class=r>{{'%.2f'|format(r.brutto)|replace('.',',')}}</td>
- <td class="st-{{ 'an' if r.status.startswith('an') else r.status }}">{{r.status}}</td>
+ <td class="z-{{r.zahlung or 'offen'}}">{{r.zahlung or 'offen'}}</td>
+ <td class="st-{{ 'an' if r.status.startswith('an') else 'neu' }}">{{r.status}}</td>
  <td>{% if r.datei %}<a href="{{url_for('beleg',rid=r.id)}}" target=_blank>öffnen</a>{% else %}<small>fehlt</small>{% endif %}</td>
  <td><a href="{{url_for('bearbeiten',rid=r.id)}}">bearbeiten</a></td></tr>
-{% else %}<tr><td colspan=11>Noch keine Rechnungen.</td></tr>{% endfor %}
+{% else %}<tr><td colspan=12>Noch keine Rechnungen.</td></tr>{% endfor %}
 {% if summen|length<2 %}<tr><th colspan=6 class=r>Summe ({{rows|length}})</th><th class=r>{{'%.2f'|format(sn)|replace('.',',')}}</th>
-<th class=r>{{'%.2f'|format(sb)|replace('.',',')}}</th><th colspan=3></th></tr>{% endif %}</table>
+<th class=r>{{'%.2f'|format(sb)|replace('.',',')}}</th><th colspan=4></th></tr>{% endif %}</table>
 {% if summen|length>1 %}<table style="margin-top:14px;max-width:560px"><tr><th>Summe je Belegart</th><th class=r>Anzahl</th>
 <th class=r>Netto</th><th class=r>Brutto</th></tr>
 {% for z in summen %}<tr><td>{{z.art}}</td><td class=r>{{z.n}}</td><td class=r>{{'%.2f'|format(z.netto)|replace('.',',')}}</td>
@@ -258,7 +269,8 @@ FORM = """
 <div><label>Kategorie</label><select name=kategorie>
  {% for k,v in KAT.items() %}<option {{'selected' if k==r.kategorie}}>{{k}}</option>{% endfor %}</select></div>
 <div><label>Aufwandskonto (leer = Standard der Kategorie)</label><input name=konto value="{{r.konto or ''}}"></div>
-<div><label>Status</label><select name=status>{% for s in STATUS %}<option {{'selected' if s==r.status}}>{{s}}</option>{% endfor %}</select></div>
+<div><label>Zahlung</label><select name=zahlung>{% for z in ZAHLUNG %}<option {{'selected' if z==(r.zahlung or 'offen')}}>{{z}}</option>{% endfor %}</select></div>
+<div><label>DATEV-Stand</label><select name=status>{% for s in STATUS %}<option {{'selected' if s==r.status}}>{{s}}</option>{% endfor %}</select></div>
 </div>
 <label>Notiz</label><textarea name=notiz rows=2>{{r.notiz or ''}}</textarea>
 <label>Beleg (PDF/JPG/PNG){{' – vorhanden, neue Datei ersetzt sie' if r.datei}}</label><input type=file name=datei accept=".pdf,.jpg,.jpeg,.png,.tif,.tiff">
@@ -313,6 +325,7 @@ def stand():
 def index():
     q = request.args.get("q", "").strip()
     status = request.args.get("status", "")
+    zahlung = request.args.get("zahlung", "")
     monat = request.args.get("monat", "")
     belegart = request.args.get("belegart", "")
     sql, par = "SELECT * FROM rechnungen WHERE 1=1", []
@@ -322,6 +335,9 @@ def index():
     if status:
         sql += " AND status=?"
         par.append(status)
+    if zahlung:
+        sql += " AND COALESCE(zahlung,'offen')=?"
+        par.append(zahlung)
     if monat:
         sql += " AND substr(datum,1,7)=?"
         par.append(monat)
@@ -339,7 +355,7 @@ def index():
         z["n"] += 1
         z["netto"] += r.netto
         z["brutto"] += r.brutto
-    return page(INDEX, summen=list(summen.values()), rows=rows, q=q, status=status, STATUS=STATUS, monat=monat,
+    return page(INDEX, summen=list(summen.values()), rows=rows, q=q, status=status, zahlung=zahlung, STATUS=STATUS, ZAHLUNG=ZAHLUNG, monat=monat,
                 belegart=belegart, BELEGARTEN=BELEGARTEN_ALLE, UNKLAR=UNKLAR,
                 ordner=settings()["eingang_ordner"], ausg_fehlt=len(fehlende_ausgangsrechnungen()[0]),
                 unklar=db().execute("SELECT COUNT(*) FROM rechnungen WHERE belegart=?", (UNKLAR,)).fetchone()[0],
@@ -380,6 +396,9 @@ def _speichern(rid=None):
             db().execute("UPDATE rechnungen SET datei=? WHERE id=?", (datei_name, rid))
             if alt:
                 (BELEGE / alt).unlink(missing_ok=True)
+    zahl = request.form.get("zahlung") if request.form.get("zahlung") in ZAHLUNG else "offen"
+    ziel_id = rid if rid is not None else db().execute("SELECT MAX(id) FROM rechnungen").fetchone()[0]
+    db().execute("UPDATE rechnungen SET zahlung=? WHERE id=?", (zahl, ziel_id))
     db().commit()
     return True
 
@@ -391,8 +410,8 @@ def neu():
         return redirect(url_for("index"))
     r = type("R", (), dict(id=None, datum=date.today().isoformat(), lieferant="", rechnungsnr="",
                            brutto=0, mwst_satz=19, kategorie="Sonstiges", konto="",
-                           status="offen", notiz="", datei=None, belegart=EINGANG))
-    return page(FORM, r=r, KAT=KATEGORIEN, STATUS=STATUS, BELEGARTEN=BELEGARTEN_ALLE,
+                           status=STATUS[0], zahlung="offen", notiz="", datei=None, belegart=EINGANG))
+    return page(FORM, r=r, KAT=KATEGORIEN, STATUS=STATUS, ZAHLUNG=ZAHLUNG, BELEGARTEN=BELEGARTEN_ALLE,
                 LIEFERANTEN=lieferanten_liste(settings()))
 
 
@@ -402,7 +421,7 @@ def bearbeiten(rid):
     if request.method == "POST" and _speichern(rid):
         flash("Änderungen gespeichert.")
         return redirect(url_for("index"))
-    return page(FORM, r=type("R", (), dict(r)), KAT=KATEGORIEN, STATUS=STATUS, BELEGARTEN=BELEGARTEN_ALLE,
+    return page(FORM, r=type("R", (), dict(r)), KAT=KATEGORIEN, STATUS=STATUS, ZAHLUNG=ZAHLUNG, BELEGARTEN=BELEGARTEN_ALLE,
                 LIEFERANTEN=lieferanten_liste(settings()))
 
 
@@ -731,7 +750,7 @@ def eingang_einlesen():
         c.execute("INSERT INTO rechnungen(datum,lieferant,rechnungsnr,brutto,mwst_satz,kategorie,konto,status,"
                   "notiz,datei,guid,angelegt,belegart,hash) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                   (datum, anzeige, nr_beleg, brutto, satz, kat, KATEGORIEN[kat] if art == EINGANG else "",
-                   "offen", f.name + hinweis, name,
+                   "noch nicht gesendet", f.name + hinweis, name,
                    str(uuid.uuid4()), datetime.now().isoformat(timespec="seconds"), art, h))
         c.commit()
         if ziel_alt.exists():
@@ -914,9 +933,32 @@ def liste_waehlen(listen, param):
     return eintraege, auswahl
 
 
+def zahlung_aus_listen(listen):
+    """Setzt den Zahlstatus der Ausgangsrechnungen aus 'off. Betrag' der Rechnungsausgangsliste(n).
+    Neuere Listen ueberschreiben aeltere. Gibt die Zahl geaenderter Rechnungen zurueck."""
+    eintraege, _ = liste_waehlen(listen, "alle")
+    n = 0
+    for nr, e in eintraege.items():
+        if not nr.startswith(NUMMERNKREISE):
+            continue
+        if e["offen"] <= 0.005:
+            z = "bezahlt"
+        elif abs(e["offen"] - e["betrag"]) < 0.005:
+            z = "offen"
+        else:
+            z = "teilweise"
+        cur = db().execute("UPDATE rechnungen SET zahlung=? WHERE rechnungsnr=? AND belegart IN (?,?,?) "
+                           "AND COALESCE(zahlung,'')<>?", (z, nr) + AUSGANG_RECHNUNGEN + (z,))
+        n += cur.rowcount
+    db().commit()
+    return n
+
+
 def fehlende_ausgangsrechnungen(param=None):
     """Eintraege der gewaehlten Liste (Standard: neueste) mit Nummernkreis 261/263, zu denen keine PDF vorliegt."""
-    eintraege, _ = liste_waehlen(listen_laden(), param)
+    listen = listen_laden()
+    zahlung_aus_listen(listen)  # Zahlstatus bei der Gelegenheit aktuell halten
+    eintraege, _ = liste_waehlen(listen, param)
     vorhanden = {r[0] for r in db().execute("SELECT rechnungsnr FROM rechnungen WHERE datei IS NOT NULL "
                                             "AND rechnungsnr<>'' AND belegart<>'Rechnungsausgangliste'")}
     return [e for nr, e in sorted(eintraege.items())
@@ -959,11 +1001,12 @@ ABGLEICH = """
 <td><a href="{{url_for('abgleich',liste=v.id)}}">anzeigen</a></td></tr>{% endfor %}</table></div>{% endif %}
 <div class=card><h2>Zusammenfassung</h2>
 <table><tr><th>Nummernkreis</th><th class=r>Rechnungen in Liste</th><th class=r>Summe Liste</th><th class=r>PDF vorhanden</th>
-<th class=r>PDF fehlt</th><th class=r>Betrag weicht ab</th><th>Lücken in der Nummernfolge</th></tr>
+<th class=r>PDF fehlt</th><th class=r>Betrag weicht ab</th><th class=r>Noch unbezahlt (laut Liste)</th><th>Lücken in der Nummernfolge</th></tr>
 {% for k in kreise %}<tr><td><b>{{k.kreis}}</b>xxxx {{k.name}}</td><td class=r>{{k.n}}</td>
 <td class=r>{{'%.2f'|format(k.summe)|replace('.',',')}}</td><td class=r>{{k.mit}}</td>
 <td class=r {{'style="color:#b91c1c;font-weight:700"'|safe if k.fehlt}}>{{k.fehlt}}</td>
 <td class=r {{'style="color:#b91c1c;font-weight:700"'|safe if k.abw}}>{{k.abw}}</td>
+<td class=r>{{k.offen_n}}{% if k.offen_n %} ({{'%.2f'|format(k.offen_summe)|replace('.',',')}} &euro;){% endif %}</td>
 <td>{% if k.luecken %}{{k.luecken|length}}: {{k.luecken[:12]|join(', ')}}{{' …' if k.luecken|length>12}}{% else %}keine{% endif %}</td></tr>{% endfor %}
 </table><small>Zeitraum der Liste(n): {{von}} bis {{bis}}. Lücken können stornierte oder nicht gedruckte Nummern sein.</small></div>
 <div class=card><h2>{{'Alle Rechnungen' if alle else 'Abweichungen'}} ({{zeilen|length}})</h2>
@@ -1042,6 +1085,8 @@ def abgleich():
         kreise.append(dict(kreis=kreis, name=KREIS_ART[kreis].replace("Rechnungsausgang ", ""), n=len(mine),
                            summe=sum(e["betrag"] for e in mine), mit=mit, fehlt=fehlt, abw=abw, luecken=luecken,
                            fehlt_summe=sum(e["betrag"] for e in fe),
+                           offen_n=sum(1 for e in mine if e["offen"] > 0.005),
+                           offen_summe=sum(e["offen"] for e in mine if e["offen"] > 0.005),
                            fehlt_bereiche=nummern_bereiche([e["nr"] for e in fe]) if fe else ""))
     page_ctx["kreise"] = kreise
     page_ctx["fehlt_gesamt"] = sum(k["fehlt"] for k in kreise)
@@ -1119,7 +1164,7 @@ def monat():
                         kunde = ex["kaeufer"] or b
                 db().execute("INSERT INTO rechnungen(datum,lieferant,rechnungsnr,brutto,mwst_satz,kategorie,"
                              "konto,status,notiz,datei,guid,angelegt,belegart) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                             (datum, kunde, nr, brutto, satz, "Sonstiges", "", "offen", Path(up.filename).name, name,
+                             (datum, kunde, nr, brutto, satz, "Sonstiges", "", "noch nicht gesendet", Path(up.filename).name, name,
                               str(uuid.uuid4()), datetime.now().isoformat(timespec="seconds"), b))
                 n += 1
                 liste_hochgeladen = liste_hochgeladen or b == "Rechnungsausgangliste"
