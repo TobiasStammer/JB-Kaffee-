@@ -213,7 +213,8 @@ INDEX = """
  <button>Filtern</button></form>
 <form method=post action="{{url_for('eingang_jetzt')}}" class=card style="display:flex;gap:14px;align-items:center">
  <span style="flex:1">Eingangsordner: <code>{{ordner}}</code>
- {% if unklar %} &middot; <a href="{{url_for('index',belegart=UNKLAR)}}"><b style="color:#b45309">{{unklar}} nicht zugeordnet</b></a>{% endif %}</span>
+ {% if unklar %} &middot; <a href="{{url_for('index',belegart=UNKLAR)}}"><b style="color:#b45309">{{unklar}} nicht zugeordnet</b></a>{% endif %}
+ {% if ausg_fehlt %} &middot; <a href="{{url_for('abgleich')}}"><b style="color:#b91c1c">{{ausg_fehlt}} Ausgangsrechnungen fehlen</b></a>{% endif %}</span>
  <button class=sek>Jetzt einlesen</button>
  <button class=sek formaction="{{url_for('neu_pruefen')}}">Neu prüfen</button></form>
 <form method=post action="{{url_for('export')}}">
@@ -318,7 +319,7 @@ def index():
         rows.append(type("R", (), d))
     return page(INDEX, rows=rows, q=q, status=status, STATUS=STATUS, monat=monat,
                 belegart=belegart, BELEGARTEN=BELEGARTEN_ALLE, UNKLAR=UNKLAR,
-                ordner=settings()["eingang_ordner"],
+                ordner=settings()["eingang_ordner"], ausg_fehlt=len(fehlende_ausgangsrechnungen()[0]),
                 unklar=db().execute("SELECT COUNT(*) FROM rechnungen WHERE belegart=?", (UNKLAR,)).fetchone()[0],
                 sb=sum(r.brutto for r in rows), sn=sum(r.netto for r in rows))
 
@@ -700,6 +701,48 @@ def parse_ausgangsliste(text):
     return out
 
 
+def nummern_bereiche(nummern):
+    """[2610199, 2610200, 2610202] -> '2610199–2610200, 2610202'"""
+    nummern = sorted(int(n) for n in nummern)
+    teile, start, prev = [], None, None
+    for n in nummern + [None]:
+        if start is None:
+            start = prev = n
+        elif n is not None and n == prev + 1:
+            prev = n
+        else:
+            teile.append(str(start) if start == prev else f"{start}\u2013{prev}")
+            start = prev = n
+    return ", ".join(teile)
+
+
+def fehlende_ausgangsrechnungen():
+    """Eintraege der Rechnungsausgangsliste(n) mit Nummernkreis 261/263, zu denen noch keine PDF vorliegt."""
+    eintraege = {}
+    for l in db().execute("SELECT datei FROM rechnungen WHERE belegart='Rechnungsausgangliste' "
+                          "AND datei IS NOT NULL ORDER BY datum, id"):
+        pfad = BELEGE / l["datei"]
+        if pfad.exists() and pfad.suffix.lower() == ".pdf":
+            for e in parse_ausgangsliste(pdf_text(pfad, max_seiten=None)):
+                eintraege[e["nr"]] = e
+    vorhanden = {r[0] for r in db().execute("SELECT rechnungsnr FROM rechnungen WHERE datei IS NOT NULL "
+                                            "AND rechnungsnr<>'' AND belegart<>'Rechnungsausgangliste'")}
+    return [e for nr, e in sorted(eintraege.items())
+            if nr.startswith(NUMMERNKREISE) and nr not in vorhanden], len(eintraege)
+
+
+@app.route("/abgleich/fehlt.csv")
+def fehlt_csv():
+    fehlt, _ = fehlende_ausgangsrechnungen()
+    out = io.StringIO()
+    w = csv.writer(out, delimiter=";", lineterminator="\r\n")
+    w.writerow(["Rg.-Nr.", "Rg.-Datum", "Kd.-Nr.", "Kunde", "Betrag", "Nummernkreis"])
+    for e in fehlt:
+        w.writerow([e["nr"], e["datum"], e["kd"], e["name"], f"{e['betrag']:.2f}".replace(".", ","), e["nr"][:3]])
+    return send_file(io.BytesIO(("\ufeff" + out.getvalue()).encode("utf-8")), mimetype="text/csv",
+                     as_attachment=True, download_name=f"Fehlende_Ausgangsrechnungen_{date.today():%Y%m%d}.csv")
+
+
 ABGLEICH = """
 <form method=get class=card style="display:flex;gap:12px;align-items:end;flex-wrap:wrap">
  <div><label>Liste</label><select name=liste><option value="alle">alle Listen zusammen</option>
@@ -708,6 +751,12 @@ ABGLEICH = """
  <button>Abgleichen</button></form>
 {% if not eintraege %}<div class=card>Keine Rechnungsausgangsliste gefunden oder nicht lesbar. Lege sie unter
  <a href="{{url_for('monat')}}">Monatsunterlagen</a> ab bzw. in den Eingangsordner.</div>{% else %}
+<div class=card><h2>Fehlt noch</h2>
+{% if fehlt_gesamt %}
+{% for k in kreise if k.fehlt %}<p style="margin:6px 0"><b>{{k.kreis}}xxxx {{k.name}}:</b> {{k.fehlt}} von {{k.n}} Rechnungen fehlen
+ ({{'%.2f'|format(k.fehlt_summe)|replace('.',',')}} &euro;)<br><span style="font-family:monospace">{{k.fehlt_bereiche}}</span></p>{% endfor %}
+<p><a class=btn href="{{url_for('fehlt_csv')}}">Fehlende als CSV (zum Nachdrucken)</a></p>
+{% else %}<p style="color:#047857;font-weight:700">&#10003; Alle Rechnungen der Liste sind vorhanden.</p>{% endif %}</div>
 <div class=card><h2>Zusammenfassung</h2>
 <table><tr><th>Nummernkreis</th><th class=r>Rechnungen in Liste</th><th class=r>Summe Liste</th><th class=r>PDF vorhanden</th>
 <th class=r>PDF fehlt</th><th class=r>Betrag weicht ab</th><th>Lücken in der Nummernfolge</th></tr>
@@ -751,7 +800,7 @@ def abgleich():
             for e in parse_ausgangsliste(pdf_text(pfad, max_seiten=None)):
                 eintraege[e["nr"]] = e
     page_ctx = dict(listen=[dict(l) for l in listen], liste=liste, alle=alle, eintraege=eintraege,
-                    kreise=[], zeilen=[], extra=[], falsch=[], von="", bis="")
+                    kreise=[], zeilen=[], extra=[], falsch=[], von="", bis="", fehlt_gesamt=0)
     if not eintraege:
         return page(ABGLEICH, **page_ctx)
 
@@ -789,9 +838,13 @@ def abgleich():
                 else:
                     z.update(text="OK", farbe="#047857")
             zeilen.append(z)
+        fe = [e for e in mine if e["nr"] not in pdfs]
         kreise.append(dict(kreis=kreis, name=KREIS_ART[kreis].replace("Rechnungsausgang ", ""), n=len(mine),
-                           summe=sum(e["betrag"] for e in mine), mit=mit, fehlt=fehlt, abw=abw, luecken=luecken))
+                           summe=sum(e["betrag"] for e in mine), mit=mit, fehlt=fehlt, abw=abw, luecken=luecken,
+                           fehlt_summe=sum(e["betrag"] for e in fe),
+                           fehlt_bereiche=nummern_bereiche([e["nr"] for e in fe]) if fe else ""))
     page_ctx["kreise"] = kreise
+    page_ctx["fehlt_gesamt"] = sum(k["fehlt"] for k in kreise)
     page_ctx["zeilen"] = zeilen if alle else [z for z in zeilen if z["text"] != "OK"]
     daten = sorted(e["datum"] for e in eintraege.values())
     page_ctx["von"], page_ctx["bis"] = daten[0], daten[-1]
