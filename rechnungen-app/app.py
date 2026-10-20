@@ -56,7 +56,7 @@ BELEGARTEN = ["Rechnungsausgang Service", "Rechnungsausgang Verkauf", "Rechnungs
 EINGANG = "Rechnungseingang Lieferanten"
 UNKLAR = "Nicht zugeordnet"
 BELEGARTEN_ALLE = BELEGARTEN + [UNKLAR]
-STANDARD_ORDNER = str(Path.home() / "Documents" / "Rechnungen-Eingang")
+STANDARD_ORDNER = r"Z:\Buchhaltung\Eingang"
 # Zuordnungsregeln: "Belegart = stichwort, stichwort" - erste passende Zeile gewinnt.
 # Gesucht wird im PDF-Text und im Dateinamen (Gross/Klein egal).
 # "nr:261" = Rechnungsnummer beginnt mit 261.
