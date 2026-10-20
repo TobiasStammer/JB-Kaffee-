@@ -138,6 +138,11 @@ def init_db():
         c.execute("ALTER TABLE rechnungen ADD COLUMN belegart TEXT DEFAULT 'Rechnungseingang Lieferanten'")
     except sqlite3.OperationalError:
         pass
+    # Pruefsumme fuer aeltere Belege nachtragen, damit der Doppelt-Schutz auch sie erkennt
+    for rid, datei in c.execute("SELECT id, datei FROM rechnungen WHERE hash IS NULL AND datei IS NOT NULL").fetchall():
+        pf = BELEGE / datei
+        if pf.exists():
+            c.execute("UPDATE rechnungen SET hash=? WHERE id=?", (hashlib.sha1(pf.read_bytes()).hexdigest(), rid))
     c.commit()
     c.close()
 
@@ -230,6 +235,10 @@ INDEX = """
  {% if ausg_fehlt %} &middot; <a href="{{url_for('abgleich')}}"><b style="color:#b91c1c">{{ausg_fehlt}} Ausgangsrechnungen fehlen</b></a>{% endif %}</span>
  <button class=sek>Jetzt einlesen</button>
  <button class=sek formaction="{{url_for('neu_pruefen')}}">Neu prüfen</button></form>
+{% if doppelte %}<div class=card style="border-left-color:#b91c1c"><b style="color:#b91c1c">Doppelte Belege</b>
+ &ndash; dieselbe Datei ist mehrfach abgelegt:
+ {% for g in doppelte %}<div>{% for r in g %}<a href="{{url_for('bearbeiten',rid=r.id)}}">#{{r.id}} {{r.rechnungsnr or r.lieferant}} ({{r.datum}})</a>{{' &middot; '|safe if not loop.last}}{% endfor %}</div>{% endfor %}
+ <small>Das überzählige Exemplar kannst du unter &bdquo;bearbeiten&ldquo; löschen.</small></div>{% endif %}
 <form method=post action="{{url_for('export')}}">
 <table><tr><th></th><th>Datum</th><th>Belegart</th><th>Lieferant</th><th>Rechnungsnr.</th><th>Kategorie</th>
 <th class=r>Netto</th><th class=r>Brutto</th><th>Zahlung</th><th>DATEV</th><th>Beleg</th><th></th></tr>
@@ -355,7 +364,11 @@ def index():
         z["n"] += 1
         z["netto"] += r.netto
         z["brutto"] += r.brutto
-    return page(INDEX, summen=list(summen.values()), rows=rows, q=q, status=status, zahlung=zahlung, STATUS=STATUS, ZAHLUNG=ZAHLUNG, monat=monat,
+    doppelte = []
+    for g in db().execute("SELECT hash FROM rechnungen WHERE hash IS NOT NULL GROUP BY hash HAVING COUNT(*)>1"):
+        doppelte.append(db().execute("SELECT id, rechnungsnr, lieferant, datum FROM rechnungen WHERE hash=? "
+                                     "ORDER BY id", (g["hash"],)).fetchall())
+    return page(INDEX, doppelte=doppelte, summen=list(summen.values()), rows=rows, q=q, status=status, zahlung=zahlung, STATUS=STATUS, ZAHLUNG=ZAHLUNG, monat=monat,
                 belegart=belegart, BELEGARTEN=BELEGARTEN_ALLE, UNKLAR=UNKLAR,
                 ordner=settings()["eingang_ordner"], ausg_fehlt=len(fehlende_ausgangsrechnungen()[0]),
                 unklar=db().execute("SELECT COUNT(*) FROM rechnungen WHERE belegart=?", (UNKLAR,)).fetchone()[0],
@@ -372,15 +385,23 @@ def _speichern(rid=None):
         return None
     kat = f["kategorie"] if f["kategorie"] in KATEGORIEN else "Sonstiges"
     konto = f.get("konto", "").strip() or KATEGORIEN[kat]
-    datei_name = None
+    datei_name = dh = None
     up = request.files.get("datei")
     if up and up.filename:
         ext = Path(up.filename).suffix.lower()
         if ext not in ERLAUBT:
             flash("Dateityp nicht erlaubt (PDF, JPG, PNG, TIF).")
             return None
+        daten = up.read()
+        dh = hashlib.sha1(daten).hexdigest()
+        dup = db().execute("SELECT rechnungsnr, lieferant, datum FROM rechnungen WHERE hash=? AND id<>?",
+                           (dh, rid or -1)).fetchone()
+        if dup:
+            flash(f"Diese Datei ist bereits abgelegt ({dup['rechnungsnr'] or dup['lieferant']} vom {dup['datum']}) "
+                  "- nicht doppelt gespeichert.")
+            return None
         datei_name = f"{uuid.uuid4().hex}{ext}"
-        up.save(BELEGE / datei_name)
+        (BELEGE / datei_name).write_bytes(daten)
     belegart = f.get("belegart") if f.get("belegart") in BELEGARTEN_ALLE else EINGANG
     vals = (f["datum"], f["lieferant"].strip(), f["rechnungsnr"].strip(), brutto,
             float(f["mwst_satz"]), kat, konto, f["status"], f["notiz"].strip())
@@ -399,6 +420,8 @@ def _speichern(rid=None):
     zahl = request.form.get("zahlung") if request.form.get("zahlung") in ZAHLUNG else "offen"
     ziel_id = rid if rid is not None else db().execute("SELECT MAX(id) FROM rechnungen").fetchone()[0]
     db().execute("UPDATE rechnungen SET zahlung=? WHERE id=?", (zahl, ziel_id))
+    if dh:
+        db().execute("UPDATE rechnungen SET hash=? WHERE id=?", (dh, ziel_id))
     db().commit()
     return True
 
@@ -1138,6 +1161,7 @@ def monat():
         ende = (date(jahr + (mon == 12), mon % 12 + 1, 1) - date.resolution).isoformat()
         n = 0
         liste_hochgeladen = False
+        doppelt = []
         for i, b in enumerate(BELEGARTEN):
             for up in request.files.getlist(f"f{i}"):
                 if not up.filename:
@@ -1146,8 +1170,14 @@ def monat():
                 if ext not in ERLAUBT:
                     flash(f"{up.filename}: Dateityp nicht erlaubt.")
                     continue
+                daten = up.read()
+                dh = hashlib.sha1(daten).hexdigest()
+                dup = db().execute("SELECT rechnungsnr, lieferant, datum FROM rechnungen WHERE hash=?", (dh,)).fetchone()
+                if dup:
+                    doppelt.append(f"{up.filename} (= {dup['rechnungsnr'] or dup['lieferant']} vom {dup['datum']})")
+                    continue
                 name = f"{uuid.uuid4().hex}{ext}"
-                up.save(BELEGE / name)
+                (BELEGE / name).write_bytes(daten)
                 datum, nr, brutto, satz = ende, "", 0, 0
                 kunde = b
                 if b in AUSGANG_RECHNUNGEN and ext == ".pdf":
@@ -1162,14 +1192,17 @@ def monat():
                         if ex["brutto"] is not None:
                             brutto, satz = ex["brutto"], ex["satz"]
                         kunde = ex["kaeufer"] or b
-                db().execute("INSERT INTO rechnungen(datum,lieferant,rechnungsnr,brutto,mwst_satz,kategorie,"
+                cur = db().execute("INSERT INTO rechnungen(datum,lieferant,rechnungsnr,brutto,mwst_satz,kategorie,"
                              "konto,status,notiz,datei,guid,angelegt,belegart) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
                              (datum, kunde, nr, brutto, satz, "Sonstiges", "", "noch nicht gesendet", Path(up.filename).name, name,
                               str(uuid.uuid4()), datetime.now().isoformat(timespec="seconds"), b))
+                db().execute("UPDATE rechnungen SET hash=? WHERE id=?", (dh, cur.lastrowid))
                 n += 1
                 liste_hochgeladen = liste_hochgeladen or b == "Rechnungsausgangliste"
         db().commit()
         flash(f"{n} Dateien gespeichert.")
+        if doppelt:
+            flash("Doppelt, nicht erneut gespeichert: " + "; ".join(doppelt))
         if liste_hochgeladen:
             fehlt, anzahl = fehlende_ausgangsrechnungen()
             flash(f"Rechnungsausgangsliste abgeglichen: {anzahl} Rechnungen, "
