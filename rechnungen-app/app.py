@@ -59,12 +59,13 @@ BELEGARTEN_ALLE = BELEGARTEN + [UNKLAR]
 STANDARD_ORDNER = str(Path.home() / "Documents" / "Rechnungen-Eingang")
 # Zuordnungsregeln: "Belegart = stichwort, stichwort" - erste passende Zeile gewinnt.
 # Gesucht wird im PDF-Text und im Dateinamen (Gross/Klein egal).
+# "nr:261" = Rechnungsnummer beginnt mit 261.
 STANDARD_REGELN = """Rechnungsausgangliste = rechnungsausgangsliste, rechnungsausgangliste, ausgangsliste
 Monatsjournal Kasse = monatsjournal
 Kassenbuch = kassenbuch
 Rechnungsausgang eBay = ebay
-Rechnungsausgang Service = service, reparatur, werkstatt, wartung
-Rechnungsausgang Verkauf = rechnung
+Rechnungsausgang Service = nr:263
+Rechnungsausgang Verkauf = nr:261
 Rechnungseingang Lieferanten = eingangsrechnung, lieferant"""
 STATUS = ["offen", "bezahlt", "an DATEV gesendet"]
 
@@ -388,8 +389,12 @@ def pdf_text(pfad):
 def klassifiziere(text, dateiname, regeln):
     heu = (text + "\n" + dateiname).lower()
     for art, kws in regeln:
-        if any(k in heu for k in kws):
-            return art
+        for k in kws:
+            if k.startswith("nr:"):
+                if re.search(r"(?<!\d)" + re.escape(k[3:].strip()) + r"\d{2,}", heu):
+                    return art
+            elif k in heu:
+                return art
     return UNKLAR
 
 
