@@ -7,15 +7,19 @@ import csv
 import io
 import os
 import re
+import hashlib
+import shutil
 import smtplib
 import sqlite3
+import threading
+import time
 import uuid
 import zipfile
 from datetime import date, datetime
 from email.message import EmailMessage
 from pathlib import Path
 
-from pypdf import PdfWriter
+from pypdf import PdfReader, PdfWriter
 from PIL import Image
 from flask import (Flask, abort, flash, g, redirect, render_template_string,
                    request, send_file, url_for)
@@ -50,6 +54,18 @@ BELEGARTEN = ["Rechnungsausgang Service", "Rechnungsausgang Verkauf", "Rechnungs
               "Rechnungseingang Lieferanten", "Kassenbuch", "Monatsjournal Kasse",
               "Rechnungsausgangliste"]
 EINGANG = "Rechnungseingang Lieferanten"
+UNKLAR = "Nicht zugeordnet"
+BELEGARTEN_ALLE = BELEGARTEN + [UNKLAR]
+STANDARD_ORDNER = str(Path.home() / "Documents" / "Rechnungen-Eingang")
+# Zuordnungsregeln: "Belegart = stichwort, stichwort" - erste passende Zeile gewinnt.
+# Gesucht wird im PDF-Text und im Dateinamen (Gross/Klein egal).
+STANDARD_REGELN = """Rechnungsausgangliste = rechnungsausgangsliste, rechnungsausgangliste, ausgangsliste
+Monatsjournal Kasse = monatsjournal
+Kassenbuch = kassenbuch
+Rechnungsausgang eBay = ebay
+Rechnungsausgang Service = service, reparatur, werkstatt, wartung
+Rechnungsausgang Verkauf = rechnung
+Rechnungseingang Lieferanten = eingangsrechnung, lieferant"""
 STATUS = ["offen", "bezahlt", "an DATEV gesendet"]
 
 SETTINGS_DEFAULT = {
@@ -57,6 +73,7 @@ SETTINGS_DEFAULT = {
     "sachkontenlaenge": "4", "gegenkonto": "1600", "diktatkuerzel": "",
     "datev_mail": "", "smtp_host": "", "smtp_port": "587", "smtp_user": "",
     "smtp_pass": "", "absender": "",
+    "eingang_ordner": STANDARD_ORDNER, "regeln": STANDARD_REGELN,
 }
 
 
@@ -87,6 +104,10 @@ def init_db():
         notiz TEXT, datei TEXT, guid TEXT,
         angelegt TEXT, gesendet TEXT);
     """)
+    try:
+        c.execute("ALTER TABLE rechnungen ADD COLUMN hash TEXT")
+    except sqlite3.OperationalError:
+        pass
     try:
         c.execute("ALTER TABLE rechnungen ADD COLUMN belegart TEXT DEFAULT 'Rechnungseingang Lieferanten'")
     except sqlite3.OperationalError:
@@ -147,6 +168,10 @@ INDEX = """
  <div><label>Status</label><select name=status><option value="">alle</option>
   {% for s in STATUS %}<option {{'selected' if s==status}}>{{s}}</option>{% endfor %}</select></div>
  <button>Filtern</button></form>
+<form method=post action="{{url_for('eingang_jetzt')}}" class=card style="display:flex;gap:14px;align-items:center">
+ <span style="flex:1">Eingangsordner: <code>{{ordner}}</code>
+ {% if unklar %} &middot; <a href="{{url_for('index',belegart=UNKLAR)}}"><b style="color:#b45309">{{unklar}} nicht zugeordnet</b></a>{% endif %}</span>
+ <button class=sek>Jetzt einlesen</button></form>
 <form method=post action="{{url_for('export')}}">
 <table><tr><th></th><th>Datum</th><th>Belegart</th><th>Lieferant</th><th>Rechnungsnr.</th><th>Kategorie</th>
 <th class=r>Netto</th><th class=r>Brutto</th><th>Status</th><th>Beleg</th><th></th></tr>
@@ -205,6 +230,10 @@ EINST = """
 <div><label>SMTP-Port</label><input name=smtp_port value="{{s.smtp_port}}"></div>
 <div><label>SMTP-Benutzer</label><input name=smtp_user value="{{s.smtp_user}}"></div>
 <div><label>SMTP-Passwort</label><input type=password name=smtp_pass value="{{s.smtp_pass}}"></div></div>
+<h3>Automatischer Eingang (Kassensoftware &rarr; PDF)</h3>
+<label>Eingangsordner (hier speicherst du die PDFs aus der Kasse ab)</label><input name=eingang_ordner value="{{s.eingang_ordner}}">
+<label>Zuordnungsregeln (eine Zeile je Belegart: <code>Belegart = stichwort, stichwort</code>; oberste passende Zeile gewinnt)</label>
+<textarea name=regeln rows=8 style="font-family:monospace">{{s.regeln}}</textarea>
 <small>Alles bleibt lokal in data/rechnungen.db auf diesem Rechner.</small>
 <p><button>Speichern</button></p></form>"""
 
@@ -242,7 +271,9 @@ def index():
         d["netto"] = netto(r["brutto"], r["mwst_satz"])
         rows.append(type("R", (), d))
     return page(INDEX, rows=rows, q=q, status=status, STATUS=STATUS, monat=monat,
-                belegart=belegart, BELEGARTEN=BELEGARTEN,
+                belegart=belegart, BELEGARTEN=BELEGARTEN_ALLE, UNKLAR=UNKLAR,
+                ordner=settings()["eingang_ordner"],
+                unklar=db().execute("SELECT COUNT(*) FROM rechnungen WHERE belegart=?", (UNKLAR,)).fetchone()[0],
                 sb=sum(r.brutto for r in rows), sn=sum(r.netto for r in rows))
 
 
@@ -265,7 +296,7 @@ def _speichern(rid=None):
             return None
         datei_name = f"{uuid.uuid4().hex}{ext}"
         up.save(BELEGE / datei_name)
-    belegart = f.get("belegart") if f.get("belegart") in BELEGARTEN else EINGANG
+    belegart = f.get("belegart") if f.get("belegart") in BELEGARTEN_ALLE else EINGANG
     vals = (f["datum"], f["lieferant"].strip(), f["rechnungsnr"].strip(), brutto,
             float(f["mwst_satz"]), kat, konto, f["status"], f["notiz"].strip())
     if rid is None:
@@ -292,7 +323,7 @@ def neu():
     r = type("R", (), dict(id=None, datum=date.today().isoformat(), lieferant="", rechnungsnr="",
                            brutto=0, mwst_satz=19, kategorie="Sonstiges", konto="",
                            status="offen", notiz="", datei=None, belegart=EINGANG))
-    return page(FORM, r=r, KAT=KATEGORIEN, STATUS=STATUS, BELEGARTEN=BELEGARTEN)
+    return page(FORM, r=r, KAT=KATEGORIEN, STATUS=STATUS, BELEGARTEN=BELEGARTEN_ALLE)
 
 
 @app.route("/<int:rid>/bearbeiten", methods=["GET", "POST"])
@@ -301,7 +332,7 @@ def bearbeiten(rid):
     if request.method == "POST" and _speichern(rid):
         flash("Änderungen gespeichert.")
         return redirect(url_for("index"))
-    return page(FORM, r=type("R", (), dict(r)), KAT=KATEGORIEN, STATUS=STATUS, BELEGARTEN=BELEGARTEN)
+    return page(FORM, r=type("R", (), dict(r)), KAT=KATEGORIEN, STATUS=STATUS, BELEGARTEN=BELEGARTEN_ALLE)
 
 
 @app.route("/<int:rid>/loeschen", methods=["POST"])
@@ -332,6 +363,111 @@ def einstellungen():
         flash("Einstellungen gespeichert.")
         return redirect(url_for("einstellungen"))
     return page(EINST, s=settings())
+
+
+# ---------------------------------------------------------------- Automatischer Eingang
+def regeln_parsen(text):
+    out = []
+    for zeile in (text or "").splitlines():
+        if "=" in zeile:
+            art, _, kw = zeile.partition("=")
+            art = art.strip()
+            if art in BELEGARTEN:
+                out.append((art, [k.strip().lower() for k in kw.split(",") if k.strip()]))
+    return out
+
+
+def pdf_text(pfad):
+    try:
+        r = PdfReader(str(pfad))
+        return "\n".join((pg.extract_text() or "") for pg in r.pages[:3])
+    except Exception:  # noqa: BLE001
+        return ""
+
+
+def klassifiziere(text, dateiname, regeln):
+    heu = (text + "\n" + dateiname).lower()
+    for art, kws in regeln:
+        if any(k in heu for k in kws):
+            return art
+    return UNKLAR
+
+
+def finde_datum(text, fallback):
+    for t, m_, j in re.findall(r"\b(\d{1,2})\.(\d{1,2})\.(\d{4})\b", text):
+        try:
+            d = date(int(j), int(m_), int(t))
+            if 2000 <= d.year <= 2100:
+                return d.isoformat()
+        except ValueError:
+            continue
+    return fallback
+
+
+def finde_nummer(text):
+    m = re.search(r"(?:Rechnungs?-?\s?(?:nummer|nr\.?)|Beleg-?\s?Nr\.?)\s*:?\s*([A-Za-z0-9][A-Za-z0-9\-/]*)",
+                  text, re.I)
+    return m.group(1) if m else ""
+
+
+def eingang_einlesen():
+    """Liest alle neuen PDFs/Bilder aus dem Eingangsordner. Eigene DB-Verbindung (laeuft auch im Thread)."""
+    c = sqlite3.connect(DB)
+    c.row_factory = sqlite3.Row
+    cfg = dict(SETTINGS_DEFAULT)
+    cfg.update({r["k"]: r["v"] for r in c.execute("SELECT k, v FROM settings")})
+    ordner = Path(cfg["eingang_ordner"] or STANDARD_ORDNER)
+    fertig = ordner / "verarbeitet"
+    fertig.mkdir(parents=True, exist_ok=True)
+    regeln = regeln_parsen(cfg["regeln"])
+    n = 0
+    for f in sorted(ordner.iterdir()):
+        if not f.is_file() or f.suffix.lower() not in ERLAUBT:
+            continue
+        if time.time() - f.stat().st_mtime < 3:  # Drucker schreibt evtl. noch
+            continue
+        try:
+            daten = f.read_bytes()
+        except OSError:
+            continue
+        h = hashlib.sha1(daten).hexdigest()
+        ziel_alt = fertig / f.name
+        if c.execute("SELECT 1 FROM rechnungen WHERE hash=?", (h,)).fetchone():
+            shutil.move(str(f), str(fertig / f"doppelt_{int(time.time())}_{f.name}"))
+            continue
+        text = pdf_text(f) if f.suffix.lower() == ".pdf" else ""
+        art = klassifiziere(text, f.stem, regeln)
+        mtime = date.fromtimestamp(f.stat().st_mtime).isoformat()
+        datum = finde_datum(text, mtime)
+        name = f"{uuid.uuid4().hex}{f.suffix.lower()}"
+        (BELEGE / name).write_bytes(daten)
+        c.execute("INSERT INTO rechnungen(datum,lieferant,rechnungsnr,brutto,mwst_satz,kategorie,konto,status,"
+                  "notiz,datei,guid,angelegt,belegart,hash) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                  (datum, art, finde_nummer(text), 0, 0, "Sonstiges", "", "offen", f.name, name,
+                   str(uuid.uuid4()), datetime.now().isoformat(timespec="seconds"), art, h))
+        c.commit()
+        if ziel_alt.exists():
+            ziel_alt = fertig / f"{int(time.time())}_{f.name}"
+        shutil.move(str(f), str(ziel_alt))
+        n += 1
+    c.close()
+    return n
+
+
+def _waechter():
+    while True:
+        try:
+            eingang_einlesen()
+        except Exception as e:  # noqa: BLE001
+            print("Eingang:", e)
+        time.sleep(10)
+
+
+@app.route("/eingang/jetzt", methods=["POST"])
+def eingang_jetzt():
+    n = eingang_einlesen()
+    flash(f"{n} neue Dateien eingelesen." if n else "Keine neuen Dateien im Eingangsordner.")
+    return redirect(url_for("index"))
 
 
 # ---------------------------------------------------------------- Monatsunterlagen
@@ -572,4 +708,6 @@ def _mailen(ids, s):
 
 if __name__ == "__main__":
     init_db()
+    Path(STANDARD_ORDNER).mkdir(parents=True, exist_ok=True)
+    threading.Thread(target=_waechter, daemon=True).start()
     app.run(host="127.0.0.1", port=5055, debug=False)
