@@ -145,14 +145,21 @@ def netto(brutto, satz):
 
 # ---------------------------------------------------------------- Oberfläche
 CSS = """
+@font-face{font-family:'Source Sans 3';font-weight:400;font-display:swap;src:url(/static/fonts/source-sans-3-latin-400.woff2) format('woff2')}
+@font-face{font-family:'Source Sans 3';font-weight:600;font-display:swap;src:url(/static/fonts/source-sans-3-latin-600.woff2) format('woff2')}
+@font-face{font-family:'Source Sans 3';font-weight:700;font-display:swap;src:url(/static/fonts/source-sans-3-latin-700.woff2) format('woff2')}
 :root{--accent:#334155;--accentd:#1e293b;--dark:#4a4a4a;--line:#d8d8d8;--soft:#f0efec;--head:#2b2b2b}
 body{font-family:'Source Sans 3','Source Sans Pro',system-ui,'Segoe UI',sans-serif;margin:0;background:#e3e5ea;color:#1c1c1c;line-height:1.5}
-h1,h2,h3,th,header b,button,.btn,label{font-family:Tahoma,Arial,sans-serif}
+h1,h2,h3,th,button,.btn,label{font-family:Tahoma,Arial,sans-serif}
 h2,h3{color:var(--head);margin:0 0 10px} h3{font-size:15px;margin-top:18px}
-header{background:var(--dark);color:#fff;padding:0 24px;min-height:52px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-header b{font-size:16px;letter-spacing:.01em;margin-right:auto;padding:12px 0}
-header a{color:#fff;text-decoration:none;font-weight:700;font-size:13px;padding:17px 12px;border-bottom:3px solid transparent}
-header a:hover{border-bottom-color:#c9c9c9}
+.top{background:#fff;border-bottom:1px solid var(--line);text-align:center;padding:14px 16px 12px}
+.top b{font-family:Tahoma,Arial,sans-serif;font-size:19px;color:var(--head);letter-spacing:.01em}
+.top small{display:block;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-top:2px}
+nav.band{background:var(--dark);position:sticky;top:0;z-index:90}
+nav.band ul{list-style:none;margin:0 auto;padding:0;max-width:1200px;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:2px;font-family:Tahoma,Arial,sans-serif}
+nav.band a{display:block;color:#c9c9c9;font-weight:400;font-size:14px;line-height:1.2;padding:12px 14px;text-decoration:none;white-space:nowrap}
+nav.band a:hover,nav.band a:focus{color:#fff}
+nav.band a.on{color:#fff;font-weight:700}
 main{max-width:1160px;margin:22px auto;padding:0 16px}
 a{color:var(--accent)}
 table{border-collapse:collapse;width:100%;background:#fff;border:1px solid var(--line)}
@@ -172,15 +179,19 @@ button.sek:hover,.btn.sek:hover{background:var(--soft)}
 .msg{padding:11px 15px;margin-bottom:14px;background:var(--soft);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:6px}
 .st-offen{color:#b45309;font-weight:600}.st-bezahlt{color:#047857;font-weight:600}.st-an{color:var(--accent);font-weight:600}
 small{color:#6b7178} code{background:var(--soft);padding:1px 5px;border-radius:3px}
-@media(max-width:700px){header a{padding:10px 8px}}
+@media(max-width:700px){nav.band a{padding:10px 8px;font-size:13px}}
 """
 
 LAYOUT = """<!doctype html><html lang=de><meta charset=utf-8>
 <meta name=viewport content="width=device-width,initial-scale=1"><title>Rechnungen</title>
-<style>{{css}}</style>
-<header><b>Rechnungen &amp; DATEV</b>
-<a href="{{url_for('index')}}">Übersicht</a><a href="{{url_for('neu')}}">+ Neue Rechnung</a><a href="{{url_for('monat')}}">Monatsunterlagen</a>
-<a href="{{url_for('einstellungen')}}">Einstellungen</a></header><main>
+<style>{{css|safe}}</style>
+<div class=top><b>Rechnungen &amp; DATEV</b><small>kaffeetechniker.de</small></div>
+<nav class=band><ul>
+<li><a href="{{url_for('index')}}" class="{{'on' if request.endpoint in ('index','bearbeiten') else ''}}">Übersicht</a></li>
+<li><a href="{{url_for('neu')}}" class="{{'on' if request.endpoint=='neu' else ''}}">Neue Rechnung</a></li>
+<li><a href="{{url_for('monat')}}" class="{{'on' if request.endpoint=='monat' else ''}}">Monatsunterlagen</a></li>
+<li><a href="{{url_for('einstellungen')}}" class="{{'on' if request.endpoint=='einstellungen' else ''}}">Einstellungen</a></li>
+</ul></nav><main>
 {% for m in get_flashed_messages() %}<div class=msg>{{m}}</div>{% endfor %}
 {{body|safe}}</main></html>"""
 
