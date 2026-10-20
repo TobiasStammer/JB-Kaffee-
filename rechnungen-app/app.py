@@ -42,6 +42,10 @@ KATEGORIEN = {
     "Werbung": "4610",
     "Sonstiges": "4980",
 }
+BELEGARTEN = ["Rechnungsausgang Service", "Rechnungsausgang Verkauf", "Rechnungsausgang eBay",
+              "Rechnungseingang Lieferanten", "Kassenbuch", "Monatsjournal Kasse",
+              "Rechnungsausgangliste"]
+EINGANG = "Rechnungseingang Lieferanten"
 STATUS = ["offen", "bezahlt", "an DATEV gesendet"]
 
 SETTINGS_DEFAULT = {
@@ -79,6 +83,10 @@ def init_db():
         notiz TEXT, datei TEXT, guid TEXT,
         angelegt TEXT, gesendet TEXT);
     """)
+    try:
+        c.execute("ALTER TABLE rechnungen ADD COLUMN belegart TEXT DEFAULT 'Rechnungseingang Lieferanten'")
+    except sqlite3.OperationalError:
+        pass
     c.commit()
     c.close()
 
@@ -115,7 +123,7 @@ LAYOUT = """<!doctype html><html lang=de><meta charset=utf-8>
 <meta name=viewport content="width=device-width,initial-scale=1"><title>Rechnungen</title>
 <style>{{css}}</style>
 <header><b>&#9749; Rechnungen &amp; DATEV</b>
-<a href="{{url_for('index')}}">Übersicht</a><a href="{{url_for('neu')}}">+ Neue Rechnung</a>
+<a href="{{url_for('index')}}">Übersicht</a><a href="{{url_for('neu')}}">+ Neue Rechnung</a><a href="{{url_for('monat')}}">Monatsunterlagen</a>
 <a href="{{url_for('einstellungen')}}">Einstellungen</a></header><main>
 {% for m in get_flashed_messages() %}<div class=msg>{{m}}</div>{% endfor %}
 {{body|safe}}</main></html>"""
@@ -129,21 +137,24 @@ def page(body_tpl, **ctx):
 INDEX = """
 <form method=get class=card style="display:flex;gap:12px;align-items:end">
  <div style="flex:1"><label>Suche</label><input name=q value="{{q}}" placeholder="Lieferant, Nummer, Notiz"></div>
+ <div><label>Monat</label><input type=month name=monat value="{{monat}}"></div>
+ <div><label>Belegart</label><select name=belegart><option value="">alle</option>
+  {% for b in BELEGARTEN %}<option {{'selected' if b==belegart}}>{{b}}</option>{% endfor %}</select></div>
  <div><label>Status</label><select name=status><option value="">alle</option>
   {% for s in STATUS %}<option {{'selected' if s==status}}>{{s}}</option>{% endfor %}</select></div>
  <button>Filtern</button></form>
 <form method=post action="{{url_for('export')}}">
-<table><tr><th></th><th>Datum</th><th>Lieferant</th><th>Rechnungsnr.</th><th>Kategorie</th>
+<table><tr><th></th><th>Datum</th><th>Belegart</th><th>Lieferant</th><th>Rechnungsnr.</th><th>Kategorie</th>
 <th class=r>Netto</th><th class=r>Brutto</th><th>Status</th><th>Beleg</th><th></th></tr>
 {% for r in rows %}<tr>
  <td><input type=checkbox name=ids value="{{r.id}}" style="width:auto" {{'checked' if r.status!='an DATEV gesendet'}}></td>
- <td>{{r.datum}}</td><td>{{r.lieferant}}</td><td>{{r.rechnungsnr}}</td><td>{{r.kategorie}} <small>({{r.konto}})</small></td>
+ <td>{{r.datum}}</td><td><small>{{r.belegart}}</small></td><td>{{r.lieferant}}</td><td>{{r.rechnungsnr}}</td><td>{{r.kategorie}} <small>({{r.konto}})</small></td>
  <td class=r>{{'%.2f'|format(r.netto)|replace('.',',')}}</td><td class=r>{{'%.2f'|format(r.brutto)|replace('.',',')}}</td>
  <td class="st-{{ 'an' if r.status.startswith('an') else r.status }}">{{r.status}}</td>
  <td>{% if r.datei %}<a href="{{url_for('beleg',rid=r.id)}}" target=_blank>öffnen</a>{% else %}<small>fehlt</small>{% endif %}</td>
  <td><a href="{{url_for('bearbeiten',rid=r.id)}}">bearbeiten</a></td></tr>
-{% else %}<tr><td colspan=10>Noch keine Rechnungen.</td></tr>{% endfor %}
-<tr><th colspan=5 class=r>Summe ({{rows|length}})</th><th class=r>{{'%.2f'|format(sn)|replace('.',',')}}</th>
+{% else %}<tr><td colspan=11>Noch keine Rechnungen.</td></tr>{% endfor %}
+<tr><th colspan=6 class=r>Summe ({{rows|length}})</th><th class=r>{{'%.2f'|format(sn)|replace('.',',')}}</th>
 <th class=r>{{'%.2f'|format(sb)|replace('.',',')}}</th><th colspan=3></th></tr></table>
 <p style="display:flex;gap:10px">
 <button name=aktion value=zip>DATEV-Export (ZIP) für markierte</button>
@@ -155,10 +166,12 @@ FORM = """
 <form method=post enctype=multipart/form-data class=card>
 <h2>{{'Rechnung bearbeiten' if r.id else 'Neue Rechnung'}}</h2>
 <div class=grid>
+<div><label>Belegart</label><select name=belegart>
+ {% for b in BELEGARTEN %}<option {{'selected' if b==r.belegart}}>{{b}}</option>{% endfor %}</select></div>
 <div><label>Rechnungsdatum</label><input type=date name=datum value="{{r.datum}}" required></div>
 <div><label>Lieferant</label><input name=lieferant value="{{r.lieferant}}" required></div>
 <div><label>Rechnungsnummer</label><input name=rechnungsnr value="{{r.rechnungsnr}}"></div>
-<div><label>Bruttobetrag (€)</label><input name=brutto value="{{'%.2f'|format(r.brutto)|replace('.',',') if r.brutto else ''}}" required></div>
+<div><label>Bruttobetrag (€, nur Rechnungseingang nötig)</label><input name=brutto value="{{'%.2f'|format(r.brutto)|replace('.',',') if r.brutto else ''}}"></div>
 <div><label>MwSt.-Satz</label><select name=mwst_satz>
  {% for s in (19,7,0) %}<option value="{{s}}" {{'selected' if r.mwst_satz==s}}>{{s}} %</option>{% endfor %}</select></div>
 <div><label>Kategorie</label><select name=kategorie>
@@ -204,6 +217,8 @@ def lade(rid):
 def index():
     q = request.args.get("q", "").strip()
     status = request.args.get("status", "")
+    monat = request.args.get("monat", "")
+    belegart = request.args.get("belegart", "")
     sql, par = "SELECT * FROM rechnungen WHERE 1=1", []
     if q:
         sql += " AND (lieferant LIKE ? OR rechnungsnr LIKE ? OR notiz LIKE ?)"
@@ -211,20 +226,27 @@ def index():
     if status:
         sql += " AND status=?"
         par.append(status)
+    if monat:
+        sql += " AND substr(datum,1,7)=?"
+        par.append(monat)
+    if belegart:
+        sql += " AND belegart=?"
+        par.append(belegart)
     rows = []
     for r in db().execute(sql + " ORDER BY datum DESC, id DESC", par):
         d = dict(r)
         d["netto"] = netto(r["brutto"], r["mwst_satz"])
         rows.append(type("R", (), d))
-    return page(INDEX, rows=rows, q=q, status=status, STATUS=STATUS,
+    return page(INDEX, rows=rows, q=q, status=status, STATUS=STATUS, monat=monat,
+                belegart=belegart, BELEGARTEN=BELEGARTEN,
                 sb=sum(r.brutto for r in rows), sn=sum(r.netto for r in rows))
 
 
 def _speichern(rid=None):
     f = request.form
     try:
-        brutto = float(f["brutto"].replace(".", "").replace(",", ".")) if "," in f["brutto"] \
-            else float(f["brutto"])
+        b = f["brutto"].strip()
+        brutto = 0.0 if not b else (float(b.replace(".", "").replace(",", ".")) if "," in b else float(b))
     except ValueError:
         flash("Bruttobetrag ungültig.")
         return None
@@ -239,15 +261,16 @@ def _speichern(rid=None):
             return None
         datei_name = f"{uuid.uuid4().hex}{ext}"
         up.save(BELEGE / datei_name)
+    belegart = f.get("belegart") if f.get("belegart") in BELEGARTEN else EINGANG
     vals = (f["datum"], f["lieferant"].strip(), f["rechnungsnr"].strip(), brutto,
             float(f["mwst_satz"]), kat, konto, f["status"], f["notiz"].strip())
     if rid is None:
         db().execute("INSERT INTO rechnungen(datum,lieferant,rechnungsnr,brutto,mwst_satz,kategorie,"
-                     "konto,status,notiz,datei,guid,angelegt) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
-                     vals + (datei_name, str(uuid.uuid4()), datetime.now().isoformat(timespec="seconds")))
+                     "konto,status,notiz,datei,guid,angelegt,belegart) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                     vals + (datei_name, str(uuid.uuid4()), datetime.now().isoformat(timespec="seconds"), belegart))
     else:
         db().execute("UPDATE rechnungen SET datum=?,lieferant=?,rechnungsnr=?,brutto=?,mwst_satz=?,"
-                     "kategorie=?,konto=?,status=?,notiz=? WHERE id=?", vals + (rid,))
+                     "kategorie=?,konto=?,status=?,notiz=?,belegart=? WHERE id=?", vals + (belegart, rid))
         if datei_name:
             alt = lade(rid)["datei"]
             db().execute("UPDATE rechnungen SET datei=? WHERE id=?", (datei_name, rid))
@@ -264,8 +287,8 @@ def neu():
         return redirect(url_for("index"))
     r = type("R", (), dict(id=None, datum=date.today().isoformat(), lieferant="", rechnungsnr="",
                            brutto=0, mwst_satz=19, kategorie="Sonstiges", konto="",
-                           status="offen", notiz="", datei=None))
-    return page(FORM, r=r, KAT=KATEGORIEN, STATUS=STATUS)
+                           status="offen", notiz="", datei=None, belegart=EINGANG))
+    return page(FORM, r=r, KAT=KATEGORIEN, STATUS=STATUS, BELEGARTEN=BELEGARTEN)
 
 
 @app.route("/<int:rid>/bearbeiten", methods=["GET", "POST"])
@@ -274,7 +297,7 @@ def bearbeiten(rid):
     if request.method == "POST" and _speichern(rid):
         flash("Änderungen gespeichert.")
         return redirect(url_for("index"))
-    return page(FORM, r=type("R", (), dict(r)), KAT=KATEGORIEN, STATUS=STATUS)
+    return page(FORM, r=type("R", (), dict(r)), KAT=KATEGORIEN, STATUS=STATUS, BELEGARTEN=BELEGARTEN)
 
 
 @app.route("/<int:rid>/loeschen", methods=["POST"])
@@ -305,6 +328,51 @@ def einstellungen():
         flash("Einstellungen gespeichert.")
         return redirect(url_for("einstellungen"))
     return page(EINST, s=settings())
+
+
+# ---------------------------------------------------------------- Monatsunterlagen
+MONAT = """
+<form class=card method=get><label>Monat</label>
+<input type=month name=m value="{{m}}" onchange="this.form.submit()" style="width:auto"></form>
+<form method=post enctype=multipart/form-data class=card>
+<h2>Monatsunterlagen {{m}}</h2><input type=hidden name=m value="{{m}}">
+<table><tr><th>Belegart</th><th>Vorhanden</th><th>Hochladen (mehrere Dateien möglich)</th></tr>
+{% for b in BELEGARTEN %}<tr><td>{{b}}</td>
+<td>{% if anzahl.get(b) %}<b style="color:#047857">&#10003; {{anzahl[b]}}</b>{% else %}<span style="color:#b45309">fehlt</span>{% endif %}</td>
+<td><input type=file name="f{{loop.index0}}" multiple accept=".pdf,.jpg,.jpeg,.png,.tif,.tiff"></td></tr>{% endfor %}</table>
+<p><button>Hochladen</button> <a class="btn sek" href="{{url_for('index',monat=m)}}">Belege dieses Monats anzeigen</a></p>
+<small>Pro Datei entsteht ein Beleg mit Datum = Monatsende. Rechnungseingänge mit Beträgen besser über „+ Neue Rechnung“ erfassen.</small>
+</form>"""
+
+
+@app.route("/monat", methods=["GET", "POST"])
+def monat():
+    m = request.values.get("m") or date.today().strftime("%Y-%m")
+    if request.method == "POST":
+        jahr, mon = int(m[:4]), int(m[5:7])
+        ende = (date(jahr + (mon == 12), mon % 12 + 1, 1) - date.resolution).isoformat()
+        n = 0
+        for i, b in enumerate(BELEGARTEN):
+            for up in request.files.getlist(f"f{i}"):
+                if not up.filename:
+                    continue
+                ext = Path(up.filename).suffix.lower()
+                if ext not in ERLAUBT:
+                    flash(f"{up.filename}: Dateityp nicht erlaubt.")
+                    continue
+                name = f"{uuid.uuid4().hex}{ext}"
+                up.save(BELEGE / name)
+                db().execute("INSERT INTO rechnungen(datum,lieferant,rechnungsnr,brutto,mwst_satz,kategorie,"
+                             "konto,status,notiz,datei,guid,angelegt,belegart) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                             (ende, b, "", 0, 0, "Sonstiges", "", "offen", Path(up.filename).name, name,
+                              str(uuid.uuid4()), datetime.now().isoformat(timespec="seconds"), b))
+                n += 1
+        db().commit()
+        flash(f"{n} Dateien gespeichert.")
+        return redirect(url_for("monat", m=m))
+    anzahl = {r["belegart"]: r["n"] for r in db().execute(
+        "SELECT belegart, COUNT(*) n FROM rechnungen WHERE substr(datum,1,7)=? GROUP BY belegart", (m,))}
+    return page(MONAT, m=m, BELEGARTEN=BELEGARTEN, anzahl=anzahl)
 
 
 # ---------------------------------------------------------------- DATEV-Export
@@ -384,11 +452,15 @@ def export():
     rows = [lade(i) for i in ids]
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
-        z.writestr(f"EXTF_Buchungsstapel_{date.today():%Y%m%d}.csv", buchungsstapel_csv(rows, s))
+        buch = [r for r in rows if r["belegart"] == EINGANG and r["brutto"]]
+        if buch:
+            z.writestr(f"EXTF_Buchungsstapel_{date.today():%Y%m%d}.csv", buchungsstapel_csv(buch, s))
         z.writestr("document.xml", document_xml(rows))
         for r in rows:
             if r["datei"]:
                 z.write(BELEGE / r["datei"], r["datei"])
+        z.writestr("Uebersicht.txt", "\n".join(
+            f'{r["datei"] or "-"}\t{r["datum"]}\t{r["belegart"]}\t{r["lieferant"]}' for r in rows))
     _markiere(ids)
     buf.seek(0)
     return send_file(buf, mimetype="application/zip", as_attachment=True,
