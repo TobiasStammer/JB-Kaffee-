@@ -60,6 +60,21 @@ STANDARD_ORDNER = r"Z:\Buchhaltung\Eingang"
 # Zuordnungsregeln: "Belegart = stichwort, stichwort" - erste passende Zeile gewinnt.
 # Gesucht wird im PDF-Text und im Dateinamen (Gross/Klein egal).
 # "nr:261" = Rechnungsnummer beginnt mit 261.
+STANDARD_LIEFERANTEN = """Jura Gastro
+Jura
+Amazon
+BND
+VW Leasing
+Axa
+Baloise
+Böttcher
+Deutsche Glasfaser
+Gross
+Ebay
+Grover
+GLS
+Wentronic
+Wertgarantie"""
 STANDARD_REGELN = """Rechnungsausgangliste = rechnungsausgangsliste, rechnungsausgangliste, ausgangsliste
 Monatsjournal Kasse = monatsjournal
 Kassenbuch = kassenbuch
@@ -74,7 +89,7 @@ SETTINGS_DEFAULT = {
     "sachkontenlaenge": "4", "gegenkonto": "1600", "diktatkuerzel": "",
     "datev_mail": "", "smtp_host": "", "smtp_port": "587", "smtp_user": "",
     "smtp_pass": "", "absender": "",
-    "eingang_ordner": STANDARD_ORDNER, "regeln": STANDARD_REGELN,
+    "eingang_ordner": STANDARD_ORDNER, "lieferanten": STANDARD_LIEFERANTEN, "regeln": STANDARD_REGELN,
 }
 
 
@@ -214,7 +229,7 @@ FORM = """
 <div><label>Belegart</label><select name=belegart>
  {% for b in BELEGARTEN %}<option {{'selected' if b==r.belegart}}>{{b}}</option>{% endfor %}</select></div>
 <div><label>Rechnungsdatum</label><input type=date name=datum value="{{r.datum}}" required></div>
-<div><label>Lieferant</label><input name=lieferant value="{{r.lieferant}}" required></div>
+<div><label>Lieferant</label><input name=lieferant value="{{r.lieferant}}" list=lief required><datalist id=lief>{% for l in LIEFERANTEN %}<option value="{{l}}">{% endfor %}</datalist></div>
 <div><label>Rechnungsnummer</label><input name=rechnungsnr value="{{r.rechnungsnr}}"></div>
 <div><label>Bruttobetrag (€, nur Rechnungseingang nötig)</label><input name=brutto value="{{'%.2f'|format(r.brutto)|replace('.',',') if r.brutto else ''}}"></div>
 <div><label>MwSt.-Satz</label><select name=mwst_satz>
@@ -248,6 +263,8 @@ EINST = """
 <div><label>SMTP-Passwort</label><input type=password name=smtp_pass value="{{s.smtp_pass}}"></div></div>
 <h3>Automatischer Eingang (Kassensoftware &rarr; PDF)</h3>
 <label>Eingangsordner (hier speicherst du die PDFs aus der Kasse ab)</label><input name=eingang_ordner value="{{s.eingang_ordner}}">
+<label>Lieferanten (ein Name pro Zeile; längere Namen zuerst, z. B. „Jura Gastro“ vor „Jura“)</label>
+<textarea name=lieferanten rows=8>{{s.lieferanten}}</textarea>
 <label>Zuordnungsregeln (eine Zeile je Belegart: <code>Belegart = stichwort, stichwort</code>; oberste passende Zeile gewinnt)</label>
 <textarea name=regeln rows=8 style="font-family:monospace">{{s.regeln}}</textarea>
 <small>Alles bleibt lokal in data/rechnungen.db auf diesem Rechner.</small>
@@ -339,7 +356,8 @@ def neu():
     r = type("R", (), dict(id=None, datum=date.today().isoformat(), lieferant="", rechnungsnr="",
                            brutto=0, mwst_satz=19, kategorie="Sonstiges", konto="",
                            status="offen", notiz="", datei=None, belegart=EINGANG))
-    return page(FORM, r=r, KAT=KATEGORIEN, STATUS=STATUS, BELEGARTEN=BELEGARTEN_ALLE)
+    return page(FORM, r=r, KAT=KATEGORIEN, STATUS=STATUS, BELEGARTEN=BELEGARTEN_ALLE,
+                LIEFERANTEN=lieferanten_liste(settings()))
 
 
 @app.route("/<int:rid>/bearbeiten", methods=["GET", "POST"])
@@ -348,7 +366,8 @@ def bearbeiten(rid):
     if request.method == "POST" and _speichern(rid):
         flash("Änderungen gespeichert.")
         return redirect(url_for("index"))
-    return page(FORM, r=type("R", (), dict(r)), KAT=KATEGORIEN, STATUS=STATUS, BELEGARTEN=BELEGARTEN_ALLE)
+    return page(FORM, r=type("R", (), dict(r)), KAT=KATEGORIEN, STATUS=STATUS, BELEGARTEN=BELEGARTEN_ALLE,
+                LIEFERANTEN=lieferanten_liste(settings()))
 
 
 @app.route("/<int:rid>/loeschen", methods=["POST"])
@@ -391,6 +410,18 @@ def regeln_parsen(text):
             if art in BELEGARTEN:
                 out.append((art, [k.strip().lower() for k in kw.split(",") if k.strip()]))
     return out
+
+
+def lieferanten_liste(cfg):
+    return [z.strip() for z in (cfg.get("lieferanten") or "").splitlines() if z.strip()]
+
+
+def finde_lieferant(text, dateiname, liste):
+    heu = text + "\n" + dateiname
+    for name in liste:
+        if re.search(r"(?<!\w)" + re.escape(name) + r"(?!\w)", heu, re.I):
+            return name
+    return ""
 
 
 def pdf_text(pfad):
@@ -461,13 +492,18 @@ def eingang_einlesen():
             continue
         text = pdf_text(f) if f.suffix.lower() == ".pdf" else ""
         art = klassifiziere(text, f.stem, regeln)
+        lief = ""
+        if art in (UNKLAR, EINGANG):
+            lief = finde_lieferant(text, f.stem, lieferanten_liste(cfg))
+            if lief:
+                art = EINGANG
         mtime = date.fromtimestamp(f.stat().st_mtime).isoformat()
         datum = finde_datum(text, mtime)
         name = f"{uuid.uuid4().hex}{f.suffix.lower()}"
         (BELEGE / name).write_bytes(daten)
         c.execute("INSERT INTO rechnungen(datum,lieferant,rechnungsnr,brutto,mwst_satz,kategorie,konto,status,"
                   "notiz,datei,guid,angelegt,belegart,hash) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                  (datum, art, finde_nummer(text), 0, 0, "Sonstiges", "", "offen", f.name, name,
+                  (datum, lief or art, finde_nummer(text), 0, 0, "Sonstiges", "", "offen", f.name, name,
                    str(uuid.uuid4()), datetime.now().isoformat(timespec="seconds"), art, h))
         c.commit()
         if ziel_alt.exists():
