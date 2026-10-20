@@ -412,6 +412,50 @@ def regeln_parsen(text):
     return out
 
 
+BETRAG_RE = re.compile(r"(?<![\d.,])(\d{1,3}(?:\.\d{3})+,\d{2}|\d+,\d{2})(?!\d)")
+BRUTTO_KW = re.compile(r"gesamtbetrag|rechnungsbetrag|endbetrag|zu zahlen|zahlbetrag|gesamtsumme|"
+                       r"summe brutto|brutto|total|gesamt|summe|betrag", re.I)
+
+
+def _zahl(t):
+    return float(t.replace(".", "").replace(",", "."))
+
+
+def finde_betrag(text):
+    """Liest Brutto und MwSt-Satz aus Rechnungstext. Gibt (brutto, satz) oder (None, None) zurueck."""
+    zeilen = text.splitlines()
+    kandidaten, netto = [], []
+    for i, z in enumerate(zeilen):
+        zl = z.lower()
+        if "netto" in zl:
+            netto += [_zahl(x) for x in BETRAG_RE.findall(z)]
+        if "brutto" in zl and "netto" in zl:  # beides in einer Zeile: nur Betraege hinter "brutto"
+            z = z[zl.index("brutto"):]
+            zl = zl[zl.index("brutto"):]
+        if BRUTTO_KW.search(z) and not re.search(r"zwischensumme|netto|mwst|ust|steuer", zl):
+            gef = [_zahl(x) for x in BETRAG_RE.findall(z)]
+            if not gef and i + 1 < len(zeilen):  # Betrag steht in der Folgezeile
+                gef = [_zahl(x) for x in BETRAG_RE.findall(zeilen[i + 1])][:1]
+            kandidaten += gef
+    if not kandidaten:
+        return None, None
+    brutto = max(kandidaten)
+    satz = None
+    for n in sorted(set(netto), reverse=True):
+        if 0 < n < brutto:
+            q = (brutto / n - 1) * 100
+            for cand in (19, 7):
+                if abs(q - cand) < 0.6:
+                    satz = cand
+                    break
+            if satz is not None:
+                break
+    if satz is None:
+        saetze = {int(x) for x in re.findall(r"(\d{1,2})(?:,0+)?\s*%", text) if x in ("19", "7")}
+        satz = 19 if 19 in saetze or not saetze else 7
+    return brutto, float(satz)
+
+
 def lieferanten_liste(cfg):
     return [z.strip() for z in (cfg.get("lieferanten") or "").splitlines() if z.strip()]
 
@@ -499,11 +543,16 @@ def eingang_einlesen():
                 art = EINGANG
         mtime = date.fromtimestamp(f.stat().st_mtime).isoformat()
         datum = finde_datum(text, mtime)
+        brutto, satz, hinweis = 0, 0, ""
+        if art == EINGANG:
+            b, sz = finde_betrag(text)
+            if b:
+                brutto, satz, hinweis = b, sz, " | Betrag automatisch gelesen - bitte pruefen"
         name = f"{uuid.uuid4().hex}{f.suffix.lower()}"
         (BELEGE / name).write_bytes(daten)
         c.execute("INSERT INTO rechnungen(datum,lieferant,rechnungsnr,brutto,mwst_satz,kategorie,konto,status,"
                   "notiz,datei,guid,angelegt,belegart,hash) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                  (datum, lief or art, finde_nummer(text), 0, 0, "Sonstiges", "", "offen", f.name, name,
+                  (datum, lief or art, finde_nummer(text), brutto, satz, "Sonstiges", "", "offen", f.name + hinweis, name,
                    str(uuid.uuid4()), datetime.now().isoformat(timespec="seconds"), art, h))
         c.commit()
         if ziel_alt.exists():
