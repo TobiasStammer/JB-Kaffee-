@@ -130,25 +130,40 @@ def netto(brutto, satz):
 
 # ---------------------------------------------------------------- Oberfläche
 CSS = """
-body{font-family:Segoe UI,Arial,sans-serif;margin:0;background:#f4f1ec;color:#2b2118}
-header{background:#3b2a1d;color:#fff;padding:12px 24px;display:flex;gap:24px;align-items:center}
-header a{color:#f1d9b5;text-decoration:none;font-weight:600} header b{font-size:18px;margin-right:auto}
-main{max-width:1150px;margin:20px auto;padding:0 16px}
-table{border-collapse:collapse;width:100%;background:#fff} th,td{padding:7px 9px;border-bottom:1px solid #e6dfd5;text-align:left;font-size:14px}
-th{background:#eadfce} td.r,th.r{text-align:right}
-.card{background:#fff;padding:16px 20px;margin-bottom:18px;border-radius:6px}
-label{display:block;font-size:13px;margin:8px 0 2px;font-weight:600}
-input,select,textarea{padding:6px;font-size:14px;width:100%;box-sizing:border-box;border:1px solid #c9bda9;border-radius:4px}
+:root{--accent:#334155;--accentd:#1e293b;--dark:#4a4a4a;--line:#d8d8d8;--soft:#f0efec;--head:#2b2b2b}
+body{font-family:'Source Sans 3','Source Sans Pro',system-ui,'Segoe UI',sans-serif;margin:0;background:#e3e5ea;color:#1c1c1c;line-height:1.5}
+h1,h2,h3,th,header b,button,.btn,label{font-family:Tahoma,Arial,sans-serif}
+h2,h3{color:var(--head);margin:0 0 10px} h3{font-size:15px;margin-top:18px}
+header{background:var(--dark);color:#fff;padding:0 24px;min-height:52px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+header b{font-size:16px;letter-spacing:.01em;margin-right:auto;padding:12px 0}
+header a{color:#fff;text-decoration:none;font-weight:700;font-size:13px;padding:17px 12px;border-bottom:3px solid transparent}
+header a:hover{border-bottom-color:#c9c9c9}
+main{max-width:1160px;margin:22px auto;padding:0 16px}
+a{color:var(--accent)}
+table{border-collapse:collapse;width:100%;background:#fff;border:1px solid var(--line)}
+th,td{padding:8px 11px;border-bottom:1px solid #e6e6e6;text-align:left;font-size:14px}
+th{background:var(--soft);color:var(--head);font-size:13px} td.r,th.r{text-align:right;font-variant-numeric:tabular-nums}
+tr:hover td{background:#fafafa}
+.card{background:#fff;padding:18px 22px;margin-bottom:18px;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:6px}
+label{display:block;font-size:13px;margin:10px 0 3px;font-weight:700;color:var(--head)}
+input,select,textarea{padding:8px 9px;font-size:15px;font-family:inherit;width:100%;box-sizing:border-box;border:1px solid #c7c9cf;border-radius:4px;background:#fff}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
+input[type=checkbox]{width:auto}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0 16px}
-button,.btn{background:#7a4a21;color:#fff;border:0;padding:8px 16px;border-radius:4px;font-size:14px;cursor:pointer;text-decoration:none;display:inline-block}
-button.sek,.btn.sek{background:#8c8273} .msg{padding:10px 14px;margin-bottom:12px;background:#fff3cd;border-left:4px solid #e0a800}
-.st-offen{color:#b45309}.st-bezahlt{color:#047857}.st-an{color:#1d4ed8} small{color:#6b5f52}
+button,.btn{background:var(--accent);color:#fff;border:0;padding:10px 20px;border-radius:3px;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
+button:hover,.btn:hover{background:var(--accentd)}
+button.sek,.btn.sek{background:#fff;color:var(--accent);border:1px solid var(--accent)}
+button.sek:hover,.btn.sek:hover{background:var(--soft)}
+.msg{padding:11px 15px;margin-bottom:14px;background:var(--soft);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:6px}
+.st-offen{color:#b45309;font-weight:600}.st-bezahlt{color:#047857;font-weight:600}.st-an{color:var(--accent);font-weight:600}
+small{color:#6b7178} code{background:var(--soft);padding:1px 5px;border-radius:3px}
+@media(max-width:700px){header a{padding:10px 8px}}
 """
 
 LAYOUT = """<!doctype html><html lang=de><meta charset=utf-8>
 <meta name=viewport content="width=device-width,initial-scale=1"><title>Rechnungen</title>
 <style>{{css}}</style>
-<header><b>&#9749; Rechnungen &amp; DATEV</b>
+<header><b>Rechnungen &amp; DATEV</b>
 <a href="{{url_for('index')}}">Übersicht</a><a href="{{url_for('neu')}}">+ Neue Rechnung</a><a href="{{url_for('monat')}}">Monatsunterlagen</a>
 <a href="{{url_for('einstellungen')}}">Einstellungen</a></header><main>
 {% for m in get_flashed_messages() %}<div class=msg>{{m}}</div>{% endfor %}
