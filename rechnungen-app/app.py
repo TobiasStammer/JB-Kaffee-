@@ -6,6 +6,7 @@ Daten:  data/rechnungen.db und data/belege/  (nicht in Git)
 import csv
 import io
 import os
+import re
 import smtplib
 import sqlite3
 import uuid
@@ -14,6 +15,8 @@ from datetime import date, datetime
 from email.message import EmailMessage
 from pathlib import Path
 
+from pypdf import PdfWriter
+from PIL import Image
 from flask import (Flask, abort, flash, g, redirect, render_template_string,
                    request, send_file, url_for)
 from werkzeug.utils import secure_filename
@@ -23,6 +26,7 @@ DATA = BASE / "data"
 BELEGE = DATA / "belege"
 DB = DATA / "rechnungen.db"
 BELEGE.mkdir(parents=True, exist_ok=True)
+PAKETE = DATA / "monatspakete"
 
 app = Flask(__name__)
 app.secret_key = "lokal-nur-auf-127.0.0.1"
@@ -341,7 +345,14 @@ MONAT = """
 <td>{% if anzahl.get(b) %}<b style="color:#047857">&#10003; {{anzahl[b]}}</b>{% else %}<span style="color:#b45309">fehlt</span>{% endif %}</td>
 <td><input type=file name="f{{loop.index0}}" multiple accept=".pdf,.jpg,.jpeg,.png,.tif,.tiff"></td></tr>{% endfor %}</table>
 <p><button>Hochladen</button> <a class="btn sek" href="{{url_for('index',monat=m)}}">Belege dieses Monats anzeigen</a></p>
-<small>Pro Datei entsteht ein Beleg mit Datum = Monatsende. Rechnungseingänge mit Beträgen besser über „+ Neue Rechnung“ erfassen.</small>
+</form>
+<form method=post action="{{url_for('paket')}}" class=card>
+<h2>Monatspaket für Unternehmen online</h2><input type=hidden name=m value="{{m}}">
+<p>Fügt pro Belegart alle PDFs/Bilder von {{m}} zu <b>einer</b> PDF zusammen
+(z. B. <code>{{m}}_Kassenbuch.pdf</code>) und legt sie in einen Ordner. Diese Dateien lädst du in
+DATEV Unternehmen online unter „Belege“ hoch.</p>
+<button>Monatspaket erstellen &amp; Ordner öffnen</button></form>
+<form class=card style="background:none;padding:0"><small>Pro Datei entsteht ein Beleg mit Datum = Monatsende. Rechnungseingänge mit Beträgen besser über „+ Neue Rechnung“ erfassen.</small>
 </form>"""
 
 
@@ -373,6 +384,62 @@ def monat():
     anzahl = {r["belegart"]: r["n"] for r in db().execute(
         "SELECT belegart, COUNT(*) n FROM rechnungen WHERE substr(datum,1,7)=? GROUP BY belegart", (m,))}
     return page(MONAT, m=m, BELEGARTEN=BELEGARTEN, anzahl=anzahl)
+
+
+def _in_pdf(w, pfad):
+    """Hängt PDF-Seiten bzw. ein Bild als PDF-Seite an den Writer an."""
+    if pfad.suffix.lower() == ".pdf":
+        w.append(str(pfad))
+        return
+    img = Image.open(pfad)
+    if getattr(img, "n_frames", 1) > 1:  # mehrseitiges TIFF
+        frames = []
+        for i in range(img.n_frames):
+            img.seek(i)
+            frames.append(img.convert("RGB").copy())
+    else:
+        frames = [img.convert("RGB")]
+    buf = io.BytesIO()
+    frames[0].save(buf, "PDF", save_all=True, append_images=frames[1:], resolution=150)
+    buf.seek(0)
+    w.append(buf)
+
+
+@app.route("/monat/paket", methods=["POST"])
+def paket():
+    m = request.form["m"]
+    ziel = PAKETE / m
+    ziel.mkdir(parents=True, exist_ok=True)
+    fertig, fehler = [], []
+    for b in BELEGARTEN:
+        rows = db().execute("SELECT * FROM rechnungen WHERE substr(datum,1,7)=? AND belegart=? AND datei "
+                            "IS NOT NULL ORDER BY datum, id", (m, b)).fetchall()
+        if not rows:
+            continue
+        w = PdfWriter()
+        for r in rows:
+            try:
+                _in_pdf(w, BELEGE / r["datei"])
+            except Exception as e:  # noqa: BLE001
+                fehler.append(f'{r["notiz"] or r["datei"]}: {e}')
+        if not len(w.pages):
+            continue
+        name = re.sub(r"[^A-Za-z0-9_.-]+", "_", f"{m}_{b}") + ".pdf"
+        with open(ziel / name, "wb") as fh:
+            w.write(fh)
+        w.close()
+        fertig.append(f"{name} ({len(rows)} Dateien, {(ziel / name).stat().st_size / 1e6:.1f} MB)")
+        for r in rows:
+            db().execute("UPDATE rechnungen SET status='an DATEV gesendet', gesendet=? WHERE id=?",
+                         (datetime.now().isoformat(timespec="seconds"), r["id"]))
+    db().commit()
+    if fehler:
+        flash("Nicht verarbeitbar: " + "; ".join(fehler))
+    flash("Erstellt: " + (", ".join(fertig) if fertig else "nichts – für diesen Monat liegen keine Belege vor.")
+          + f" → {ziel}")
+    if fertig and hasattr(os, "startfile"):
+        os.startfile(ziel)
+    return redirect(url_for("monat", m=m))
 
 
 # ---------------------------------------------------------------- DATEV-Export
