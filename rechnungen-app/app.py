@@ -607,6 +607,8 @@ def eingang_einlesen():
                 art = EINGANG
         mtime = date.fromtimestamp(f.stat().st_mtime).isoformat()
         datum = finde_datum(text, mtime)
+        if art == "Rechnungsausgangliste" and parse_zeitraum(text):
+            datum = parse_zeitraum(text)[1]
         brutto, satz, hinweis = 0, 0, ""
         kat = lieferant_kategorie(cfg, lief) if lief else "Sonstiges"
         if art == EINGANG:
@@ -751,15 +753,51 @@ def nummern_bereiche(nummern):
     return ", ".join(teile)
 
 
-def fehlende_ausgangsrechnungen():
-    """Eintraege der Rechnungsausgangsliste(n) mit Nummernkreis 261/263, zu denen noch keine PDF vorliegt."""
-    eintraege = {}
-    for l in db().execute("SELECT datei FROM rechnungen WHERE belegart='Rechnungsausgangliste' "
-                          "AND datei IS NOT NULL ORDER BY datum, id"):
+def parse_zeitraum(text):
+    """'vom: 01.10.2026 bis: 31.10.2026' -> ('2026-10-01', '2026-10-31') oder None."""
+    m = re.search(r"vom:?\s*(\d{2})\.(\d{2})\.(\d{4})\s*bis:?\s*(\d{2})\.(\d{2})\.(\d{4})", text, re.I)
+    if not m:
+        return None
+    t1, m1, j1, t2, m2, j2 = m.groups()
+    return f"{j1}-{m1}-{t1}", f"{j2}-{m2}-{t2}"
+
+
+def listen_laden():
+    """Alle abgelegten Rechnungsausgangslisten, aelteste zuerst (nach Zeitraum-Ende)."""
+    out = []
+    for l in db().execute("SELECT id, datum, notiz, datei FROM rechnungen WHERE belegart='Rechnungsausgangliste' "
+                          "AND datei IS NOT NULL ORDER BY id"):
         pfad = BELEGE / l["datei"]
-        if pfad.exists() and pfad.suffix.lower() == ".pdf":
-            for e in parse_ausgangsliste(pdf_text(pfad, max_seiten=None)):
-                eintraege[e["nr"]] = e
+        if not (pfad.exists() and pfad.suffix.lower() == ".pdf"):
+            continue
+        text = pdf_text(pfad, max_seiten=None)
+        von, bis = parse_zeitraum(text) or (l["datum"], l["datum"])
+        eint = {e["nr"]: e for e in parse_ausgangsliste(text)}
+        t1, m1, j1 = von[8:], von[5:7], von[:4]
+        t2, m2, j2 = bis[8:], bis[5:7], bis[:4]
+        out.append(dict(id=l["id"], notiz=l["notiz"], von=von, bis=bis, eintraege=eint,
+                        label=f"{t1}.{m1}. \u2013 {t2}.{m2}.{j2}  ({len(eint)} Rechnungen, {l['notiz']})"))
+    out.sort(key=lambda x: (x["bis"], x["id"]))
+    return out
+
+
+def liste_waehlen(listen, param):
+    """param: 'alle' | Listen-ID | leer/'neueste'. Gibt (Eintraege-Dict, gewaehlte Listen) zurueck."""
+    if param == "alle":
+        auswahl = listen
+    elif param and param != "neueste":
+        auswahl = [l for l in listen if str(l["id"]) == param]
+    else:
+        auswahl = listen[-1:]
+    eintraege = {}
+    for l in auswahl:
+        eintraege.update(l["eintraege"])
+    return eintraege, auswahl
+
+
+def fehlende_ausgangsrechnungen(param=None):
+    """Eintraege der gewaehlten Liste (Standard: neueste) mit Nummernkreis 261/263, zu denen keine PDF vorliegt."""
+    eintraege, _ = liste_waehlen(listen_laden(), param)
     vorhanden = {r[0] for r in db().execute("SELECT rechnungsnr FROM rechnungen WHERE datei IS NOT NULL "
                                             "AND rechnungsnr<>'' AND belegart<>'Rechnungsausgangliste'")}
     return [e for nr, e in sorted(eintraege.items())
@@ -768,7 +806,7 @@ def fehlende_ausgangsrechnungen():
 
 @app.route("/abgleich/fehlt.csv")
 def fehlt_csv():
-    fehlt, _ = fehlende_ausgangsrechnungen()
+    fehlt, _ = fehlende_ausgangsrechnungen(request.args.get("liste"))
     out = io.StringIO()
     w = csv.writer(out, delimiter=";", lineterminator="\r\n")
     w.writerow(["Rg.-Nr.", "Rg.-Datum", "Kd.-Nr.", "Kunde", "Betrag", "Nummernkreis"])
@@ -780,18 +818,26 @@ def fehlt_csv():
 
 ABGLEICH = """
 <form method=get class=card style="display:flex;gap:12px;align-items:end;flex-wrap:wrap">
- <div><label>Liste</label><select name=liste><option value="alle">alle Listen zusammen</option>
-  {% for l in listen %}<option value="{{l.id}}" {{'selected' if liste==l.id|string}}>{{l.datum}} &ndash; {{l.notiz}}</option>{% endfor %}</select></div>
+ <div><label>Rechnungsausgangsliste</label><select name=liste>
+  <option value="neueste" {{'selected' if liste=='neueste'}}>neueste Liste (Standard)</option>
+  {% for l in listen|reverse %}<option value="{{l.id}}" {{'selected' if liste==l.id|string}}>{{l.label}}</option>{% endfor %}
+  <option value="alle" {{'selected' if liste=='alle'}}>alle Listen zusammen</option></select></div>
  <label style="display:flex;gap:6px;align-items:center;margin:0 0 8px"><input type=checkbox name=alle value=1 {{'checked' if alle}}> alle Zeilen zeigen</label>
  <button>Abgleichen</button></form>
 {% if not eintraege %}<div class=card>Keine Rechnungsausgangsliste gefunden oder nicht lesbar. Lege sie unter
  <a href="{{url_for('monat')}}">Monatsunterlagen</a> ab bzw. in den Eingangsordner.</div>{% else %}
 <div class=card><h2>Fehlt noch</h2>
+<p style="margin:0 0 8px"><small>Abgleich gegen: <b>{{gewaehlt_label}}</b></small></p>
 {% if fehlt_gesamt %}
 {% for k in kreise if k.fehlt %}<p style="margin:6px 0"><b>{{k.kreis}}xxxx {{k.name}}:</b> {{k.fehlt}} von {{k.n}} Rechnungen fehlen
  ({{'%.2f'|format(k.fehlt_summe)|replace('.',',')}} &euro;)<br><span style="font-family:monospace">{{k.fehlt_bereiche}}</span></p>{% endfor %}
-<p><a class=btn href="{{url_for('fehlt_csv')}}">Fehlende als CSV (zum Nachdrucken)</a></p>
+<p><a class=btn href="{{url_for('fehlt_csv',liste=liste)}}">Fehlende als CSV (zum Nachdrucken)</a></p>
 {% else %}<p style="color:#047857;font-weight:700">&#10003; Alle Rechnungen der Liste sind vorhanden.</p>{% endif %}</div>
+{% if verlauf|length>1 %}<div class=card><h2>Verlauf je Liste</h2>
+<table><tr><th>Liste</th><th class=r>Rechnungen</th><th class=r>davon fehlen</th><th></th></tr>
+{% for v in verlauf %}<tr><td>{{v.label}}</td><td class=r>{{v.n}}</td>
+<td class=r {{'style="color:#b91c1c;font-weight:700"'|safe if v.fehlt else 'style="color:#047857"'|safe}}>{{v.fehlt if v.fehlt else '✓ 0'}}</td>
+<td><a href="{{url_for('abgleich',liste=v.id)}}">anzeigen</a></td></tr>{% endfor %}</table></div>{% endif %}
 <div class=card><h2>Zusammenfassung</h2>
 <table><tr><th>Nummernkreis</th><th class=r>Rechnungen in Liste</th><th class=r>Summe Liste</th><th class=r>PDF vorhanden</th>
 <th class=r>PDF fehlt</th><th class=r>Betrag weicht ab</th><th>Lücken in der Nummernfolge</th></tr>
@@ -823,18 +869,17 @@ KREIS_ART = {"261": "Rechnungsausgang Verkauf", "263": "Rechnungsausgang Service
 
 @app.route("/abgleich")
 def abgleich():
-    liste = request.args.get("liste", "alle")
+    liste = request.args.get("liste") or "neueste"
     alle = bool(request.args.get("alle"))
-    listen = db().execute("SELECT id, datum, notiz, datei FROM rechnungen WHERE belegart='Rechnungsausgangliste' "
-                          "AND datei IS NOT NULL ORDER BY datum, id").fetchall()
-    gewaehlt = [l for l in listen if liste == "alle" or str(l["id"]) == liste]
-    eintraege = {}
-    for l in gewaehlt:
-        pfad = BELEGE / l["datei"]
-        if pfad.exists() and pfad.suffix.lower() == ".pdf":
-            for e in parse_ausgangsliste(pdf_text(pfad, max_seiten=None)):
-                eintraege[e["nr"]] = e
-    page_ctx = dict(listen=[dict(l) for l in listen], liste=liste, alle=alle, eintraege=eintraege,
+    listen = listen_laden()
+    eintraege, gewaehlt = liste_waehlen(listen, liste)
+    vorhanden_nr = {r[0] for r in db().execute("SELECT rechnungsnr FROM rechnungen WHERE datei IS NOT NULL "
+                                               "AND rechnungsnr<>'' AND belegart<>'Rechnungsausgangliste'")}
+    verlauf = [dict(id=l["id"], label=l["label"].split("  (")[0], n=len(l["eintraege"]),
+                    fehlt=sum(1 for nr in l["eintraege"] if nr.startswith(NUMMERNKREISE) and nr not in vorhanden_nr))
+               for l in reversed(listen)]
+    page_ctx = dict(listen=listen, liste=liste, alle=alle, eintraege=eintraege, verlauf=verlauf,
+                    gewaehlt_label=" + ".join(l["label"].split("  (")[0] for l in gewaehlt) or "–",
                     kreise=[], zeilen=[], extra=[], falsch=[], von="", bis="", fehlt_gesamt=0)
     if not eintraege:
         return page(ABGLEICH, **page_ctx)
@@ -926,6 +971,7 @@ def monat():
         jahr, mon = int(m[:4]), int(m[5:7])
         ende = (date(jahr + (mon == 12), mon % 12 + 1, 1) - date.resolution).isoformat()
         n = 0
+        liste_hochgeladen = False
         for i, b in enumerate(BELEGARTEN):
             for up in request.files.getlist(f"f{i}"):
                 if not up.filename:
@@ -948,8 +994,14 @@ def monat():
                              (datum, b, nr, brutto, satz, "Sonstiges", "", "offen", Path(up.filename).name, name,
                               str(uuid.uuid4()), datetime.now().isoformat(timespec="seconds"), b))
                 n += 1
+                liste_hochgeladen = liste_hochgeladen or b == "Rechnungsausgangliste"
         db().commit()
         flash(f"{n} Dateien gespeichert.")
+        if liste_hochgeladen:
+            fehlt, anzahl = fehlende_ausgangsrechnungen()
+            flash(f"Rechnungsausgangsliste abgeglichen: {anzahl} Rechnungen, "
+                  + (f"{len(fehlt)} fehlen noch." if fehlt else "alle vorhanden."))
+            return redirect(url_for("abgleich"))
         return redirect(url_for("monat", m=m))
     anzahl = {r["belegart"]: r["n"] for r in db().execute(
         "SELECT belegart, COUNT(*) n FROM rechnungen WHERE substr(datum,1,7)=? GROUP BY belegart", (m,))}
