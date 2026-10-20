@@ -1,4 +1,4 @@
-"""Startet die Rechnungs-App im eigenen Fenster (ohne Konsole, ohne Adressleiste).
+﻿"""Startet die Rechnungs-App im eigenen Fenster (ohne Konsole, ohne Adressleiste).
 
 Ablauf: Server im Hintergrund starten -> warten bis er antwortet -> Edge/Chrome im App-Modus
 oeffnen -> beim Schliessen des Fensters alles beenden.
@@ -62,7 +62,7 @@ def main():
         threading.Thread(target=A._waechter, daemon=True).start()
         server = make_server("127.0.0.1", PORT, A.app, threaded=True)
         threading.Thread(target=server.serve_forever, daemon=True).start()
-        for _ in range(50):
+        for _ in range(300):
             if port_offen():
                 break
             time.sleep(0.1)
@@ -73,9 +73,28 @@ def main():
             time.sleep(60)
     profil = BASE / "data" / "fensterprofil"
     profil.mkdir(parents=True, exist_ok=True)
-    subprocess.run([browser, f"--app={URL}", f"--user-data-dir={profil}", "--window-size=1280,900",
-                    "--no-first-run", "--no-default-browser-check"])
-    os._exit(0)
+    subprocess.Popen([browser, f"--app={URL}", f"--user-data-dir={profil}", "--window-size=1280,900",
+                      "--no-first-run", "--no-default-browser-check"])
+    # Edge uebergibt das Fenster evtl. an einen schon laufenden Prozess und kehrt sofort zurueck.
+    # Darum nicht auf Popen warten, sondern pruefen, ob noch ein Edge mit unserem Profil laeuft.
+    ps = ("(Get-CimInstance Win32_Process -Filter \"Name='msedge.exe' OR Name='chrome.exe'\" | "
+          "Where-Object { $_.CommandLine -like '*fensterprofil*' -and $_.CommandLine -notlike '*--type=*' }"
+          " | Measure-Object).Count")
+    gesehen, leer = False, 0
+    start = time.time()
+    while True:
+        time.sleep(3)
+        try:
+            n = int(subprocess.run(["powershell", "-NoProfile", "-Command", ps], capture_output=True,
+                                   text=True, creationflags=NOWIN).stdout.strip() or 0)
+        except Exception:  # noqa: BLE001
+            n = 1
+        if n:
+            gesehen, leer = True, 0
+        else:
+            leer += 1
+            if (gesehen and leer >= 2) or (not gesehen and time.time() - start > 30):
+                os._exit(0)
 
 
 if __name__ == "__main__":
