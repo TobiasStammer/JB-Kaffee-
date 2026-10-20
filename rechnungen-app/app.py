@@ -189,6 +189,7 @@ LAYOUT = """<!doctype html><html lang=de><meta charset=utf-8>
 <nav class=band><ul>
 <li><a href="{{url_for('index')}}" class="{{'on' if request.endpoint in ('index','bearbeiten') else ''}}">Übersicht</a></li>
 <li><a href="{{url_for('neu')}}" class="{{'on' if request.endpoint=='neu' else ''}}">Neue Rechnung</a></li>
+<li><a href="{{url_for('abgleich')}}" class="{{'on' if request.endpoint=='abgleich' else ''}}">Abgleich</a></li>
 <li><a href="{{url_for('monat')}}" class="{{'on' if request.endpoint=='monat' else ''}}">Monatsunterlagen</a></li>
 <li><a href="{{url_for('einstellungen')}}" class="{{'on' if request.endpoint=='einstellungen' else ''}}">Einstellungen</a></li>
 </ul></nav><main>
@@ -507,10 +508,10 @@ def finde_lieferant(text, dateiname, liste):
     return ""
 
 
-def pdf_text(pfad):
+def pdf_text(pfad, max_seiten=3):
     try:
         r = PdfReader(str(pfad))
-        return "\n".join((pg.extract_text() or "") for pg in r.pages[:3])
+        return "\n".join((pg.extract_text() or "") for pg in r.pages[:max_seiten])
     except Exception:  # noqa: BLE001
         return ""
 
@@ -667,6 +668,144 @@ def eingang_jetzt():
     n = eingang_einlesen()
     flash(f"{n} neue Dateien eingelesen." if n else "Keine neuen Dateien im Eingangsordner.")
     return redirect(url_for("index"))
+
+
+# ---------------------------------------------------------------- Abgleich Rechnungsausgangsliste
+NUMMERNKREISE = ("261", "263")
+LISTE_RE = re.compile(r"^(\d+)\n((?:[^\n]*\n){1,3}?)(\d{7})\n(\d{2}\.\d{2}\.\d{4})\n(-?\d+\.\d{2})\n(-?\d+\.\d{2})$",
+                      re.M)
+
+
+def kasse_zahl(t):
+    """Kassenformat '2.499.00' / '1298.90' (Punkt auch als Tausender) -> float."""
+    neg = t.strip().startswith("-")
+    ziffern = re.sub(r"\D", "", t)
+    return (-1 if neg else 1) * int(ziffern) / 100
+
+
+def finde_endsumme(text):
+    m = re.search(r"Endsumme:?\s*(-?[\d.]+)\s*€", text)
+    if m:
+        return kasse_zahl(m.group(1))
+    b, _ = finde_betrag(text)
+    return b
+
+
+def parse_ausgangsliste(text):
+    out = []
+    for kd, name, nr, dat, offen, betrag in LISTE_RE.findall(text):
+        t, m_, j = dat.split(".")
+        out.append(dict(kd=kd, name=" ".join(name.split()), nr=nr, datum=f"{j}-{m_}-{t}",
+                        offen=float(offen), betrag=float(betrag)))
+    return out
+
+
+ABGLEICH = """
+<form method=get class=card style="display:flex;gap:12px;align-items:end;flex-wrap:wrap">
+ <div><label>Liste</label><select name=liste><option value="alle">alle Listen zusammen</option>
+  {% for l in listen %}<option value="{{l.id}}" {{'selected' if liste==l.id|string}}>{{l.datum}} &ndash; {{l.notiz}}</option>{% endfor %}</select></div>
+ <label style="display:flex;gap:6px;align-items:center;margin:0 0 8px"><input type=checkbox name=alle value=1 {{'checked' if alle}}> alle Zeilen zeigen</label>
+ <button>Abgleichen</button></form>
+{% if not eintraege %}<div class=card>Keine Rechnungsausgangsliste gefunden oder nicht lesbar. Lege sie unter
+ <a href="{{url_for('monat')}}">Monatsunterlagen</a> ab bzw. in den Eingangsordner.</div>{% else %}
+<div class=card><h2>Zusammenfassung</h2>
+<table><tr><th>Nummernkreis</th><th class=r>Rechnungen in Liste</th><th class=r>Summe Liste</th><th class=r>PDF vorhanden</th>
+<th class=r>PDF fehlt</th><th class=r>Betrag weicht ab</th><th>Lücken in der Nummernfolge</th></tr>
+{% for k in kreise %}<tr><td><b>{{k.kreis}}</b>xxxx {{k.name}}</td><td class=r>{{k.n}}</td>
+<td class=r>{{'%.2f'|format(k.summe)|replace('.',',')}}</td><td class=r>{{k.mit}}</td>
+<td class=r {{'style="color:#b91c1c;font-weight:700"'|safe if k.fehlt}}>{{k.fehlt}}</td>
+<td class=r {{'style="color:#b91c1c;font-weight:700"'|safe if k.abw}}>{{k.abw}}</td>
+<td>{% if k.luecken %}{{k.luecken|length}}: {{k.luecken[:12]|join(', ')}}{{' …' if k.luecken|length>12}}{% else %}keine{% endif %}</td></tr>{% endfor %}
+</table><small>Zeitraum der Liste(n): {{von}} bis {{bis}}. Lücken können stornierte oder nicht gedruckte Nummern sein.</small></div>
+<div class=card><h2>{{'Alle Rechnungen' if alle else 'Abweichungen'}} ({{zeilen|length}})</h2>
+<table><tr><th>Rg.-Nr.</th><th>Datum</th><th>Kunde</th><th class=r>Betrag Liste</th><th class=r>Betrag PDF</th><th>Ergebnis</th></tr>
+{% for z in zeilen %}<tr><td>{{z.nr}}</td><td>{{z.datum}}</td><td>{{z.name}}</td>
+<td class=r>{{'%.2f'|format(z.betrag)|replace('.',',')}}</td>
+<td class=r>{{('%.2f'|format(z.pdf_betrag)|replace('.',',')) if z.pdf_betrag is not none else '–'}}</td>
+<td style="color:{{z.farbe}};font-weight:600">{{z.text}}{% if z.rid %} &middot; <a href="{{url_for('beleg',rid=z.rid)}}" target=_blank>PDF</a>{% endif %}</td></tr>
+{% else %}<tr><td colspan=6>Keine Abweichungen &ndash; alles passt.</td></tr>{% endfor %}</table></div>
+{% if extra %}<div class=card><h2>PDFs ohne Eintrag in der Liste ({{extra|length}})</h2>
+<table><tr><th>Rg.-Nr.</th><th>Datum</th><th>Belegart</th><th>PDF</th></tr>
+{% for r in extra %}<tr><td>{{r.rechnungsnr}}</td><td>{{r.datum}}</td><td>{{r.belegart}}</td>
+<td><a href="{{url_for('beleg',rid=r.id)}}" target=_blank>öffnen</a> &middot; <a href="{{url_for('bearbeiten',rid=r.id)}}">bearbeiten</a></td></tr>{% endfor %}</table></div>{% endif %}
+{% if falsch %}<div class=card><h2>Belegart passt nicht zum Nummernkreis ({{falsch|length}})</h2>
+<table><tr><th>Rg.-Nr.</th><th>aktuell</th><th>erwartet</th><th></th></tr>
+{% for r,soll in falsch %}<tr><td>{{r.rechnungsnr}}</td><td>{{r.belegart}}</td><td>{{soll}}</td>
+<td><a href="{{url_for('bearbeiten',rid=r.id)}}">bearbeiten</a></td></tr>{% endfor %}</table></div>{% endif %}
+{% endif %}"""
+
+KREIS_ART = {"261": "Rechnungsausgang Verkauf", "263": "Rechnungsausgang Service"}
+
+
+@app.route("/abgleich")
+def abgleich():
+    liste = request.args.get("liste", "alle")
+    alle = bool(request.args.get("alle"))
+    listen = db().execute("SELECT id, datum, notiz, datei FROM rechnungen WHERE belegart='Rechnungsausgangliste' "
+                          "AND datei IS NOT NULL ORDER BY datum, id").fetchall()
+    gewaehlt = [l for l in listen if liste == "alle" or str(l["id"]) == liste]
+    eintraege = {}
+    for l in gewaehlt:
+        pfad = BELEGE / l["datei"]
+        if pfad.exists() and pfad.suffix.lower() == ".pdf":
+            for e in parse_ausgangsliste(pdf_text(pfad, max_seiten=None)):
+                eintraege[e["nr"]] = e
+    page_ctx = dict(listen=[dict(l) for l in listen], liste=liste, alle=alle, eintraege=eintraege,
+                    kreise=[], zeilen=[], extra=[], falsch=[], von="", bis="")
+    if not eintraege:
+        return page(ABGLEICH, **page_ctx)
+
+    # abgelegte Rechnungen nach Nummer
+    pdfs = {}
+    for r in db().execute("SELECT * FROM rechnungen WHERE rechnungsnr<>'' AND datei IS NOT NULL "
+                          "AND belegart<>'Rechnungsausgangliste'"):
+        pdfs.setdefault(r["rechnungsnr"], r)
+
+    zeilen, kreise = [], []
+    for kreis in NUMMERNKREISE:
+        mine = [e for e in eintraege.values() if e["nr"].startswith(kreis)]
+        nummern = sorted(int(e["nr"]) for e in mine)
+        luecken = [n for n in range(nummern[0], nummern[-1] + 1) if n not in set(nummern)] if nummern else []
+        mit = fehlt = abw = 0
+        for e in sorted(mine, key=lambda x: x["nr"]):
+            r = pdfs.get(e["nr"])
+            z = dict(e, rid=None, pdf_betrag=None)
+            if not r:
+                fehlt += 1
+                z.update(text="PDF fehlt", farbe="#b91c1c")
+            else:
+                mit += 1
+                z["rid"] = r["id"]
+                pfad = BELEGE / r["datei"]
+                pb = finde_endsumme(pdf_text(pfad)) if pfad.suffix.lower() == ".pdf" else None
+                z["pdf_betrag"] = pb
+                if pb is None:
+                    z.update(text="PDF da, Betrag nicht lesbar", farbe="#6b7178")
+                elif abs(pb - e["betrag"]) > 0.01:
+                    abw += 1
+                    z.update(text=f"Betrag weicht ab ({pb - e['betrag']:+.2f})".replace(".", ","), farbe="#b91c1c")
+                elif e["betrag"] == 0:
+                    z.update(text="Betrag 0,00 – bitte prüfen", farbe="#b45309")
+                else:
+                    z.update(text="OK", farbe="#047857")
+            zeilen.append(z)
+        kreise.append(dict(kreis=kreis, name=KREIS_ART[kreis].replace("Rechnungsausgang ", ""), n=len(mine),
+                           summe=sum(e["betrag"] for e in mine), mit=mit, fehlt=fehlt, abw=abw, luecken=luecken))
+    page_ctx["kreise"] = kreise
+    page_ctx["zeilen"] = zeilen if alle else [z for z in zeilen if z["text"] != "OK"]
+    daten = sorted(e["datum"] for e in eintraege.values())
+    page_ctx["von"], page_ctx["bis"] = daten[0], daten[-1]
+
+    # PDFs im Zeitraum der Liste, die in der Liste fehlen / falsche Belegart
+    for nr, r in sorted(pdfs.items()):
+        kreis = next((k for k in NUMMERNKREISE if nr.startswith(k) and len(nr) == 7), None)
+        if not kreis:
+            continue
+        if nr not in eintraege and daten[0] <= r["datum"] <= daten[-1]:
+            page_ctx["extra"].append(r)
+        if r["belegart"] != KREIS_ART[kreis]:
+            page_ctx["falsch"].append((r, KREIS_ART[kreis]))
+    return page(ABGLEICH, **page_ctx)
 
 
 # ---------------------------------------------------------------- Monatsunterlagen
