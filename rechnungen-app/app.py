@@ -185,6 +185,7 @@ small{color:#6b7178} code{background:var(--soft);padding:1px 5px;border-radius:3
 
 LAYOUT = """<!doctype html><html lang=de><meta charset=utf-8>
 <meta name=viewport content="width=device-width,initial-scale=1"><title>Rechnungen</title>
+<link rel="icon" type="image/png" href="/static/icon.png"><link rel="shortcut icon" href="/static/icon.ico">
 <style>{{css|safe}}</style>
 <div class=top><b>Rechnungen &amp; DATEV</b><small>kaffeetechniker.de</small></div>
 <nav class=band><ul>
