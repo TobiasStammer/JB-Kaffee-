@@ -1034,12 +1034,13 @@ ABGLEICH = """
 <td>{% if k.luecken %}{{k.luecken|length}}: {{k.luecken[:12]|join(', ')}}{{' …' if k.luecken|length>12}}{% else %}keine{% endif %}</td></tr>{% endfor %}
 </table><small>Zeitraum der Liste(n): {{von}} bis {{bis}}. Lücken können stornierte oder nicht gedruckte Nummern sein.</small></div>
 <div class=card><h2>{{'Alle Rechnungen' if alle else 'Abweichungen'}} ({{zeilen|length}})</h2>
-<table><tr><th>Rg.-Nr.</th><th>Datum</th><th>Kunde</th><th class=r>Betrag Liste</th><th class=r>Betrag PDF</th><th>Ergebnis</th></tr>
+<table><tr><th>Rg.-Nr.</th><th>Datum</th><th>Kunde</th><th class=r>Betrag Liste</th><th class=r>Offen laut Liste</th><th class=r>Betrag PDF</th><th>Ergebnis</th></tr>
 {% for z in zeilen %}<tr><td>{{z.nr}}</td><td>{{z.datum}}</td><td>{{z.name}}</td>
 <td class=r>{{'%.2f'|format(z.betrag)|replace('.',',')}}</td>
+<td class=r>{{'%.2f'|format(z.offen)|replace('.',',')}}</td>
 <td class=r>{{('%.2f'|format(z.pdf_betrag)|replace('.',',')) if z.pdf_betrag is not none else '–'}}</td>
 <td style="color:{{z.farbe}};font-weight:600">{{z.text}}{% if z.rid %} &middot; <a href="{{url_for('beleg',rid=z.rid)}}" target=_blank>PDF</a>{% endif %}</td></tr>
-{% else %}<tr><td colspan=6>Keine Abweichungen &ndash; alles passt.</td></tr>{% endfor %}</table></div>
+{% else %}<tr><td colspan=7>Keine Abweichungen &ndash; alles passt.</td></tr>{% endfor %}</table></div>
 {% if extra %}<div class=card><h2>PDFs ohne Eintrag in der Liste ({{extra|length}})</h2>
 <table><tr><th>Rg.-Nr.</th><th>Datum</th><th>Belegart</th><th>PDF</th></tr>
 {% for r in extra %}<tr><td>{{r.rechnungsnr}}</td><td>{{r.datum}}</td><td>{{r.belegart}}</td>
