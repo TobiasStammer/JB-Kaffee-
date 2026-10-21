@@ -8,6 +8,7 @@ import io
 import os
 import re
 import hashlib
+import itertools
 import shutil
 import smtplib
 import sqlite3
@@ -16,7 +17,7 @@ import time
 import uuid
 import xml.etree.ElementTree as ET
 import zipfile
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from email.message import EmailMessage
 from pathlib import Path
 
@@ -123,6 +124,7 @@ def init_db():
         id INTEGER PRIMARY KEY AUTOINCREMENT, dokument_id INTEGER, datum TEXT, beleg TEXT, name TEXT,
         betrag REAL, zeit TEXT, rechnungsnr TEXT, UNIQUE(datum, beleg, rechnungsnr));
     CREATE TABLE IF NOT EXISTS kasse_geprueft(dokument_id INTEGER PRIMARY KEY);
+    CREATE TABLE IF NOT EXISTS quittiert(rechnungsnr TEXT PRIMARY KEY, bemerkung TEXT, am TEXT);
     CREATE TABLE IF NOT EXISTS bank(
         id INTEGER PRIMARY KEY AUTOINCREMENT, datum TEXT, betrag REAL, name TEXT, zweck TEXT,
         dokument TEXT, schluessel TEXT UNIQUE);
@@ -752,6 +754,26 @@ def finde_nummer(text):
     return g.group(1) if g else ""
 
 
+def _kontoauszug_importieren(c, f, fertig):
+    """Liest eine Kontoauszugsdatei aus dem Eingangsordner in die Tabelle bank. True, wenn es einer war."""
+    try:
+        daten = f.read_bytes()
+        buchungen = parse_kontoauszug(daten, f.name)
+    except Exception:  # noqa: BLE001
+        return False
+    if not buchungen:
+        return False
+    for b in buchungen:
+        key = hashlib.sha1(f"{b['datum']}|{b['betrag']:.2f}|{b['name']}|{b['zweck']}".encode()).hexdigest()
+        c.execute("INSERT OR IGNORE INTO bank(datum,betrag,name,zweck,dokument,schluessel) VALUES(?,?,?,?,?,?)",
+                  (b["datum"], b["betrag"], b["name"], b["zweck"], f.name, key))
+    c.commit()
+    (DATA / "kontoauszuege").mkdir(exist_ok=True)
+    (DATA / "kontoauszuege" / f"{datetime.now():%Y%m%d-%H%M%S}_{secure_filename(f.name)}").write_bytes(daten)
+    shutil.move(str(f), str(fertig / f"{int(time.time())}_{f.name}"))
+    return True
+
+
 def eingang_einlesen():
     """Liest alle neuen PDFs/Bilder aus dem Eingangsordner. Eigene DB-Verbindung (laeuft auch im Thread)."""
     c = sqlite3.connect(DB)
@@ -768,6 +790,11 @@ def eingang_einlesen():
     regeln = regeln_parsen(cfg["regeln"])
     n = 0
     for f in sorted(ordner.iterdir()):
+        if f.is_file() and f.suffix.lower() in (".csv", ".xml", ".camt"):
+            # Kontoauszug (CSV-CAMT / CAMT.053): einlesen; andere CSV/XML-Dateien bleiben unberuehrt liegen
+            if time.time() - f.stat().st_mtime >= 3 and _kontoauszug_importieren(c, f, fertig):
+                n += 1
+            continue
         if not f.is_file() or f.suffix.lower() not in ERLAUBT:
             continue
         if time.time() - f.stat().st_mtime < 3:  # Drucker schreibt evtl. noch
@@ -1003,6 +1030,12 @@ def liste_waehlen(listen, param):
     return eintraege, auswahl
 
 
+def quittiert_laden():
+    """{Rechnungsnummer: {bem, am}} - im Abgleich per 'OK geben' bestaetigte Abweichungen."""
+    return {r["rechnungsnr"]: dict(bem=r["bemerkung"] or "", am=r["am"])
+            for r in db().execute("SELECT rechnungsnr, bemerkung, am FROM quittiert")}
+
+
 def fehlende_ausgangsrechnungen(param=None):
     """Eintraege der gewaehlten Liste (Standard: neueste) mit Nummernkreis 261/263, zu denen keine PDF vorliegt."""
     listen = listen_laden()
@@ -1010,8 +1043,9 @@ def fehlende_ausgangsrechnungen(param=None):
     eintraege, _ = liste_waehlen(listen, param)
     vorhanden = {r[0] for r in db().execute("SELECT rechnungsnr FROM rechnungen WHERE datei IS NOT NULL "
                                             "AND rechnungsnr<>'' AND belegart<>'Rechnungsausgangliste'")}
+    quitt = quittiert_laden()
     return [e for nr, e in sorted(eintraege.items())
-            if nr.startswith(NUMMERNKREISE) and nr not in vorhanden], len(eintraege)
+            if nr.startswith(NUMMERNKREISE) and nr not in vorhanden and nr not in quitt], len(eintraege)
 
 
 @app.route("/abgleich/fehlt.csv")
@@ -1060,13 +1094,15 @@ ABGLEICH = """
 <td>{% if k.luecken %}{{k.luecken|length}}: {{k.luecken[:12]|join(', ')}}{{' …' if k.luecken|length>12}}{% else %}keine{% endif %}</td></tr>{% endfor %}
 </table><small>Zeitraum der Liste(n): {{von}} bis {{bis}}. Lücken können stornierte oder nicht gedruckte Nummern sein.</small></div>
 <div class=card><h2>{{'Alle Rechnungen' if alle else 'Abweichungen'}} ({{zeilen|length}})</h2>
-<table><tr><th>Rg.-Nr.</th><th>Datum</th><th>Kunde</th><th class=r>Betrag Liste</th><th>Zahlung</th><th class=r>Betrag PDF</th><th>Ergebnis</th></tr>
+<table><tr><th>Rg.-Nr.</th><th>Datum</th><th>Kunde</th><th class=r>Betrag Liste</th><th>Zahlung</th><th class=r>Betrag PDF</th><th>Ergebnis</th><th></th></tr>
 {% for z in zeilen %}<tr><td>{{z.nr}}</td><td>{{z.datum}}</td><td>{{z.name}}</td>
 <td class=r>{{'%.2f'|format(z.betrag)|replace('.',',')}}</td>
 <td class="z-{{z.zahl_klasse}}">{{z.zahl}}</td>
 <td class=r>{{('%.2f'|format(z.pdf_betrag)|replace('.',',')) if z.pdf_betrag is not none else '–'}}</td>
-<td style="color:{{z.farbe}};font-weight:600">{{z.text}}{% if z.rid %} &middot; <a href="{{url_for('beleg',rid=z.rid)}}" target=_blank>PDF</a>{% endif %}</td></tr>
-{% else %}<tr><td colspan=7>Keine Abweichungen &ndash; alles passt.</td></tr>{% endfor %}</table></div>
+<td style="color:{{z.farbe}};font-weight:600">{{z.text}}{% if z.rid %} &middot; <a href="{{url_for('beleg',rid=z.rid)}}" target=_blank>PDF</a>{% endif %}</td>
+<td>{% if z.bestaetigt %}<form method=post action="{{url_for('abgleich_ok')}}"><input type=hidden name=nr value="{{z.nr}}"><input type=hidden name=aufheben value=1><input type=hidden name=zurueck value="{{zurueck}}"><button class=sek style="padding:4px 10px">Bestätigung aufheben</button></form>
+{% elif not z.ok %}<form method=post action="{{url_for('abgleich_ok')}}" style="display:flex;gap:6px;align-items:center"><input type=hidden name=nr value="{{z.nr}}"><input type=hidden name=zurueck value="{{zurueck}}"><input name=bemerkung placeholder="Bemerkung (optional)" style="width:170px;padding:4px"><button style="padding:4px 12px;white-space:nowrap">OK geben</button></form>{% endif %}</td></tr>
+{% else %}<tr><td colspan=8>Keine Abweichungen &ndash; alles passt.</td></tr>{% endfor %}</table></div>
 {% if extra %}<div class=card><h2>PDFs ohne Eintrag in der Liste ({{extra|length}})</h2>
 <table><tr><th>Rg.-Nr.</th><th>Datum</th><th>Belegart</th><th>PDF</th></tr>
 {% for r in extra %}<tr><td>{{r.rechnungsnr}}</td><td>{{r.datum}}</td><td>{{r.belegart}}</td>
@@ -1080,8 +1116,25 @@ ABGLEICH = """
 KREIS_ART = {"261": "Rechnungsausgang Verkauf", "263": "Rechnungsausgang Service"}
 
 
+@app.route("/abgleich/ok", methods=["POST"])
+def abgleich_ok():
+    """Bestaetigt eine Abweichung im Abgleich ('OK geben') bzw. nimmt die Bestaetigung zurueck."""
+    nr = request.form.get("nr", "").strip()
+    if nr:
+        if request.form.get("aufheben"):
+            db().execute("DELETE FROM quittiert WHERE rechnungsnr=?", (nr,))
+        else:
+            db().execute("INSERT OR REPLACE INTO quittiert(rechnungsnr,bemerkung,am) VALUES(?,?,?)",
+                         (nr, request.form.get("bemerkung", "").strip(), date.today().isoformat()))
+        db().commit()
+    ziel = request.form.get("zurueck", "")
+    return redirect(ziel if ziel.startswith("/abgleich") else url_for("abgleich"))
+
+
 @app.route("/abgleich")
 def abgleich():
+    zahlungen_synchronisieren()
+    quitt = quittiert_laden()
     liste = request.args.get("liste") or "neueste"
     alle = bool(request.args.get("alle"))
     listen = listen_laden()
@@ -1089,11 +1142,13 @@ def abgleich():
     vorhanden_nr = {r[0] for r in db().execute("SELECT rechnungsnr FROM rechnungen WHERE datei IS NOT NULL "
                                                "AND rechnungsnr<>'' AND belegart<>'Rechnungsausgangliste'")}
     verlauf = [dict(id=l["id"], label=l["label"].split("  (")[0], n=len(l["eintraege"]),
-                    fehlt=sum(1 for nr in l["eintraege"] if nr.startswith(NUMMERNKREISE) and nr not in vorhanden_nr))
+                    fehlt=sum(1 for nr in l["eintraege"] if nr.startswith(NUMMERNKREISE) and nr not in vorhanden_nr
+                              and nr not in quitt))
                for l in reversed(listen)]
     page_ctx = dict(listen=listen, liste=liste, alle=alle, eintraege=eintraege, verlauf=verlauf,
                     gewaehlt_label=" + ".join(l["label"].split("  (")[0] for l in gewaehlt) or "–",
-                    kreise=[], zeilen=[], extra=[], falsch=[], von="", bis="", fehlt_gesamt=0)
+                    kreise=[], zeilen=[], extra=[], falsch=[], von="", bis="", fehlt_gesamt=0,
+                    zurueck=request.full_path.rstrip("?"))
     if not eintraege:
         return page(ABGLEICH, **page_ctx)
 
@@ -1104,6 +1159,10 @@ def abgleich():
         pdfs.setdefault(r["rechnungsnr"], r)
 
     pay = zahlungsstand()
+
+    def ist_bezahlt(e):  # bezahlt = Zahlung nachgewiesen; eine bestaetigte 0,00-Rechnung braucht keine Zahlung
+        return _bezahlt(pay.get(e["nr"]), e["betrag"]) or (e["betrag"] == 0 and e["nr"] in quitt)
+
     zeilen, kreise = [], []
     for kreis in NUMMERNKREISE:
         mine = [e for e in eintraege.values() if e["nr"].startswith(kreis)]
@@ -1114,7 +1173,7 @@ def abgleich():
             r = pdfs.get(e["nr"])
             z = dict(e, rid=None, pdf_betrag=None)
             if not r:
-                fehlt += 1
+                fehlt += e["nr"] not in quitt
                 z.update(text="PDF fehlt", farbe="#b91c1c")
             else:
                 mit += 1
@@ -1126,31 +1185,39 @@ def abgleich():
                 if pb is None:
                     z.update(text="PDF da, Betrag nicht lesbar", farbe="#6b7178")
                 elif abs(pb - e["betrag"]) > 0.01:
-                    abw += 1
+                    abw += e["nr"] not in quitt
                     z.update(text=f"Betrag weicht ab ({pb - e['betrag']:+.2f})".replace(".", ","), farbe="#b91c1c")
                 elif e["betrag"] == 0:
                     z.update(text="Betrag 0,00 – bitte prüfen", farbe="#b45309")
                 else:
                     z.update(text="OK", farbe="#047857")
+            z["ok"] = z["text"] == "OK"
+            z["bestaetigt"] = False
+            if not z["ok"] and e["nr"] in quitt:
+                q = quitt[e["nr"]]
+                z.update(text=f"OK bestätigt {_dm(q['am'])}" + (f": {q['bem']}" if q["bem"] else ""),
+                         farbe="#047857", ok=True, bestaetigt=True)
             p = pay.get(e["nr"])
-            if _bezahlt(p, e["betrag"]):
+            if e["betrag"] == 0 and e["nr"] in quitt and not p:
+                z.update(zahl="bezahlt (ohne Zahlung, bestätigt)", zahl_klasse="bezahlt")
+            elif _bezahlt(p, e["betrag"]):
                 z.update(zahl=f"bezahlt ({p['arten'] or p['quellen']} {_dm(p['am'])})", zahl_klasse="bezahlt")
             elif p:
                 z.update(zahl=f"teilweise ({p['summe']:.2f} €)".replace(".", ","), zahl_klasse="teilweise")
             else:
                 z.update(zahl="offen", zahl_klasse="offen")
             zeilen.append(z)
-        fe = [e for e in mine if e["nr"] not in pdfs]
+        fe = [e for e in mine if e["nr"] not in pdfs and e["nr"] not in quitt]
         kreise.append(dict(kreis=kreis, name=KREIS_ART[kreis].replace("Rechnungsausgang ", ""), n=len(mine),
                            summe=sum(e["betrag"] for e in mine), mit=mit, fehlt=fehlt, abw=abw, luecken=luecken,
                            fehlt_summe=sum(e["betrag"] for e in fe),
-                           bez_n=sum(1 for e in mine if _bezahlt(pay.get(e["nr"]), e["betrag"])),
-                           unbez_n=sum(1 for e in mine if not _bezahlt(pay.get(e["nr"]), e["betrag"])),
-                           unbez_summe=sum(e["betrag"] for e in mine if not _bezahlt(pay.get(e["nr"]), e["betrag"])),
+                           bez_n=sum(1 for e in mine if ist_bezahlt(e)),
+                           unbez_n=sum(1 for e in mine if not ist_bezahlt(e)),
+                           unbez_summe=sum(e["betrag"] for e in mine if not ist_bezahlt(e)),
                            fehlt_bereiche=nummern_bereiche([e["nr"] for e in fe]) if fe else ""))
     page_ctx["kreise"] = kreise
     page_ctx["fehlt_gesamt"] = sum(k["fehlt"] for k in kreise)
-    page_ctx["zeilen"] = zeilen if alle else [z for z in zeilen if z["text"] != "OK"]
+    page_ctx["zeilen"] = zeilen if alle else [z for z in zeilen if not z["ok"]]
     daten = sorted(e["datum"] for e in eintraege.values())
     page_ctx["von"], page_ctx["bis"] = daten[0], daten[-1]
 
@@ -1301,10 +1368,60 @@ def _norm(t):
     return re.sub(r"[^a-z0-9]", "", t.lower())
 
 
+def _ausgang_fallback(text, betrag, ausg, kd_map):
+    """Wenn keine Rechnungsnummer sauber im Text steht: (a) zusammengeschriebene Nummer ('261020913') nur mit
+    passendem Betrag, (b) Kundennummer im Text + Betrag passt zu einer Rechnung (oder Summe von bis zu 4) dieses Kunden."""
+    gesamt = abs(betrag)
+    for nr, br in ausg.items():
+        if nr in text and abs(abs(br) - gesamt) <= 0.01:
+            return [(nr, abs(br))]
+    for tok in re.findall(r"(?<!\d)\d{3,6}(?!\d)", text):
+        kand = kd_map.get(tok)
+        if not kand:
+            continue
+        for k in range(1, min(4, len(kand)) + 1):
+            for combo in itertools.combinations(kand, k):
+                if abs(sum(abs(b) for _, b in combo) - gesamt) <= 0.02:
+                    return [(nr, abs(b)) for nr, b in combo]
+    return []
+
+
+def kartenabrechnungen():
+    """Ordnet Karten-Sammelgutschriften der Bank ('INIT:CC:ABR:DAT..:BRUTTO..') den Karten-Tagessummen der
+    Kassenbuecher zu. Rueckgabe: {bank_id: {betrag, dat, kasse}}; kasse = Text der Kassenbuch-Tage oder None."""
+    tage = {r["datum"]: r["s"] for r in db().execute(
+        "SELECT datum, ROUND(SUM(betrag),2) s FROM kassenzeilen WHERE zahlart='Karte' GROUP BY datum")}
+    out = {}
+    for b in db().execute("SELECT id, zweck FROM bank WHERE zweck LIKE '%INIT:CC:ABR%'"):
+        m = re.search(r"DAT(\d{2})\.(\d{2})\.(\d{2}).*?BRUTTO(\d+),(\d{2})", b["zweck"])
+        if not m:
+            continue
+        brutto = float(f"{m.group(4)}.{m.group(5)}")
+        dat = date(2000 + int(m.group(3)), int(m.group(2)), int(m.group(1)))
+        kasse = None
+        for versatz in range(0, 6):          # Abrechnung kommt meist 1-4 Tage nach dem Kassentag
+            for laenge in range(1, 5):       # ... und kann mehrere Tage (Wochenende) zusammenfassen
+                tage_liste = [(dat - timedelta(days=versatz + j)).isoformat() for j in range(laenge)]
+                if all(t in tage for t in tage_liste) and abs(sum(tage[t] for t in tage_liste) - brutto) <= 0.01:
+                    a, e = tage_liste[-1], tage_liste[0]
+                    kasse = _dm(a) if a == e else f"{_dm(a)}\u2013{_dm(e)}"
+                    break
+            if kasse:
+                break
+        out[b["id"]] = dict(betrag=brutto, dat=dat.isoformat(), kasse=kasse)
+    return out
+
+
 def bank_zahlungen():
     """Ordnet Bankbuchungen ueber die Rechnungsnummer im Verwendungszweck Rechnungen zu."""
     ausg = {r["rechnungsnr"]: r["brutto"] for r in db().execute(
         "SELECT rechnungsnr, brutto FROM rechnungen WHERE rechnungsnr<>'' AND belegart IN (?,?,?)", AUSGANG_RECHNUNGEN)}
+    kd_map = {}
+    liste_eintraege, _ = liste_waehlen(listen_laden(), "alle")  # auch Rechnungen, deren PDF noch fehlt
+    for nr, e in liste_eintraege.items():
+        if nr.startswith(NUMMERNKREISE):
+            ausg.setdefault(nr, e["betrag"])
+            kd_map.setdefault(e["kd"], []).append((nr, e["betrag"]))
     eing = {r["rechnungsnr"]: r["brutto"] for r in db().execute(
         "SELECT rechnungsnr, brutto FROM rechnungen WHERE rechnungsnr<>'' AND belegart=?", (EINGANG,))}
     out = []
@@ -1315,6 +1432,8 @@ def bank_zahlungen():
         if b["betrag"] > 0:  # Zahlungseingang: Kundenzahlung oder Gutschrift eines Lieferanten
             zahlen = set(re.findall(r"(?<!\d)\d{7}(?!\d)", text))
             treffer += [(nr, abs(ausg[nr])) for nr in ausg if nr in zahlen]
+            if not treffer:
+                treffer += _ausgang_fallback(text, b["betrag"], ausg, kd_map)
             treffer += [(nr, abs(br)) for nr, br in eing.items() if br < 0 and len(nr) >= 5 and _norm(nr) in nt]
         else:  # Zahlungsausgang an Lieferanten
             treffer += [(nr, abs(br)) for nr, br in eing.items() if br > 0 and len(nr) >= 5 and _norm(nr) in nt]
@@ -1371,6 +1490,7 @@ def zahlungen_synchronisieren():
         db().execute("INSERT INTO zahlungen(quelle,datum,betrag,rechnungsnr,info,bank_id,zahlart) VALUES(?,?,?,?,?,?,?)",
                      (q, datum, betrag, nr, info, bank_id, "Bank"))
     pay = zahlungsstand()
+    quitt = {r[0]: r[1] for r in db().execute("SELECT rechnungsnr, am FROM quittiert")}
     for r in db().execute("SELECT id, rechnungsnr, brutto, belegart, zahlung, zahl_am, zahl_quelle, zahl_art FROM rechnungen "
                           "WHERE rechnungsnr<>'' AND belegart IN (?,?,?,?)", AUSGANG_RECHNUNGEN + (EINGANG,)).fetchall():
         p, soll = pay.get(r["rechnungsnr"]), abs(r["brutto"] or 0)
@@ -1381,6 +1501,8 @@ def zahlungen_synchronisieren():
         else:
             z = "offen"
         am, quelle, art = (p["am"], p["quellen"], p["arten"]) if p else (None, None, None)
+        if not p and soll < 0.005 and r["rechnungsnr"] in quitt:  # 0,00-Rechnung ohne Zahlung, vom Benutzer bestaetigt
+            z, am, quelle, art = "bezahlt", quitt[r["rechnungsnr"]], "Bestätigt", ""
         if (z, r["zahl_am"], r["zahl_quelle"], r["zahl_art"]) != (r["zahlung"], am, quelle, art) and not (
                 z == r["zahlung"] == "offen" and not r["zahl_am"] and not r["zahl_art"]):
             db().execute("UPDATE rechnungen SET zahlung=?, zahl_am=?, zahl_quelle=?, zahl_art=? WHERE id=?",
@@ -1398,14 +1520,20 @@ Verwendungszweck. Doppelte Buchungen werden erkannt und nicht noch einmal gespei
 <div class=card><h2>Stand</h2>
 <table><tr><th>Quelle</th><th class=r>Buchungen / Zeilen</th><th class=r>davon Rechnungen zugeordnet</th></tr>
 <tr><td>Kassenbuch ({{kassen_docs}} Dokumente)</td><td class=r>{{kassen_n}}</td><td class=r>{{kassen_n}}</td></tr>
-<tr><td>Kontoauszug</td><td class=r>{{bank_n}}</td><td class=r>{{bank_zugeordnet}}</td></tr></table>
-<small>Rechnungen gelten nur als &bdquo;bezahlt&ldquo;, wenn hier eine Zahlung zugeordnet ist (Skonto bis 3,5 % bei Eingangsrechnungen).
+<tr><td>Kontoauszug</td><td class=r>{{bank_n}}</td><td class=r>{{bank_zugeordnet}}</td></tr>
+{% if karten_zeilen %}<tr><td>&nbsp;&nbsp;davon Kartenabrechnungen (Bank &harr; Kassenbuch)</td><td class=r>{{karten_zeilen|length}}</td><td class=r>{{karten_gefunden}}</td></tr>{% endif %}</table>
+<small>Kontoauszüge (CSV/CAMT) kannst du auch in den Eingangsordner legen, die App liest sie automatisch ein.<br>
+Rechnungen gelten nur als &bdquo;bezahlt&ldquo;, wenn hier eine Zahlung zugeordnet ist (Skonto bis 3,5 % bei Eingangsrechnungen).
 Offene Rechnungen: <a href="{{url_for('index',zahlung='unbezahlt')}}">anzeigen</a></small></div>
 <div class=card><h2>Zugeordnete Zahlungen ({{zahlungen|length}})</h2>
 <table><tr><th>Datum</th><th>Quelle</th><th>Zahlart</th><th>Rg.-Nr.</th><th class=r>Betrag</th><th>Info</th></tr>
 {% for z in zahlungen %}<tr><td>{{z.datum}}</td><td>{{z.quelle}}</td><td>{{z.zahlart}}</td><td>{{z.rechnungsnr}}</td>
 <td class=r>{{'%.2f'|format(z.betrag)|replace('.',',')}}</td><td><small>{{z.info}}</small></td></tr>
 {% else %}<tr><td colspan=6>Noch keine Zahlungen. Lade ein Kassenbuch (Monatsunterlagen) oder einen Kontoauszug hoch.</td></tr>{% endfor %}</table></div>
+{% if karten_zeilen %}<div class=card><h2>Kartenabrechnungen: Bank &harr; Kassenbuch ({{karten_zeilen|length}})</h2>
+<table><tr><th>Bank-Datum</th><th class=r>Betrag</th><th>Kartenumsätze laut Kassenbuch vom</th></tr>
+{% for k in karten_zeilen %}<tr><td>{{k.datum}}</td><td class=r>{{'%.2f'|format(k.betrag)|replace('.',',')}}</td>
+<td>{% if k.kasse %}<b style="color:#047857">&#10003; {{k.kasse}}</b>{% else %}<span style="color:#b45309">kein passendes Kassenbuch (fehlt oder weicht ab)</span>{% endif %}</td></tr>{% endfor %}</table></div>{% endif %}
 {% if offen_bank %}<div class=card><h2>Nicht zugeordnete Bankbuchungen ({{offen_bank|length}})</h2>
 <table><tr><th>Datum</th><th class=r>Betrag</th><th>Name</th><th>Verwendungszweck</th></tr>
 {% for b in offen_bank %}<tr><td>{{b.datum}}</td><td class=r>{{'%.2f'|format(b.betrag)|replace('.',',')}}</td><td>{{b.name}}</td><td><small>{{b.zweck}}</small></td></tr>{% endfor %}
@@ -1446,9 +1574,14 @@ def zahlungen_seite():
     zahlungen = db().execute("SELECT * FROM zahlungen ORDER BY datum DESC, id DESC").fetchall()
     zugeordnet = {r[0] for r in db().execute("SELECT DISTINCT bank_id FROM zahlungen WHERE bank_id IS NOT NULL")}
     alle_bank = db().execute("SELECT * FROM bank ORDER BY datum DESC, id DESC").fetchall()
-    offen_bank = [b for b in alle_bank if b["id"] not in zugeordnet]
+    karten = kartenabrechnungen()
+    karte_ok = {i for i, k in karten.items() if k["kasse"]}
+    offen_bank = [b for b in alle_bank if b["id"] not in zugeordnet and b["id"] not in karte_ok]
     n_zug = len(alle_bank) - len(offen_bank)
-    return page(ZAHLUNGEN, zahlungen=zahlungen, offen_bank=offen_bank, bank_n=db().execute("SELECT COUNT(*) FROM bank").fetchone()[0],
+    karten_zeilen = [dict(datum=b["datum"], betrag=karten[b["id"]]["betrag"], kasse=karten[b["id"]]["kasse"])
+                     for b in alle_bank if b["id"] in karten]
+    return page(ZAHLUNGEN, zahlungen=zahlungen, offen_bank=offen_bank, karten_zeilen=karten_zeilen,
+                karten_gefunden=len(karte_ok), bank_n=db().execute("SELECT COUNT(*) FROM bank").fetchone()[0],
                 bank_zugeordnet=n_zug, kassen_n=db().execute("SELECT COUNT(*) FROM kassenzeilen").fetchone()[0],
                 kassen_docs=db().execute("SELECT COUNT(*) FROM kasse_geprueft").fetchone()[0])
 
