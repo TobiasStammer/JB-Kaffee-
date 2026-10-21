@@ -124,6 +124,7 @@ def init_db():
         id INTEGER PRIMARY KEY AUTOINCREMENT, dokument_id INTEGER, datum TEXT, beleg TEXT, name TEXT,
         betrag REAL, zeit TEXT, rechnungsnr TEXT, UNIQUE(datum, beleg, rechnungsnr));
     CREATE TABLE IF NOT EXISTS kasse_geprueft(dokument_id INTEGER PRIMARY KEY);
+    CREATE TABLE IF NOT EXISTS bank_ignoriert(bank_id INTEGER PRIMARY KEY, grund TEXT);
     CREATE TABLE IF NOT EXISTS quittiert(rechnungsnr TEXT PRIMARY KEY, bemerkung TEXT, am TEXT);
     CREATE TABLE IF NOT EXISTS bank(
         id INTEGER PRIMARY KEY AUTOINCREMENT, datum TEXT, betrag REAL, name TEXT, zweck TEXT,
@@ -234,9 +235,9 @@ LAYOUT = """<!doctype html><html lang=de><meta charset=utf-8>
 <div class=top><b>Rechnungen &amp; DATEV</b><small>kaffeetechniker.de</small></div>
 <nav class=band><ul>
 <li><a href="{{url_for('index')}}" class="{{'on' if request.endpoint in ('index','bearbeiten') else ''}}">Übersicht</a></li>
-<li><a href="{{url_for('neu')}}" class="{{'on' if request.endpoint=='neu' else ''}}">Neue Rechnung</a></li>
 <li><a href="{{url_for('abgleich')}}" class="{{'on' if request.endpoint=='abgleich' else ''}}">Abgleich</a></li>
 <li><a href="{{url_for('zahlungen_seite')}}" class="{{'on' if request.endpoint=='zahlungen_seite' else ''}}">Zahlungen</a></li>
+<li><a href="{{url_for('bank_seite')}}" class="{{'on' if request.endpoint=='bank_seite' else ''}}">Bank</a></li>
 <li><a href="{{url_for('monat')}}" class="{{'on' if request.endpoint=='monat' else ''}}">Monatsunterlagen</a></li>
 <li><a href="{{url_for('einstellungen')}}" class="{{'on' if request.endpoint=='einstellungen' else ''}}">Einstellungen</a></li>
 </ul></nav><main>
@@ -554,6 +555,23 @@ def _betraege(zeilen, i):
     return gef
 
 
+BETRAG_STRIKT_RE = re.compile(r"(?<![\d.,])(\d{1,3}(?:\.\d{3})+,\d{2}|\d+,\d{2})(?!\d)")
+
+
+def _tabellenbetrag(zeilen):
+    """Tabelle mit Spaltenueberschriften ('... Netto ... USt.-Betrag ... Rg.-Betrag EUR'): der groesste Betrag der
+    Wertezeile darunter ist das Brutto. Strikter Betragsmuster (kein Leerzeichen als Tausenderpunkt), damit der
+    Steuersatz-Wert ('19 378,88') nicht mit dem Betrag verschmilzt."""
+    for i, z in enumerate(zeilen[:-1]):
+        zl = z.lower()
+        if "netto" in zl and re.search(r"betrag|brutto|gesamt|summe", zl):
+            for k in range(i + 1, min(i + 5, len(zeilen))):
+                gef = [_zahl(x) for x in BETRAG_STRIKT_RE.findall(zeilen[k])]
+                if len(gef) >= 2:
+                    return max(gef)
+    return None
+
+
 def finde_betrag(text):
     """Liest Brutto und MwSt-Satz aus Rechnungstext. Gibt (brutto, satz) oder (None, None) zurueck.
     Bei Gutschriften ist der Betrag negativ."""
@@ -577,7 +595,9 @@ def finde_betrag(text):
     elif kandidaten:
         brutto = max(kandidaten)
     else:
-        return None, None
+        brutto = _tabellenbetrag(zeilen)
+        if brutto is None:
+            return None, None
     satz = None
     for n in sorted(set(netto), reverse=True):
         if 0 < n < brutto:
@@ -746,8 +766,19 @@ def finde_datum(text, fallback):
 
 
 def finde_nummer(text):
-    m = re.search(r"(?:Rechnungs?-?\s?(?:nummer|nr\.?)|Beleg-?\s?Nr\.?)\s*:?\s*([A-Za-z0-9][A-Za-z0-9\-/]*)",
-                  text, re.I)
+    for m in re.finditer(r"(?:Rechnungs?-?\s?(?:nummer|nr\.?)|Beleg-?\s?Nr\.?)\s*:?\s*([A-Za-z0-9][A-Za-z0-9\-/]*)",
+                         text, re.I):
+        if re.search(r"\d", m.group(1)):  # 'Kunden-Nr' o. ae. ist keine Nummer
+            return m.group(1)
+    # Tabellenlayout: Spaltenueberschriften ('Rechnungs-Nr. Kunden-Nr. Datum ...'), Werte in den Zeilen darunter
+    zeilen = text.splitlines()
+    for i, z in enumerate(zeilen[:-1]):
+        if re.search(r"Rechnungs?-?\s?(?:nummer|nr)", z, re.I) and len(re.findall(r"nr\.?|nummer|datum", z, re.I)) >= 2:
+            for k in range(i + 1, min(i + 4, len(zeilen))):
+                for tok in zeilen[k].split():
+                    if re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9\-/]{3,}", tok) and re.search(r"\d", tok):
+                        return tok
+    m = re.search(r"\bRg\.?\s*(?:-?Nr\.?)?\s*(\d{5,})", text)  # z. B. Verwendungszweck 'Rg. 152545060'
     if m:
         return m.group(1)
     g = re.search(r"Gutschrift\s*(?:Nr\.?)?\s*:?\s*([A-Za-z0-9][A-Za-z0-9\-/]*)", text[:400], re.I)
@@ -903,7 +934,8 @@ def neu_pruefen():
             b = finde_endsumme(text)
             if b is not None:
                 brutto, satz = b, finde_ausgang_satz(text)
-        nr = r["rechnungsnr"] or (ex["nr"] if ex and ex["nr"] else finde_nummer(text))
+        alt_nr = r["rechnungsnr"] if re.search(r"\d", r["rechnungsnr"] or "") else ""
+        nr = alt_nr or (ex["nr"] if ex and ex["nr"] else finde_nummer(text))
         if ex:
             if art in (EINGANG,) + AUSGANG_RECHNUNGEN and not r["brutto"] and ex["brutto"] is not None:
                 brutto, satz = ex["brutto"], ex["satz"]
@@ -1365,7 +1397,8 @@ def parse_kontoauszug(daten, dateiname):
 
 
 def _norm(t):
-    return re.sub(r"[^a-z0-9]", "", t.lower())
+    t = t.lower().replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss")
+    return re.sub(r"[^a-z0-9]", "", t)
 
 
 def _ausgang_fallback(text, betrag, ausg, kd_map):
@@ -1386,18 +1419,38 @@ def _ausgang_fallback(text, betrag, ausg, kd_map):
     return []
 
 
+def _eingang_fallback(name, betrag, eing, eing_lief):
+    """Lieferantenzahlung ohne Rechnungsnummer im Text: Lieferantenname im Bank-Namen + Betrag passt (ggf. mit
+    Skonto bis 3,5 %) zu genau einer Rechnung. Bei mehreren Treffern wird nicht geraten."""
+    gesamt, nn = abs(betrag), _norm(name)
+    kand = []
+    for nr, br in eing.items():
+        if (br > 0) != (betrag < 0):
+            continue
+        lief = _norm(eing_lief.get(nr, ""))
+        soll = abs(br)
+        if len(lief) >= 3 and lief in nn and soll > 0 and (abs(soll - gesamt) <= 0.01
+                                                           or soll * 0.965 - 0.01 <= gesamt <= soll):
+            kand.append((nr, soll))
+    return kand if len(kand) == 1 else []
+
+
 def kartenabrechnungen():
     """Ordnet Karten-Sammelgutschriften der Bank ('INIT:CC:ABR:DAT..:BRUTTO..') den Karten-Tagessummen der
     Kassenbuecher zu. Rueckgabe: {bank_id: {betrag, dat, kasse}}; kasse = Text der Kassenbuch-Tage oder None."""
     tage = {r["datum"]: r["s"] for r in db().execute(
         "SELECT datum, ROUND(SUM(betrag),2) s FROM kassenzeilen WHERE zahlart='Karte' GROUP BY datum")}
     out = {}
-    for b in db().execute("SELECT id, zweck FROM bank WHERE zweck LIKE '%INIT:CC:ABR%'"):
+    for b in db().execute("SELECT id, zweck, name, datum, betrag FROM bank "
+                          "WHERE zweck LIKE '%INIT:CC:ABR%' OR UPPER(name) LIKE '%NEXI%'"):
         m = re.search(r"DAT(\d{2})\.(\d{2})\.(\d{2}).*?BRUTTO(\d+),(\d{2})", b["zweck"])
-        if not m:
+        if m:
+            brutto = float(f"{m.group(4)}.{m.group(5)}")
+            dat = date(2000 + int(m.group(3)), int(m.group(2)), int(m.group(1)))
+        elif b["betrag"] > 0:  # NEXI-Gutschrift ohne Detailangaben: Bankdatum und Betrag
+            brutto, dat = b["betrag"], date.fromisoformat(b["datum"])
+        else:
             continue
-        brutto = float(f"{m.group(4)}.{m.group(5)}")
-        dat = date(2000 + int(m.group(3)), int(m.group(2)), int(m.group(1)))
         kasse = None
         for versatz in range(0, 6):          # Abrechnung kommt meist 1-4 Tage nach dem Kassentag
             for laenge in range(1, 5):       # ... und kann mehrere Tage (Wochenende) zusammenfassen
@@ -1424,6 +1477,8 @@ def bank_zahlungen():
             kd_map.setdefault(e["kd"], []).append((nr, e["betrag"]))
     eing = {r["rechnungsnr"]: r["brutto"] for r in db().execute(
         "SELECT rechnungsnr, brutto FROM rechnungen WHERE rechnungsnr<>'' AND belegart=?", (EINGANG,))}
+    eing_lief = {r["rechnungsnr"]: r["lieferant"] or "" for r in db().execute(
+        "SELECT rechnungsnr, lieferant FROM rechnungen WHERE rechnungsnr<>'' AND belegart=?", (EINGANG,))}
     out = []
     for b in db().execute("SELECT * FROM bank ORDER BY datum, id"):
         text = f"{b['zweck']} {b['name']}"
@@ -1437,6 +1492,8 @@ def bank_zahlungen():
             treffer += [(nr, abs(br)) for nr, br in eing.items() if br < 0 and len(nr) >= 5 and _norm(nr) in nt]
         else:  # Zahlungsausgang an Lieferanten
             treffer += [(nr, abs(br)) for nr, br in eing.items() if br > 0 and len(nr) >= 5 and _norm(nr) in nt]
+        if not treffer:  # ohne Rechnungsnummer: Lieferant im Namen + passender Betrag
+            treffer += _eingang_fallback(b["name"], b["betrag"], eing, eing_lief)
         if not treffer:
             continue
         gesamt = abs(b["betrag"])
@@ -1521,7 +1578,7 @@ Verwendungszweck. Doppelte Buchungen werden erkannt und nicht noch einmal gespei
 <table><tr><th>Quelle</th><th class=r>Buchungen / Zeilen</th><th class=r>davon Rechnungen zugeordnet</th></tr>
 <tr><td>Kassenbuch ({{kassen_docs}} Dokumente)</td><td class=r>{{kassen_n}}</td><td class=r>{{kassen_n}}</td></tr>
 <tr><td>Kontoauszug</td><td class=r>{{bank_n}}</td><td class=r>{{bank_zugeordnet}}</td></tr>
-{% if karten_zeilen %}<tr><td>&nbsp;&nbsp;davon Kartenabrechnungen (Bank &harr; Kassenbuch)</td><td class=r>{{karten_zeilen|length}}</td><td class=r>{{karten_gefunden}}</td></tr>{% endif %}</table>
+{% if karten_zeilen %}<tr><td>&nbsp;&nbsp;davon EC-Karteneingänge (NEXI Germany &harr; Kassenbuch)</td><td class=r>{{karten_zeilen|length}}</td><td class=r>{{karten_gefunden}}</td></tr>{% endif %}</table>
 <small>Kontoauszüge (CSV/CAMT) kannst du auch in den Eingangsordner legen, die App liest sie automatisch ein.<br>
 Rechnungen gelten nur als &bdquo;bezahlt&ldquo;, wenn hier eine Zahlung zugeordnet ist (Skonto bis 3,5 % bei Eingangsrechnungen).
 Offene Rechnungen: <a href="{{url_for('index',zahlung='unbezahlt')}}">anzeigen</a></small></div>
@@ -1530,7 +1587,7 @@ Offene Rechnungen: <a href="{{url_for('index',zahlung='unbezahlt')}}">anzeigen</
 {% for z in zahlungen %}<tr><td>{{z.datum}}</td><td>{{z.quelle}}</td><td>{{z.zahlart}}</td><td>{{z.rechnungsnr}}</td>
 <td class=r>{{'%.2f'|format(z.betrag)|replace('.',',')}}</td><td><small>{{z.info}}</small></td></tr>
 {% else %}<tr><td colspan=6>Noch keine Zahlungen. Lade ein Kassenbuch (Monatsunterlagen) oder einen Kontoauszug hoch.</td></tr>{% endfor %}</table></div>
-{% if karten_zeilen %}<div class=card><h2>Kartenabrechnungen: Bank &harr; Kassenbuch ({{karten_zeilen|length}})</h2>
+{% if karten_zeilen %}<div class=card><h2>EC-Karteneingänge (NEXI Germany): Bank &harr; Kassenbuch ({{karten_zeilen|length}})</h2>
 <table><tr><th>Bank-Datum</th><th class=r>Betrag</th><th>Kartenumsätze laut Kassenbuch vom</th></tr>
 {% for k in karten_zeilen %}<tr><td>{{k.datum}}</td><td class=r>{{'%.2f'|format(k.betrag)|replace('.',',')}}</td>
 <td>{% if k.kasse %}<b style="color:#047857">&#10003; {{k.kasse}}</b>{% else %}<span style="color:#b45309">kein passendes Kassenbuch (fehlt oder weicht ab)</span>{% endif %}</td></tr>{% endfor %}</table></div>{% endif %}
@@ -1576,14 +1633,101 @@ def zahlungen_seite():
     alle_bank = db().execute("SELECT * FROM bank ORDER BY datum DESC, id DESC").fetchall()
     karten = kartenabrechnungen()
     karte_ok = {i for i, k in karten.items() if k["kasse"]}
-    offen_bank = [b for b in alle_bank if b["id"] not in zugeordnet and b["id"] not in karte_ok]
-    n_zug = len(alle_bank) - len(offen_bank)
+    offen_bank = [b for b in alle_bank if b["id"] not in zugeordnet and b["id"] not in karten]  # Karten: eigene Tabelle
+    n_zug = len([b for b in alle_bank if b["id"] in zugeordnet or b["id"] in karte_ok])
     karten_zeilen = [dict(datum=b["datum"], betrag=karten[b["id"]]["betrag"], kasse=karten[b["id"]]["kasse"])
                      for b in alle_bank if b["id"] in karten]
     return page(ZAHLUNGEN, zahlungen=zahlungen, offen_bank=offen_bank, karten_zeilen=karten_zeilen,
                 karten_gefunden=len(karte_ok), bank_n=db().execute("SELECT COUNT(*) FROM bank").fetchone()[0],
                 bank_zugeordnet=n_zug, kassen_n=db().execute("SELECT COUNT(*) FROM kassenzeilen").fetchone()[0],
                 kassen_docs=db().execute("SELECT COUNT(*) FROM kasse_geprueft").fetchone()[0])
+
+
+# ---------------------------------------------------------------- Bank: Eingangsrechnungen gegen Kontoauszug
+BANK = """
+<form method=get class=card style="display:flex;gap:12px;align-items:end;flex-wrap:wrap">
+ <div><label>Monat</label><input type=month name=monat value="{{monat}}"></div>
+ <label style="display:flex;gap:6px;align-items:center;margin:0 0 8px"><input type=checkbox name=offen value=1 {{'checked' if nur_offen}}> nur offene</label>
+ <button>Filtern</button> <a class="btn sek" href="{{url_for('bank_seite')}}">Zurücksetzen</a></form>
+<div class=card><h2>Offene Rechnungen &ndash; Stand laut Kontoauszug</h2>
+{% if bank_n == 0 %}<p style="color:#b45309"><b>Noch kein Kontoauszug vorhanden.</b> Lege eine CSV/CAMT-Datei in den Eingangsordner oder lade sie unter
+ <a href="{{url_for('zahlungen_seite')}}">Zahlungen</a> hoch.</p>{% endif %}
+<table style="max-width:640px"><tr><th>Eingangsrechnungen</th><th class=r>Anzahl</th><th class=r>Summe brutto</th></tr>
+{% for z in summen %}<tr><td class="z-{{z.klasse}}">{{z.name}}</td><td class=r>{{z.n}}</td><td class=r>{{'%.2f'|format(z.summe)|replace('.',',')}}</td></tr>{% endfor %}
+<tr><td class="z-offen">Zahlungen ohne Rechnung (Bankausgänge)</td><td class=r>{{ohne|length}}</td><td class=r>{{'%.2f'|format(ohne_summe)|replace('.',',')}}</td></tr></table>
+<small>&bdquo;Bezahlt&ldquo; heißt: Die Zahlung wurde im Kontoauszug über Rechnungsnummer oder Lieferant + Betrag gefunden (Skonto bis 3,5 % ist erlaubt).</small></div>
+<div class=card><h2>Eingangsrechnungen ({{rechnungen|length}})</h2>
+<table><tr><th>Datum</th><th>Lieferant</th><th>Rg.-Nr.</th><th class=r>Brutto</th><th>Zahlung</th><th>Bezahlt am</th><th>Bankbuchung</th><th></th></tr>
+{% for r in rechnungen %}<tr><td>{{r.datum}}</td><td>{{r.lieferant}}</td><td>{{r.rechnungsnr}}</td>
+<td class=r>{% if r.brutto %}{{'%.2f'|format(r.brutto)|replace('.',',')}}{% else %}<span style="color:#b45309">Betrag fehlt</span>{% endif %}</td>
+<td class="z-{{r.zahlung or 'offen'}}">{{r.zahlung or 'offen'}}</td>
+<td>{% if r.zahl_am %}{{r.zahl_am[8:]}}.{{r.zahl_am[5:7]}}.{{r.zahl_am[:4]}}{% endif %}</td>
+<td><small>{{info.get(r.rechnungsnr,'')}}</small></td>
+<td>{% if r.datei %}<a href="{{url_for('beleg',rid=r.id)}}" target=_blank>PDF</a> &middot; {% endif %}<a href="{{url_for('bearbeiten',rid=r.id)}}">bearbeiten</a></td></tr>
+{% else %}<tr><td colspan=8>Keine Eingangsrechnungen{{' in diesem Filter' if monat or nur_offen}}.</td></tr>{% endfor %}</table></div>
+<div class=card><h2>Bankausgänge ohne Rechnung ({{ohne|length}})</h2>
+<p><small>Zahlungen vom Konto, zu denen keine Eingangsrechnung gefunden wurde &ndash; entweder fehlt die Rechnung in der App oder es braucht keinen Beleg
+(z. B. Versicherung, Steuer). Dann auf &bdquo;Kein Beleg nötig&ldquo; klicken.</small></p>
+<table><tr><th>Datum</th><th>Empfänger</th><th>Verwendungszweck</th><th class=r>Betrag</th><th></th></tr>
+{% for b in ohne %}<tr><td>{{b.datum}}</td><td>{{b.name}}</td><td><small>{{b.zweck[:90]}}</small></td><td class=r>{{'%.2f'|format(b.betrag)|replace('.',',')}}</td>
+<td><form method=post action="{{url_for('bank_ignorieren')}}" style="display:flex;gap:6px"><input type=hidden name=bank_id value="{{b.id}}"><input type=hidden name=zurueck value="{{zurueck}}">
+<input name=grund placeholder="Grund (optional)" style="width:150px;padding:4px"><button class=sek style="padding:4px 10px;white-space:nowrap">Kein Beleg nötig</button></form></td></tr>
+{% else %}<tr><td colspan=5 style="color:#047857"><b>&#10003; Alle Bankausgänge sind Rechnungen zugeordnet.</b></td></tr>{% endfor %}</table>
+{% if ignoriert %}<details style="margin-top:12px"><summary>{{ignoriert|length}} als &bdquo;kein Beleg nötig&ldquo; markiert</summary>
+<table>{% for b in ignoriert %}<tr><td>{{b.datum}}</td><td>{{b.name}}</td><td class=r>{{'%.2f'|format(b.betrag)|replace('.',',')}}</td><td><small>{{b.grund}}</small></td>
+<td><form method=post action="{{url_for('bank_ignorieren')}}"><input type=hidden name=bank_id value="{{b.id}}"><input type=hidden name=aufheben value=1><input type=hidden name=zurueck value="{{zurueck}}"><button class=sek style="padding:4px 10px">wieder anzeigen</button></form></td></tr>{% endfor %}</table></details>{% endif %}</div>"""
+
+
+@app.route("/bank")
+def bank_seite():
+    zahlungen_synchronisieren()
+    monat = request.args.get("monat", "")
+    nur_offen = bool(request.args.get("offen"))
+    sql, par = "SELECT * FROM rechnungen WHERE belegart=?", [EINGANG]
+    if monat:
+        sql += " AND substr(datum,1,7)=?"
+        par.append(monat)
+    alle_rechnungen = [dict(r) for r in db().execute(sql + " ORDER BY datum DESC, id DESC", par)]
+    summen = []
+    for name, klasse, test in (("offen", "offen", lambda r: (r["zahlung"] or "offen") == "offen"),
+                               ("teilweise bezahlt", "teilweise", lambda r: r["zahlung"] == "teilweise"),
+                               ("bezahlt", "bezahlt", lambda r: r["zahlung"] == "bezahlt")):
+        gruppe = [r for r in alle_rechnungen if test(r)]
+        summen.append(dict(name=name, klasse=klasse, n=len(gruppe), summe=sum(abs(r["brutto"] or 0) for r in gruppe)))
+    rechnungen = [r for r in alle_rechnungen if not nur_offen or (r["zahlung"] or "offen") != "bezahlt"]
+    info = {r[0]: r[1] for r in db().execute(
+        "SELECT rechnungsnr, GROUP_CONCAT(substr(info,1,60), ' | ') FROM zahlungen WHERE quelle='Kontoauszug' GROUP BY rechnungsnr")}
+    zug = {r[0] for r in db().execute("SELECT DISTINCT bank_id FROM zahlungen WHERE bank_id IS NOT NULL")}
+    ign = {r[0]: r[1] for r in db().execute("SELECT bank_id, grund FROM bank_ignoriert")}
+    bsql, bpar = "SELECT * FROM bank WHERE betrag<0", []
+    if monat:
+        bsql += " AND substr(datum,1,7)=?"
+        bpar.append(monat)
+    ohne, ignoriert = [], []
+    for b in db().execute(bsql + " ORDER BY datum DESC, id DESC", bpar):
+        if b["id"] in zug:
+            continue
+        if b["id"] in ign:
+            ignoriert.append(dict(dict(b), grund=ign[b["id"]] or ""))
+        else:
+            ohne.append(b)
+    return page(BANK, monat=monat, nur_offen=nur_offen, summen=summen, rechnungen=rechnungen, info=info, ohne=ohne,
+                ohne_summe=sum(abs(b["betrag"]) for b in ohne), ignoriert=ignoriert,
+                bank_n=db().execute("SELECT COUNT(*) FROM bank").fetchone()[0], zurueck=request.full_path.rstrip("?"))
+
+
+@app.route("/bank/ignorieren", methods=["POST"])
+def bank_ignorieren():
+    bid = request.form.get("bank_id", type=int)
+    if bid:
+        if request.form.get("aufheben"):
+            db().execute("DELETE FROM bank_ignoriert WHERE bank_id=?", (bid,))
+        else:
+            db().execute("INSERT OR REPLACE INTO bank_ignoriert(bank_id, grund) VALUES(?,?)",
+                         (bid, request.form.get("grund", "").strip()))
+        db().commit()
+    ziel = request.form.get("zurueck", "")
+    return redirect(ziel if ziel.startswith("/bank") else url_for("bank_seite"))
 
 
 # ---------------------------------------------------------------- Monatsunterlagen
