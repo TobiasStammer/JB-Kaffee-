@@ -79,7 +79,8 @@ Grover
 GLS
 Wentronic
 Wertgarantie
-BüroShop = Bürobedarf"""
+BüroShop = Bürobedarf
+büroshop24 GmbH = Bürobedarf"""
 STANDARD_REGELN = """Rechnungsausgangliste = rechnungsausgangsliste, rechnungsausgangliste, ausgangsliste
 Monatsjournal Kasse = monatsjournal
 Kassenbuch = kassenbuch
@@ -702,6 +703,11 @@ def finde_lieferant(text, dateiname, liste):
     heu = text + "\n" + dateiname
     for name in liste:
         if re.search(r"(?<!\w)" + re.escape(name) + r"(?!\w)", heu, re.I):
+            return name
+    # zweiter Durchgang ohne Rechtsform ('büroshop24 GmbH' findet auch 'büroshop24')
+    for name in liste:
+        kurz = re.sub(r"[\s,]+(gmbh\s*&\s*co\.?\s*kg|gmbh|ag|kg|ohg|gbr|ug|mbh|e\.?\s?k\.?|se)\.?$", "", name, flags=re.I)
+        if kurz != name and len(kurz) >= 4 and re.search(r"(?<!\w)" + re.escape(kurz) + r"(?!\w)", heu, re.I):
             return name
     return ""
 
