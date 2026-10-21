@@ -77,7 +77,7 @@ Deutsche Glasfaser
 Gross
 Ebay
 Grover
-GLS
+GLS | General Logistics Systems ; abzug
 Wentronic
 Wertgarantie
 BüroShop = Bürobedarf
@@ -345,7 +345,8 @@ EINST = """
 <div><label>SMTP-Passwort</label><input type=password name=smtp_pass value="{{s.smtp_pass}}"></div></div>
 <h3>Automatischer Eingang (Kassensoftware &rarr; PDF)</h3>
 <label>Eingangsordner (hier speicherst du die PDFs aus der Kasse ab)</label><input name=eingang_ordner value="{{s.eingang_ordner}}">
-<label>Lieferanten (ein Name pro Zeile, optional <code>Name = Kategorie</code>; längere Namen zuerst, z. B. „Jura Gastro“ vor „Jura“)</label>
+<label>Lieferanten (eine Zeile je Lieferant: <code>Name | Alias = Kategorie ; abzug</code> &ndash; Alias = weiterer Name im PDF/auf dem Kontoauszug,
+<code>abzug</code> = Zahlung darf niedriger sein als die Rechnung, z. B. GLS verrechnet Gutschriften; längere Namen zuerst, z. B. „Jura Gastro“ vor „Jura“)</label>
 <textarea name=lieferanten rows=8>{{s.lieferanten}}</textarea>
 <label>Zuordnungsregeln (eine Zeile je Belegart: <code>Belegart = stichwort, stichwort</code>; oberste passende Zeile gewinnt)</label>
 <textarea name=regeln rows=8 style="font-family:monospace">{{s.regeln}}</textarea>
@@ -708,29 +709,57 @@ def lese_erechnung(pfad):
                 verkaeufer=verk, kaeufer=kauf, typ=typ)
 
 
+def _lief_zeilen(cfg):
+    """Zeilenformat der Lieferantenliste: 'Name [| Alias ...] [= Kategorie] [; abzug]'.
+    Aliase helfen beim Finden im PDF-Text; 'abzug' = die Zahlung darf niedriger sein als die Rechnung."""
+    out = []
+    for z in (cfg.get("lieferanten") or "").splitlines():
+        kopf, _, opt = z.partition(";")
+        namen, _, kat = kopf.partition("=")
+        teile = [t.strip() for t in namen.split("|") if t.strip()]
+        if teile:
+            out.append(dict(name=teile[0], suche=teile, kategorie=kat.strip(), abzug="abzug" in opt.lower()))
+    return out
+
+
 def lieferanten_liste(cfg):
-    """Namen aus den Einstellungen. Zeilenformat: "Name" oder "Name = Kategorie"."""
-    return [z.split("=")[0].strip() for z in (cfg.get("lieferanten") or "").splitlines() if z.strip()]
+    return [l["name"] for l in _lief_zeilen(cfg)]
+
+
+def lieferanten_suchliste(cfg):
+    return [(l["name"], l["suche"]) for l in _lief_zeilen(cfg)]
+
+
+def lieferanten_abzug(cfg):
+    return {l["name"] for l in _lief_zeilen(cfg) if l["abzug"]}
+
+
+def lieferant_aliase(cfg):
+    return {l["name"]: l["suche"] for l in _lief_zeilen(cfg)}
 
 
 def lieferant_kategorie(cfg, name):
-    for z in (cfg.get("lieferanten") or "").splitlines():
-        n, _, k = z.partition("=")
-        if n.strip() == name and k.strip() in KATEGORIEN:
-            return k.strip()
+    for l in _lief_zeilen(cfg):
+        if l["name"] == name and l["kategorie"] in KATEGORIEN:
+            return l["kategorie"]
     return "Sonstiges"
 
 
 def finde_lieferant(text, dateiname, liste):
+    """liste: Namen oder (Name, [Suchbegriffe]) - gibt den Namen des ersten Lieferanten zurueck, dessen Begriff im Text steht."""
     heu = text + "\n" + dateiname
-    for name in liste:
-        if re.search(r"(?<!\w)" + re.escape(name) + r"(?!\w)", heu, re.I):
-            return name
+    eintraege = [(x, [x]) if isinstance(x, str) else x for x in liste]
+    for name, begriffe in eintraege:
+        for bg in begriffe:
+            if re.search(r"(?<!\w)" + re.escape(bg) + r"(?!\w)", heu, re.I):
+                return name
     # zweiter Durchgang ohne Rechtsform ('büroshop24 GmbH' findet auch 'büroshop24')
-    for name in liste:
-        kurz = re.sub(r"[\s,]+(gmbh\s*&\s*co\.?\s*kg|gmbh|ag|kg|ohg|gbr|ug|mbh|e\.?\s?k\.?|se)\.?$", "", name, flags=re.I)
-        if kurz != name and len(kurz) >= 4 and re.search(r"(?<!\w)" + re.escape(kurz) + r"(?!\w)", heu, re.I):
-            return name
+    for name, begriffe in eintraege:
+        for bg in begriffe:
+            kurz = re.sub(r"[\s,]+(gmbh\s*&\s*co\.?\s*(?:kg|ohg)|gmbh|ag|kg|ohg|gbr|ug|mbh|e\.?\s?k\.?|se)\.?$", "", bg,
+                          flags=re.I)
+            if kurz != bg and len(kurz) >= 4 and re.search(r"(?<!\w)" + re.escape(kurz) + r"(?!\w)", heu, re.I):
+                return name
     return ""
 
 
@@ -844,7 +873,7 @@ def eingang_einlesen():
         art = klassifiziere(text + ("\n" + ex["nr"] if ex else ""), f.stem, regeln)
         lief = ""
         if art in (UNKLAR, EINGANG):
-            lief = finde_lieferant(text + ("\n" + ex["verkaeufer"] if ex else ""), f.stem, lieferanten_liste(cfg))
+            lief = finde_lieferant(text + ("\n" + ex["verkaeufer"] if ex else ""), f.stem, lieferanten_suchliste(cfg))
             if lief:
                 art = EINGANG
         mtime = date.fromtimestamp(f.stat().st_mtime).isoformat()
@@ -903,7 +932,7 @@ def neu_pruefen():
     """Wendet Regeln, Lieferantenliste und Betragserkennung erneut auf noch unfertige Belege an."""
     cfg = settings()
     regeln = regeln_parsen(cfg["regeln"])
-    liste = lieferanten_liste(cfg)
+    liste = lieferanten_suchliste(cfg)
     n = 0
     for r in db().execute("SELECT * FROM rechnungen WHERE datei IS NOT NULL AND "
                           "(belegart=? OR (belegart=? AND (brutto=0 OR konto='' OR konto IS NULL)) OR "
@@ -1419,7 +1448,7 @@ def _ausgang_fallback(text, betrag, ausg, kd_map):
     return []
 
 
-def _eingang_fallback(name, betrag, eing, eing_lief):
+def _eingang_fallback(name, betrag, eing, eing_lief, aliase=None):
     """Lieferantenzahlung ohne Rechnungsnummer im Text: Lieferantenname im Bank-Namen + Betrag passt (ggf. mit
     Skonto bis 3,5 %) zu genau einer Rechnung. Bei mehreren Treffern wird nicht geraten."""
     gesamt, nn = abs(betrag), _norm(name)
@@ -1427,10 +1456,10 @@ def _eingang_fallback(name, betrag, eing, eing_lief):
     for nr, br in eing.items():
         if (br > 0) != (betrag < 0):
             continue
-        lief = _norm(eing_lief.get(nr, ""))
+        namen = (aliase or {}).get(eing_lief.get(nr, ""), [eing_lief.get(nr, "")])
+        lief_ok = any(len(_norm(x)) >= 3 and _norm(x) in nn for x in namen)
         soll = abs(br)
-        if len(lief) >= 3 and lief in nn and soll > 0 and (abs(soll - gesamt) <= 0.01
-                                                           or soll * 0.965 - 0.01 <= gesamt <= soll):
+        if lief_ok and soll > 0 and (abs(soll - gesamt) <= 0.01 or soll * 0.965 - 0.01 <= gesamt <= soll):
             kand.append((nr, soll))
     return kand if len(kand) == 1 else []
 
@@ -1477,6 +1506,7 @@ def bank_zahlungen():
             kd_map.setdefault(e["kd"], []).append((nr, e["betrag"]))
     eing = {r["rechnungsnr"]: r["brutto"] for r in db().execute(
         "SELECT rechnungsnr, brutto FROM rechnungen WHERE rechnungsnr<>'' AND belegart=?", (EINGANG,))}
+    aliase = lieferant_aliase(settings())
     eing_lief = {r["rechnungsnr"]: r["lieferant"] or "" for r in db().execute(
         "SELECT rechnungsnr, lieferant FROM rechnungen WHERE rechnungsnr<>'' AND belegart=?", (EINGANG,))}
     out = []
@@ -1493,7 +1523,7 @@ def bank_zahlungen():
         else:  # Zahlungsausgang an Lieferanten
             treffer += [(nr, abs(br)) for nr, br in eing.items() if br > 0 and len(nr) >= 5 and _norm(nr) in nt]
         if not treffer:  # ohne Rechnungsnummer: Lieferant im Namen + passender Betrag
-            treffer += _eingang_fallback(b["name"], b["betrag"], eing, eing_lief)
+            treffer += _eingang_fallback(b["name"], b["betrag"], eing, eing_lief, aliase)
         if not treffer:
             continue
         gesamt = abs(b["betrag"])
@@ -1548,10 +1578,13 @@ def zahlungen_synchronisieren():
                      (q, datum, betrag, nr, info, bank_id, "Bank"))
     pay = zahlungsstand()
     quitt = {r[0]: r[1] for r in db().execute("SELECT rechnungsnr, am FROM quittiert")}
-    for r in db().execute("SELECT id, rechnungsnr, brutto, belegart, zahlung, zahl_am, zahl_quelle, zahl_art FROM rechnungen "
+    abzug_set = lieferanten_abzug(settings())
+    for r in db().execute("SELECT id, rechnungsnr, brutto, belegart, lieferant, zahlung, zahl_am, zahl_quelle, zahl_art FROM rechnungen "
                           "WHERE rechnungsnr<>'' AND belegart IN (?,?,?,?)", AUSGANG_RECHNUNGEN + (EINGANG,)).fetchall():
         p, soll = pay.get(r["rechnungsnr"]), abs(r["brutto"] or 0)
-        if p and (p["summe"] >= soll - 0.01 or (r["belegart"] == EINGANG and p["summe"] >= soll * 0.965)):
+        abzug_ok = r["belegart"] == EINGANG and r["lieferant"] in abzug_set  # z. B. GLS: Gutschriften werden abgezogen
+        if p and (p["summe"] >= soll - 0.01 or (r["belegart"] == EINGANG and p["summe"] >= soll * 0.965)
+                  or (abzug_ok and p["summe"] > 0)):
             z = "bezahlt"
         elif p and p["summe"] > 0:
             z = "teilweise"
@@ -1662,7 +1695,7 @@ BANK = """
 <td class=r>{% if r.brutto %}{{'%.2f'|format(r.brutto)|replace('.',',')}}{% else %}<span style="color:#b45309">Betrag fehlt</span>{% endif %}</td>
 <td class="z-{{r.zahlung or 'offen'}}">{{r.zahlung or 'offen'}}</td>
 <td>{% if r.zahl_am %}{{r.zahl_am[8:]}}.{{r.zahl_am[5:7]}}.{{r.zahl_am[:4]}}{% endif %}</td>
-<td><small>{{info.get(r.rechnungsnr,'')}}</small></td>
+<td><small>{{info.get(r.rechnungsnr,'')}}</small>{% if r.abzug %}<br><b style="color:#1d4ed8">Abzug {{'%.2f'|format(r.abzug)|replace('.',',')}} &euro;</b>{% endif %}</td>
 <td>{% if r.datei %}<a href="{{url_for('beleg',rid=r.id)}}" target=_blank>PDF</a> &middot; {% endif %}<a href="{{url_for('bearbeiten',rid=r.id)}}">bearbeiten</a></td></tr>
 {% else %}<tr><td colspan=8>Keine Eingangsrechnungen{{' in diesem Filter' if monat or nur_offen}}.</td></tr>{% endfor %}</table></div>
 <div class=card><h2>Bankausgänge ohne Rechnung ({{ohne|length}})</h2>
@@ -1688,6 +1721,11 @@ def bank_seite():
         sql += " AND substr(datum,1,7)=?"
         par.append(monat)
     alle_rechnungen = [dict(r) for r in db().execute(sql + " ORDER BY datum DESC, id DESC", par)]
+    pay, abzug_set = zahlungsstand(), lieferanten_abzug(settings())
+    for r in alle_rechnungen:  # Abzug = Rechnung - tatsaechliche Zahlung (nur bei Lieferanten mit 'abzug')
+        p = pay.get(r["rechnungsnr"])
+        diff = abs(r["brutto"] or 0) - (p["summe"] if p else 0)
+        r["abzug"] = diff if p and r["lieferant"] in abzug_set and r["zahlung"] == "bezahlt" and diff > 0.01 else 0
     summen = []
     for name, klasse, test in (("offen", "offen", lambda r: (r["zahlung"] or "offen") == "offen"),
                                ("teilweise bezahlt", "teilweise", lambda r: r["zahlung"] == "teilweise"),
