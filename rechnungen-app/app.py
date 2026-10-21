@@ -56,6 +56,7 @@ BELEGARTEN = ["Rechnungsausgang Service", "Rechnungsausgang Verkauf", "Rechnungs
               "Rechnungsausgangliste"]
 EINGANG = "Rechnungseingang Lieferanten"
 UNKLAR = "Nicht zugeordnet"
+RECHNUNGSARTEN = ("Rechnungsausgang Service", "Rechnungsausgang Verkauf", "Rechnungsausgang eBay", "Rechnungseingang Lieferanten")
 AUSGANG_RECHNUNGEN = ("Rechnungsausgang Service", "Rechnungsausgang Verkauf", "Rechnungsausgang eBay")
 BELEGARTEN_ALLE = BELEGARTEN + [UNKLAR]
 STANDARD_ORDNER = r"Z:\Buchhaltung\Eingang"
@@ -116,6 +117,15 @@ def init_db():
     c = sqlite3.connect(DB)
     c.executescript("""
     CREATE TABLE IF NOT EXISTS settings(k TEXT PRIMARY KEY, v TEXT);
+    CREATE TABLE IF NOT EXISTS kassenzeilen(
+        id INTEGER PRIMARY KEY AUTOINCREMENT, dokument_id INTEGER, datum TEXT, beleg TEXT, name TEXT,
+        betrag REAL, zeit TEXT, rechnungsnr TEXT, UNIQUE(datum, beleg, rechnungsnr));
+    CREATE TABLE IF NOT EXISTS kasse_geprueft(dokument_id INTEGER PRIMARY KEY);
+    CREATE TABLE IF NOT EXISTS bank(
+        id INTEGER PRIMARY KEY AUTOINCREMENT, datum TEXT, betrag REAL, name TEXT, zweck TEXT,
+        dokument TEXT, schluessel TEXT UNIQUE);
+    CREATE TABLE IF NOT EXISTS zahlungen(
+        id INTEGER PRIMARY KEY AUTOINCREMENT, quelle TEXT, datum TEXT, betrag REAL, rechnungsnr TEXT, info TEXT, bank_id INTEGER);
     CREATE TABLE IF NOT EXISTS rechnungen(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         datum TEXT, lieferant TEXT, rechnungsnr TEXT,
@@ -131,6 +141,11 @@ def init_db():
     # frueher mischte 'status' Zahlung und DATEV-Stand
     c.execute("UPDATE rechnungen SET zahlung='bezahlt', status='noch nicht gesendet' WHERE status='bezahlt'")
     c.execute("UPDATE rechnungen SET status='noch nicht gesendet' WHERE status='offen'")
+    for spalte in ("zahl_am TEXT", "zahl_quelle TEXT"):
+        try:
+            c.execute(f"ALTER TABLE rechnungen ADD COLUMN {spalte}")
+        except sqlite3.OperationalError:
+            pass
     try:
         c.execute("ALTER TABLE rechnungen ADD COLUMN hash TEXT")
     except sqlite3.OperationalError:
@@ -207,6 +222,7 @@ LAYOUT = """<!doctype html><html lang=de><meta charset=utf-8>
 <li><a href="{{url_for('index')}}" class="{{'on' if request.endpoint in ('index','bearbeiten') else ''}}">Übersicht</a></li>
 <li><a href="{{url_for('neu')}}" class="{{'on' if request.endpoint=='neu' else ''}}">Neue Rechnung</a></li>
 <li><a href="{{url_for('abgleich')}}" class="{{'on' if request.endpoint=='abgleich' else ''}}">Abgleich</a></li>
+<li><a href="{{url_for('zahlungen_seite')}}" class="{{'on' if request.endpoint=='zahlungen_seite' else ''}}">Zahlungen</a></li>
 <li><a href="{{url_for('monat')}}" class="{{'on' if request.endpoint=='monat' else ''}}">Monatsunterlagen</a></li>
 <li><a href="{{url_for('einstellungen')}}" class="{{'on' if request.endpoint=='einstellungen' else ''}}">Einstellungen</a></li>
 </ul></nav><main>
@@ -228,8 +244,11 @@ INDEX = """
  <div><label>DATEV</label><select name=status><option value="">alle</option>
   {% for s in STATUS %}<option {{'selected' if s==status}}>{{s}}</option>{% endfor %}</select></div>
  <div><label>Zahlung</label><select name=zahlung><option value="">alle</option>
+  <option value="unbezahlt" {{'selected' if zahlung=='unbezahlt'}}>nur offene (offen + teilweise)</option>
   {% for z in ZAHLUNG %}<option {{'selected' if z==zahlung}}>{{z}}</option>{% endfor %}</select></div>
- <button>Filtern</button></form>
+ <button>Filtern</button>
+ {% if zahlung=='unbezahlt' %}<a class="btn sek" href="{{url_for('index',monat=monat,belegart=belegart)}}">Alle zeigen</a>
+ {% else %}<a class="btn sek" href="{{url_for('index',zahlung='unbezahlt',monat=monat,belegart=belegart)}}">Nur offene</a>{% endif %}</form>
 <form method=post action="{{url_for('eingang_jetzt')}}" class=card style="display:flex;gap:14px;align-items:center">
  <span style="flex:1">Eingangsordner: <code>{{ordner}}</code>
  {% if unklar %} &middot; <a href="{{url_for('index',belegart=UNKLAR)}}"><b style="color:#b45309">{{unklar}} nicht zugeordnet</b></a>{% endif %}
@@ -242,18 +261,20 @@ INDEX = """
  <small>Das überzählige Exemplar kannst du unter &bdquo;bearbeiten&ldquo; löschen.</small></div>{% endif %}
 <form method=post action="{{url_for('export')}}">
 <table><tr><th></th><th>Datum</th><th>Belegart</th><th>Lieferant</th><th>Rechnungsnr.</th><th>Kategorie</th>
-<th class=r>Netto</th><th class=r>Brutto</th><th>Zahlung</th><th>DATEV</th><th>Beleg</th><th></th></tr>
+<th class=r>Netto</th><th class=r>Brutto</th><th>Zahlung</th><th>Bezahlt am</th><th>DATEV</th><th>Beleg</th><th></th></tr>
 {% for r in rows %}<tr>
  <td><input type=checkbox name=ids value="{{r.id}}" style="width:auto" {{'checked' if r.status!='an DATEV gesendet'}}></td>
  <td>{{r.datum}}</td><td><small>{{r.belegart}}</small></td><td>{{r.lieferant}}</td><td>{{r.rechnungsnr}}</td><td>{{r.kategorie}} <small>({{r.konto}})</small></td>
  <td class=r>{{'%.2f'|format(r.netto)|replace('.',',')}}</td><td class=r>{{'%.2f'|format(r.brutto)|replace('.',',')}}</td>
- <td class="z-{{r.zahlung or 'offen'}}">{{r.zahlung or 'offen'}}</td>
+ {% if r.belegart in RECHNUNGSARTEN %}<td class="z-{{r.zahlung or 'offen'}}">{{r.zahlung or 'offen'}}</td>
+ <td>{% if r.zahl_am %}{{r.zahl_am[8:]}}.{{r.zahl_am[5:7]}}.{{r.zahl_am[:4]}}<br><small>{{r.zahl_quelle}}</small>{% endif %}</td>
+ {% else %}<td>&ndash;</td><td></td>{% endif %}
  <td class="st-{{ 'an' if r.status.startswith('an') else 'neu' }}">{{r.status}}</td>
  <td>{% if r.datei %}<a href="{{url_for('beleg',rid=r.id)}}" target=_blank>öffnen</a>{% else %}<small>fehlt</small>{% endif %}</td>
  <td><a href="{{url_for('bearbeiten',rid=r.id)}}">bearbeiten</a></td></tr>
-{% else %}<tr><td colspan=12>Noch keine Rechnungen.</td></tr>{% endfor %}
+{% else %}<tr><td colspan=13>Noch keine Rechnungen.</td></tr>{% endfor %}
 {% if summen|length<2 %}<tr><th colspan=6 class=r>Summe ({{rows|length}})</th><th class=r>{{'%.2f'|format(sn)|replace('.',',')}}</th>
-<th class=r>{{'%.2f'|format(sb)|replace('.',',')}}</th><th colspan=4></th></tr>{% endif %}</table>
+<th class=r>{{'%.2f'|format(sb)|replace('.',',')}}</th><th colspan=5></th></tr>{% endif %}</table>
 {% if summen|length>1 %}<table style="margin-top:14px;max-width:560px"><tr><th>Summe je Belegart</th><th class=r>Anzahl</th>
 <th class=r>Netto</th><th class=r>Brutto</th></tr>
 {% for z in summen %}<tr><td>{{z.art}}</td><td class=r>{{z.n}}</td><td class=r>{{'%.2f'|format(z.netto)|replace('.',',')}}</td>
@@ -279,7 +300,7 @@ FORM = """
 <div><label>Kategorie</label><select name=kategorie>
  {% for k,v in KAT.items() %}<option {{'selected' if k==r.kategorie}}>{{k}}</option>{% endfor %}</select></div>
 <div><label>Aufwandskonto (leer = Standard der Kategorie)</label><input name=konto value="{{r.konto or ''}}"></div>
-<div><label>Zahlung</label><select name=zahlung>{% for z in ZAHLUNG %}<option {{'selected' if z==(r.zahlung or 'offen')}}>{{z}}</option>{% endfor %}</select></div>
+<div><label>Zahlung (aus Kassenbuch/Kontoauszug)</label><input disabled value="{{r.zahlung or 'offen'}}{{' – '~r.zahl_quelle~' '~r.zahl_am if r.zahl_am else ''}}"></div>
 <div><label>DATEV-Stand</label><select name=status>{% for s in STATUS %}<option {{'selected' if s==r.status}}>{{s}}</option>{% endfor %}</select></div>
 </div>
 <label>Notiz</label><textarea name=notiz rows=2>{{r.notiz or ''}}</textarea>
@@ -345,9 +366,12 @@ def index():
     if status:
         sql += " AND status=?"
         par.append(status)
-    if zahlung:
-        sql += " AND COALESCE(zahlung,'offen')=?"
-        par.append(zahlung)
+    if zahlung == "unbezahlt":  # nur Rechnungen, die noch nicht (voll) bezahlt sind
+        sql += " AND COALESCE(zahlung,'offen')<>'bezahlt' AND belegart IN (?,?,?,?)"
+        par += list(RECHNUNGSARTEN)
+    elif zahlung:
+        sql += " AND COALESCE(zahlung,'offen')=? AND belegart IN (?,?,?,?)"
+        par += [zahlung] + list(RECHNUNGSARTEN)
     if monat:
         sql += " AND substr(datum,1,7)=?"
         par.append(monat)
@@ -369,7 +393,7 @@ def index():
     for g in db().execute("SELECT hash FROM rechnungen WHERE hash IS NOT NULL GROUP BY hash HAVING COUNT(*)>1"):
         doppelte.append(db().execute("SELECT id, rechnungsnr, lieferant, datum FROM rechnungen WHERE hash=? "
                                      "ORDER BY id", (g["hash"],)).fetchall())
-    return page(INDEX, doppelte=doppelte, summen=list(summen.values()), rows=rows, q=q, status=status, zahlung=zahlung, STATUS=STATUS, ZAHLUNG=ZAHLUNG, monat=monat,
+    return page(INDEX, doppelte=doppelte, summen=list(summen.values()), rows=rows, q=q, status=status, zahlung=zahlung, STATUS=STATUS, ZAHLUNG=ZAHLUNG, RECHNUNGSARTEN=RECHNUNGSARTEN, monat=monat,
                 belegart=belegart, BELEGARTEN=BELEGARTEN_ALLE, UNKLAR=UNKLAR,
                 ordner=settings()["eingang_ordner"], ausg_fehlt=len(fehlende_ausgangsrechnungen()[0]),
                 unklar=db().execute("SELECT COUNT(*) FROM rechnungen WHERE belegart=?", (UNKLAR,)).fetchone()[0],
@@ -418,9 +442,7 @@ def _speichern(rid=None):
             db().execute("UPDATE rechnungen SET datei=? WHERE id=?", (datei_name, rid))
             if alt:
                 (BELEGE / alt).unlink(missing_ok=True)
-    zahl = request.form.get("zahlung") if request.form.get("zahlung") in ZAHLUNG else "offen"
     ziel_id = rid if rid is not None else db().execute("SELECT MAX(id) FROM rechnungen").fetchone()[0]
-    db().execute("UPDATE rechnungen SET zahlung=? WHERE id=?", (zahl, ziel_id))
     if dh:
         db().execute("UPDATE rechnungen SET hash=? WHERE id=?", (dh, ziel_id))
     db().commit()
@@ -957,31 +979,10 @@ def liste_waehlen(listen, param):
     return eintraege, auswahl
 
 
-def zahlung_aus_listen(listen):
-    """Setzt den Zahlstatus der Ausgangsrechnungen aus 'off. Betrag' der Rechnungsausgangsliste(n).
-    Neuere Listen ueberschreiben aeltere. Gibt die Zahl geaenderter Rechnungen zurueck."""
-    eintraege, _ = liste_waehlen(listen, "alle")
-    n = 0
-    for nr, e in eintraege.items():
-        if not nr.startswith(NUMMERNKREISE):
-            continue
-        if e["offen"] <= 0.005:
-            z = "bezahlt"
-        elif abs(e["offen"] - e["betrag"]) < 0.005:
-            z = "offen"
-        else:
-            z = "teilweise"
-        cur = db().execute("UPDATE rechnungen SET zahlung=? WHERE rechnungsnr=? AND belegart IN (?,?,?) "
-                           "AND COALESCE(zahlung,'')<>?", (z, nr) + AUSGANG_RECHNUNGEN + (z,))
-        n += cur.rowcount
-    db().commit()
-    return n
-
-
 def fehlende_ausgangsrechnungen(param=None):
     """Eintraege der gewaehlten Liste (Standard: neueste) mit Nummernkreis 261/263, zu denen keine PDF vorliegt."""
     listen = listen_laden()
-    zahlung_aus_listen(listen)  # Zahlstatus bei der Gelegenheit aktuell halten
+    zahlungen_synchronisieren()  # Zahlstatus (Kassenbuch/Kontoauszug) bei der Gelegenheit aktuell halten
     eintraege, _ = liste_waehlen(listen, param)
     vorhanden = {r[0] for r in db().execute("SELECT rechnungsnr FROM rechnungen WHERE datei IS NOT NULL "
                                             "AND rechnungsnr<>'' AND belegart<>'Rechnungsausgangliste'")}
@@ -1012,7 +1013,8 @@ ABGLEICH = """
 {% if not eintraege %}<div class=card>Keine Rechnungsausgangsliste gefunden oder nicht lesbar. Lege sie unter
  <a href="{{url_for('monat')}}">Monatsunterlagen</a> ab bzw. in den Eingangsordner.</div>{% else %}
 <div class=card><h2>Fehlt noch</h2>
-<p style="margin:0 0 8px"><small>Abgleich gegen: <b>{{gewaehlt_label}}</b></small></p>
+<p style="margin:0 0 8px"><small>Abgleich gegen: <b>{{gewaehlt_label}}</b> &middot; „Bezahlt“ kommt nur aus
+ Kassenbuch und Kontoauszug (<a href="{{url_for('zahlungen_seite')}}">Zahlungen</a>), nicht aus der Liste.</small></p>
 {% if fehlt_gesamt %}
 {% for k in kreise if k.fehlt %}<p style="margin:6px 0"><b>{{k.kreis}}xxxx {{k.name}}:</b> {{k.fehlt}} von {{k.n}} Rechnungen fehlen
  ({{'%.2f'|format(k.fehlt_summe)|replace('.',',')}} &euro;)<br><span style="font-family:monospace">{{k.fehlt_bereiche}}</span></p>{% endfor %}
@@ -1025,19 +1027,19 @@ ABGLEICH = """
 <td><a href="{{url_for('abgleich',liste=v.id)}}">anzeigen</a></td></tr>{% endfor %}</table></div>{% endif %}
 <div class=card><h2>Zusammenfassung</h2>
 <table><tr><th>Nummernkreis</th><th class=r>Rechnungen in Liste</th><th class=r>Summe Liste</th><th class=r>PDF vorhanden</th>
-<th class=r>PDF fehlt</th><th class=r>Betrag weicht ab</th><th class=r>Noch unbezahlt (laut Liste)</th><th>Lücken in der Nummernfolge</th></tr>
+<th class=r>PDF fehlt</th><th class=r>Betrag weicht ab</th><th class=r>Bezahlt (Kasse/Konto)</th><th>Lücken in der Nummernfolge</th></tr>
 {% for k in kreise %}<tr><td><b>{{k.kreis}}</b>xxxx {{k.name}}</td><td class=r>{{k.n}}</td>
 <td class=r>{{'%.2f'|format(k.summe)|replace('.',',')}}</td><td class=r>{{k.mit}}</td>
 <td class=r {{'style="color:#b91c1c;font-weight:700"'|safe if k.fehlt}}>{{k.fehlt}}</td>
 <td class=r {{'style="color:#b91c1c;font-weight:700"'|safe if k.abw}}>{{k.abw}}</td>
-<td class=r>{{k.offen_n}}{% if k.offen_n %} ({{'%.2f'|format(k.offen_summe)|replace('.',',')}} &euro;){% endif %}</td>
+<td class=r>{{k.bez_n}} von {{k.n}}{% if k.unbez_n %}<br><small>{{k.unbez_n}} unbezahlt ({{'%.2f'|format(k.unbez_summe)|replace('.',',')}} &euro;)</small>{% endif %}</td>
 <td>{% if k.luecken %}{{k.luecken|length}}: {{k.luecken[:12]|join(', ')}}{{' …' if k.luecken|length>12}}{% else %}keine{% endif %}</td></tr>{% endfor %}
 </table><small>Zeitraum der Liste(n): {{von}} bis {{bis}}. Lücken können stornierte oder nicht gedruckte Nummern sein.</small></div>
 <div class=card><h2>{{'Alle Rechnungen' if alle else 'Abweichungen'}} ({{zeilen|length}})</h2>
-<table><tr><th>Rg.-Nr.</th><th>Datum</th><th>Kunde</th><th class=r>Betrag Liste</th><th class=r>Offen laut Liste</th><th class=r>Betrag PDF</th><th>Ergebnis</th></tr>
+<table><tr><th>Rg.-Nr.</th><th>Datum</th><th>Kunde</th><th class=r>Betrag Liste</th><th>Zahlung</th><th class=r>Betrag PDF</th><th>Ergebnis</th></tr>
 {% for z in zeilen %}<tr><td>{{z.nr}}</td><td>{{z.datum}}</td><td>{{z.name}}</td>
 <td class=r>{{'%.2f'|format(z.betrag)|replace('.',',')}}</td>
-<td class=r>{{'%.2f'|format(z.offen)|replace('.',',')}}</td>
+<td class="z-{{z.zahl_klasse}}">{{z.zahl}}</td>
 <td class=r>{{('%.2f'|format(z.pdf_betrag)|replace('.',',')) if z.pdf_betrag is not none else '–'}}</td>
 <td style="color:{{z.farbe}};font-weight:600">{{z.text}}{% if z.rid %} &middot; <a href="{{url_for('beleg',rid=z.rid)}}" target=_blank>PDF</a>{% endif %}</td></tr>
 {% else %}<tr><td colspan=7>Keine Abweichungen &ndash; alles passt.</td></tr>{% endfor %}</table></div>
@@ -1077,6 +1079,7 @@ def abgleich():
                           "AND belegart<>'Rechnungsausgangliste'"):
         pdfs.setdefault(r["rechnungsnr"], r)
 
+    pay = zahlungsstand()
     zeilen, kreise = [], []
     for kreis in NUMMERNKREISE:
         mine = [e for e in eintraege.values() if e["nr"].startswith(kreis)]
@@ -1105,13 +1108,21 @@ def abgleich():
                     z.update(text="Betrag 0,00 – bitte prüfen", farbe="#b45309")
                 else:
                     z.update(text="OK", farbe="#047857")
+            p = pay.get(e["nr"])
+            if _bezahlt(p, e["betrag"]):
+                z.update(zahl=f"bezahlt ({p['quellen']} {_dm(p['am'])})", zahl_klasse="bezahlt")
+            elif p:
+                z.update(zahl=f"teilweise ({p['summe']:.2f} €)".replace(".", ","), zahl_klasse="teilweise")
+            else:
+                z.update(zahl="offen", zahl_klasse="offen")
             zeilen.append(z)
         fe = [e for e in mine if e["nr"] not in pdfs]
         kreise.append(dict(kreis=kreis, name=KREIS_ART[kreis].replace("Rechnungsausgang ", ""), n=len(mine),
                            summe=sum(e["betrag"] for e in mine), mit=mit, fehlt=fehlt, abw=abw, luecken=luecken,
                            fehlt_summe=sum(e["betrag"] for e in fe),
-                           offen_n=sum(1 for e in mine if e["offen"] > 0.005),
-                           offen_summe=sum(e["offen"] for e in mine if e["offen"] > 0.005),
+                           bez_n=sum(1 for e in mine if _bezahlt(pay.get(e["nr"]), e["betrag"])),
+                           unbez_n=sum(1 for e in mine if not _bezahlt(pay.get(e["nr"]), e["betrag"])),
+                           unbez_summe=sum(e["betrag"] for e in mine if not _bezahlt(pay.get(e["nr"]), e["betrag"])),
                            fehlt_bereiche=nummern_bereiche([e["nr"] for e in fe]) if fe else ""))
     page_ctx["kreise"] = kreise
     page_ctx["fehlt_gesamt"] = sum(k["fehlt"] for k in kreise)
@@ -1129,6 +1140,251 @@ def abgleich():
         if r["belegart"] != KREIS_ART[kreis]:
             page_ctx["falsch"].append((r, KREIS_ART[kreis]))
     return page(ABGLEICH, **page_ctx)
+
+
+# ---------------------------------------------------------------- Zahlungen (Kassenbuch / Kontoauszug)
+KASSE_RE = re.compile(r"(\d{7})\nZlg\.-Rg\.:\s*(.*?)\s*\n(-?[\d.]+) ?€\n(\d{2}:\d{2}:\d{2})\n[^\n]*\nRg\.-Nr\.:\s*(\d{7})")
+
+
+def _dm(iso):
+    return f"{iso[8:10]}.{iso[5:7]}." if iso and len(iso) >= 10 else ""
+
+
+def kassenbuch_zeilen(text):
+    """Zahlungszeilen eines Kassenbuch-Ausdrucks: 'Zlg.-Rg.: Name  Betrag  Uhrzeit' + 'Rg.-Nr.: 2630957'."""
+    m = re.search(r"Datum:\s*(\d{2})\.(\d{2})\.(\d{4})", text)
+    if not m:
+        return []
+    datum = f"{m.group(3)}-{m.group(2)}-{m.group(1)}"
+    return [dict(datum=datum, beleg=b, name=n, betrag=kasse_zahl(bt), zeit=z, rechnungsnr=rg)
+            for b, n, bt, z, rg in KASSE_RE.findall(text)]
+
+
+def _datum_iso(t):
+    t = (t or "").strip()
+    m = re.fullmatch(r"(\d{1,2})\.(\d{1,2})\.(\d{2}|\d{4})", t)
+    if m:
+        j = m.group(3) if len(m.group(3)) == 4 else "20" + m.group(3)
+        return f"{j}-{int(m.group(2)):02d}-{int(m.group(1)):02d}"
+    return t[:10] if re.match(r"\d{4}-\d{2}-\d{2}", t) else ""
+
+
+def _betrag_de(t):
+    t = (t or "").strip().replace("\u00a0", "").replace(" ", "")
+    if "," in t:
+        t = t.replace(".", "").replace(",", ".")
+    try:
+        return float(t)
+    except ValueError:
+        return None
+
+
+def parse_kontoauszug(daten, dateiname):
+    """Liest Bankbuchungen aus CSV (Sparkasse CSV-CAMT & aehnliche) oder CAMT.053-XML."""
+    out = []
+    if daten.lstrip()[:5] in (b"<?xml", b"<Docu") or dateiname.lower().endswith((".xml", ".camt")):
+        root = ET.fromstring(daten)
+        for ntry in root.iter():
+            if _lokal(ntry.tag) != "Ntry":
+                continue
+            betrag = _num(_txt(ntry, "Amt"))
+            if betrag is None:
+                continue
+            if _txt(ntry, "CdtDbtInd") == "DBIT":
+                betrag = -betrag
+            datum = _txt(ntry, "BookgDt", "Dt") or _txt(ntry, "BookgDt", "DtTm")[:10]
+            zweck = " ".join((x.text or "").strip() for x in ntry.iter() if _lokal(x.tag) == "Ustrd")
+            name = _txt(ntry, "RltdPties", "Dbtr", "Nm") if betrag > 0 else _txt(ntry, "RltdPties", "Cdtr", "Nm")
+            out.append(dict(datum=datum[:10], betrag=betrag, name=name, zweck=zweck))
+        return out
+    try:
+        text = daten.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        text = daten.decode("latin-1")
+    zeilen = text.splitlines()
+    trenner = max(";\t,", key=lambda t: sum(z.count(t) for z in zeilen[:30]))
+    rows = list(csv.reader(zeilen, delimiter=trenner))
+    kopf_i = next((i for i, r in enumerate(rows)
+                   if any("betrag" in c.lower() for c in r) and any(("buchungstag" in c.lower() or "datum" in c.lower()
+                                                                      or "valuta" in c.lower()) for c in r)), None)
+    if kopf_i is None:
+        return []
+    kopf = [c.strip().strip('"').lower() for c in rows[kopf_i]]
+
+    def spalte(*namen, exakt=False):
+        for n in namen:
+            for i, c in enumerate(kopf):
+                if (c == n) if exakt else (n in c):
+                    return i
+        return None
+
+    i_dat = spalte("buchungstag", "buchungsdatum", "datum", "valuta")
+    i_bet = spalte("betrag", exakt=True)
+    if i_bet is None:
+        i_bet = spalte("betrag")
+    i_zw = spalte("verwendungszweck", "buchungstext")
+    i_nm = spalte("beguenstigter", "begünstigter", "zahlungspflichtiger", "auftraggeber", "name")
+    for r in rows[kopf_i + 1:]:
+        if not r or max(i_dat, i_bet) >= len(r):
+            continue
+        betrag, datum = _betrag_de(r[i_bet]), _datum_iso(r[i_dat])
+        if betrag is None or not datum:
+            continue
+        out.append(dict(datum=datum, betrag=betrag, name=r[i_nm].strip() if i_nm is not None and i_nm < len(r) else "",
+                        zweck=" ".join(r[i_zw].split()) if i_zw is not None and i_zw < len(r) else ""))
+    return out
+
+
+def _norm(t):
+    return re.sub(r"[^a-z0-9]", "", t.lower())
+
+
+def bank_zahlungen():
+    """Ordnet Bankbuchungen ueber die Rechnungsnummer im Verwendungszweck Rechnungen zu."""
+    ausg = {r["rechnungsnr"]: r["brutto"] for r in db().execute(
+        "SELECT rechnungsnr, brutto FROM rechnungen WHERE rechnungsnr<>'' AND belegart IN (?,?,?)", AUSGANG_RECHNUNGEN)}
+    eing = {r["rechnungsnr"]: r["brutto"] for r in db().execute(
+        "SELECT rechnungsnr, brutto FROM rechnungen WHERE rechnungsnr<>'' AND belegart=?", (EINGANG,))}
+    out = []
+    for b in db().execute("SELECT * FROM bank ORDER BY datum, id"):
+        text = f"{b['zweck']} {b['name']}"
+        nt = _norm(text)
+        treffer = []
+        if b["betrag"] > 0:  # Zahlungseingang: Kundenzahlung oder Gutschrift eines Lieferanten
+            zahlen = set(re.findall(r"(?<!\d)\d{7}(?!\d)", text))
+            treffer += [(nr, abs(ausg[nr])) for nr in ausg if nr in zahlen]
+            treffer += [(nr, abs(br)) for nr, br in eing.items() if br < 0 and len(nr) >= 5 and _norm(nr) in nt]
+        else:  # Zahlungsausgang an Lieferanten
+            treffer += [(nr, abs(br)) for nr, br in eing.items() if br > 0 and len(nr) >= 5 and _norm(nr) in nt]
+        if not treffer:
+            continue
+        gesamt = abs(b["betrag"])
+        summe = sum(t[1] for t in treffer)
+        if len(treffer) > 1 and not (abs(summe - gesamt) <= 0.02 or summe * 0.965 <= gesamt <= summe + 0.02):
+            continue  # mehrere Rechnungen, Betrag passt nicht -> nicht raten
+        faktor = gesamt / summe if len(treffer) > 1 and summe else 1
+        for nr, br in treffer:
+            out.append(("Kontoauszug", b["datum"], gesamt if len(treffer) == 1 else round(br * faktor, 2), nr,
+                        f"{b['name']}: {b['zweck'][:70]}", b["id"]))
+    return out
+
+
+def _bezahlt(p, betrag):
+    return bool(p) and p["summe"] >= abs(betrag) - 0.01
+
+
+def zahlungsstand():
+    """{Rechnungsnummer: {summe, quellen, am}} aus der Tabelle zahlungen."""
+    out = {}
+    for r in db().execute("SELECT rechnungsnr, SUM(betrag) s, GROUP_CONCAT(DISTINCT quelle) q, MAX(datum) am "
+                          "FROM zahlungen GROUP BY rechnungsnr"):
+        out[r["rechnungsnr"]] = dict(summe=r["s"], quellen=r["q"].replace(",", "/"), am=r["am"])
+    return out
+
+
+def zahlungen_synchronisieren():
+    """Liest neue Kassenbuecher, ordnet Bankbuchungen zu und setzt daraus den Zahlstatus der Rechnungen.
+    'bezahlt' entsteht ausschliesslich aus Kassenbuch und Kontoauszug."""
+    geprueft = {r[0] for r in db().execute("SELECT dokument_id FROM kasse_geprueft")}
+    for r in db().execute("SELECT id, datei FROM rechnungen WHERE belegart='Kassenbuch' AND datei IS NOT NULL").fetchall():
+        if r["id"] in geprueft:
+            continue
+        pfad = BELEGE / r["datei"]
+        if pfad.exists() and pfad.suffix.lower() == ".pdf":
+            for z in kassenbuch_zeilen(pdf_text(pfad, max_seiten=None)):
+                db().execute("INSERT OR IGNORE INTO kassenzeilen(dokument_id,datum,beleg,name,betrag,zeit,rechnungsnr) "
+                             "VALUES(?,?,?,?,?,?,?)", (r["id"], z["datum"], z["beleg"], z["name"], z["betrag"],
+                                                       z["zeit"], z["rechnungsnr"]))
+            db().execute("INSERT OR IGNORE INTO kasse_geprueft(dokument_id) VALUES(?)", (r["id"],))
+    ids = "(SELECT id FROM rechnungen)"
+    db().execute(f"DELETE FROM kassenzeilen WHERE dokument_id NOT IN {ids}")
+    db().execute(f"DELETE FROM kasse_geprueft WHERE dokument_id NOT IN {ids}")
+    db().execute("DELETE FROM zahlungen")
+    db().execute("INSERT INTO zahlungen(quelle,datum,betrag,rechnungsnr,info) "
+                 "SELECT 'Kassenbuch', datum, betrag, rechnungsnr, 'Beleg '||beleg||' '||name FROM kassenzeilen")
+    for q, datum, betrag, nr, info, bank_id in bank_zahlungen():
+        db().execute("INSERT INTO zahlungen(quelle,datum,betrag,rechnungsnr,info,bank_id) VALUES(?,?,?,?,?,?)",
+                     (q, datum, betrag, nr, info, bank_id))
+    pay = zahlungsstand()
+    for r in db().execute("SELECT id, rechnungsnr, brutto, belegart, zahlung, zahl_am, zahl_quelle FROM rechnungen "
+                          "WHERE rechnungsnr<>'' AND belegart IN (?,?,?,?)", AUSGANG_RECHNUNGEN + (EINGANG,)).fetchall():
+        p, soll = pay.get(r["rechnungsnr"]), abs(r["brutto"] or 0)
+        if p and (p["summe"] >= soll - 0.01 or (r["belegart"] == EINGANG and p["summe"] >= soll * 0.965)):
+            z = "bezahlt"
+        elif p and p["summe"] > 0:
+            z = "teilweise"
+        else:
+            z = "offen"
+        am, quelle = (p["am"], p["quellen"]) if p else (None, None)
+        if (z, r["zahl_am"], r["zahl_quelle"]) != (r["zahlung"], am, quelle) and not (
+                z == r["zahlung"] == "offen" and not r["zahl_am"]):
+            db().execute("UPDATE rechnungen SET zahlung=?, zahl_am=?, zahl_quelle=? WHERE id=?", (z, am, quelle, r["id"]))
+    db().commit()
+
+
+ZAHLUNGEN = """
+<form method=post enctype=multipart/form-data class=card>
+<h2>Kontoauszug hochladen</h2>
+<p>CSV (z. B. Sparkasse &bdquo;CSV-CAMT&ldquo;) oder CAMT.053-XML aus dem Online-Banking. Die App sucht die Rechnungsnummer im
+Verwendungszweck. Doppelte Buchungen werden erkannt und nicht noch einmal gespeichert.</p>
+<input type=file name=auszug accept=".csv,.txt,.xml,.camt" multiple>
+<p><button>Hochladen &amp; abgleichen</button></p></form>
+<div class=card><h2>Stand</h2>
+<table><tr><th>Quelle</th><th class=r>Buchungen / Zeilen</th><th class=r>davon Rechnungen zugeordnet</th></tr>
+<tr><td>Kassenbuch ({{kassen_docs}} Dokumente)</td><td class=r>{{kassen_n}}</td><td class=r>{{kassen_n}}</td></tr>
+<tr><td>Kontoauszug</td><td class=r>{{bank_n}}</td><td class=r>{{bank_zugeordnet}}</td></tr></table>
+<small>Rechnungen gelten nur als &bdquo;bezahlt&ldquo;, wenn hier eine Zahlung zugeordnet ist (Skonto bis 3,5 % bei Eingangsrechnungen).
+Offene Rechnungen: <a href="{{url_for('index',zahlung='unbezahlt')}}">anzeigen</a></small></div>
+<div class=card><h2>Zugeordnete Zahlungen ({{zahlungen|length}})</h2>
+<table><tr><th>Datum</th><th>Quelle</th><th>Rg.-Nr.</th><th class=r>Betrag</th><th>Info</th></tr>
+{% for z in zahlungen %}<tr><td>{{z.datum}}</td><td>{{z.quelle}}</td><td>{{z.rechnungsnr}}</td>
+<td class=r>{{'%.2f'|format(z.betrag)|replace('.',',')}}</td><td><small>{{z.info}}</small></td></tr>
+{% else %}<tr><td colspan=5>Noch keine Zahlungen. Lade ein Kassenbuch (Monatsunterlagen) oder einen Kontoauszug hoch.</td></tr>{% endfor %}</table></div>
+{% if offen_bank %}<div class=card><h2>Nicht zugeordnete Bankbuchungen ({{offen_bank|length}})</h2>
+<table><tr><th>Datum</th><th class=r>Betrag</th><th>Name</th><th>Verwendungszweck</th></tr>
+{% for b in offen_bank %}<tr><td>{{b.datum}}</td><td class=r>{{'%.2f'|format(b.betrag)|replace('.',',')}}</td><td>{{b.name}}</td><td><small>{{b.zweck}}</small></td></tr>{% endfor %}
+</table></div>{% endif %}"""
+
+
+@app.route("/zahlungen", methods=["GET", "POST"])
+def zahlungen_seite():
+    if request.method == "POST":
+        neu = doppelt = 0
+        for up in request.files.getlist("auszug"):
+            if not up.filename:
+                continue
+            daten = up.read()
+            try:
+                buchungen = parse_kontoauszug(daten, up.filename)
+            except Exception as e:  # noqa: BLE001
+                flash(f"{up.filename}: nicht lesbar ({e}).")
+                continue
+            if not buchungen:
+                flash(f"{up.filename}: keine Buchungen erkannt. Bitte CSV oder CAMT.053 aus dem Online-Banking verwenden.")
+                continue
+            for b in buchungen:
+                key = hashlib.sha1(f"{b['datum']}|{b['betrag']:.2f}|{b['name']}|{b['zweck']}".encode()).hexdigest()
+                cur = db().execute("INSERT OR IGNORE INTO bank(datum,betrag,name,zweck,dokument,schluessel) "
+                                   "VALUES(?,?,?,?,?,?)", (b["datum"], b["betrag"], b["name"], b["zweck"],
+                                                           up.filename, key))
+                neu += cur.rowcount
+                doppelt += 1 - cur.rowcount
+            (DATA / "kontoauszuege").mkdir(exist_ok=True)
+            (DATA / "kontoauszuege" / f"{datetime.now():%Y%m%d-%H%M%S}_{secure_filename(up.filename)}").write_bytes(daten)
+        db().commit()
+        zahlungen_synchronisieren()
+        if neu or doppelt:
+            flash(f"{neu} neue Buchungen eingelesen" + (f", {doppelt} bereits vorhanden (übersprungen)." if doppelt else "."))
+        return redirect(url_for("zahlungen_seite"))
+    zahlungen_synchronisieren()
+    zahlungen = db().execute("SELECT * FROM zahlungen ORDER BY datum DESC, id DESC").fetchall()
+    zugeordnet = {r[0] for r in db().execute("SELECT DISTINCT bank_id FROM zahlungen WHERE bank_id IS NOT NULL")}
+    alle_bank = db().execute("SELECT * FROM bank ORDER BY datum DESC, id DESC").fetchall()
+    offen_bank = [b for b in alle_bank if b["id"] not in zugeordnet]
+    n_zug = len(alle_bank) - len(offen_bank)
+    return page(ZAHLUNGEN, zahlungen=zahlungen, offen_bank=offen_bank, bank_n=db().execute("SELECT COUNT(*) FROM bank").fetchone()[0],
+                bank_zugeordnet=n_zug, kassen_n=db().execute("SELECT COUNT(*) FROM kassenzeilen").fetchone()[0],
+                kassen_docs=db().execute("SELECT COUNT(*) FROM kasse_geprueft").fetchone()[0])
 
 
 # ---------------------------------------------------------------- Monatsunterlagen
