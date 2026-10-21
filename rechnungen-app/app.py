@@ -76,7 +76,8 @@ Ebay
 Grover
 GLS
 Wentronic
-Wertgarantie"""
+Wertgarantie
+BüroShop = Bürobedarf"""
 STANDARD_REGELN = """Rechnungsausgangliste = rechnungsausgangsliste, rechnungsausgangliste, ausgangsliste
 Monatsjournal Kasse = monatsjournal
 Kassenbuch = kassenbuch
