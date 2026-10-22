@@ -1808,7 +1808,8 @@ BANK = """
 <style>details.bank{background:#fff;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:6px;margin-bottom:10px;padding:0 18px}details.bank>summary{cursor:pointer;font:600 14px Tahoma,Arial,sans-serif;color:var(--head);padding:9px 0}details.bank[open]{padding-bottom:14px}details.bank[open]>summary{border-bottom:1px solid var(--line);margin-bottom:10px}</style>
 <form method=get class=card style="display:flex;gap:12px;align-items:end;flex-wrap:wrap">
  <div><label>Monat</label><input type=month name=monat value="{{monat}}"></div>
- <button>Filtern</button> <a class="btn sek" href="{{url_for('bank_seite')}}">Zurücksetzen</a></form>
+ <button>Filtern</button> <a class="btn sek" href="{{url_for('bank_seite')}}">Zurücksetzen</a>
+ <button type=submit formmethod=post formaction="{{url_for('bank_aktualisieren')}}" class=sek>&#8635; Aktualisieren</button></form>
 <details class=bank open><summary>Offene Rechnungen &ndash; Stand laut Kontoauszug</summary>
 {% if bank_n == 0 %}<p style="color:#b45309"><b>Noch kein Kontoauszug vorhanden.</b> Lege eine CSV/CAMT-Datei in den Eingangsordner oder lade sie unter
  <a href="{{url_for('zahlungen_seite')}}">Zahlungen</a> hoch.</p>{% endif %}
@@ -1911,6 +1912,16 @@ def bank_seite():
                 bezahlte_liste=bezahlte_liste, bezahlte_summe=sum(abs(r["brutto"] or 0) for r in bezahlte_liste), ohne=ohne,
                 ohne_summe=sum(abs(b["betrag"]) for b in ohne), ignoriert=ignoriert,
                 bank_n=db().execute("SELECT COUNT(*) FROM bank").fetchone()[0], zurueck=request.full_path.rstrip("?"))
+
+
+@app.route("/bank/aktualisieren", methods=["POST"])
+def bank_aktualisieren():
+    """Liest neue Dateien (Rechnungen, Kontoauszuege, Kassenbuecher) aus dem Eingangsordner und gleicht neu ab."""
+    n = eingang_einlesen()
+    zahlungen_synchronisieren()
+    flash(f"{n} neue Dateien eingelesen, Abgleich aktualisiert." if n else "Keine neuen Dateien - Abgleich aktualisiert.")
+    monat = request.form.get("monat", "")
+    return redirect(url_for("bank_seite", monat=monat) if monat else url_for("bank_seite"))
 
 
 @app.route("/bank/ignorieren", methods=["POST"])
