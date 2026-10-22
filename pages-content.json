@@ -108,7 +108,7 @@
     "services": [
       {
         "t": "Reparatur",
-        "x": "Diagnose und Reparatur aller gängigen Marken in unserer eigenen Werkstatt. Individuelle Kalkulation statt Pauschalpreisen, 12 Monate Gewährleistung auf eingebaute Ersatzteile.",
+        "x": "Diagnose und Reparatur aller gängigen Marken in unserer eigenen Werkstatt. Individuelle Kalkulation statt Pauschalpreisen, 2 Jahre Gewährleistung auf Reparatur und eingebaute Ersatzteile (gewerblich 12 Monate).",
         "url": "/reparatur/",
         "cta": "Zur Reparatur"
       },
@@ -169,7 +169,7 @@
     "shopTiles": [
       {
         "t": "Kaffeevollautomaten",
-        "x": "15 Modelle von ENA bis GIGA",
+        "x": "14 Modelle von ENA bis GIGA",
         "url": "/jura-kaffeevollautomaten/",
         "img": "https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-shop-cat-kaffeevollautomaten.jpg"
       },
@@ -229,7 +229,7 @@
       "eyebrow": "Google Bewertungen",
       "title": "Das sagen unsere Kundinnen und Kunden",
       "rating": "4,9",
-      "count": "144",
+      "count": "146",
       "url": "https://www.google.com/search?kgmid=/g/1tfb5prd&q=JB%20Kaffeemaschinen%20Service%20%26%20Verkauf",
       "reviews": [
         {
@@ -345,7 +345,7 @@
     "categories": [
       {
         "t": "Kaffeevollautomaten Haushalt",
-        "x": "15 Modelle von der kompakten ENA bis zur GIGA – für jede Haushaltsgröße und jeden Anspruch.",
+        "x": "14 Modelle von der kompakten ENA bis zur GIGA – für jede Haushaltsgröße und jeden Anspruch.",
         "url": "/jura-kaffeevollautomaten/",
         "cta": "Zu den Geräten",
         "img": "https://kaffeetechniker.de/wp-content/uploads/2026/09/kt-shop-cat-kaffeevollautomaten.jpg"
@@ -596,7 +596,7 @@
         },
         {
           "k": "Gewährleistung",
-          "v": "12 Monate (privat) / 6 Monate (gewerblich) auf eingebaute Ersatzteile"
+          "v": "2 Jahre (privat) / 12 Monate (gewerblich) auf Reparatur und eingebaute Ersatzteile"
         },
         {
           "k": "Herstellergarantie",
@@ -678,7 +678,7 @@
         },
         {
           "t": "html",
-          "x": "<style>.kt-cust{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:10px 0 16px}@media(max-width:620px){.kt-cust{grid-template-columns:1fr}}.kt-cust>div{background:#ffffff;border:1px solid #e2e2e2;border-radius:9px;padding:16px 18px 14px}.kt-cust h3{font-family:Tahoma,Arial,sans-serif;font-size:14px;font-weight:700;margin:0 0 9px;padding:0 0 8px;border-bottom:1px solid #ececec;color:#1c1c1c}.kt-cust ul{margin:0;padding-left:1.2em;font-size:14px;line-height:1.6;color:#333333}.kt-cust li{margin:4px 0}.kt-cust-all{background:#f0efec;border:1px solid #e6e5e2;border-radius:9px;padding:12px 18px;font-size:14px;line-height:1.6;color:#333333;margin:0}.kt-cust-all b{font-family:Tahoma,Arial,sans-serif;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#334155;margin-right:7px}.kt-cust-all a{color:#334155;font-weight:600}</style><div class=\"kt-cust\"><div><h3>Privatkunden</h3><ul><li>Ohne Termine – Gerät einfach während der Öffnungszeiten abgeben</li><li>Abholung nach Benachrichtigung (Telefon, E-Mail oder WhatsApp)</li><li>Zahlung per EC-Karte oder bar</li><li>12 Monate Gewährleistung auf die getauschten Teile</li></ul></div><div><h3>Firmen &amp; Gastronomie</h3><ul><li>Auch Gastro-Geräte (JURA X-, W- und GIGA-Serie)</li><li>Ab der zweiten Reparatur Zahlung auf Rechnung möglich; die erste wird wie bei Privatkunden bezahlt</li><li>Auf Wunsch Wartungsvereinbarung</li><li>6 Monate Gewährleistung auf die getauschten Teile</li></ul></div></div><p class=\"kt-cust-all\"><b>Für alle</b>Für die Reparaturzeit gibt es auf Wunsch ein <a href=\"/leihgeraete/\">Mietgerät</a> gegen Gebühr.</p>"
+          "x": "<style>.kt-cust{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:10px 0 16px}@media(max-width:620px){.kt-cust{grid-template-columns:1fr}}.kt-cust>div{background:#ffffff;border:1px solid #e2e2e2;border-radius:9px;padding:16px 18px 14px}.kt-cust h3{font-family:Tahoma,Arial,sans-serif;font-size:14px;font-weight:700;margin:0 0 9px;padding:0 0 8px;border-bottom:1px solid #ececec;color:#1c1c1c}.kt-cust ul{margin:0;padding-left:1.2em;font-size:14px;line-height:1.6;color:#333333}.kt-cust li{margin:4px 0}.kt-cust-all{background:#f0efec;border:1px solid #e6e5e2;border-radius:9px;padding:12px 18px;font-size:14px;line-height:1.6;color:#333333;margin:0}.kt-cust-all b{font-family:Tahoma,Arial,sans-serif;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#334155;margin-right:7px}.kt-cust-all a{color:#334155;font-weight:600}</style><div class=\"kt-cust\"><div><h3>Privatkunden</h3><ul><li>Ohne Termine – Gerät einfach während der Öffnungszeiten abgeben</li><li>Abholung nach Benachrichtigung (Telefon, E-Mail oder WhatsApp)</li><li>Zahlung per EC-Karte oder bar</li><li>2 Jahre Gewährleistung auf Reparatur und getauschte Teile</li></ul></div><div><h3>Firmen &amp; Gastronomie</h3><ul><li>Auch Gastro-Geräte (JURA X-, W- und GIGA-Serie)</li><li>Ab der zweiten Reparatur Zahlung auf Rechnung möglich; die erste wird wie bei Privatkunden bezahlt</li><li>Auf Wunsch Wartungsvereinbarung</li><li>12 Monate Gewährleistung auf Reparatur und getauschte Teile</li></ul></div></div><p class=\"kt-cust-all\"><b>Für alle</b>Für die Reparaturzeit gibt es auf Wunsch ein <a href=\"/leihgeraete/\">Mietgerät</a> gegen Gebühr.</p>"
         },
         {
           "t": "h",
@@ -1023,7 +1023,7 @@
         },
         {
           "k": "Gewährleistung",
-          "v": "12 Monate (privat) / 6 Monate (gewerblich) auf Ersatzteile"
+          "v": "2 Jahre (privat) / 12 Monate (gewerblich) auf Reparatur und Ersatzteile"
         }
       ],
       "blocks": [
@@ -1166,7 +1166,7 @@
         },
         {
           "t": "p",
-          "x": "Auf eingebaute Ersatzteile und deren korrekten Einbau gewähren wir 12 Monate Gewährleistung bei privater Nutzung, 6 Monate bei gewerblichem Gebrauch. Die Frist beginnt mit der Abholung."
+          "x": "Auf die Reparatur, die eingebauten Ersatzteile und deren korrekten Einbau gilt für Privatkunden die gesetzliche Gewährleistung von 2 Jahren, für Gewerbekunden 12 Monate. Die Frist beginnt mit der Abholung."
         },
         {
           "t": "p",
@@ -1202,11 +1202,11 @@
       "slug": "gewaehrleistung",
       "menu": "Gewährleistung",
       "title": "Gewährleistung auf Reparaturen",
-      "excerpt": "12 Monate Gewährleistung auf eingebaute Ersatzteile (gewerblich 6 Monate), ab Abholung.",
+      "excerpt": "2 Jahre Gewährleistung auf Reparatur und eingebaute Ersatzteile (gewerblich 12 Monate), ab Abholung.",
       "blocks": [
         {
           "t": "p",
-          "x": "Auf eingebaute Ersatzteile und deren korrekten Einbau gewähren wir 12 Monate Gewährleistung bei privater Nutzung und 6 Monate bei gewerblichem Gebrauch, ab Abholung. Alle Details zu Kosten, Dauer und Gewährleistung stehen jetzt gebündelt auf einer Seite."
+          "x": "Auf eingebaute Ersatzteile und deren korrekten Einbau gilt für Privatkunden die gesetzliche Gewährleistung von 2 Jahren, für Gewerbekunden 12 Monate, jeweils ab Abholung. Alle Details zu Kosten, Dauer und Gewährleistung stehen jetzt gebündelt auf einer Seite."
         },
         {
           "t": "btns",
@@ -1273,7 +1273,7 @@
         },
         {
           "t": "p",
-          "x": "Machen Sie bitte zuerst mehrere Bezüge und beziehen Sie Heißwasser – häufig ist nur Luft im System. Bleibt ein Problem bestehen, rufen Sie uns an oder schreiben Sie uns, bevor Sie das Gerät erneut vorbeibringen. Wir klären das gemeinsam. Auf die durchgeführte Reparatur haben Sie 12 Monate Gewährleistung (gewerblich 6 Monate); bitte bewahren Sie die Rechnung auf."
+          "x": "Machen Sie bitte zuerst mehrere Bezüge und beziehen Sie Heißwasser – häufig ist nur Luft im System. Bleibt ein Problem bestehen, rufen Sie uns an oder schreiben Sie uns, bevor Sie das Gerät erneut vorbeibringen. Wir klären das gemeinsam. Auf die durchgeführte Reparatur und die eingebauten Ersatzteile haben Sie 2 Jahre Gewährleistung (gewerblich 12 Monate); bitte bewahren Sie die Rechnung auf."
         },
         {
           "t": "h",
@@ -3229,7 +3229,11 @@
         },
         {
           "t": "p",
-          "x": "Für Reparatur- und Wartungsaufträge gelten die werkvertraglichen Gewährleistungsvorschriften (§§ 634 ff. BGB). Wir leisten Gewähr dafür, dass die durchgeführten Arbeiten fachgerecht ausgeführt wurden und die eingebauten Ersatzteile mangelfrei sind; verbleibt nach einer Reparatur ein anderer, zuvor nicht behandelter Defekt am Gerät, stellt dies keinen Mangel der erbrachten Leistung dar."
+          "x": "Für Reparatur- und Wartungsaufträge gelten die werkvertraglichen Gewährleistungsvorschriften (§§ 634 ff. BGB). Wir leisten Gewähr dafür, dass die durchgeführten Arbeiten fachgerecht ausgeführt wurden und die eingebauten Ersatzteile mangelfrei sind; verbleibt nach einer Reparatur ein anderer, zuvor nicht behandelter Defekt am Gerät, stellt dies keinen Mangel der erbrachten Leistung dar. Gegenüber Verbrauchern beträgt die Verjährungsfrist für Mängelansprüche aus Reparatur- und Wartungsaufträgen zwei Jahre ab Abnahme (Abholung des Geräts)."
+        },
+        {
+          "t": "p",
+          "x": "Gegenüber Unternehmern im Sinne des § 14 BGB beträgt die Verjährungsfrist für Mängelansprüche zwölf Monate – bei Warenkäufen ab Ablieferung, bei Reparatur- und Wartungsaufträgen einschließlich der eingebauten Ersatzteile ab Abnahme (Abholung des Geräts). Diese Verkürzung gilt nicht für Schadensersatzansprüche wegen Verletzung des Lebens, des Körpers oder der Gesundheit, bei Vorsatz oder grober Fahrlässigkeit, bei arglistig verschwiegenen Mängeln, bei Übernahme einer Garantie sowie für Ansprüche nach dem Produkthaftungsgesetz."
         },
         {
           "t": "h",
