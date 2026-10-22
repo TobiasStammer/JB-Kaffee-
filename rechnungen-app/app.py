@@ -67,7 +67,12 @@ STANDARD_ORDNER = r"Z:\Buchhaltung\Eingang"
 # "nr:261" = Rechnungsnummer beginnt mit 261.
 STANDARD_LIEFERANTEN = """Jura Gastro = Wareneinkauf
 Jura = Wareneinkauf
+Amazon Business
 Amazon
+REPA Italia s.r.l. a socio unico | REPA Italia
+Entega
+Ionos
+Flaschenpost
 BND
 VW Leasing
 Axa
