@@ -160,6 +160,10 @@ def init_db():
         c.execute("DELETE FROM kassenzeilen")
     except sqlite3.OperationalError:
         pass
+    try:  # Skonto-Prozent laut Rechnungstext (NULL = noch nicht gelesen)
+        c.execute("ALTER TABLE rechnungen ADD COLUMN skonto REAL")
+    except sqlite3.OperationalError:
+        pass
     try:
         c.execute("ALTER TABLE zahlungen ADD COLUMN zahlart TEXT")
     except sqlite3.OperationalError:
@@ -1448,6 +1452,22 @@ def parse_kontoauszug(daten, dateiname):
     return out
 
 
+def skonto_prozent(text):
+    """Skonto-Prozent aus dem Rechnungstext, z. B. 'SEPA-Lastschrift 14 TAGE, 3% SK.' oder '2 % Skonto'. 0 = keins."""
+    for pat in (r"(\d{1,2}(?:[.,]\d+)?)\s*%\s*(?:SK\b|Skonto)", r"Skonto[^\n\d]{0,25}(\d{1,2}(?:[.,]\d+)?)\s*%"):
+        m = re.search(pat, text, re.I)
+        if m:
+            v = float(m.group(1).replace(",", "."))
+            if 0 < v <= 10:
+                return v
+    return 0.0
+
+
+def _sk_faktor(skonto):
+    """Kleinster Zahlbetrag relativ zur Rechnung: Skonto der Rechnung (mit 0,5 % Spielraum), sonst allgemein 3,5 %."""
+    return 1 - skonto / 100 - 0.005 if skonto else 0.965
+
+
 def _norm(t):
     t = t.lower().replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss")
     return re.sub(r"[^a-z0-9]", "", t)
@@ -1471,7 +1491,7 @@ def _ausgang_fallback(text, betrag, ausg, kd_map):
     return []
 
 
-def _eingang_fallback(name, betrag, eing, eing_lief, aliase=None):
+def _eingang_fallback(name, betrag, eing, eing_lief, aliase=None, eing_sk=None):
     """Lieferantenzahlung ohne Rechnungsnummer im Text: Lieferantenname im Bank-Namen + Betrag passt (ggf. mit
     Skonto bis 3,5 %) zu genau einer Rechnung. Bei mehreren Treffern wird nicht geraten."""
     gesamt, nn = abs(betrag), _norm(name)
@@ -1482,7 +1502,8 @@ def _eingang_fallback(name, betrag, eing, eing_lief, aliase=None):
         namen = (aliase or {}).get(eing_lief.get(nr, ""), [eing_lief.get(nr, "")])
         lief_ok = any(len(_norm(x)) >= 3 and _norm(x) in nn for x in namen)
         soll = abs(br)
-        if lief_ok and soll > 0 and (abs(soll - gesamt) <= 0.01 or soll * 0.965 - 0.01 <= gesamt <= soll):
+        if lief_ok and soll > 0 and (abs(soll - gesamt) <= 0.01
+                                     or soll * _sk_faktor((eing_sk or {}).get(nr, 0)) - 0.01 <= gesamt <= soll):
             kand.append((nr, soll))
     return kand if len(kand) == 1 else []
 
@@ -1542,6 +1563,8 @@ def bank_zahlungen():
     eing = {r["rechnungsnr"]: r["brutto"] for r in db().execute(
         "SELECT rechnungsnr, brutto FROM rechnungen WHERE rechnungsnr<>'' AND belegart=?", (EINGANG,))}
     aliase = lieferant_aliase(settings())
+    eing_sk = {r["rechnungsnr"]: r["skonto"] or 0 for r in db().execute(
+        "SELECT rechnungsnr, skonto FROM rechnungen WHERE rechnungsnr<>'' AND belegart=?", (EINGANG,))}
     eing_lief = {r["rechnungsnr"]: r["lieferant"] or "" for r in db().execute(
         "SELECT rechnungsnr, lieferant FROM rechnungen WHERE rechnungsnr<>'' AND belegart=?", (EINGANG,))}
     out = []
@@ -1558,12 +1581,13 @@ def bank_zahlungen():
         else:  # Zahlungsausgang an Lieferanten
             treffer += [(nr, abs(br)) for nr, br in eing.items() if br > 0 and len(nr) >= 5 and _norm(nr) in nt]
         if not treffer:  # ohne Rechnungsnummer: Lieferant im Namen + passender Betrag
-            treffer += _eingang_fallback(b["name"], b["betrag"], eing, eing_lief, aliase)
+            treffer += _eingang_fallback(b["name"], b["betrag"], eing, eing_lief, aliase, eing_sk)
         if not treffer:
             continue
         gesamt = abs(b["betrag"])
         summe = sum(t[1] for t in treffer)
-        if len(treffer) > 1 and not (abs(summe - gesamt) <= 0.02 or summe * 0.965 <= gesamt <= summe + 0.02):
+        faktor_min = min(_sk_faktor(eing_sk.get(t[0], 0)) for t in treffer)
+        if len(treffer) > 1 and not (abs(summe - gesamt) <= 0.02 or summe * faktor_min <= gesamt <= summe + 0.02):
             continue  # mehrere Rechnungen, Betrag passt nicht -> nicht raten
         faktor = gesamt / summe if len(treffer) > 1 and summe else 1
         for nr, br in treffer:
@@ -1607,6 +1631,10 @@ def zahlungen_synchronisieren():
                              "VALUES(?,?,?,?,?,?,?,?)", (r["id"], z["datum"], z["beleg"], z["name"], z["betrag"],
                                                          z["zeit"], z["rechnungsnr"], arten.get(z["beleg"], "Kasse")))
             db().execute("INSERT OR IGNORE INTO kasse_geprueft(dokument_id) VALUES(?)", (r["id"],))
+    for r in db().execute("SELECT id, datei FROM rechnungen WHERE belegart=? AND skonto IS NULL", (EINGANG,)).fetchall():
+        pfad = BELEGE / r["datei"] if r["datei"] else None
+        sk = skonto_prozent(pdf_text(pfad, max_seiten=None)) if pfad and pfad.suffix.lower() == ".pdf" and pfad.exists() else 0
+        db().execute("UPDATE rechnungen SET skonto=? WHERE id=?", (sk, r["id"]))
     ids = "(SELECT id FROM rechnungen)"
     db().execute(f"DELETE FROM kassenzeilen WHERE dokument_id NOT IN {ids}")
     db().execute(f"DELETE FROM kasse_geprueft WHERE dokument_id NOT IN {ids}")
@@ -1621,11 +1649,11 @@ def zahlungen_synchronisieren():
     pay = zahlungsstand()
     quitt = {r[0]: r[1] for r in db().execute("SELECT rechnungsnr, am FROM quittiert")}
     abzug_set = lieferanten_abzug(settings())
-    for r in db().execute("SELECT id, rechnungsnr, brutto, belegart, lieferant, zahlung, zahl_am, zahl_quelle, zahl_art FROM rechnungen "
+    for r in db().execute("SELECT id, rechnungsnr, brutto, belegart, lieferant, zahlung, zahl_am, zahl_quelle, zahl_art, skonto FROM rechnungen "
                           "WHERE rechnungsnr<>'' AND belegart IN (?,?,?,?)", AUSGANG_RECHNUNGEN + (EINGANG,)).fetchall():
         p, soll = pay.get(r["rechnungsnr"]), abs(r["brutto"] or 0)
         abzug_ok = r["belegart"] == EINGANG and r["lieferant"] in abzug_set  # z. B. GLS: Gutschriften werden abgezogen
-        if p and (p["summe"] >= soll - 0.01 or (r["belegart"] == EINGANG and p["summe"] >= soll * 0.965)
+        if p and (p["summe"] >= soll - 0.01 or (r["belegart"] == EINGANG and p["summe"] >= soll * _sk_faktor(r["skonto"] or 0))
                   or (abzug_ok and p["summe"] > 0)):
             z = "bezahlt"
         elif p and p["summe"] > 0:
@@ -1781,7 +1809,7 @@ def bank_seite():
     for r in alle_rechnungen:  # Abzug = Rechnung - tatsaechliche Zahlung (nur bei Lieferanten mit 'abzug')
         p = pay.get(r["rechnungsnr"])
         diff = abs(r["brutto"] or 0) - (p["summe"] if p else 0)
-        r["abzug"] = diff if p and r["lieferant"] in abzug_set and r["zahlung"] == "bezahlt" and diff > 0.01 else 0
+        r["abzug"] = diff if p and (r["lieferant"] in abzug_set or r["skonto"]) and r["zahlung"] == "bezahlt" and diff > 0.01 else 0
     summen = []
     for name, klasse, test in (("offen", "offen", lambda r: (r["zahlung"] or "offen") == "offen"),
                                ("teilweise bezahlt", "teilweise", lambda r: r["zahlung"] == "teilweise"),
