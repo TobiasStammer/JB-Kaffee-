@@ -103,6 +103,7 @@ SETTINGS_DEFAULT = {
     "sachkontenlaenge": "4", "gegenkonto": "1600", "diktatkuerzel": "",
     "datev_mail": "", "smtp_host": "", "smtp_port": "587", "smtp_user": "",
     "smtp_pass": "", "absender": "",
+    "start_datum": "2026-10-01",   # Anzeige ab diesem Tag; aeltere Rechnungen nur, solange sie offen sind
     "eingang_ordner": STANDARD_ORDNER, "lieferanten": STANDARD_LIEFERANTEN, "regeln": STANDARD_REGELN,
 }
 
@@ -1706,10 +1707,12 @@ def zahlungen_seite():
     alle_bank = db().execute("SELECT * FROM bank ORDER BY datum DESC, id DESC").fetchall()
     karten = kartenabrechnungen()
     karte_ok = {i for i, k in karten.items() if k["kasse"]}
-    offen_bank = [b for b in alle_bank if b["id"] not in zugeordnet and b["id"] not in karten]  # Karten: eigene Tabelle
+    start = settings()["start_datum"]
+    offen_bank = [b for b in alle_bank if b["id"] not in zugeordnet and b["id"] not in karten
+                  and b["datum"] >= start]  # Karten: eigene Tabelle
     n_zug = len([b for b in alle_bank if b["id"] in zugeordnet or b["id"] in karte_ok])
     karten_zeilen = [dict(datum=b["datum"], betrag=karten[b["id"]]["betrag"], kasse=karten[b["id"]]["kasse"])
-                     for b in alle_bank if b["id"] in karten]
+                     for b in alle_bank if b["id"] in karten and b["datum"] >= start]
     return page(ZAHLUNGEN, zahlungen=zahlungen, offen_bank=offen_bank, karten_zeilen=karten_zeilen,
                 karten_gefunden=len(karte_ok), bank_n=db().execute("SELECT COUNT(*) FROM bank").fetchone()[0],
                 bank_zugeordnet=n_zug, kassen_n=db().execute("SELECT COUNT(*) FROM kassenzeilen").fetchone()[0],
@@ -1768,7 +1771,10 @@ def bank_seite():
     if monat:
         sql += " AND substr(datum,1,7)=?"
         par.append(monat)
-    alle_rechnungen = [dict(r) for r in db().execute(sql + " ORDER BY datum DESC, id DESC", par)]
+    start = settings()["start_datum"]
+    # Anzeige ab Startdatum; aeltere Rechnungen nur, wenn noch nicht (ganz) bezahlt oder erst ab Startdatum bezahlt
+    alle_rechnungen = [dict(r) for r in db().execute(sql + " ORDER BY datum DESC, id DESC", par)
+                       if (r["datum"] or "") >= start or r["zahlung"] != "bezahlt" or (r["zahl_am"] or "") >= start]
     pay, abzug_set = zahlungsstand(), lieferanten_abzug(settings())
     for r in alle_rechnungen:  # Abzug = Rechnung - tatsaechliche Zahlung (nur bei Lieferanten mit 'abzug')
         p = pay.get(r["rechnungsnr"])
@@ -1786,7 +1792,7 @@ def bank_seite():
         "SELECT rechnungsnr, GROUP_CONCAT(substr(info,1,60), ' | ') FROM zahlungen WHERE quelle='Kontoauszug' GROUP BY rechnungsnr")}
     zug = {r[0] for r in db().execute("SELECT DISTINCT bank_id FROM zahlungen WHERE bank_id IS NOT NULL")}
     ign = {r[0]: r[1] for r in db().execute("SELECT bank_id, grund FROM bank_ignoriert")}
-    bsql, bpar = "SELECT * FROM bank WHERE betrag<0", []
+    bsql, bpar = "SELECT * FROM bank WHERE betrag<0 AND datum>=?", [start]
     if monat:
         bsql += " AND substr(datum,1,7)=?"
         bpar.append(monat)
@@ -1809,10 +1815,10 @@ def bank_seite():
         return f"{iso[8:10]}.{iso[5:7]}.{iso[:4]}"
     credit_offen = [dict(kasse=dmy(t), betrag=v, bank="noch nicht eingegangen")
                     for t, v in sorted(kartentage().items(), reverse=True)
-                    if t not in gedeckt and (not monat or t[:7] == monat)]
+                    if t not in gedeckt and t >= start and (not monat or t[:7] == monat)]
     credit_ok = [dict(kasse=k["kasse"], betrag=k["betrag"], bank="Gutschrift vom " + dmy(bank_datum[bid]))
                  for bid, k in sorted(karten.items(), key=lambda x: x[1]["dat"], reverse=True)
-                 if k["kasse"] and (not monat or k["dat"][:7] == monat)]
+                 if k["kasse"] and k["dat"] >= start and (not monat or k["dat"][:7] == monat)]
     return page(BANK, monat=monat, summen=summen, info=info,
                 credit_offen=credit_offen, credit_offen_summe=sum(c["betrag"] for c in credit_offen),
                 credit_ok=credit_ok, credit_ok_summe=sum(c["betrag"] for c in credit_ok),
