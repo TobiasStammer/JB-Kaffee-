@@ -69,7 +69,7 @@ STANDARD_LIEFERANTEN = """Jura Gastro = Wareneinkauf
 Jura = Wareneinkauf
 Amazon Business
 Amazon
-REPA Italia s.r.l. a socio unico | REPA Italia
+REPA Italia s.r.l. a socio unico | REPA Italia ; abzug
 Entega
 Ionos
 Flaschenpost
