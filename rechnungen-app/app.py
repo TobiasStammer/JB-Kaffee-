@@ -880,6 +880,18 @@ def finde_nummer(text):
     return g.group(1) if g else ""
 
 
+def bank_doppelt(c, b, dokument):
+    """Gleiche Buchung (Betrag, Name, Verwendungszweck) mit bis zu 3 Tagen Abstand aus einer ANDEREN Datei = dieselbe Buchung
+    (vorgemerkt, spaeter mit neuem Datum gebucht)."""
+    try:
+        d = date.fromisoformat(b["datum"])
+    except ValueError:
+        return False
+    return bool(c.execute("SELECT 1 FROM bank WHERE betrag=? AND name=? AND zweck=? AND dokument<>? AND datum BETWEEN ? AND ?",
+                          (b["betrag"], b["name"], b["zweck"], dokument,
+                           (d - timedelta(days=3)).isoformat(), (d + timedelta(days=3)).isoformat())).fetchone())
+
+
 def _kontoauszug_importieren(c, f, fertig):
     """Liest eine Kontoauszugsdatei aus dem Eingangsordner in die Tabelle bank. True, wenn es einer war."""
     try:
@@ -890,6 +902,8 @@ def _kontoauszug_importieren(c, f, fertig):
     if not buchungen:
         return False
     for b in buchungen:
+        if bank_doppelt(c, b, f.name):
+            continue
         key = hashlib.sha1(f"{b['datum']}|{b['betrag']:.2f}|{b['name']}|{b['zweck']}".encode()).hexdigest()
         c.execute("INSERT OR IGNORE INTO bank(datum,betrag,name,zweck,dokument,schluessel) VALUES(?,?,?,?,?,?)",
                   (b["datum"], b["betrag"], b["name"], b["zweck"], f.name, key))
@@ -936,6 +950,11 @@ def eingang_einlesen():
             continue
         text = pdf_text(f)
         ex = lese_erechnung(f)
+        if ex and ex["nr"] and ex["brutto"] is not None and c.execute(
+                "SELECT 1 FROM rechnungen WHERE rechnungsnr=? AND ABS(brutto-?)<0.005 AND belegart=?",
+                (ex["nr"], ex["brutto"], EINGANG)).fetchone():  # E-Rechnung schon vorhanden (anderes PDF, gleiche Nummer)
+            shutil.move(str(f), str(fertig / f"doppelt_{int(time.time())}_{f.name}"))
+            continue
         art = klassifiziere(text + ("\n" + ex["nr"] if ex else ""), f.stem, regeln)
         lief = ""
         if art in (UNKLAR, EINGANG):
@@ -1527,6 +1546,12 @@ def _norm(t):
     return re.sub(r"[^a-z0-9]", "", t)
 
 
+def _nr_im_text(nr, nt):
+    """Rechnungsnummer (normalisiert) steht im normalisierten Bank-Text. Zu kurze Nummern und reine Jahreszahlen zaehlen nicht."""
+    n = _norm(nr)
+    return len(n) >= 5 and not re.fullmatch(r"(19|20)\d{2}", n) and n in nt
+
+
 def _ausgang_fallback(text, betrag, ausg, kd_map):
     """Wenn keine Rechnungsnummer sauber im Text steht: (a) zusammengeschriebene Nummer ('261020913') nur mit
     passendem Betrag, (b) Kundennummer im Text + Betrag passt zu einer Rechnung (oder Summe von bis zu 4) dieses Kunden."""
@@ -1631,9 +1656,9 @@ def bank_zahlungen():
             treffer += [(nr, abs(ausg[nr])) for nr in ausg if nr in zahlen]
             if not treffer:
                 treffer += _ausgang_fallback(text, b["betrag"], ausg, kd_map)
-            treffer += [(nr, abs(br)) for nr, br in eing.items() if br < 0 and len(nr) >= 5 and _norm(nr) in nt]
+            treffer += [(nr, abs(br)) for nr, br in eing.items() if br < 0 and _nr_im_text(nr, nt)]
         else:  # Zahlungsausgang an Lieferanten
-            treffer += [(nr, abs(br)) for nr, br in eing.items() if br > 0 and len(nr) >= 5 and _norm(nr) in nt]
+            treffer += [(nr, abs(br)) for nr, br in eing.items() if br > 0 and _nr_im_text(nr, nt)]
         if not treffer:  # ohne Rechnungsnummer: Lieferant im Namen + passender Betrag
             treffer += _eingang_fallback(b["name"], b["betrag"], eing, eing_lief, aliase, eing_sk)
         if not treffer:
@@ -1771,6 +1796,9 @@ def zahlungen_seite():
                 flash(f"{up.filename}: keine Buchungen erkannt. Bitte CSV oder CAMT.053 aus dem Online-Banking verwenden.")
                 continue
             for b in buchungen:
+                if bank_doppelt(db(), b, up.filename):
+                    doppelt += 1
+                    continue
                 key = hashlib.sha1(f"{b['datum']}|{b['betrag']:.2f}|{b['name']}|{b['zweck']}".encode()).hexdigest()
                 cur = db().execute("INSERT OR IGNORE INTO bank(datum,betrag,name,zweck,dokument,schluessel) "
                                    "VALUES(?,?,?,?,?,?)", (b["datum"], b["betrag"], b["name"], b["zweck"],
