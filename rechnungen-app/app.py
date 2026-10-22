@@ -67,7 +67,7 @@ STANDARD_ORDNER = r"Z:\Buchhaltung\Eingang"
 # "nr:261" = Rechnungsnummer beginnt mit 261.
 STANDARD_LIEFERANTEN = """Jura Gastro = Wareneinkauf
 Jura = Wareneinkauf
-Amazon Business
+Amazon Business | Amazon Payments
 Amazon
 REPA Italia s.r.l. a socio unico | REPA Italia ; abzug
 Entega
@@ -775,12 +775,66 @@ def finde_lieferant(text, dateiname, liste):
     return ""
 
 
-def pdf_text(pfad, max_seiten=3):
+_OCR = {}
+
+
+def _ocr_engine():
+    """RapidOCR (pip install rapidocr onnxruntime pymupdf) - laedt erst beim ersten Scan; fehlt es, bleibt Scan-Text leer."""
+    if "e" not in _OCR:
+        try:
+            from rapidocr import RapidOCR
+            _OCR["e"] = RapidOCR()
+        except Exception as e:  # noqa: BLE001
+            print("OCR nicht verfuegbar:", e)
+            _OCR["e"] = None
+    return _OCR["e"]
+
+
+def ocr_text(pfad, max_seiten=3):
+    """Text aus einem gescannten PDF / Bild per OCR. Ergebnis wird in data/ocr zwischengespeichert."""
+    pfad = Path(pfad)
     try:
-        r = PdfReader(str(pfad))
-        return "\n".join((pg.extract_text() or "") for pg in r.pages[:max_seiten])
-    except Exception:  # noqa: BLE001
+        roh = pfad.read_bytes()
+    except OSError:
         return ""
+    cache = DATA / "ocr" / f"{hashlib.sha1(roh).hexdigest()}_{max_seiten}.txt"
+    if cache.exists():
+        return cache.read_text(encoding="utf-8")
+    eng = _ocr_engine()
+    if eng is None:
+        return ""
+    try:
+        import pymupdf
+        seiten = []
+        if pfad.suffix.lower() == ".pdf":
+            doc = pymupdf.open(stream=roh, filetype="pdf")
+            seiten = [pg.get_pixmap(dpi=200).tobytes("png") for pg in list(doc)[:max_seiten]]
+        else:
+            seiten = [roh]
+        teile = []
+        for png in seiten:
+            res = eng(png)
+            teile.append("\n".join(res.txts) if res is not None and res.txts else "")
+        text = "\n".join(teile)
+    except Exception as e:  # noqa: BLE001
+        print("OCR-Fehler:", pfad.name, e)
+        return ""
+    cache.parent.mkdir(exist_ok=True)
+    cache.write_text(text, encoding="utf-8")
+    return text
+
+
+def pdf_text(pfad, max_seiten=3):
+    text = ""
+    if Path(pfad).suffix.lower() == ".pdf":
+        try:
+            r = PdfReader(str(pfad))
+            text = "\n".join((pg.extract_text() or "") for pg in r.pages[:max_seiten])
+        except Exception:  # noqa: BLE001
+            text = ""
+    if len(re.sub(r"\s", "", text)) < 40:  # Scan ohne Textebene (oder Bild): OCR
+        text = ocr_text(pfad, max_seiten or 50) or text
+    return text
 
 
 def klassifiziere(text, dateiname, regeln):
@@ -880,7 +934,7 @@ def eingang_einlesen():
         if c.execute("SELECT 1 FROM rechnungen WHERE hash=?", (h,)).fetchone():
             shutil.move(str(f), str(fertig / f"doppelt_{int(time.time())}_{f.name}"))
             continue
-        text = pdf_text(f) if f.suffix.lower() == ".pdf" else ""
+        text = pdf_text(f)
         ex = lese_erechnung(f)
         art = klassifiziere(text + ("\n" + ex["nr"] if ex else ""), f.stem, regeln)
         lief = ""
@@ -951,7 +1005,7 @@ def neu_pruefen():
                           "(belegart IN (?,?,?) AND (brutto=0 OR lieferant=belegart)))",
                           (UNKLAR, EINGANG) + AUSGANG_RECHNUNGEN).fetchall():
         pfad = BELEGE / r["datei"]
-        if not pfad.exists() or pfad.suffix.lower() != ".pdf":
+        if not pfad.exists():
             continue
         text = pdf_text(pfad)
         ex = lese_erechnung(pfad)
