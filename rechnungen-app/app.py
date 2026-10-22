@@ -130,6 +130,7 @@ def init_db():
         id INTEGER PRIMARY KEY AUTOINCREMENT, dokument_id INTEGER, datum TEXT, beleg TEXT, name TEXT,
         betrag REAL, zeit TEXT, rechnungsnr TEXT, UNIQUE(datum, beleg, rechnungsnr));
     CREATE TABLE IF NOT EXISTS kasse_geprueft(dokument_id INTEGER PRIMARY KEY);
+    CREATE TABLE IF NOT EXISTS kassentage(dokument_id INTEGER PRIMARY KEY, datum TEXT, credit REAL, bar REAL, scheck REAL);
     CREATE TABLE IF NOT EXISTS bank_ignoriert(bank_id INTEGER PRIMARY KEY, grund TEXT);
     CREATE TABLE IF NOT EXISTS quittiert(rechnungsnr TEXT PRIMARY KEY, bemerkung TEXT, am TEXT);
     CREATE TABLE IF NOT EXISTS bank(
@@ -1318,6 +1319,21 @@ def kassenbuch_zeilen(text):
             for b, n, bt, z, rg in KASSE_RE.findall(text)]
 
 
+def kassenjournal_summen(text):
+    """Kassenjournal ('Tagessumme:' + Scheck/Bar/Credit) -> dict(datum, scheck, bar, credit). Sonst nur das Datum, Summen 0.
+    Die Credit-Summe des Journals (Verkaeufe an der Kasse) kommt zu den Karten-Zahlungen im Kassenbuch dazu."""
+    m = re.search(r"Datum:\s*(\d{2})\.(\d{2})\.(\d{4})", text)
+    if not m:
+        return None
+    out = dict(datum=f"{m.group(3)}-{m.group(2)}-{m.group(1)}", scheck=0.0, bar=0.0, credit=0.0)
+    ts = re.findall(r"Tagessumme:\s*\n([^\n]*)\n\s*\n([^\n]*)\n([^\n]*)\n([^\n]*)", text)
+    if ts:
+        def zahl(t):
+            return int(re.sub(r"\D", "", t) or 0) / 100
+        out["scheck"], out["bar"], out["credit"] = (zahl(x) for x in ts[-1][1:4])
+    return out
+
+
 def kassenbuch_zahlarten(pfad):
     """{Beleg-Nr: 'Bar'|'Karte'|'Scheck'} - nach der Spalte (Scheck/Bar/Credit), in der der Betrag steht."""
     try:
@@ -1473,8 +1489,7 @@ def _eingang_fallback(name, betrag, eing, eing_lief, aliase=None):
 def kartenabrechnungen():
     """Ordnet Karten-Sammelgutschriften der Bank ('INIT:CC:ABR:DAT..:BRUTTO..') den Karten-Tagessummen der
     Kassenbuecher zu. Rueckgabe: {bank_id: {betrag, dat, kasse}}; kasse = Text der Kassenbuch-Tage oder None."""
-    tage = {r["datum"]: r["s"] for r in db().execute(
-        "SELECT datum, ROUND(SUM(betrag),2) s FROM kassenzeilen WHERE zahlart='Karte' GROUP BY datum")}
+    tage = kartentage()
     out = {}
     for b in db().execute("SELECT id, zweck, name, datum, betrag FROM bank "
                           "WHERE zweck LIKE '%INIT:CC:ABR%' OR UPPER(name) LIKE '%NEXI%'"):
@@ -1486,18 +1501,30 @@ def kartenabrechnungen():
             brutto, dat = b["betrag"], date.fromisoformat(b["datum"])
         else:
             continue
-        kasse = None
+        kasse, gedeckt = None, []
         for versatz in range(0, 6):          # Abrechnung kommt meist 1-4 Tage nach dem Kassentag
-            for laenge in range(1, 5):       # ... und kann mehrere Tage (Wochenende) zusammenfassen
+            for laenge in range(1, 6):       # ... und kann mehrere Tage (Wochenende) zusammenfassen
                 tage_liste = [(dat - timedelta(days=versatz + j)).isoformat() for j in range(laenge)]
-                if all(t in tage for t in tage_liste) and abs(sum(tage[t] for t in tage_liste) - brutto) <= 0.01:
+                # erster/letzter Tag brauchen Kartenumsatz; Tage ohne Kassenbuch (Wochenende) zaehlen 0
+                if tage_liste[0] in tage and tage_liste[-1] in tage \
+                        and abs(sum(tage.get(t, 0) for t in tage_liste) - brutto) <= 0.01:
                     a, e = tage_liste[-1], tage_liste[0]
                     kasse = _dm(a) if a == e else f"{_dm(a)}\u2013{_dm(e)}"
+                    gedeckt = [t for t in tage_liste if t in tage]
                     break
             if kasse:
                 break
-        out[b["id"]] = dict(betrag=brutto, dat=dat.isoformat(), kasse=kasse)
+        out[b["id"]] = dict(betrag=brutto, dat=dat.isoformat(), kasse=kasse, tage=gedeckt)
     return out
+
+
+def kartentage():
+    """{Kassentag: Credit-Summe} = Karten-Zahlungen auf Rechnungen (Kassenbuch) + Credit-Verkaeufe (Kassenjournal)."""
+    tage = {r["datum"]: r["s"] for r in db().execute(
+        "SELECT datum, ROUND(SUM(betrag),2) s FROM kassenzeilen WHERE zahlart='Karte' GROUP BY datum")}
+    for r in db().execute("SELECT datum, ROUND(SUM(credit),2) s FROM kassentage GROUP BY datum"):
+        tage[r["datum"]] = round(tage.get(r["datum"], 0) + r["s"], 2)
+    return {d: v for d, v in tage.items() if v}
 
 
 def bank_zahlungen():
@@ -1561,13 +1588,19 @@ def zahlungen_synchronisieren():
     """Liest neue Kassenbuecher, ordnet Bankbuchungen zu und setzt daraus den Zahlstatus der Rechnungen.
     'bezahlt' entsteht ausschliesslich aus Kassenbuch und Kontoauszug."""
     geprueft = {r[0] for r in db().execute("SELECT dokument_id FROM kasse_geprueft")}
+    mit_tag = {r[0] for r in db().execute("SELECT dokument_id FROM kassentage")}
     for r in db().execute("SELECT id, datei FROM rechnungen WHERE belegart='Kassenbuch' AND datei IS NOT NULL").fetchall():
-        if r["id"] in geprueft:
+        if r["id"] in geprueft and r["id"] in mit_tag:
             continue
         pfad = BELEGE / r["datei"]
         if pfad.exists() and pfad.suffix.lower() == ".pdf":
             arten = kassenbuch_zahlarten(pfad)
-            for z in kassenbuch_zeilen(pdf_text(pfad, max_seiten=None)):
+            text = pdf_text(pfad, max_seiten=None)
+            tag = kassenjournal_summen(text)
+            if tag:
+                db().execute("INSERT OR REPLACE INTO kassentage(dokument_id,datum,credit,bar,scheck) VALUES(?,?,?,?,?)",
+                             (r["id"], tag["datum"], tag["credit"], tag["bar"], tag["scheck"]))
+            for z in kassenbuch_zeilen(text):
                 db().execute("INSERT OR IGNORE INTO kassenzeilen(dokument_id,datum,beleg,name,betrag,zeit,rechnungsnr,zahlart) "
                              "VALUES(?,?,?,?,?,?,?,?)", (r["id"], z["datum"], z["beleg"], z["name"], z["betrag"],
                                                          z["zeit"], z["rechnungsnr"], arten.get(z["beleg"], "Kasse")))
@@ -1575,6 +1608,7 @@ def zahlungen_synchronisieren():
     ids = "(SELECT id FROM rechnungen)"
     db().execute(f"DELETE FROM kassenzeilen WHERE dokument_id NOT IN {ids}")
     db().execute(f"DELETE FROM kasse_geprueft WHERE dokument_id NOT IN {ids}")
+    db().execute(f"DELETE FROM kassentage WHERE dokument_id NOT IN {ids}")
     db().execute("DELETE FROM zahlungen")
     db().execute("INSERT INTO zahlungen(quelle,datum,betrag,rechnungsnr,info,zahlart) "
                  "SELECT 'Kassenbuch', datum, betrag, rechnungsnr, 'Beleg '||beleg||' '||name, COALESCE(zahlart,'Kasse') "
@@ -1694,6 +1728,11 @@ BANK = """
 {% for z in summen %}<tr><td class="z-{{z.klasse}}">{{z.name}}</td><td class=r>{{z.n}}</td><td class=r>{{'%.2f'|format(z.summe)|replace('.',',')}}</td></tr>{% endfor %}
 <tr><td class="z-offen">Zahlungen ohne Rechnung (Bankausgänge)</td><td class=r>{{ohne|length}}</td><td class=r>{{'%.2f'|format(ohne_summe)|replace('.',',')}}</td></tr></table>
 <small>&bdquo;Bezahlt&ldquo; heißt: Die Zahlung wurde im Kontoauszug über Rechnungsnummer oder Lieferant + Betrag gefunden (Skonto bis 3,5 % ist erlaubt).</small></div>
+{% macro credit_tabelle(titel, liste, summe, hinweis) %}<div class=card><h2>{{titel}} ({{liste|length}})</h2>{{hinweis|safe}}
+<table style="max-width:640px"><tr><th>Kassentag(e)</th><th class=r>Betrag Credit</th><th>Bank</th></tr>
+{% for c in liste %}<tr><td>{{c.kasse}}</td><td class=r>{{'%.2f'|format(c.betrag)|replace('.',',')}}</td><td>{{c.bank}}</td></tr>
+{% else %}<tr><td colspan=3>Keine Einträge{{' in diesem Monat' if monat}}.</td></tr>{% endfor %}
+<tr style="font-weight:bold;border-top:2px solid #333"><td>Endsumme</td><td class=r>{{'%.2f'|format(summe)|replace('.',',')}}</td><td></td></tr></table></div>{% endmacro %}
 {% macro rg_tabelle(titel, liste, summe) %}<div class=card><h2>{{titel}} ({{liste|length}})</h2>
 <table><tr><th>Datum</th><th>Lieferant</th><th>Rg.-Nr.</th><th class=r>Brutto</th><th>Zahlung</th><th>Bezahlt am</th><th>Bankbuchung</th><th></th></tr>
 {% for r in liste %}<tr><td>{{r.datum}}</td><td>{{r.lieferant}}</td><td>{{r.rechnungsnr}}</td>
@@ -1706,6 +1745,8 @@ BANK = """
 <tr style="font-weight:bold;border-top:2px solid #333"><td colspan=3>Endsumme</td><td class=r>{{'%.2f'|format(summe)|replace('.',',')}}</td><td colspan=4></td></tr></table></div>{% endmacro %}
 {{ rg_tabelle('Offene Rechnungen', offene_liste, offene_summe) }}
 {{ rg_tabelle('Bezahlte Rechnungen', bezahlte_liste, bezahlte_summe) }}
+{{ credit_tabelle('Credit-Zahlungen: Geldeingang offen', credit_offen, credit_offen_summe, '<p><small>Kartenumsätze aus Kassenbuch und Kassenjournal, zu denen noch keine NEXI-Gutschrift auf dem Konto gefunden wurde &ndash; hier prüfen, ob das Geld ankommt.</small></p>') }}
+{{ credit_tabelle('Credit-Zahlungen: Geldeingang bestätigt', credit_ok, credit_ok_summe, '') }}
 <div class=card><h2>Bankausgänge ohne Rechnung ({{ohne|length}})</h2>
 <p><small>Zahlungen vom Konto, zu denen keine Eingangsrechnung gefunden wurde &ndash; entweder fehlt die Rechnung in der App oder es braucht keinen Beleg
 (z. B. Versicherung, Steuer). Dann auf &bdquo;Kein Beleg nötig&ldquo; klicken.</small></p>
@@ -1757,7 +1798,24 @@ def bank_seite():
             ignoriert.append(dict(dict(b), grund=ign[b["id"]] or ""))
         else:
             ohne.append(b)
+    karten = kartenabrechnungen()
+    gedeckt = {}
+    for bid, k in karten.items():
+        for t in k["tage"]:
+            gedeckt[t] = bid
+    bank_datum = {b["id"]: b["datum"] for b in db().execute("SELECT id, datum FROM bank")}
+
+    def dmy(iso):
+        return f"{iso[8:10]}.{iso[5:7]}.{iso[:4]}"
+    credit_offen = [dict(kasse=dmy(t), betrag=v, bank="noch nicht eingegangen")
+                    for t, v in sorted(kartentage().items(), reverse=True)
+                    if t not in gedeckt and (not monat or t[:7] == monat)]
+    credit_ok = [dict(kasse=k["kasse"], betrag=k["betrag"], bank="Gutschrift vom " + dmy(bank_datum[bid]))
+                 for bid, k in sorted(karten.items(), key=lambda x: x[1]["dat"], reverse=True)
+                 if k["kasse"] and (not monat or k["dat"][:7] == monat)]
     return page(BANK, monat=monat, summen=summen, info=info,
+                credit_offen=credit_offen, credit_offen_summe=sum(c["betrag"] for c in credit_offen),
+                credit_ok=credit_ok, credit_ok_summe=sum(c["betrag"] for c in credit_ok),
                 offene_liste=offene_liste, offene_summe=sum(abs(r["brutto"] or 0) for r in offene_liste),
                 bezahlte_liste=bezahlte_liste, bezahlte_summe=sum(abs(r["brutto"] or 0) for r in bezahlte_liste), ohne=ohne,
                 ohne_summe=sum(abs(b["betrag"]) for b in ohne), ignoriert=ignoriert,
