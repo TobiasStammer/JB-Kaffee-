@@ -1515,7 +1515,8 @@ def kartenabrechnungen():
                     break
             if kasse:
                 break
-        out[b["id"]] = dict(betrag=brutto, dat=dat.isoformat(), kasse=kasse, tage=gedeckt)
+        out[b["id"]] = dict(betrag=brutto, dat=dat.isoformat(), kasse=kasse, tage=gedeckt,
+                            kasse_summe=tage.get(dat.isoformat()))  # Kassenbuch-Credit des NEXI-Tages (zur Fehlersuche)
     return out
 
 
@@ -1662,9 +1663,9 @@ Offene Rechnungen: <a href="{{url_for('index',zahlung='unbezahlt')}}">anzeigen</
 <td class=r>{{'%.2f'|format(z.betrag)|replace('.',',')}}</td><td><small>{{z.info}}</small></td></tr>
 {% else %}<tr><td colspan=6>Noch keine Zahlungen. Lade ein Kassenbuch (Monatsunterlagen) oder einen Kontoauszug hoch.</td></tr>{% endfor %}</table></div>
 {% if karten_zeilen %}<div class=card><h2>EC-Karteneingänge (NEXI Germany): Bank &harr; Kassenbuch ({{karten_zeilen|length}})</h2>
-<table><tr><th>Bank-Datum</th><th class=r>Betrag</th><th>Kartenumsätze laut Kassenbuch vom</th></tr>
-{% for k in karten_zeilen %}<tr><td>{{k.datum}}</td><td class=r>{{'%.2f'|format(k.betrag)|replace('.',',')}}</td>
-<td>{% if k.kasse %}<b style="color:#047857">&#10003; {{k.kasse}}</b>{% else %}<span style="color:#b45309">kein passendes Kassenbuch (fehlt oder weicht ab)</span>{% endif %}</td></tr>{% endfor %}</table></div>{% endif %}
+<table><tr><th>Bank-Datum</th><th>Kassentag laut NEXI</th><th class=r>Betrag</th><th>Kartenumsätze laut Kassenbuch vom</th></tr>
+{% for k in karten_zeilen %}<tr><td>{{k.datum}}</td><td>{{k.tag[8:]}}.{{k.tag[5:7]}}.{{k.tag[:4]}}</td><td class=r>{{'%.2f'|format(k.betrag)|replace('.',',')}}</td>
+<td>{% if k.kasse %}<b style="color:#047857">&#10003; {{k.kasse}}</b>{% elif k.summe is not none %}<span style="color:#b45309">Kassenbuch {{k.tag[8:]}}.{{k.tag[5:7]}}.: {{'%.2f'|format(k.summe)|replace('.',',')}} &euro; &ndash; Differenz {{'%.2f'|format(k.betrag - k.summe)|replace('.',',')}} &euro;</span>{% else %}<span style="color:#b45309">kein Kassenbuch für diesen Tag vorhanden</span>{% endif %}</td></tr>{% endfor %}</table></div>{% endif %}
 {% if offen_bank %}<div class=card><h2>Nicht zugeordnete Bankbuchungen ({{offen_bank|length}})</h2>
 <table><tr><th>Datum</th><th class=r>Betrag</th><th>Name</th><th>Verwendungszweck</th></tr>
 {% for b in offen_bank %}<tr><td>{{b.datum}}</td><td class=r>{{'%.2f'|format(b.betrag)|replace('.',',')}}</td><td>{{b.name}}</td><td><small>{{b.zweck}}</small></td></tr>{% endfor %}
@@ -1711,7 +1712,8 @@ def zahlungen_seite():
     offen_bank = [b for b in alle_bank if b["id"] not in zugeordnet and b["id"] not in karten
                   and b["datum"] >= start]  # Karten: eigene Tabelle
     n_zug = len([b for b in alle_bank if b["id"] in zugeordnet or b["id"] in karte_ok])
-    karten_zeilen = [dict(datum=b["datum"], betrag=karten[b["id"]]["betrag"], kasse=karten[b["id"]]["kasse"])
+    karten_zeilen = [dict(datum=b["datum"], betrag=karten[b["id"]]["betrag"], kasse=karten[b["id"]]["kasse"],
+                          tag=karten[b["id"]]["dat"], summe=karten[b["id"]]["kasse_summe"])
                      for b in alle_bank if b["id"] in karten and b["datum"] >= start]
     return page(ZAHLUNGEN, zahlungen=zahlungen, offen_bank=offen_bank, karten_zeilen=karten_zeilen,
                 karten_gefunden=len(karte_ok), bank_n=db().execute("SELECT COUNT(*) FROM bank").fetchone()[0],
