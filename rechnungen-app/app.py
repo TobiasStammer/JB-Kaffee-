@@ -1680,7 +1680,6 @@ def zahlungen_seite():
 BANK = """
 <form method=get class=card style="display:flex;gap:12px;align-items:end;flex-wrap:wrap">
  <div><label>Monat</label><input type=month name=monat value="{{monat}}"></div>
- <label style="display:flex;gap:6px;align-items:center;margin:0 0 8px"><input type=checkbox name=offen value=1 {{'checked' if nur_offen}}> nur offene</label>
  <button>Filtern</button> <a class="btn sek" href="{{url_for('bank_seite')}}">Zurücksetzen</a></form>
 <div class=card><h2>Offene Rechnungen &ndash; Stand laut Kontoauszug</h2>
 {% if bank_n == 0 %}<p style="color:#b45309"><b>Noch kein Kontoauszug vorhanden.</b> Lege eine CSV/CAMT-Datei in den Eingangsordner oder lade sie unter
@@ -1689,15 +1688,18 @@ BANK = """
 {% for z in summen %}<tr><td class="z-{{z.klasse}}">{{z.name}}</td><td class=r>{{z.n}}</td><td class=r>{{'%.2f'|format(z.summe)|replace('.',',')}}</td></tr>{% endfor %}
 <tr><td class="z-offen">Zahlungen ohne Rechnung (Bankausgänge)</td><td class=r>{{ohne|length}}</td><td class=r>{{'%.2f'|format(ohne_summe)|replace('.',',')}}</td></tr></table>
 <small>&bdquo;Bezahlt&ldquo; heißt: Die Zahlung wurde im Kontoauszug über Rechnungsnummer oder Lieferant + Betrag gefunden (Skonto bis 3,5 % ist erlaubt).</small></div>
-<div class=card><h2>Eingangsrechnungen ({{rechnungen|length}})</h2>
+{% macro rg_tabelle(titel, liste, summe) %}<div class=card><h2>{{titel}} ({{liste|length}})</h2>
 <table><tr><th>Datum</th><th>Lieferant</th><th>Rg.-Nr.</th><th class=r>Brutto</th><th>Zahlung</th><th>Bezahlt am</th><th>Bankbuchung</th><th></th></tr>
-{% for r in rechnungen %}<tr><td>{{r.datum}}</td><td>{{r.lieferant}}</td><td>{{r.rechnungsnr}}</td>
+{% for r in liste %}<tr><td>{{r.datum}}</td><td>{{r.lieferant}}</td><td>{{r.rechnungsnr}}</td>
 <td class=r>{% if r.brutto %}{{'%.2f'|format(r.brutto)|replace('.',',')}}{% else %}<span style="color:#b45309">Betrag fehlt</span>{% endif %}</td>
 <td class="z-{{r.zahlung or 'offen'}}">{{r.zahlung or 'offen'}}</td>
 <td>{% if r.zahl_am %}{{r.zahl_am[8:]}}.{{r.zahl_am[5:7]}}.{{r.zahl_am[:4]}}{% endif %}</td>
 <td><small>{{info.get(r.rechnungsnr,'')}}</small>{% if r.abzug %}<br><b style="color:#1d4ed8">Abzug {{'%.2f'|format(r.abzug)|replace('.',',')}} &euro;</b>{% endif %}</td>
 <td>{% if r.datei %}<a href="{{url_for('beleg',rid=r.id)}}" target=_blank>PDF</a> &middot; {% endif %}<a href="{{url_for('bearbeiten',rid=r.id)}}">bearbeiten</a></td></tr>
-{% else %}<tr><td colspan=8>Keine Eingangsrechnungen{{' in diesem Filter' if monat or nur_offen}}.</td></tr>{% endfor %}</table></div>
+{% else %}<tr><td colspan=8>Keine Rechnungen{{' in diesem Monat' if monat}}.</td></tr>{% endfor %}
+<tr style="font-weight:bold;border-top:2px solid #333"><td colspan=3>Endsumme</td><td class=r>{{'%.2f'|format(summe)|replace('.',',')}}</td><td colspan=4></td></tr></table></div>{% endmacro %}
+{{ rg_tabelle('Offene Rechnungen', offene_liste, offene_summe) }}
+{{ rg_tabelle('Bezahlte Rechnungen', bezahlte_liste, bezahlte_summe) }}
 <div class=card><h2>Bankausgänge ohne Rechnung ({{ohne|length}})</h2>
 <p><small>Zahlungen vom Konto, zu denen keine Eingangsrechnung gefunden wurde &ndash; entweder fehlt die Rechnung in der App oder es braucht keinen Beleg
 (z. B. Versicherung, Steuer). Dann auf &bdquo;Kein Beleg nötig&ldquo; klicken.</small></p>
@@ -1715,7 +1717,6 @@ BANK = """
 def bank_seite():
     zahlungen_synchronisieren()
     monat = request.args.get("monat", "")
-    nur_offen = bool(request.args.get("offen"))
     sql, par = "SELECT * FROM rechnungen WHERE belegart=?", [EINGANG]
     if monat:
         sql += " AND substr(datum,1,7)=?"
@@ -1732,7 +1733,8 @@ def bank_seite():
                                ("bezahlt", "bezahlt", lambda r: r["zahlung"] == "bezahlt")):
         gruppe = [r for r in alle_rechnungen if test(r)]
         summen.append(dict(name=name, klasse=klasse, n=len(gruppe), summe=sum(abs(r["brutto"] or 0) for r in gruppe)))
-    rechnungen = [r for r in alle_rechnungen if not nur_offen or (r["zahlung"] or "offen") != "bezahlt"]
+    offene_liste = [r for r in alle_rechnungen if r["zahlung"] != "bezahlt"]  # offen + teilweise bezahlt
+    bezahlte_liste = [r for r in alle_rechnungen if r["zahlung"] == "bezahlt"]
     info = {r[0]: r[1] for r in db().execute(
         "SELECT rechnungsnr, GROUP_CONCAT(substr(info,1,60), ' | ') FROM zahlungen WHERE quelle='Kontoauszug' GROUP BY rechnungsnr")}
     zug = {r[0] for r in db().execute("SELECT DISTINCT bank_id FROM zahlungen WHERE bank_id IS NOT NULL")}
@@ -1749,7 +1751,9 @@ def bank_seite():
             ignoriert.append(dict(dict(b), grund=ign[b["id"]] or ""))
         else:
             ohne.append(b)
-    return page(BANK, monat=monat, nur_offen=nur_offen, summen=summen, rechnungen=rechnungen, info=info, ohne=ohne,
+    return page(BANK, monat=monat, summen=summen, info=info,
+                offene_liste=offene_liste, offene_summe=sum(abs(r["brutto"] or 0) for r in offene_liste),
+                bezahlte_liste=bezahlte_liste, bezahlte_summe=sum(abs(r["brutto"] or 0) for r in bezahlte_liste), ohne=ohne,
                 ohne_summe=sum(abs(b["betrag"]) for b in ohne), ignoriert=ignoriert,
                 bank_n=db().execute("SELECT COUNT(*) FROM bank").fetchone()[0], zurueck=request.full_path.rstrip("?"))
 
