@@ -1805,22 +1805,23 @@ def zahlungen_seite():
 
 # ---------------------------------------------------------------- Bank: Eingangsrechnungen gegen Kontoauszug
 BANK = """
+<style>details.bank{background:#fff;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:6px;margin-bottom:10px;padding:0 18px}details.bank>summary{cursor:pointer;font:600 14px Tahoma,Arial,sans-serif;color:var(--head);padding:9px 0}details.bank[open]{padding-bottom:14px}details.bank[open]>summary{border-bottom:1px solid var(--line);margin-bottom:10px}</style>
 <form method=get class=card style="display:flex;gap:12px;align-items:end;flex-wrap:wrap">
  <div><label>Monat</label><input type=month name=monat value="{{monat}}"></div>
  <button>Filtern</button> <a class="btn sek" href="{{url_for('bank_seite')}}">Zurücksetzen</a></form>
-<div class=card><h2>Offene Rechnungen &ndash; Stand laut Kontoauszug</h2>
+<details class=bank open><summary>Offene Rechnungen &ndash; Stand laut Kontoauszug</summary>
 {% if bank_n == 0 %}<p style="color:#b45309"><b>Noch kein Kontoauszug vorhanden.</b> Lege eine CSV/CAMT-Datei in den Eingangsordner oder lade sie unter
  <a href="{{url_for('zahlungen_seite')}}">Zahlungen</a> hoch.</p>{% endif %}
 <table style="max-width:640px"><tr><th>Eingangsrechnungen</th><th class=r>Anzahl</th><th class=r>Summe brutto</th></tr>
 {% for z in summen %}<tr><td class="z-{{z.klasse}}">{{z.name}}</td><td class=r>{{z.n}}</td><td class=r>{{'%.2f'|format(z.summe)|replace('.',',')}}</td></tr>{% endfor %}
 <tr><td class="z-offen">Zahlungen ohne Rechnung (Bankausgänge)</td><td class=r>{{ohne|length}}</td><td class=r>{{'%.2f'|format(ohne_summe)|replace('.',',')}}</td></tr></table>
-<small>&bdquo;Bezahlt&ldquo; heißt: Die Zahlung wurde im Kontoauszug über Rechnungsnummer oder Lieferant + Betrag gefunden (Skonto bis 3,5 % ist erlaubt).</small></div>
-{% macro credit_tabelle(titel, liste, summe, hinweis) %}<div class=card><h2>{{titel}} ({{liste|length}})</h2>{{hinweis|safe}}
+<small>&bdquo;Bezahlt&ldquo; heißt: Die Zahlung wurde im Kontoauszug über Rechnungsnummer oder Lieferant + Betrag gefunden (Skonto bis 3,5 % ist erlaubt).</small></details>
+{% macro credit_tabelle(titel, liste, summe, hinweis, offen) %}<details class=bank {{"open" if offen}}><summary>{{titel}} ({{liste|length}}) &ndash; {{'%.2f'|format(summe)|replace('.',',')}} &euro;</summary>{{hinweis|safe}}
 <table style="max-width:640px"><tr><th>Kassentag(e)</th><th class=r>Betrag Credit</th><th>Bank</th></tr>
 {% for c in liste %}<tr><td>{{c.kasse}}</td><td class=r>{{'%.2f'|format(c.betrag)|replace('.',',')}}</td><td>{{c.bank}}</td></tr>
 {% else %}<tr><td colspan=3>Keine Einträge{{' in diesem Monat' if monat}}.</td></tr>{% endfor %}
-<tr style="font-weight:bold;border-top:2px solid #333"><td>Endsumme</td><td class=r>{{'%.2f'|format(summe)|replace('.',',')}}</td><td></td></tr></table></div>{% endmacro %}
-{% macro rg_tabelle(titel, liste, summe) %}<div class=card><h2>{{titel}} ({{liste|length}})</h2>
+<tr style="font-weight:bold;border-top:2px solid #333"><td>Endsumme</td><td class=r>{{'%.2f'|format(summe)|replace('.',',')}}</td><td></td></tr></table></details>{% endmacro %}
+{% macro rg_tabelle(titel, liste, summe, offen) %}<details class=bank {{"open" if offen}}><summary>{{titel}} ({{liste|length}}) &ndash; {{'%.2f'|format(summe)|replace('.',',')}} &euro;</summary>
 <table><tr><th>Datum</th><th>Lieferant</th><th>Rg.-Nr.</th><th class=r>Brutto</th><th>Zahlung</th><th>Bezahlt am</th><th>Bankbuchung</th><th></th></tr>
 {% for r in liste %}<tr><td>{{r.datum}}</td><td>{{r.lieferant}}</td><td>{{r.rechnungsnr}}</td>
 <td class=r>{% if r.brutto %}{{'%.2f'|format(r.brutto)|replace('.',',')}}{% else %}<span style="color:#b45309">Betrag fehlt</span>{% endif %}</td>
@@ -1829,12 +1830,12 @@ BANK = """
 <td><small>{{info.get(r.rechnungsnr,'')}}</small>{% if r.abzug %}<br><b style="color:#1d4ed8">Abzug {{'%.2f'|format(r.abzug)|replace('.',',')}} &euro;</b>{% endif %}</td>
 <td>{% if r.datei %}<a href="{{url_for('beleg',rid=r.id)}}" target=_blank>PDF</a> &middot; {% endif %}<a href="{{url_for('bearbeiten',rid=r.id)}}">bearbeiten</a></td></tr>
 {% else %}<tr><td colspan=8>Keine Rechnungen{{' in diesem Monat' if monat}}.</td></tr>{% endfor %}
-<tr style="font-weight:bold;border-top:2px solid #333"><td colspan=3>Endsumme</td><td class=r>{{'%.2f'|format(summe)|replace('.',',')}}</td><td colspan=4></td></tr></table></div>{% endmacro %}
-{{ rg_tabelle('Offene Rechnungen', offene_liste, offene_summe) }}
-{{ rg_tabelle('Bezahlte Rechnungen', bezahlte_liste, bezahlte_summe) }}
-{{ credit_tabelle('Credit-Zahlungen: Geldeingang offen', credit_offen, credit_offen_summe, '<p><small>Kartenumsätze aus Kassenbuch und Kassenjournal, zu denen noch keine NEXI-Gutschrift auf dem Konto gefunden wurde &ndash; hier prüfen, ob das Geld ankommt.</small></p>') }}
-{{ credit_tabelle('Credit-Zahlungen: Geldeingang bestätigt', credit_ok, credit_ok_summe, '') }}
-<div class=card><h2>Bankausgänge ohne Rechnung ({{ohne|length}})</h2>
+<tr style="font-weight:bold;border-top:2px solid #333"><td colspan=3>Endsumme</td><td class=r>{{'%.2f'|format(summe)|replace('.',',')}}</td><td colspan=4></td></tr></table></details>{% endmacro %}
+{{ rg_tabelle('Offene Rechnungen', offene_liste, offene_summe, true) }}
+{{ rg_tabelle('Bezahlte Rechnungen', bezahlte_liste, bezahlte_summe, false) }}
+{{ credit_tabelle('Credit-Zahlungen: Geldeingang offen', credit_offen, credit_offen_summe, '<p><small>Kartenumsätze aus Kassenbuch und Kassenjournal, zu denen noch keine NEXI-Gutschrift auf dem Konto gefunden wurde &ndash; hier prüfen, ob das Geld ankommt.</small></p>', true) }}
+{{ credit_tabelle('Credit-Zahlungen: Geldeingang bestätigt', credit_ok, credit_ok_summe, '', false) }}
+<details class=bank open><summary>Bankausgänge ohne Rechnung ({{ohne|length}}) &ndash; {{'%.2f'|format(ohne_summe)|replace('.',',')}} &euro;</summary>
 <p><small>Zahlungen vom Konto, zu denen keine Eingangsrechnung gefunden wurde &ndash; entweder fehlt die Rechnung in der App oder es braucht keinen Beleg
 (z. B. Versicherung, Steuer). Dann auf &bdquo;Kein Beleg nötig&ldquo; klicken.</small></p>
 <table><tr><th>Datum</th><th>Empfänger</th><th>Verwendungszweck</th><th class=r>Betrag</th><th></th></tr>
@@ -1844,7 +1845,7 @@ BANK = """
 {% else %}<tr><td colspan=5 style="color:#047857"><b>&#10003; Alle Bankausgänge sind Rechnungen zugeordnet.</b></td></tr>{% endfor %}</table>
 {% if ignoriert %}<details style="margin-top:12px"><summary>{{ignoriert|length}} als &bdquo;kein Beleg nötig&ldquo; markiert</summary>
 <table>{% for b in ignoriert %}<tr><td>{{b.datum}}</td><td>{{b.name}}</td><td class=r>{{'%.2f'|format(b.betrag)|replace('.',',')}}</td><td><small>{{b.grund}}</small></td>
-<td><form method=post action="{{url_for('bank_ignorieren')}}"><input type=hidden name=bank_id value="{{b.id}}"><input type=hidden name=aufheben value=1><input type=hidden name=zurueck value="{{zurueck}}"><button class=sek style="padding:4px 10px">wieder anzeigen</button></form></td></tr>{% endfor %}</table></details>{% endif %}</div>"""
+<td><form method=post action="{{url_for('bank_ignorieren')}}"><input type=hidden name=bank_id value="{{b.id}}"><input type=hidden name=aufheben value=1><input type=hidden name=zurueck value="{{zurueck}}"><button class=sek style="padding:4px 10px">wieder anzeigen</button></form></td></tr>{% endfor %}</table></details>{% endif %}</details>"""
 
 
 @app.route("/bank")
