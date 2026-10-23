@@ -854,21 +854,43 @@ def klassifiziere(text, dateiname, regeln):
     return UNKLAR
 
 
-def finde_datum(text, fallback):
+_DAT = r"(\d{1,2})\.(\d{1,2})\.(\d{4})"
+_RE_DATUM_LABEL = (r"(?:Rechnungs-?\s?datum|Rechnung(?:s)?\s+vom|Belegdatum|Beleg-Datum|Rechnungsdatum|Invoice\s+date|"
+                   r"Datum\s+der\s+Rechnung|Ausstellungsdatum|Re\.?-?\s?Datum|Datum)")
+
+
+def _iso_datum(t, m_, j):
+    try:
+        d = date(int(j), int(m_), int(t))
+        return d.isoformat() if 2000 <= d.year <= 2100 else None
+    except ValueError:
+        return None
+
+
+def finde_rechnungsdatum(text):
+    """Nur ein ausdruecklich beschriftetes Rechnungsdatum (Rechnungsdatum, Belegdatum, 'Rechnung vom', 'vom 30/09/26'), sonst ''."""
     m = re.search(r"(?:RECHNUNG|FATTURA)[^\n]{0,30}?vom\s+(\d{1,2})/(\d{1,2})/(\d{2,4})", text, re.I)  # '... nr. 5963 vom 30/09/26'
     if m:
-        try:
-            j = int(m.group(3)) + (2000 if len(m.group(3)) == 2 else 0)
-            return date(j, int(m.group(2)), int(m.group(1))).isoformat()
-        except ValueError:
-            pass
-    for t, m_, j in re.findall(r"\b(\d{1,2})\.(\d{1,2})\.(\d{4})\b", text):
-        try:
-            d = date(int(j), int(m_), int(t))
-            if 2000 <= d.year <= 2100:
-                return d.isoformat()
-        except ValueError:
-            continue
+        j = int(m.group(3)) + (2000 if len(m.group(3)) == 2 else 0)
+        d = _iso_datum(m.group(1), m.group(2), j)
+        if d:
+            return d
+    for m in re.finditer(r"(?<![\w-])" + _RE_DATUM_LABEL + r"\s*:?\s*(?:\n\s*)?" + _DAT + r"\b", text, re.I):
+        d = _iso_datum(m.group(1), m.group(2), m.group(3))
+        if d:
+            return d
+    return ""
+
+
+def finde_datum(text, fallback):
+    """Rechnungsdatum: zuerst Angaben mit Beschriftung, dann das erste Datum im Text, sonst fallback."""
+    d = finde_rechnungsdatum(text)
+    if d:
+        return d
+    for t, m_, j in re.findall(r"\b" + _DAT + r"\b", text):
+        d = _iso_datum(t, m_, j)
+        if d:
+            return d
     return fallback
 
 
@@ -2025,6 +2047,9 @@ MONAT = """
 <td><input type=file name="f{{loop.index0}}" multiple accept=".pdf,.jpg,.jpeg,.png,.tif,.tiff"></td></tr>{% endfor %}</table>
 <p><button>Hochladen</button> <a class="btn sek" href="{{url_for('index',monat=m)}}">Belege dieses Monats anzeigen</a></p>
 </form>
+<form method=post action="{{url_for('daten_pruefen')}}" class=card><input type=hidden name=m value="{{m}}">
+<small>Ein Beleg gehört in den Monat seines <b>Rechnungsdatums</b>. Falsch eingelesene Daten (z. B. Einlesedatum statt Rechnungsdatum)
+kannst du hier aus den PDFs neu lesen lassen.</small> <button class=sek>Rechnungsdaten prüfen</button></form>
 <form method=post action="{{url_for('paket')}}" class=card>
 <h2>Monatspaket für Unternehmen online</h2><input type=hidden name=m value="{{m}}">
 <p>Fügt pro Belegart alle PDFs/Bilder von {{m}} zu <b>einer</b> PDF zusammen
@@ -2115,6 +2140,27 @@ def _in_pdf(w, pfad):
     frames[0].save(buf, "PDF", save_all=True, append_images=frames[1:], resolution=150)
     buf.seek(0)
     w.append(buf)
+
+
+@app.route("/monat/daten-pruefen", methods=["POST"])
+def daten_pruefen():
+    """Liest bei Eingangs-/Ausgangsrechnungen das beschriftete Rechnungsdatum neu aus dem PDF (Monatszuordnung!)."""
+    korrigiert = []
+    for r in db().execute("SELECT id, datum, lieferant, rechnungsnr, datei, belegart FROM rechnungen WHERE datei IS NOT NULL "
+                          "AND belegart IN (?,?,?,?)", (EINGANG, "Rechnungsausgang Service", "Rechnungsausgang Verkauf",
+                                                         "Nicht zugeordnet")).fetchall():
+        pfad = BELEGE / r["datei"]
+        if not pfad.exists():
+            continue
+        ex = lese_erechnung(pfad)
+        d = (ex["datum"] if ex and ex["datum"] else "") or finde_rechnungsdatum(pdf_text(pfad))
+        if d and d != r["datum"]:
+            db().execute("UPDATE rechnungen SET datum=? WHERE id=?", (d, r["id"]))
+            korrigiert.append(f'{r["rechnungsnr"] or r["lieferant"]}: {r["datum"]} \u2192 {d}')
+    db().commit()
+    flash("Rechnungsdatum korrigiert bei " + str(len(korrigiert)) + " Belegen: " + "; ".join(korrigiert)
+          if korrigiert else "Alle Rechnungsdaten stimmen mit den Belegen überein.")
+    return redirect(url_for("monat", m=request.form.get("m", "")))
 
 
 @app.route("/monat/paket", methods=["POST"])
