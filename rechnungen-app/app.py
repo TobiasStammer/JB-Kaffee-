@@ -62,6 +62,7 @@ RECHNUNGSARTEN = ("Rechnungsausgang Service", "Rechnungsausgang Verkauf", "Rechn
 AUSGANG_RECHNUNGEN = ("Rechnungsausgang Service", "Rechnungsausgang Verkauf", "Rechnungsausgang eBay")
 BELEGARTEN_ALLE = BELEGARTEN + [UNKLAR]
 STANDARD_ORDNER = r"Z:\Buchhaltung\Eingang"
+BANK_OHNE_BELEG = ("entgeltabrechnung",)   # Bankbuchungen, die grundsaetzlich keinen Beleg brauchen (Stichwort im Zweck/Namen)
 BACKUP_ORDNER = r"Z:\Buchhaltung\Backup-Rechnungen-App"   # App und Daten liegen lokal, hierhin geht nur die Sicherung
 # Zuordnungsregeln: "Belegart = stichwort, stichwort" - erste passende Zeile gewinnt.
 # Gesucht wird im PDF-Text und im Dateinamen (Gross/Klein egal).
@@ -69,6 +70,8 @@ BACKUP_ORDNER = r"Z:\Buchhaltung\Backup-Rechnungen-App"   # App und Daten liegen
 STANDARD_LIEFERANTEN = """Jura Gastro = Wareneinkauf
 Jura = Wareneinkauf
 Amazon Business | Amazon Payments
+Frank Windhorn | Windhorn
+Nexi Germany | Nexi
 Amazon
 REPA Italia s.r.l. a socio unico | REPA Italia
 Entega
@@ -593,6 +596,15 @@ def finde_betrag(text):
         zahlen = re.findall(r"\d[\d.]*,\d{2}", m.group(1))
         if len(zahlen) >= 3:  # Imponibile, Importo da pagare (nach Skonto), Totale Documento
             return _betrag_de(zahlen[-1]), 0.0 if re.search(r"steuerfrei", text, re.I) else 19.0
+    m = re.search(r"Endbetrag\s*\n((?:\s*-?\d[\d.]*,\d{2}\s*\n){2,})\s*EUR\b", text)  # Spalten-Layout: ... Summe, MwSt, Endbetrag, EUR
+    if m:
+        zahlen = re.findall(r"-?\d[\d.]*,\d{2}", m.group(1))
+        b = _betrag_de(zahlen[-1])
+        if b:
+            return b, 19.0
+    m = re.search(r"Gesamtrechnungsbetrag.{0,200}?(\d[\d.]*,\d{2})\s*\n\s*(\d[\d.]*,\d{2})\s*\n", text, re.S)  # Nexi: ..., MwSt, Gesamtrechnungsbetrag
+    if m:
+        return _betrag_de(m.group(2)), 19.0
     zeilen = text.splitlines()
     inkl, kandidaten, netto = [], [], []
     for i, z in enumerate(zeilen):
@@ -907,6 +919,9 @@ def finde_nummer(text):
                 for tok in zeilen[k].split():
                     if re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9\-/]{3,}", tok) and re.search(r"\d", tok):
                         return tok
+    m = re.search(r"(?:Offene Rechnung|Vorkasse|Nachnahme)\s+(\d{6,10})\b", text)  # Spalten-Layout: Verrechnungsart + Rechnungs-Nr.
+    if m:
+        return m.group(1)
     m = re.search(r"\bRg\.?\s*(?:-?Nr\.?)?\s*(\d{5,})", text)  # z. B. Verwendungszweck 'Rg. 152545060'
     if m:
         return m.group(1)
@@ -1662,6 +1677,8 @@ def kartenabrechnungen():
     out = {}
     for b in db().execute("SELECT id, zweck, name, datum, betrag FROM bank "
                           "WHERE zweck LIKE '%INIT:CC:ABR%' OR UPPER(name) LIKE '%NEXI%'"):
+        if b["betrag"] < 0:  # Lastschrift von Nexi = Entgelte (Rechnung), keine Kartenabrechnung
+            continue
         m = re.search(r"DAT(\d{2})\.(\d{2})\.(\d{2}).*?BRUTTO(\d+),(\d{2})", b["zweck"])
         if m:
             brutto = float(f"{m.group(4)}.{m.group(5)}")
@@ -1942,7 +1959,7 @@ BANK = """
 {% else %}<tr><td colspan=5 style="color:#047857"><b>&#10003; Alle Bankausgänge sind Rechnungen zugeordnet.</b></td></tr>{% endfor %}</table>
 {% if ignoriert %}<details style="margin-top:12px"><summary>{{ignoriert|length}} als &bdquo;kein Beleg nötig&ldquo; markiert</summary>
 <table>{% for b in ignoriert %}<tr><td>{{b.datum}}</td><td>{{b.name}}</td><td class=r>{{'%.2f'|format(b.betrag)|replace('.',',')}}</td><td><small>{{b.grund}}</small></td>
-<td><form method=post action="{{url_for('bank_ignorieren')}}"><input type=hidden name=bank_id value="{{b.id}}"><input type=hidden name=aufheben value=1><input type=hidden name=zurueck value="{{zurueck}}"><button class=sek style="padding:4px 10px">wieder anzeigen</button></form></td></tr>{% endfor %}</table></details>{% endif %}</details>"""
+<td>{% if not b.auto %}<form method=post action="{{url_for('bank_ignorieren')}}"><input type=hidden name=bank_id value="{{b.id}}"><input type=hidden name=aufheben value=1><input type=hidden name=zurueck value="{{zurueck}}"><button class=sek style="padding:4px 10px">wieder anzeigen</button></form>{% endif %}</td></tr>{% endfor %}</table></details>{% endif %}</details>"""
 
 
 @app.route("/bank")
@@ -1982,8 +1999,11 @@ def bank_seite():
     for b in db().execute(bsql + " ORDER BY datum DESC, id DESC", bpar):
         if b["id"] in zug:
             continue
+        text = f"{b['name']} {b['zweck']}".lower()
         if b["id"] in ign:
             ignoriert.append(dict(dict(b), grund=ign[b["id"]] or ""))
+        elif any(k in text for k in BANK_OHNE_BELEG):
+            ignoriert.append(dict(dict(b), grund="Bankentgelt \u2013 kein Beleg nötig", auto=True))
         else:
             ohne.append(b)
     karten = kartenabrechnungen()
