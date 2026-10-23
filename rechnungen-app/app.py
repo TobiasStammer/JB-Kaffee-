@@ -1706,7 +1706,7 @@ def bank_zahlungen():
         else:  # Zahlungsausgang an Lieferanten
             treffer += [(nr, abs(br)) for nr, br in eing.items() if br > 0 and _nr_im_text(nr, nt)]
         if not treffer:  # ohne Rechnungsnummer: Lieferant im Namen + passender Betrag
-            treffer += _eingang_fallback(b["name"], b["betrag"], eing, eing_lief, aliase, eing_sk)
+            treffer += _eingang_fallback(f"{b['name']} {b['zweck']}", b["betrag"], eing, eing_lief, aliase, eing_sk)  # PayPal: Lieferant steht im Zweck
         if not treffer:
             continue
         gesamt = abs(b["betrag"])
