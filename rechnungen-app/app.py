@@ -62,6 +62,7 @@ RECHNUNGSARTEN = ("Rechnungsausgang Service", "Rechnungsausgang Verkauf", "Rechn
 AUSGANG_RECHNUNGEN = ("Rechnungsausgang Service", "Rechnungsausgang Verkauf", "Rechnungsausgang eBay")
 BELEGARTEN_ALLE = BELEGARTEN + [UNKLAR]
 STANDARD_ORDNER = r"Z:\Buchhaltung\Eingang"
+BACKUP_ORDNER = r"Z:\Buchhaltung\Backup-Rechnungen-App"   # App und Daten liegen lokal, hierhin geht nur die Sicherung
 # Zuordnungsregeln: "Belegart = stichwort, stichwort" - erste passende Zeile gewinnt.
 # Gesucht wird im PDF-Text und im Dateinamen (Gross/Klein egal).
 # "nr:261" = Rechnungsnummer beginnt mit 261.
@@ -1003,12 +1004,46 @@ def eingang_einlesen():
     return n
 
 
+def backup_nach_z():
+    """Sicherung auf das Netzlaufwerk: konsistente DB-Kopie (taeglich datiert, 14 Tage) + neue Belege/Kontoauszuege/OCR."""
+    ziel = Path(BACKUP_ORDNER)
+    try:
+        ziel.mkdir(parents=True, exist_ok=True)
+        heute = ziel / f"rechnungen-{date.today():%Y%m%d}.db"
+        src = sqlite3.connect(DB)
+        dst = sqlite3.connect(heute)
+        src.backup(dst)
+        dst.close()
+        src.close()
+        for alt in sorted(ziel.glob("rechnungen-*.db"))[:-14]:
+            alt.unlink()
+        for ordner in ("belege", "kontoauszuege", "monatspakete", "ocr"):
+            quelle = DATA / ordner
+            if not quelle.is_dir():
+                continue
+            for f in quelle.rglob("*"):
+                if f.is_file():
+                    z = ziel / ordner / f.relative_to(quelle)
+                    if not z.exists() or z.stat().st_size != f.stat().st_size:
+                        z.parent.mkdir(parents=True, exist_ok=True)
+                        shutil.copy2(f, z)
+        (ziel / "letzte-sicherung.txt").write_text(datetime.now().isoformat(timespec="seconds"), encoding="utf-8")
+        return True
+    except Exception as e:  # noqa: BLE001
+        print("Sicherung:", e)
+        return False
+
+
 def _waechter():
+    letzte_sicherung = 0
     while True:
         try:
             eingang_einlesen()
         except Exception as e:  # noqa: BLE001
             print("Eingang:", e)
+        if time.time() - letzte_sicherung > 3600:  # beim Start und danach stuendlich
+            backup_nach_z()
+            letzte_sicherung = time.time()
         time.sleep(10)
 
 
