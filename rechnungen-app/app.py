@@ -70,7 +70,7 @@ STANDARD_LIEFERANTEN = """Jura Gastro = Wareneinkauf
 Jura = Wareneinkauf
 Amazon Business | Amazon Payments
 Amazon
-REPA Italia s.r.l. a socio unico | REPA Italia ; abzug
+REPA Italia s.r.l. a socio unico | REPA Italia
 Entega
 Ionos
 Flaschenpost
@@ -589,6 +589,10 @@ def _tabellenbetrag(zeilen):
 def finde_betrag(text):
     """Liest Brutto und MwSt-Satz aus Rechnungstext. Gibt (brutto, satz) oder (None, None) zurueck.
     Bei Gutschriften ist der Betrag negativ."""
+    for m in re.finditer(r"Zubezahlen\s*\n\s*Endbetrag\s*\n(.{0,400})", text, re.S):  # REPA-Layout: Werte unter den Beschriftungen (Seite 1 'Segue' leer)
+        zahlen = re.findall(r"\d[\d.]*,\d{2}", m.group(1))
+        if len(zahlen) >= 3:  # Imponibile, Importo da pagare (nach Skonto), Totale Documento
+            return _betrag_de(zahlen[-1]), 0.0 if re.search(r"steuerfrei", text, re.I) else 19.0
     zeilen = text.splitlines()
     inkl, kandidaten, netto = [], [], []
     for i, z in enumerate(zeilen):
@@ -851,6 +855,13 @@ def klassifiziere(text, dateiname, regeln):
 
 
 def finde_datum(text, fallback):
+    m = re.search(r"(?:RECHNUNG|FATTURA)[^\n]{0,30}?vom\s+(\d{1,2})/(\d{1,2})/(\d{2,4})", text, re.I)  # '... nr. 5963 vom 30/09/26'
+    if m:
+        try:
+            j = int(m.group(3)) + (2000 if len(m.group(3)) == 2 else 0)
+            return date(j, int(m.group(2)), int(m.group(1))).isoformat()
+        except ValueError:
+            pass
     for t, m_, j in re.findall(r"\b(\d{1,2})\.(\d{1,2})\.(\d{4})\b", text):
         try:
             d = date(int(j), int(m_), int(t))
