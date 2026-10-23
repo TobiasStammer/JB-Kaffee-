@@ -1946,6 +1946,7 @@ def bank_seite():
 def bank_aktualisieren():
     """Liest neue Dateien (Rechnungen, Kontoauszuege, Kassenbuecher) aus dem Eingangsordner und gleicht neu ab."""
     n = eingang_einlesen()
+    neu_pruefen()  # unfertige Belege (z. B. Lieferant neu in der Liste) erneut zuordnen
     zahlungen_synchronisieren()
     flash(f"{n} neue Dateien eingelesen, Abgleich aktualisiert." if n else "Keine neuen Dateien - Abgleich aktualisiert.")
     monat = request.form.get("monat", "")
