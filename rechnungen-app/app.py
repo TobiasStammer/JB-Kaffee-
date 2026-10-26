@@ -337,7 +337,7 @@ INDEX = """
 <table><tr><th>Datum</th><th>Belegart</th><th>Lieferant</th><th>Rg.-Nr.</th><th class=r>Brutto</th><th>Hinweis</th><th></th></tr>
 {% for r in pruefen %}<tr><td>{{r.datum}}</td><td><small>{{r.belegart}}</small></td><td>{{r.lieferant}}</td><td>{{r.rechnungsnr}}</td>
 <td class=r>{{'%.2f'|format(r.brutto)|replace('.',',')}}</td><td style="color:#b91c1c">{{r.probleme|join('; ')}}</td>
-<td><a href="{{url_for('beleg',rid=r.id)}}" target=_blank>PDF</a> &middot; <a href="{{url_for('bearbeiten',rid=r.id)}}">bearbeiten</a></td></tr>{% endfor %}</table></details>{% endif %}
+<td><a href="{{url_for('bearbeiten',rid=r.id)}}"><b>prüfen / bearbeiten</b></a> <small>(mit PDF)</small></td></tr>{% endfor %}</table></details>{% endif %}
 {% if doppelte %}<div class=card style="border-left-color:#b91c1c"><b style="color:#b91c1c">Doppelte Belege</b>
  &ndash; dieselbe Datei ist mehrfach abgelegt:
  {% for g in doppelte %}<div>{% for r in g %}<a href="{{url_for('bearbeiten',rid=r.id)}}">#{{r.id}} {{r.rechnungsnr or r.lieferant}} ({{r.datum}})</a>{{' &middot; '|safe if not loop.last}}{% endfor %}</div>{% endfor %}
@@ -392,6 +392,8 @@ FORM = """
 <label>Beleg (PDF/JPG/PNG){{' – vorhanden, neue Datei ersetzt sie' if r.datei}}</label><input type=file name=datei accept=".pdf,.jpg,.jpeg,.png,.tif,.tiff">
 <p><button>Speichern</button> <a class="btn sek" href="{{url_for('index')}}">Abbrechen</a></p>
 </form>
+{% if r.id and r.datei %}<div class=card id=beleg><b>Beleg</b> &nbsp;<a href="{{url_for('beleg',rid=r.id)}}" target=_blank><small>in neuem Fenster öffnen</small></a>
+<iframe src="{{url_for('beleg',rid=r.id)}}" style="width:100%;height:1100px;border:1px solid var(--line);margin-top:8px;background:#fff"></iframe></div>{% endif %}
 {% if r.id %}<form method=post action="{{url_for('loeschen',rid=r.id)}}" onsubmit="return confirm('Rechnung wirklich löschen?')"><button class=sek>Löschen</button></form>{% endif %}"""
 
 EINST = """
