@@ -468,6 +468,7 @@ def pruefliste():
 
 @app.route("/")
 def index():
+    zahlungen_synchronisieren()  # Zahlstatus immer aktuell (wie Bank/Abgleich/Zahlungen)
     q = request.args.get("q", "").strip()
     status = request.args.get("status", "")
     zahlung = request.args.get("zahlung", "")
@@ -564,6 +565,7 @@ def _speichern(rid=None):
     if dh:
         db().execute("UPDATE rechnungen SET hash=? WHERE id=?", (dh, ziel_id))
     db().commit()
+    zahlungen_synchronisieren()  # geaendertes/neues Dokument: Zahlstatus und Abgleich ueberall neu rechnen
     return True
 
 
@@ -596,6 +598,7 @@ def loeschen(rid):
         (BELEGE / r["datei"]).unlink(missing_ok=True)
     db().execute("DELETE FROM rechnungen WHERE id=?", (rid,))
     db().commit()
+    zahlungen_synchronisieren()
     flash("Rechnung gelöscht.")
     return redirect(url_for("index"))
 
@@ -1276,7 +1279,9 @@ def neu_pruefen():
 @app.route("/eingang/jetzt", methods=["POST"])
 def eingang_jetzt():
     n = eingang_einlesen()
-    flash(f"{n} neue Dateien eingelesen." if n else "Keine neuen Dateien im Eingangsordner.")
+    neu_pruefen()  # unfertige Belege erneut zuordnen
+    zahlungen_synchronisieren()
+    flash(f"{n} neue Dateien eingelesen, Abgleich aktualisiert." if n else "Keine neuen Dateien - Abgleich aktualisiert.")
     return redirect(url_for("index"))
 
 
