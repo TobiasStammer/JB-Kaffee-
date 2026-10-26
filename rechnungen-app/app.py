@@ -112,6 +112,7 @@ SETTINGS_DEFAULT = {
     "datev_mail": "", "smtp_host": "", "smtp_port": "587", "smtp_user": "",
     "smtp_pass": "", "absender": "",
     "start_datum": "2026-10-01",   # Anzeige ab diesem Tag; aeltere Rechnungen nur, solange sie offen sind
+    "lieferanten_zusatz": "",       # im Formular 'Rechnung bearbeiten' angelegte Lieferanten (stehen vor der Standardliste)
     "eingang_ordner": STANDARD_ORDNER, "lieferanten": STANDARD_LIEFERANTEN, "regeln": STANDARD_REGELN,
 }
 
@@ -377,7 +378,11 @@ FORM = """
 <div><label>Belegart</label><select name=belegart>
  {% for b in BELEGARTEN %}<option {{'selected' if b==r.belegart}}>{{b}}</option>{% endfor %}</select></div>
 <div><label>Rechnungsdatum</label><input type=date name=datum value="{{r.datum}}" required></div>
-<div><label>Lieferant</label><input name=lieferant value="{{r.lieferant}}" list=lief required><datalist id=lief>{% for l in LIEFERANTEN %}<option value="{{l}}">{% endfor %}</datalist></div>
+<div><label>Lieferant</label><input name=lieferant value="{{r.lieferant}}" list=lief required
+ onchange="var ok=[].some.call(document.querySelectorAll('#lief option'),function(o){return o.value===this.value}.bind(this)); this.form.lief_neu.checked=!ok&&this.value!=='';"><datalist id=lief>{% for l in LIEFERANTEN %}<option value="{{l}}">{% endfor %}</datalist>
+<select onchange="if(this.value){this.form.lieferant.value=this.value;this.form.lief_neu.checked=false;}" style="margin-top:6px"><option value="">&ndash; vorhandenen Lieferanten zuordnen &ndash;</option>{% for l in LIEFERANTEN %}<option>{{l}}</option>{% endfor %}</select>
+<label style="font-weight:normal;display:flex;gap:6px;align-items:center;margin-top:6px"><input type=checkbox name=lief_neu value=1 style="width:auto"> als neuen Lieferanten anlegen (Kategorie wie rechts)</label>
+<input name=lief_alias placeholder="Alias, z. B. Name auf Kontoauszug/PDF (optional)" style="margin-top:4px"></div>
 <div><label>Rechnungsnummer</label><input name=rechnungsnr value="{{r.rechnungsnr}}"></div>
 <div><label>Bruttobetrag (€, nur Rechnungseingang nötig)</label><input name=brutto value="{{'%.2f'|format(r.brutto)|replace('.',',') if r.brutto else ''}}"></div>
 <div><label>MwSt.-Satz</label><select name=mwst_satz>
@@ -414,6 +419,8 @@ EINST = """
 <div><label>SMTP-Passwort</label><input type=password name=smtp_pass value="{{s.smtp_pass}}"></div></div>
 <h3>Automatischer Eingang (Kassensoftware &rarr; PDF)</h3>
 <label>Eingangsordner (hier speicherst du die PDFs aus der Kasse ab)</label><input name=eingang_ordner value="{{s.eingang_ordner}}">
+<label>Weitere Lieferanten (im Formular „Rechnung bearbeiten“ angelegt, gelten vor der Liste unten; gleiches Zeilenformat)</label>
+<textarea name=lieferanten_zusatz rows=3>{{s.lieferanten_zusatz}}</textarea>
 <label>Lieferanten (eine Zeile je Lieferant: <code>Name | Alias = Kategorie ; abzug</code> &ndash; Alias = weiterer Name im PDF/auf dem Kontoauszug,
 <code>abzug</code> = Zahlung darf niedriger sein als die Rechnung, z. B. GLS verrechnet Gutschriften; längere Namen zuerst, z. B. „Jura Gastro“ vor „Jura“)</label>
 <textarea name=lieferanten rows=8>{{s.lieferanten}}</textarea>
@@ -519,6 +526,10 @@ def index():
                 sb=sum(r.brutto for r in rows), sn=sum(r.netto for r in rows))
 
 
+def belegart_ist_eingang(art):
+    return (art or EINGANG) == EINGANG
+
+
 def _speichern(rid=None):
     f = request.form
     try:
@@ -529,6 +540,17 @@ def _speichern(rid=None):
         return None
     kat = f["kategorie"] if f["kategorie"] in KATEGORIEN else "Sonstiges"
     konto = f.get("konto", "").strip() or KATEGORIEN[kat]
+    name_neu = f["lieferant"].strip()
+    if f.get("lief_neu") and name_neu and belegart_ist_eingang(f.get("belegart")):  # neuen Lieferanten in die Liste aufnehmen
+        cfg = settings()
+        if name_neu in lieferanten_liste(cfg):
+            flash(f"Lieferant „{name_neu}“ gibt es schon - zugeordnet.")
+        else:
+            alias = f.get("lief_alias", "").strip()
+            zeile = name_neu + (f" | {alias}" if alias and alias != name_neu else "") + (f" = {kat}" if kat != "Sonstiges" else "")
+            zusatz = ((cfg.get("lieferanten_zusatz") or "").strip() + "\n" + zeile).strip()
+            db().execute("INSERT OR REPLACE INTO settings(k,v) VALUES('lieferanten_zusatz',?)", (zusatz,))
+            flash(f"Neuer Lieferant angelegt: {zeile}")
     datei_name = dh = None
     up = request.files.get("datei")
     if up and up.filename:
@@ -831,7 +853,7 @@ def _lief_zeilen(cfg):
     """Zeilenformat der Lieferantenliste: 'Name [| Alias ...] [= Kategorie] [; abzug]'.
     Aliase helfen beim Finden im PDF-Text; 'abzug' = die Zahlung darf niedriger sein als die Rechnung."""
     out = []
-    for z in (cfg.get("lieferanten") or "").splitlines():
+    for z in ((cfg.get("lieferanten_zusatz") or "") + "\n" + (cfg.get("lieferanten") or "")).splitlines():
         kopf, _, opt = z.partition(";")
         namen, _, kat = kopf.partition("=")
         teile = [t.strip() for t in namen.split("|") if t.strip()]
