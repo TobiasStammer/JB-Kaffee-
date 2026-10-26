@@ -169,7 +169,7 @@ def init_db():
         c.execute("DELETE FROM kassenzeilen")
     except sqlite3.OperationalError:
         pass
-    for spalte in ("skonto_bis TEXT", "skonto_zahl REAL"):  # Skonto-Frist und Zahlbetrag bei Skontoabzug laut Rechnung
+    for spalte in ("skonto_bis TEXT", "skonto_zahl REAL", "skonto_v2 INTEGER"):  # Skonto-Frist und Zahlbetrag laut Rechnung
         try:
             c.execute(f"ALTER TABLE rechnungen ADD COLUMN {spalte}")
         except sqlite3.OperationalError:
@@ -329,6 +329,7 @@ INDEX = """
 <form method=post action="{{url_for('eingang_jetzt')}}" class=card style="display:flex;gap:14px;align-items:center">
  <span style="flex:1">Eingangsordner: <code>{{ordner}}</code>
  {% if pruefen %} &middot; <a href="#pruefen"><b style="color:#b91c1c">{{pruefen|length}} zu prüfen</b></a>{% endif %}
+ {% if skonto_n %} &middot; <a href="{{url_for('bank_seite')}}#skonto"><b style="color:{{'#b91c1c' if skonto_dringend else '#b45309'}}">{{skonto_n}} Skonto-Fristen{% if skonto_dringend %} ({{skonto_dringend}} dringend){% endif %}</b></a>{% endif %}
  {% if unklar %} &middot; <a href="{{url_for('index',belegart=UNKLAR)}}"><b style="color:#b45309">{{unklar}} nicht zugeordnet</b></a>{% endif %}
  {% if ausg_fehlt %} &middot; <a href="{{url_for('abgleich')}}"><b style="color:#b91c1c">{{ausg_fehlt}} Ausgangsrechnungen fehlen</b></a>{% endif %}</span>
  <button class=sek>Jetzt einlesen</button>
@@ -351,7 +352,7 @@ INDEX = """
  <td><input type=checkbox name=ids value="{{r.id}}" style="width:auto" {{'checked' if r.status!='an DATEV gesendet'}}></td>
  <td>{{r.datum}}</td><td><small>{{r.belegart}}</small></td><td>{{r.lieferant}}</td><td>{{r.rechnungsnr}}</td><td>{{r.kategorie}} <small>({{r.konto}})</small></td>
  <td class=r>{{'%.2f'|format(r.brutto)|replace('.',',')}}</td>
- {% if r.belegart in RECHNUNGSARTEN %}<td class="z-{{r.zahlung or 'offen'}}">{{r.zahlung or 'offen'}}</td>
+ {% if r.belegart in RECHNUNGSARTEN %}<td class="z-{{r.zahlung or 'offen'}}">{{r.zahlung or 'offen'}}{% if r.zahlung!='bezahlt' and r.skonto and r.skonto_bis and r.skonto_bis>=heute %}<br><small style="color:#b45309">Skonto {{'%g'|format(r.skonto)|replace('.',',')}} % bis {{r.skonto_bis[8:]}}.{{r.skonto_bis[5:7]}}.</small>{% endif %}</td>
  <td>{% if r.zahl_am %}{{r.zahl_am[8:]}}.{{r.zahl_am[5:7]}}.{{r.zahl_am[:4]}}{% endif %}</td>
  <td>{{r.zahl_art or ''}}</td>
  {% else %}<td>&ndash;</td><td></td><td></td>{% endif %}
@@ -519,7 +520,8 @@ def index():
     for g in db().execute("SELECT hash FROM rechnungen WHERE hash IS NOT NULL GROUP BY hash HAVING COUNT(*)>1"):
         doppelte.append(db().execute("SELECT id, rechnungsnr, lieferant, datum FROM rechnungen WHERE hash=? "
                                      "ORDER BY id", (g["hash"],)).fetchall())
-    return page(INDEX, pruefen=pruefliste(), doppelte=doppelte, summen=list(summen.values()), rows=rows, q=q, status=status, zahlung=zahlung, zahlart=zahlart, ZAHLARTEN=ZAHLARTEN, STATUS=STATUS, ZAHLUNG=ZAHLUNG, RECHNUNGSARTEN=RECHNUNGSARTEN, monat=monat,
+    return page(INDEX, pruefen=pruefliste(), skonto_n=len(skonto_offen()), skonto_dringend=sum(1 for x in skonto_offen() if x["rest"] <= 3),
+                heute=date.today().isoformat(), doppelte=doppelte, summen=list(summen.values()), rows=rows, q=q, status=status, zahlung=zahlung, zahlart=zahlart, ZAHLARTEN=ZAHLARTEN, STATUS=STATUS, ZAHLUNG=ZAHLUNG, RECHNUNGSARTEN=RECHNUNGSARTEN, monat=monat,
                 belegart=belegart, BELEGARTEN=BELEGARTEN_ALLE, UNKLAR=UNKLAR,
                 ordner=settings()["eingang_ordner"], ausg_fehlt=len(fehlende_ausgangsrechnungen()[0]),
                 unklar=db().execute("SELECT COUNT(*) FROM rechnungen WHERE belegart=?", (UNKLAR,)).fetchone()[0],
@@ -577,7 +579,7 @@ def _speichern(rid=None):
                      vals + (datei_name, str(uuid.uuid4()), datetime.now().isoformat(timespec="seconds"), belegart))
     else:
         db().execute("UPDATE rechnungen SET datum=?,lieferant=?,rechnungsnr=?,brutto=?,mwst_satz=?,"
-                     "kategorie=?,konto=?,status=?,notiz=?,belegart=? WHERE id=?", vals + (belegart, rid))
+                     "kategorie=?,konto=?,status=?,notiz=?,belegart=?,skonto_v2=NULL WHERE id=?", vals + (belegart, rid))
         if datei_name:
             alt = lade(rid)["datei"]
             db().execute("UPDATE rechnungen SET datei=? WHERE id=?", (datei_name, rid))
@@ -1531,6 +1533,7 @@ def abgleich():
         pdfs.setdefault(r["rechnungsnr"], r)
 
     daten = sorted(e["datum"] for e in eintraege.values())  # Zeitraum der Liste(n)
+    liste_nr = set(eintraege)  # Nummern, die wirklich in der Liste stehen
     eintraege = dict(eintraege)
     for nr, r in pdfs.items():  # Rechnungen nach dem Listenende: Liste ist noch nicht aktuell, Abgleich laeuft trotzdem
         if len(nr) == 7 and nr.startswith(NUMMERNKREISE) and nr not in eintraege and r["datum"] > daten[-1]:
@@ -1607,7 +1610,7 @@ def abgleich():
         kreis = next((k for k in NUMMERNKREISE if nr.startswith(k) and len(nr) == 7), None)
         if not kreis:
             continue
-        if nr not in eintraege and daten[0] <= r["datum"] <= daten[-1]:
+        if nr not in liste_nr and r["datum"] >= daten[0]:  # auch Rechnungen nach dem Listenende (Liste kommt erst zum Monatsende)
             page_ctx["extra"].append(r)
         if r["belegart"] != KREIS_ART[kreis]:
             page_ctx["falsch"].append((r, KREIS_ART[kreis]))
@@ -1780,6 +1783,51 @@ def skonto_frist(text):
         if d:
             return d, _betrag_de(m.group(4)) or 0
     return "", 0
+
+
+def skonto_info(text, datum):
+    """(Prozent, Frist ISO, Zahlbetrag ausdruecklich genannt oder 0). Frist = ausdrueckliches Datum oder Rechnungsdatum + Tage
+    ('Skonto 2,00 % mit einer Frist von 1 Tagen', 'SEPA-Lastschrift 14 TAGE, 3% SK.')."""
+    pct = skonto_prozent(text)
+    bis, zahl = skonto_frist(text)
+    if pct and not bis:  # 'sofort faellig am 22.10.26 unter Abzug von 3 % Skonto 36,44 EUR' (Lastschrift am Faelligkeitstag)
+        m = re.search(r"f[äa]llig am\s+(\d{1,2})\.(\d{1,2})\.(\d{2,4})[^\n]{0,40}Skonto", text, re.I)
+        if m:
+            j = int(m.group(3)) + (2000 if len(m.group(3)) == 2 else 0)
+            bis = _iso_datum(m.group(1), m.group(2), j) or ""
+    if pct and not bis and datum:
+        for pat in (r"Skonto[^\n]{0,40}?(?:Frist von|innerhalb(?: von)?|binnen)\s+(\d{1,3})\s*Tag",
+                    r"(\d{1,3})\s*TAGE?\b[^\n]{0,20}\d+[,.]?\d*\s*%\s*(?:SK|Skonto)",
+                    r"innerhalb(?: von)?\s+(\d{1,3})\s*Tagen?[^\n]{0,60}Skonto",
+                    r"Skonto[^\n]{0,60}innerhalb(?: von)?\s+(\d{1,3})\s*Tag"):
+            m = re.search(pat, text, re.I)
+            if m:
+                try:
+                    bis = (date.fromisoformat(datum) + timedelta(days=int(m.group(1)))).isoformat()
+                except ValueError:
+                    pass
+                break
+    return pct, bis, zahl
+
+
+def skonto_zahlbetrag(r):
+    """Zahlbetrag bei Skontoabzug: ausdruecklich auf der Rechnung genannt, sonst Brutto minus Skonto-Prozent."""
+    if r["skonto_zahl"]:
+        return r["skonto_zahl"]
+    return round(abs(r["brutto"] or 0) * (1 - (r["skonto"] or 0) / 100), 2) if r["skonto"] and r["brutto"] else 0
+
+
+def skonto_offen():
+    """Offene Eingangsrechnungen mit noch laufender Skonto-Frist, nach Frist sortiert."""
+    heute = date.today()
+    out = []
+    for r in db().execute("SELECT * FROM rechnungen WHERE belegart=? AND COALESCE(zahlung,'offen')<>'bezahlt' AND skonto>0 "
+                          "AND skonto_bis<>'' AND skonto_bis>=? AND brutto>0 ORDER BY skonto_bis, id", (EINGANG, heute.isoformat())):
+        zahl = skonto_zahlbetrag(r)
+        rest = (date.fromisoformat(r["skonto_bis"]) - heute).days
+        out.append(dict(r, zahl=zahl, spart=round(r["brutto"] - zahl, 2), rest=rest,
+                        bis=f'{r["skonto_bis"][8:]}.{r["skonto_bis"][5:7]}.{r["skonto_bis"][:4]}'))
+    return out
 
 
 def _sk_faktor(skonto):
@@ -1958,17 +2006,12 @@ def zahlungen_synchronisieren():
                              "VALUES(?,?,?,?,?,?,?,?)", (r["id"], z["datum"], z["beleg"], z["name"], z["betrag"],
                                                          z["zeit"], z["rechnungsnr"], arten.get(z["beleg"], "Kasse")))
             db().execute("INSERT OR IGNORE INTO kasse_geprueft(dokument_id) VALUES(?)", (r["id"],))
-    for r in db().execute("SELECT id, datei FROM rechnungen WHERE belegart=? AND skonto IS NULL", (EINGANG,)).fetchall():
-        pfad = BELEGE / r["datei"] if r["datei"] else None
-        txt = pdf_text(pfad, max_seiten=None) if pfad and pfad.suffix.lower() == ".pdf" and pfad.exists() else ""
-        bis, zahl = skonto_frist(txt)
-        db().execute("UPDATE rechnungen SET skonto=?, skonto_bis=?, skonto_zahl=? WHERE id=?",
-                     (skonto_prozent(txt), bis, zahl, r["id"]))
-    for r in db().execute("SELECT id, datei FROM rechnungen WHERE belegart=? AND skonto_bis IS NULL AND datei IS NOT NULL",
-                          (EINGANG,)).fetchall():  # bestehende Rechnungen: Frist nachtragen
-        pfad = BELEGE / r["datei"]
-        bis, zahl = skonto_frist(pdf_text(pfad, max_seiten=None)) if pfad.suffix.lower() == ".pdf" and pfad.exists() else ("", 0)
-        db().execute("UPDATE rechnungen SET skonto_bis=?, skonto_zahl=? WHERE id=?", (bis, zahl, r["id"]))
+    for r in db().execute("SELECT id, datei, datum FROM rechnungen WHERE belegart=? AND skonto_v2 IS NULL", (EINGANG,)).fetchall():
+        pfad = BELEGE / r["datei"] if r["datei"] else None  # Skonto-Prozent, Frist und Zahlbetrag aus der Rechnung
+        txt = pdf_text(pfad, max_seiten=None) if pfad and pfad.exists() else ""
+        pct, bis, zahl = skonto_info(txt, r["datum"])
+        db().execute("UPDATE rechnungen SET skonto=?, skonto_bis=?, skonto_zahl=?, skonto_v2=1 WHERE id=?",
+                     (pct, bis, zahl, r["id"]))
     ids = "(SELECT id FROM rechnungen)"
     db().execute(f"DELETE FROM kassenzeilen WHERE dokument_id NOT IN {ids}")
     db().execute(f"DELETE FROM kasse_geprueft WHERE dokument_id NOT IN {ids}")
@@ -2108,6 +2151,13 @@ BANK = """
 <td>{% if r.datei %}<a href="{{url_for('beleg',rid=r.id)}}" target=_blank>PDF</a> &middot; {% endif %}<a href="{{url_for('bearbeiten',rid=r.id)}}">bearbeiten</a></td></tr>
 {% else %}<tr><td colspan=8>Keine Rechnungen{{' in diesem Monat' if monat}}.</td></tr>{% endfor %}
 <tr style="font-weight:bold;border-top:2px solid #333"><td colspan=3>Endsumme</td><td class=r>{{'%.2f'|format(summe)|replace('.',',')}}</td><td colspan=4></td></tr></table></details>{% endmacro %}
+{% if skonto_liste %}<details class=bank id=skonto style="border-left-color:#b45309"><summary style="color:#b45309">Skonto-Fristen ({{skonto_liste|length}}) &ndash; spart {{'%.2f'|format(skonto_liste|sum(attribute='spart'))|replace('.',',')}} &euro;</summary>
+<p><small>Offene Rechnungen mit Skonto: bis zur Frist nur den Zahlbetrag überweisen.</small></p>
+<table><tr><th>Zahlen bis</th><th>Lieferant</th><th>Rg.-Nr.</th><th class=r>Rechnung</th><th class=r>Zahlbetrag</th><th class=r>Skonto %</th><th class=r>spart</th><th></th></tr>
+{% for r in skonto_liste %}<tr><td {{'style="color:#b91c1c;font-weight:700"'|safe if r.rest<=3}}>{{r.bis}}{% if r.rest<=3 %} <small>({{'heute' if r.rest==0 else 'in %d Tg.'|format(r.rest)}})</small>{% endif %}</td>
+<td>{{r.lieferant}}</td><td>{{r.rechnungsnr}}</td><td class=r>{{'%.2f'|format(r.brutto)|replace('.',',')}}</td>
+<td class=r><b>{{'%.2f'|format(r.zahl)|replace('.',',')}}</b></td><td class=r>{{'%g'|format(r.skonto)|replace('.',',')}}</td><td class=r>{{'%.2f'|format(r.spart)|replace('.',',')}}</td>
+<td><a href="{{url_for('bearbeiten',rid=r.id)}}">prüfen</a></td></tr>{% endfor %}</table></details>{% endif %}
 {{ rg_tabelle('Offene Rechnungen', offene_liste, offene_summe, true) }}
 {{ rg_tabelle('Bezahlte Rechnungen', bezahlte_liste, bezahlte_summe, false) }}
 {{ credit_tabelle('Credit-Zahlungen: Geldeingang offen', credit_offen, credit_offen_summe, '<p><small>Kartenumsätze aus Kassenbuch und Kassenjournal, zu denen noch keine NEXI-Gutschrift auf dem Konto gefunden wurde &ndash; hier prüfen, ob das Geld ankommt.</small></p>', true) }}
@@ -2143,15 +2193,16 @@ def bank_seite():
         diff = abs(r["brutto"] or 0) - (p["summe"] if p else 0)
         r["abzug"] = diff if p and (r["lieferant"] in abzug_set or r["skonto"]) and r["zahlung"] == "bezahlt" and diff > 0.01 else 0
         r["skonto_hinweis"] = ""
-        if r.get("skonto_bis") and r.get("skonto_zahl"):
-            ersparnis = f'{abs(r["brutto"] or 0) - r["skonto_zahl"]:.2f}'.replace(".", ",")
-            zahl = f'{r["skonto_zahl"]:.2f}'.replace(".", ",")
+        zahl_sk = skonto_zahlbetrag(r)
+        if r.get("skonto_bis") and zahl_sk:
+            ersparnis = f'{abs(r["brutto"] or 0) - zahl_sk:.2f}'.replace(".", ",")
+            zahl = f'{zahl_sk:.2f}'.replace(".", ",")
             bis = f'{r["skonto_bis"][8:]}.{r["skonto_bis"][5:7]}.{r["skonto_bis"][:4]}'
             if r["zahlung"] != "bezahlt" and r["skonto_bis"] >= date.today().isoformat():
                 r["skonto_hinweis"] = f"Skonto bis {bis}: nur {zahl} € zahlen (spart {ersparnis} €)"
             elif r["zahlung"] != "bezahlt":
                 r["skonto_hinweis"] = f"Skonto-Frist abgelaufen ({bis})"
-            elif p and p["summe"] > r["skonto_zahl"] + 0.01 and p["am"] and p["am"] <= r["skonto_bis"] and not r["abzug"]:
+            elif p and p["summe"] > zahl_sk + 0.01 and p["am"] and p["am"] <= r["skonto_bis"] and not r["abzug"]:
                 r["skonto_hinweis"] = f"Skonto nicht genutzt ({ersparnis} € möglich bis {bis})"
     summen = []
     for name, klasse, test in (("offen", "offen", lambda r: (r["zahlung"] or "offen") == "offen"),
@@ -2195,7 +2246,7 @@ def bank_seite():
     credit_ok = [dict(kasse=k["kasse"], betrag=k["betrag"], bank="Gutschrift vom " + dmy(bank_datum[bid]))
                  for bid, k in sorted(karten.items(), key=lambda x: x[1]["dat"], reverse=True)
                  if k["kasse"] and k["dat"] >= start and (not monat or k["dat"][:7] == monat)]
-    return page(BANK, monat=monat, summen=summen, info=info,
+    return page(BANK, monat=monat, summen=summen, info=info, skonto_liste=skonto_offen(),
                 credit_offen=credit_offen, credit_offen_summe=sum(c["betrag"] for c in credit_offen),
                 credit_ok=credit_ok, credit_ok_summe=sum(c["betrag"] for c in credit_ok),
                 offene_liste=offene_liste, offene_summe=sum(abs(r["brutto"] or 0) for r in offene_liste),
@@ -2349,7 +2400,7 @@ def daten_pruefen():
         ex = lese_erechnung(pfad)
         d = (ex["datum"] if ex and ex["datum"] else "") or finde_rechnungsdatum(pdf_text(pfad))
         if d and d != r["datum"]:
-            db().execute("UPDATE rechnungen SET datum=? WHERE id=?", (d, r["id"]))
+            db().execute("UPDATE rechnungen SET datum=?, skonto_v2=NULL WHERE id=?", (d, r["id"]))
             korrigiert.append(f'{r["rechnungsnr"] or r["lieferant"]}: {r["datum"]} \u2192 {d}')
     db().commit()
     flash("Rechnungsdatum korrigiert bei " + str(len(korrigiert)) + " Belegen: " + "; ".join(korrigiert)
