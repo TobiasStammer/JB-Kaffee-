@@ -3,7 +3,7 @@
 $app   = $PSScriptRoot
 $lokal = Join-Path $env:LOCALAPPDATA "Rechnungen-App"
 New-Item -ItemType Directory -Force $lokal | Out-Null
-Copy-Item (Join-Path $app "static\icon.ico") (Join-Path $lokal "icon.ico") -Force
+Copy-Item (Join-Path $app "static\icon.ico") (Join-Path $lokal "rechnungen-app-2.ico") -Force
 
 # pythonw.exe der installierten Python-Version suchen (ohne Konsolenfenster)
 $pyw = (Get-Command pythonw.exe -ErrorAction SilentlyContinue).Source
@@ -18,7 +18,7 @@ $lnk = $ws.CreateShortcut((Join-Path ([Environment]::GetFolderPath("Desktop")) "
 $lnk.TargetPath       = $pyw
 $lnk.Arguments        = '"' + (Join-Path $app "fenster.pyw") + '"'
 $lnk.WorkingDirectory = $app
-$lnk.IconLocation     = (Join-Path $lokal "icon.ico") + ",0"
+$lnk.IconLocation     = (Join-Path $lokal "rechnungen-app-2.ico") + ",0"
 $lnk.Description      = "Rechnungsverwaltung und DATEV-Export"
 $lnk.Save()
 & ie4uinit.exe -show 2>$null
