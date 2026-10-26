@@ -232,6 +232,10 @@ th,td{padding:8px 11px;border-bottom:1px solid #e6e6e6;text-align:left;font-size
 th{background:var(--soft);color:var(--head);font-size:13px} td.r,th.r{text-align:right;font-variant-numeric:tabular-nums}
 tr:hover td{background:#fafafa}
 .card{background:#fff;padding:18px 22px;margin-bottom:18px;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:6px}
+details.bank{background:#fff;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:6px;margin-bottom:10px;padding:0 18px}
+details.bank>summary{cursor:pointer;font:600 14px Tahoma,Arial,sans-serif;color:var(--head);padding:9px 0}
+details.bank[open]{padding-bottom:14px}details.bank[open]>summary{border-bottom:1px solid var(--line);margin-bottom:10px}
+form.kein-rahmen{background:none;border:0;padding:0;margin:0}
 label{display:block;font-size:13px;margin:10px 0 3px;font-weight:700;color:var(--head)}
 input,select,textarea{padding:8px 9px;font-size:15px;font-family:inherit;width:100%;box-sizing:border-box;border:1px solid #c7c9cf;border-radius:4px;background:#fff}
 input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
@@ -261,7 +265,23 @@ LAYOUT = """<!doctype html><html lang=de><meta charset=utf-8>
 <li><a href="{{url_for('einstellungen')}}" class="{{'on' if request.endpoint=='einstellungen' else ''}}">Einstellungen</a></li>
 </ul></nav><main>
 {% for m in get_flashed_messages() %}<div class=msg>{{m}}</div>{% endfor %}
-{{body|safe}}</main></html>"""
+{{body|safe}}</main>
+<script>
+/* Karten mit Ueberschrift (h2) wie auf der Bank-Seite aufklappbar machen (nur auf Seiten mit mind. 2 solcher Karten) */
+(function(){
+  var karten=[].filter.call(document.querySelectorAll('.card'),function(c){
+    var h=c.firstElementChild; return h&&h.tagName==='H2'&&!c.closest('details');});
+  if(karten.length<2)return;
+  var zu=/^(Verlauf je Liste|Zugeordnete Zahlungen)/;
+  karten.forEach(function(c){
+    var h=c.firstElementChild, d=document.createElement('details'), s=document.createElement('summary');
+    d.className='bank'; if(!zu.test(h.textContent.trim()))d.open=true;
+    s.textContent=h.textContent.trim(); h.remove();
+    if(c.tagName==='FORM'){ c.className='kein-rahmen'; while(c.firstChild)d.appendChild(c.firstChild); d.insertBefore(s,d.firstChild); c.appendChild(d); }
+    else { while(c.firstChild)d.appendChild(c.firstChild); d.insertBefore(s,d.firstChild); c.replaceWith(d); }
+  });
+})();
+</script></html>"""
 
 
 def page(body_tpl, **ctx):
