@@ -1913,18 +1913,12 @@ def zahlungen_synchronisieren():
 
 
 ZAHLUNGEN = """
-<form method=post enctype=multipart/form-data class=card>
-<h2>Kontoauszug hochladen</h2>
-<p>CSV (z. B. Sparkasse &bdquo;CSV-CAMT&ldquo;) oder CAMT.053-XML aus dem Online-Banking. Die App sucht die Rechnungsnummer im
-Verwendungszweck. Doppelte Buchungen werden erkannt und nicht noch einmal gespeichert.</p>
-<input type=file name=auszug accept=".csv,.txt,.xml,.camt" multiple>
-<p><button>Hochladen &amp; abgleichen</button></p></form>
 <div class=card><h2>Stand</h2>
 <table><tr><th>Quelle</th><th class=r>Buchungen / Zeilen</th><th class=r>davon Rechnungen zugeordnet</th></tr>
 <tr><td>Kassenbuch ({{kassen_docs}} Dokumente)</td><td class=r>{{kassen_n}}</td><td class=r>{{kassen_n}}</td></tr>
 <tr><td>Kontoauszug</td><td class=r>{{bank_n}}</td><td class=r>{{bank_zugeordnet}}</td></tr>
 {% if karten_zeilen %}<tr><td>&nbsp;&nbsp;davon EC-Karteneingänge (NEXI Germany &harr; Kassenbuch)</td><td class=r>{{karten_zeilen|length}}</td><td class=r>{{karten_gefunden}}</td></tr>{% endif %}</table>
-<small>Kontoauszüge (CSV/CAMT) kannst du auch in den Eingangsordner legen, die App liest sie automatisch ein.<br>
+<small>Kontoauszüge (CSV/CAMT) legst du in den Eingangsordner, die App liest sie automatisch ein.<br>
 Rechnungen gelten nur als &bdquo;bezahlt&ldquo;, wenn hier eine Zahlung zugeordnet ist (Skonto bis 3,5 % bei Eingangsrechnungen).
 Offene Rechnungen: <a href="{{url_for('index',zahlung='unbezahlt')}}">anzeigen</a></small></div>
 <div class=card><h2>Zugeordnete Zahlungen ({{zahlungen|length}})</h2>
@@ -2002,8 +1996,7 @@ BANK = """
  <button>Filtern</button> <a class="btn sek" href="{{url_for('bank_seite')}}">Zurücksetzen</a>
  <button type=submit formmethod=post formaction="{{url_for('bank_aktualisieren')}}" class=sek>&#8635; Aktualisieren</button></form>
 <details class=bank open><summary>Offene Rechnungen &ndash; Stand laut Kontoauszug</summary>
-{% if bank_n == 0 %}<p style="color:#b45309"><b>Noch kein Kontoauszug vorhanden.</b> Lege eine CSV/CAMT-Datei in den Eingangsordner oder lade sie unter
- <a href="{{url_for('zahlungen_seite')}}">Zahlungen</a> hoch.</p>{% endif %}
+{% if bank_n == 0 %}<p style="color:#b45309"><b>Noch kein Kontoauszug vorhanden.</b> Lege eine CSV/CAMT-Datei in den Eingangsordner, die App liest sie automatisch ein.</p>{% endif %}
 <table style="max-width:640px"><tr><th>Eingangsrechnungen</th><th class=r>Anzahl</th><th class=r>Summe brutto</th></tr>
 {% for z in summen %}<tr><td class="z-{{z.klasse}}">{{z.name}}</td><td class=r>{{z.n}}</td><td class=r>{{'%.2f'|format(z.summe)|replace('.',',')}}</td></tr>{% endfor %}
 <tr><td class="z-offen">Zahlungen ohne Rechnung (Bankausgänge)</td><td class=r>{{ohne|length}}</td><td class=r>{{'%.2f'|format(ohne_summe)|replace('.',',')}}</td></tr></table>
