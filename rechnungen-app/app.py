@@ -297,6 +297,9 @@ LAYOUT = """<!doctype html><html lang=de><meta charset=utf-8>
       try{ localStorage.setItem(KEY,JSON.stringify(alle)); }catch(e){}
     });
   });
+  /* Link wie #pruefen oeffnet den Abschnitt */
+  function sprung(){ var e=location.hash&&document.querySelector(location.hash); if(e&&e.tagName==='DETAILS'){ e.open=true; e.scrollIntoView(); } }
+  sprung(); window.addEventListener('hashchange',sprung);
 })();
 </script></html>"""
 
@@ -324,10 +327,17 @@ INDEX = """
  {% else %}<a class="btn sek" href="{{url_for('index',zahlung='unbezahlt',monat=monat,belegart=belegart)}}">Nur offene</a>{% endif %}</form>
 <form method=post action="{{url_for('eingang_jetzt')}}" class=card style="display:flex;gap:14px;align-items:center">
  <span style="flex:1">Eingangsordner: <code>{{ordner}}</code>
+ {% if pruefen %} &middot; <a href="#pruefen"><b style="color:#b91c1c">{{pruefen|length}} zu prüfen</b></a>{% endif %}
  {% if unklar %} &middot; <a href="{{url_for('index',belegart=UNKLAR)}}"><b style="color:#b45309">{{unklar}} nicht zugeordnet</b></a>{% endif %}
  {% if ausg_fehlt %} &middot; <a href="{{url_for('abgleich')}}"><b style="color:#b91c1c">{{ausg_fehlt}} Ausgangsrechnungen fehlen</b></a>{% endif %}</span>
  <button class=sek>Jetzt einlesen</button>
  <button class=sek formaction="{{url_for('neu_pruefen')}}">Neu prüfen</button></form>
+{% if pruefen %}<details class=bank id=pruefen style="border-left-color:#b91c1c"><summary style="color:#b91c1c">Zu prüfen ({{pruefen|length}})</summary>
+<p><small>Bei diesen Belegen kann etwas nicht stimmen (falsch eingeordnet, Betrag oder Nummer fehlt). Mit „Bearbeiten“ korrigieren oder auf der Bank-Seite „Aktualisieren“ klicken.</small></p>
+<table><tr><th>Datum</th><th>Belegart</th><th>Lieferant</th><th>Rg.-Nr.</th><th class=r>Brutto</th><th>Hinweis</th><th></th></tr>
+{% for r in pruefen %}<tr><td>{{r.datum}}</td><td><small>{{r.belegart}}</small></td><td>{{r.lieferant}}</td><td>{{r.rechnungsnr}}</td>
+<td class=r>{{'%.2f'|format(r.brutto)|replace('.',',')}}</td><td style="color:#b91c1c">{{r.probleme|join('; ')}}</td>
+<td><a href="{{url_for('beleg',rid=r.id)}}" target=_blank>PDF</a> &middot; <a href="{{url_for('bearbeiten',rid=r.id)}}">bearbeiten</a></td></tr>{% endfor %}</table></details>{% endif %}
 {% if doppelte %}<div class=card style="border-left-color:#b91c1c"><b style="color:#b91c1c">Doppelte Belege</b>
  &ndash; dieselbe Datei ist mehrfach abgelegt:
  {% for g in doppelte %}<div>{% for r in g %}<a href="{{url_for('bearbeiten',rid=r.id)}}">#{{r.id}} {{r.rechnungsnr or r.lieferant}} ({{r.datum}})</a>{{' &middot; '|safe if not loop.last}}{% endfor %}</div>{% endfor %}
@@ -428,6 +438,32 @@ def stand():
     return STAND
 
 
+def pruefliste():
+    """Belege, bei denen etwas nicht stimmen kann (falsch eingeordnet, Betrag/Nummer fehlt) - werden auf der Uebersicht gemeldet."""
+    start = settings()["start_datum"]
+    out = []
+    for r in db().execute("SELECT id, datum, lieferant, belegart, rechnungsnr, brutto, zahlung FROM rechnungen "
+                          "WHERE datei IS NOT NULL AND (datum>=? OR COALESCE(zahlung,'offen')<>'bezahlt') "
+                          "AND belegart NOT IN ('Kassenbuch','Rechnungsausgangliste','Monatsjournal Kasse') ORDER BY datum DESC, id DESC",
+                          (start,)):
+        probleme = []
+        if r["belegart"] == UNKLAR:
+            probleme.append("nicht zugeordnet (Belegart/Lieferant unbekannt)")
+        if (r["lieferant"] or "").startswith("Joachim Bl"):
+            probleme.append("eigene Firma als Lieferant/Kunde - vermutlich falsch eingeordnet")
+        if r["belegart"] in ("Rechnungsausgang Service", "Rechnungsausgang Verkauf") and not re.fullmatch(
+                r"26[13]\d{4}", r["rechnungsnr"] or ""):
+            probleme.append("Ausgangsrechnung ohne eigene Nummer (261xxxx/263xxxx) - evtl. Eingangsrechnung?")
+        if r["belegart"] == EINGANG:
+            if not r["brutto"]:
+                probleme.append("Betrag fehlt (0,00 €)")
+            if not (r["rechnungsnr"] or "").strip():
+                probleme.append("Rechnungsnummer fehlt")
+        if probleme:
+            out.append(dict(r, probleme=probleme))
+    return out
+
+
 @app.route("/")
 def index():
     q = request.args.get("q", "").strip()
@@ -473,7 +509,7 @@ def index():
     for g in db().execute("SELECT hash FROM rechnungen WHERE hash IS NOT NULL GROUP BY hash HAVING COUNT(*)>1"):
         doppelte.append(db().execute("SELECT id, rechnungsnr, lieferant, datum FROM rechnungen WHERE hash=? "
                                      "ORDER BY id", (g["hash"],)).fetchall())
-    return page(INDEX, doppelte=doppelte, summen=list(summen.values()), rows=rows, q=q, status=status, zahlung=zahlung, zahlart=zahlart, ZAHLARTEN=ZAHLARTEN, STATUS=STATUS, ZAHLUNG=ZAHLUNG, RECHNUNGSARTEN=RECHNUNGSARTEN, monat=monat,
+    return page(INDEX, pruefen=pruefliste(), doppelte=doppelte, summen=list(summen.values()), rows=rows, q=q, status=status, zahlung=zahlung, zahlart=zahlart, ZAHLARTEN=ZAHLARTEN, STATUS=STATUS, ZAHLUNG=ZAHLUNG, RECHNUNGSARTEN=RECHNUNGSARTEN, monat=monat,
                 belegart=belegart, BELEGARTEN=BELEGARTEN_ALLE, UNKLAR=UNKLAR,
                 ordner=settings()["eingang_ordner"], ausg_fehlt=len(fehlende_ausgangsrechnungen()[0]),
                 unklar=db().execute("SELECT COUNT(*) FROM rechnungen WHERE belegart=?", (UNKLAR,)).fetchone()[0],
