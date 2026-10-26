@@ -1371,15 +1371,15 @@ ABGLEICH = """
 <td class=r {{'style="color:#b91c1c;font-weight:700"'|safe if v.fehlt else 'style="color:#047857"'|safe}}>{{v.fehlt if v.fehlt else '✓ 0'}}</td>
 <td><a href="{{url_for('abgleich',liste=v.id)}}">anzeigen</a></td></tr>{% endfor %}</table></div>{% endif %}
 <div class=card><h2>Zusammenfassung</h2>
-<table><tr><th>Nummernkreis</th><th class=r>Rechnungen in Liste</th><th class=r>Summe Liste</th><th class=r>PDF vorhanden</th>
+<table><tr><th>Nummernkreis</th><th class=r>Rechnungen</th><th class=r>Summe</th><th class=r>PDF vorhanden</th>
 <th class=r>PDF fehlt</th><th class=r>Betrag weicht ab</th><th class=r>Bezahlt (Kasse/Konto)</th><th>Lücken in der Nummernfolge</th></tr>
-{% for k in kreise %}<tr><td><b>{{k.kreis}}</b>xxxx {{k.name}}</td><td class=r>{{k.n}}</td>
+{% for k in kreise %}<tr><td><b>{{k.kreis}}</b>xxxx {{k.name}}</td><td class=r>{{k.n}}{% if k.neu %}<br><small>davon {{k.neu}} neuer als die Liste</small>{% endif %}</td>
 <td class=r>{{'%.2f'|format(k.summe)|replace('.',',')}}</td><td class=r>{{k.mit}}</td>
 <td class=r {{'style="color:#b91c1c;font-weight:700"'|safe if k.fehlt}}>{{k.fehlt}}</td>
 <td class=r {{'style="color:#b91c1c;font-weight:700"'|safe if k.abw}}>{{k.abw}}</td>
 <td class=r>{{k.bez_n}} von {{k.n}}{% if k.unbez_n %}<br><small>{{k.unbez_n}} unbezahlt ({{'%.2f'|format(k.unbez_summe)|replace('.',',')}} &euro;)</small>{% endif %}</td>
 <td>{% if k.luecken %}{{k.luecken|length}}: {{k.luecken[:12]|join(', ')}}{{' …' if k.luecken|length>12}}{% else %}keine{% endif %}</td></tr>{% endfor %}
-</table><small>Zeitraum der Liste(n): {{von}} bis {{bis}}. Lücken können stornierte oder nicht gedruckte Nummern sein.</small></div>
+</table><small>Zeitraum der Liste(n): {{von}} bis {{bis}}. Rechnungen danach werden anhand der PDFs mitgeführt (die Liste kommt erst zum Monatsende). Lücken können stornierte oder nicht gedruckte Nummern sein.</small></div>
 <div class=card><h2>{{'Alle Rechnungen' if alle else 'Abweichungen'}} ({{zeilen|length}})</h2>
 <table><tr><th>Rg.-Nr.</th><th>Datum</th><th>Kunde</th><th class=r>Betrag Liste</th><th>Zahlung</th><th class=r>Betrag PDF</th><th>Ergebnis</th><th></th></tr>
 {% for z in zeilen %}<tr><td>{{z.nr}}</td><td>{{z.datum}}</td><td>{{z.name}}</td>
@@ -1447,6 +1447,13 @@ def abgleich():
                           "AND belegart<>'Rechnungsausgangliste'"):
         pdfs.setdefault(r["rechnungsnr"], r)
 
+    daten = sorted(e["datum"] for e in eintraege.values())  # Zeitraum der Liste(n)
+    eintraege = dict(eintraege)
+    for nr, r in pdfs.items():  # Rechnungen nach dem Listenende: Liste ist noch nicht aktuell, Abgleich laeuft trotzdem
+        if len(nr) == 7 and nr.startswith(NUMMERNKREISE) and nr not in eintraege and r["datum"] > daten[-1]:
+            eintraege[nr] = dict(kd="", name=r["lieferant"], nr=nr, datum=r["datum"], offen=0.0,
+                                 betrag=abs(r["brutto"] or 0), neu=True)
+
     pay = zahlungsstand()
 
     def ist_bezahlt(e):  # bezahlt = Zahlung nachgewiesen; eine bestaetigte 0,00-Rechnung braucht keine Zahlung
@@ -1481,6 +1488,8 @@ def abgleich():
                 else:
                     z.update(text="OK", farbe="#047857")
             z["ok"] = z["text"] == "OK"
+            if e.get("neu"):  # nur das PDF, noch nicht in der Rechnungsausgangsliste (kommt zum Monatsende)
+                z.update(text="noch nicht in der Liste", farbe="#6b7178", ok=True)
             z["bestaetigt"] = False
             if not z["ok"] and e["nr"] in quitt:
                 q = quitt[e["nr"]]
@@ -1498,6 +1507,7 @@ def abgleich():
             zeilen.append(z)
         fe = [e for e in mine if e["nr"] not in pdfs and e["nr"] not in quitt]
         kreise.append(dict(kreis=kreis, name=KREIS_ART[kreis].replace("Rechnungsausgang ", ""), n=len(mine),
+                           neu=sum(1 for e in mine if e.get("neu")),
                            summe=sum(e["betrag"] for e in mine), mit=mit, fehlt=fehlt, abw=abw, luecken=luecken,
                            fehlt_summe=sum(e["betrag"] for e in fe),
                            bez_n=sum(1 for e in mine if ist_bezahlt(e)),
@@ -1507,7 +1517,6 @@ def abgleich():
     page_ctx["kreise"] = kreise
     page_ctx["fehlt_gesamt"] = sum(k["fehlt"] for k in kreise)
     page_ctx["zeilen"] = zeilen if alle else [z for z in zeilen if not z["ok"]]
-    daten = sorted(e["datum"] for e in eintraege.values())
     page_ctx["von"], page_ctx["bis"] = daten[0], daten[-1]
 
     # PDFs im Zeitraum der Liste, die in der Liste fehlen / falsche Belegart
@@ -1515,7 +1524,7 @@ def abgleich():
         kreis = next((k for k in NUMMERNKREISE if nr.startswith(k) and len(nr) == 7), None)
         if not kreis:
             continue
-        if nr not in eintraege and r["datum"] >= daten[0]:  # auch Rechnungen nach dem Listenende (Liste noch nicht aktuell)
+        if nr not in eintraege and daten[0] <= r["datum"] <= daten[-1]:
             page_ctx["extra"].append(r)
         if r["belegart"] != KREIS_ART[kreis]:
             page_ctx["falsch"].append((r, KREIS_ART[kreis]))
