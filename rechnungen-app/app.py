@@ -73,6 +73,7 @@ Amazon Business | Amazon Payments
 Frank Windhorn | Windhorn
 Nexi Germany | Nexi
 Taunus Sparkasse = Software/Hosting
+Kaffeegroßrösterei A. Joerges | Joerges | Jörges = Wareneinkauf
 KaffeeTechnik Seubert = Wareneinkauf
 Alexander Bürkle | Alexander Buerkle = Wareneinkauf
 Amazon
@@ -987,6 +988,9 @@ def finde_nummer(text):
     m = re.search(r"(?:Offene Rechnung|Vorkasse|Nachnahme)\s+(\d{6,10})\b", text)  # Spalten-Layout: Verrechnungsart + Rechnungs-Nr.
     if m:
         return m.group(1)
+    m = re.search(r"\bRechnung:?\s+(\d{5,8})\b", text)  # 'Rechnung 564240' / 'Rechnung:  564240'
+    if m:
+        return m.group(1)
     m = re.search(r"\bRg\.?\s*(?:-?Nr\.?)?\s*(\d{5,})", text)  # z. B. Verwendungszweck 'Rg. 152545060'
     if m:
         return m.group(1)
@@ -1179,6 +1183,8 @@ def neu_pruefen():
         art = r["belegart"]
         lief = r["lieferant"]
         eigene = (lief or "").startswith("Joachim Bl")  # Eigene Firma als Gegenueber = falsch eingeordnet
+        if art in ("Rechnungsausgang Service", "Rechnungsausgang Verkauf") and not re.fullmatch(r"26[13]\d{4}", r["rechnungsnr"] or ""):
+            eigene = True  # keine eigene 7-stellige Nummer (261xxxx/263xxxx) = eher Eingangsrechnung eines Lieferanten
         if eigene:
             art = UNKLAR
         if art == UNKLAR:
