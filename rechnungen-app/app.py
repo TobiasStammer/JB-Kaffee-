@@ -72,9 +72,12 @@ Jura = Wareneinkauf
 Amazon Business | Amazon Payments
 Frank Windhorn | Windhorn
 Nexi Germany | Nexi
+Taunus Sparkasse = Software/Hosting
+KaffeeTechnik Seubert = Wareneinkauf
+Alexander Bürkle | Alexander Buerkle = Wareneinkauf
 Amazon
 REPA Italia s.r.l. a socio unico | REPA Italia
-Entega
+Entega | Last Mile Solutions | Threeforce = Kfz-Kosten
 Ionos
 Flaschenpost
 DKV
@@ -605,6 +608,11 @@ def finde_betrag(text):
     m = re.search(r"Gesamtrechnungsbetrag.{0,200}?(\d[\d.]*,\d{2})\s*\n\s*(\d[\d.]*,\d{2})\s*\n", text, re.S)  # Nexi: ..., MwSt, Gesamtrechnungsbetrag
     if m:
         return _betrag_de(m.group(2)), 19.0
+    m = re.search(r"Nettobetrag[^\n]*Rechnungsbetrag[^\n]*\n\s*((?:-?\d[\d.]*,\d{2}\s*){2,5})\n", text)  # Kopfzeile + Werte darunter
+    if m:
+        b = _betrag_de(re.findall(r"-?\d[\d.]*,\d{2}", m.group(1))[-1])
+        if b:
+            return b, 19.0
     zeilen = text.splitlines()
     inkl, kandidaten, netto = [], [], []
     for i, z in enumerate(zeilen):
@@ -641,6 +649,8 @@ def finde_betrag(text):
     if satz is None:
         saetze = {int(x) for x in re.findall(r"(\d{1,2})(?:,0+)?\s*%", text) if x in ("19", "7")}
         satz = 19 if 19 in saetze or not saetze else 7
+    if re.search(r"Steuerschuldnerschaft des Leistungsempf", text, re.I):  # Reverse-Charge: keine deutsche MwSt
+        satz = 0
     if re.search(r"gutschrift", text[:400], re.I):
         brutto = -brutto
     return brutto, float(satz)
@@ -871,6 +881,24 @@ _RE_DATUM_LABEL = (r"(?:Rechnungs-?\s?datum|Rechnung(?:s)?\s+vom|Belegdatum|Bele
                    r"Datum\s+der\s+Rechnung|Ausstellungsdatum|Re\.?-?\s?Datum|Datum)")
 
 
+_MONATE = {"jan": 1, "januar": 1, "feb": 2, "februar": 2, "mar": 3, "mär": 3, "maer": 3, "märz": 3, "maerz": 3, "march": 3,
+           "apr": 4, "april": 4, "mai": 5, "may": 5, "jun": 6, "juni": 6, "june": 6, "jul": 7, "juli": 7, "july": 7,
+           "aug": 8, "august": 8, "sep": 9, "sept": 9, "september": 9, "okt": 10, "oct": 10, "oktober": 10, "october": 10,
+           "nov": 11, "november": 11, "dez": 12, "dec": 12, "dezember": 12, "december": 12}
+
+
+def _datum_mit_monatsname(text, nur_label):
+    """'03-Sep-2026', '21. Oktober 2026' (mit Beschriftung 'Rechnungsdatum' / ohne)."""
+    vor = r"(?:Rechnungs-?\s?datum|Rechnung\s+vom|Belegdatum|Datum)\s*:?\s*" if nur_label else r"(?<!\d)"
+    for m in re.finditer(vor + r"(\d{1,2})\.?[\s-]+([A-Za-zäöüÄÖÜ]{3,9})\.?[\s-]+(\d{4})\b", text, re.I):
+        mon = _MONATE.get(m.group(2).lower())
+        if mon:
+            d = _iso_datum(m.group(1), mon, m.group(3))
+            if d:
+                return d
+    return ""
+
+
 def _iso_datum(t, m_, j):
     try:
         d = date(int(j), int(m_), int(t))
@@ -891,7 +919,7 @@ def finde_rechnungsdatum(text):
         d = _iso_datum(m.group(1), m.group(2), m.group(3))
         if d:
             return d
-    return ""
+    return _datum_mit_monatsname(text, True)
 
 
 def finde_datum(text, fallback):
@@ -1664,7 +1692,7 @@ def _eingang_fallback(name, betrag, eing, eing_lief, aliase=None, eing_sk=None):
         namen = (aliase or {}).get(eing_lief.get(nr, ""), [eing_lief.get(nr, "")])
         lief_ok = any(len(_norm(x)) >= 3 and _norm(x) in nn for x in namen)
         soll = abs(br)
-        if lief_ok and soll > 0 and (abs(soll - gesamt) <= 0.01
+        if lief_ok and soll > 0 and (abs(soll - gesamt) <= 0.011
                                      or soll * _sk_faktor((eing_sk or {}).get(nr, 0)) - 0.01 <= gesamt <= soll):
             kand.append((nr, soll))
     return kand if len(kand) == 1 else []
