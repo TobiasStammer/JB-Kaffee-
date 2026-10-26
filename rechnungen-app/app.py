@@ -1391,9 +1391,11 @@ ABGLEICH = """
 {% elif not z.ok %}<form method=post action="{{url_for('abgleich_ok')}}" style="display:flex;gap:6px;align-items:center"><input type=hidden name=nr value="{{z.nr}}"><input type=hidden name=zurueck value="{{zurueck}}"><input name=bemerkung placeholder="Bemerkung (optional)" style="width:170px;padding:4px"><button style="padding:4px 12px;white-space:nowrap">OK geben</button></form>{% endif %}</td></tr>
 {% else %}<tr><td colspan=8>Keine Abweichungen &ndash; alles passt.</td></tr>{% endfor %}</table></div>
 {% if extra %}<div class=card><h2>PDFs ohne Eintrag in der Liste ({{extra|length}})</h2>
-<table><tr><th>Rg.-Nr.</th><th>Datum</th><th>Belegart</th><th>PDF</th></tr>
+{% if extra_neu %}<p><small>{{extra_neu}} davon sind <b>neuer als die Liste</b> (nach dem {{bis[8:]}}.{{bis[5:7]}}.{{bis[:4]}}). Lade eine neuere Rechnungsausgangsliste hoch, dann werden sie abgeglichen.</small></p>{% endif %}
+<table><tr><th>Rg.-Nr.</th><th>Datum</th><th>Belegart</th><th>PDF</th><th></th></tr>
 {% for r in extra %}<tr><td>{{r.rechnungsnr}}</td><td>{{r.datum}}</td><td>{{r.belegart}}</td>
-<td><a href="{{url_for('beleg',rid=r.id)}}" target=_blank>öffnen</a> &middot; <a href="{{url_for('bearbeiten',rid=r.id)}}">bearbeiten</a></td></tr>{% endfor %}</table></div>{% endif %}
+<td><a href="{{url_for('beleg',rid=r.id)}}" target=_blank>öffnen</a> &middot; <a href="{{url_for('bearbeiten',rid=r.id)}}">bearbeiten</a></td>
+<td>{% if r.datum > bis %}<small style="color:#b45309">neuer als die Liste</small>{% else %}<small style="color:#b91c1c">fehlt in der Liste</small>{% endif %}</td></tr>{% endfor %}</table></div>{% endif %}
 {% if falsch %}<div class=card><h2>Belegart passt nicht zum Nummernkreis ({{falsch|length}})</h2>
 <table><tr><th>Rg.-Nr.</th><th>aktuell</th><th>erwartet</th><th></th></tr>
 {% for r,soll in falsch %}<tr><td>{{r.rechnungsnr}}</td><td>{{r.belegart}}</td><td>{{soll}}</td>
@@ -1434,7 +1436,7 @@ def abgleich():
                for l in reversed(listen)]
     page_ctx = dict(listen=listen, liste=liste, alle=alle, eintraege=eintraege, verlauf=verlauf,
                     gewaehlt_label=" + ".join(l["label"].split("  (")[0] for l in gewaehlt) or "–",
-                    kreise=[], zeilen=[], extra=[], falsch=[], von="", bis="", fehlt_gesamt=0,
+                    kreise=[], zeilen=[], extra=[], extra_neu=0, falsch=[], von="", bis="", fehlt_gesamt=0,
                     zurueck=request.full_path.rstrip("?"))
     if not eintraege:
         return page(ABGLEICH, **page_ctx)
@@ -1513,10 +1515,11 @@ def abgleich():
         kreis = next((k for k in NUMMERNKREISE if nr.startswith(k) and len(nr) == 7), None)
         if not kreis:
             continue
-        if nr not in eintraege and daten[0] <= r["datum"] <= daten[-1]:
+        if nr not in eintraege and r["datum"] >= daten[0]:  # auch Rechnungen nach dem Listenende (Liste noch nicht aktuell)
             page_ctx["extra"].append(r)
         if r["belegart"] != KREIS_ART[kreis]:
             page_ctx["falsch"].append((r, KREIS_ART[kreis]))
+    page_ctx["extra_neu"] = sum(1 for r in page_ctx["extra"] if r["datum"] > page_ctx["bis"])
     return page(ABGLEICH, **page_ctx)
 
 
