@@ -276,14 +276,25 @@ LAYOUT = """<!doctype html><html lang=de><meta charset=utf-8>
 (function(){
   var karten=[].filter.call(document.querySelectorAll('.card'),function(c){
     var h=c.firstElementChild; return h&&h.tagName==='H2'&&!c.closest('details');});
-  if(karten.length<2)return;
-  var zu=/^(Verlauf je Liste|Zugeordnete Zahlungen)/;
-  karten.forEach(function(c){
+  if(karten.length>=2) karten.forEach(function(c){
     var h=c.firstElementChild, d=document.createElement('details'), s=document.createElement('summary');
-    d.className='bank'; if(!zu.test(h.textContent.trim()))d.open=true;
+    d.className='bank';
     s.textContent=h.textContent.trim(); h.remove();
     if(c.tagName==='FORM'){ c.className='kein-rahmen'; while(c.firstChild)d.appendChild(c.firstChild); d.insertBefore(s,d.firstChild); c.appendChild(d); }
     else { while(c.firstChild)d.appendChild(c.firstChild); d.insertBefore(s,d.firstChild); c.replaceWith(d); }
+  });
+  /* Start: alles eingeklappt; beim Wiederoeffnen so, wie es zuletzt war (je Seite im Browser gemerkt) */
+  var KEY='rechnungen-offen', alle={};
+  try{ alle=JSON.parse(localStorage.getItem(KEY)||'{}'); }catch(e){}
+  var seite=location.pathname, offen=alle[seite]||[];
+  var det=[].slice.call(document.querySelectorAll('details.bank'));
+  function schluessel(d){ var t=d.firstElementChild.textContent.trim(), i=t.search(/ [(][0-9]+[)]/); return i<0?t:t.slice(0,i); }
+  det.forEach(function(d){
+    d.open = offen.indexOf(schluessel(d))>=0;
+    d.addEventListener('toggle',function(){
+      alle[seite]=det.filter(function(x){return x.open;}).map(schluessel);
+      try{ localStorage.setItem(KEY,JSON.stringify(alle)); }catch(e){}
+    });
   });
 })();
 </script></html>"""
@@ -321,6 +332,7 @@ INDEX = """
  {% for g in doppelte %}<div>{% for r in g %}<a href="{{url_for('bearbeiten',rid=r.id)}}">#{{r.id}} {{r.rechnungsnr or r.lieferant}} ({{r.datum}})</a>{{' &middot; '|safe if not loop.last}}{% endfor %}</div>{% endfor %}
  <small>Das überzählige Exemplar kannst du unter &bdquo;bearbeiten&ldquo; löschen.</small></div>{% endif %}
 <form method=post action="{{url_for('export')}}">
+<details class=bank><summary>Belege ({{rows|length}}){% if summen|length<2 %} &ndash; {{'%.2f'|format(sb)|replace('.',',')}} &euro;{% endif %}</summary>
 <table><tr><th></th><th>Datum</th><th>Belegart</th><th>Lieferant</th><th>Rechnungsnr.</th><th>Kategorie</th>
 <th class=r>Brutto</th><th>Zahlung</th><th>Bezahlt am</th><th>Zahlart</th><th>DATEV</th><th>Beleg</th><th></th></tr>
 {% for r in rows %}<tr>
@@ -345,7 +357,7 @@ INDEX = """
 <button name=aktion value=zip>DATEV-Export (ZIP) für markierte</button>
 <button class=sek name=aktion value=mail>Per E-Mail an DATEV senden</button></p>
 <small>Markierte Rechnungen werden exportiert und danach als „an DATEV gesendet“ gekennzeichnet.</small>
-</form>"""
+</details></form>"""
 
 FORM = """
 <form method=post enctype=multipart/form-data class=card>
@@ -2004,18 +2016,18 @@ BANK = """
  <div><label>Monat</label><input type=month name=monat value="{{monat}}"></div>
  <button>Filtern</button> <a class="btn sek" href="{{url_for('bank_seite')}}">Zurücksetzen</a>
  <button type=submit formmethod=post formaction="{{url_for('bank_aktualisieren')}}" class=sek>&#8635; Aktualisieren</button></form>
-<details class=bank open><summary>Offene Rechnungen &ndash; Stand laut Kontoauszug</summary>
+<details class=bank><summary>Offene Rechnungen &ndash; Stand laut Kontoauszug</summary>
 {% if bank_n == 0 %}<p style="color:#b45309"><b>Noch kein Kontoauszug vorhanden.</b> Lege eine CSV/CAMT-Datei in den Eingangsordner, die App liest sie automatisch ein.</p>{% endif %}
 <table style="max-width:640px"><tr><th>Eingangsrechnungen</th><th class=r>Anzahl</th><th class=r>Summe brutto</th></tr>
 {% for z in summen %}<tr><td class="z-{{z.klasse}}">{{z.name}}</td><td class=r>{{z.n}}</td><td class=r>{{'%.2f'|format(z.summe)|replace('.',',')}}</td></tr>{% endfor %}
 <tr><td class="z-offen">Zahlungen ohne Rechnung (Bankausgänge)</td><td class=r>{{ohne|length}}</td><td class=r>{{'%.2f'|format(ohne_summe)|replace('.',',')}}</td></tr></table>
 <small>&bdquo;Bezahlt&ldquo; heißt: Die Zahlung wurde im Kontoauszug über Rechnungsnummer oder Lieferant + Betrag gefunden (Skonto bis 3,5 % ist erlaubt).</small></details>
-{% macro credit_tabelle(titel, liste, summe, hinweis, offen) %}<details class=bank {{"open" if offen}}><summary>{{titel}} ({{liste|length}}) &ndash; {{'%.2f'|format(summe)|replace('.',',')}} &euro;</summary>{{hinweis|safe}}
+{% macro credit_tabelle(titel, liste, summe, hinweis, offen) %}<details class=bank><summary>{{titel}} ({{liste|length}}) &ndash; {{'%.2f'|format(summe)|replace('.',',')}} &euro;</summary>{{hinweis|safe}}
 <table style="max-width:640px"><tr><th>Kassentag(e)</th><th class=r>Betrag Credit</th><th>Bank</th></tr>
 {% for c in liste %}<tr><td>{{c.kasse}}</td><td class=r>{{'%.2f'|format(c.betrag)|replace('.',',')}}</td><td>{{c.bank}}</td></tr>
 {% else %}<tr><td colspan=3>Keine Einträge{{' in diesem Monat' if monat}}.</td></tr>{% endfor %}
 <tr style="font-weight:bold;border-top:2px solid #333"><td>Endsumme</td><td class=r>{{'%.2f'|format(summe)|replace('.',',')}}</td><td></td></tr></table></details>{% endmacro %}
-{% macro rg_tabelle(titel, liste, summe, offen) %}<details class=bank {{"open" if offen}}><summary>{{titel}} ({{liste|length}}) &ndash; {{'%.2f'|format(summe)|replace('.',',')}} &euro;</summary>
+{% macro rg_tabelle(titel, liste, summe, offen) %}<details class=bank><summary>{{titel}} ({{liste|length}}) &ndash; {{'%.2f'|format(summe)|replace('.',',')}} &euro;</summary>
 <table><tr><th>Datum</th><th>Lieferant</th><th>Rg.-Nr.</th><th class=r>Brutto</th><th>Zahlung</th><th>Bezahlt am</th><th>Bankbuchung</th><th></th></tr>
 {% for r in liste %}<tr><td>{{r.datum}}</td><td>{{r.lieferant}}</td><td>{{r.rechnungsnr}}</td>
 <td class=r>{% if r.brutto %}{{'%.2f'|format(r.brutto)|replace('.',',')}}{% else %}<span style="color:#b45309">Betrag fehlt</span>{% endif %}</td>
@@ -2029,7 +2041,7 @@ BANK = """
 {{ rg_tabelle('Bezahlte Rechnungen', bezahlte_liste, bezahlte_summe, false) }}
 {{ credit_tabelle('Credit-Zahlungen: Geldeingang offen', credit_offen, credit_offen_summe, '<p><small>Kartenumsätze aus Kassenbuch und Kassenjournal, zu denen noch keine NEXI-Gutschrift auf dem Konto gefunden wurde &ndash; hier prüfen, ob das Geld ankommt.</small></p>', true) }}
 {{ credit_tabelle('Credit-Zahlungen: Geldeingang bestätigt', credit_ok, credit_ok_summe, '', false) }}
-<details class=bank open><summary>Bankausgänge ohne Rechnung ({{ohne|length}}) &ndash; {{'%.2f'|format(ohne_summe)|replace('.',',')}} &euro;</summary>
+<details class=bank><summary>Bankausgänge ohne Rechnung ({{ohne|length}}) &ndash; {{'%.2f'|format(ohne_summe)|replace('.',',')}} &euro;</summary>
 <p><small>Zahlungen vom Konto, zu denen keine Eingangsrechnung gefunden wurde &ndash; entweder fehlt die Rechnung in der App oder es braucht keinen Beleg
 (z. B. Versicherung, Steuer). Dann auf &bdquo;Kein Beleg nötig&ldquo; klicken.</small></p>
 <table><tr><th>Datum</th><th>Empfänger</th><th>Verwendungszweck</th><th class=r>Betrag</th><th></th></tr>
