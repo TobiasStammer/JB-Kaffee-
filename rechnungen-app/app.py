@@ -53,12 +53,17 @@ KATEGORIEN = {
     "Sonstiges": "4980",
 }
 BELEGARTEN = ["Rechnungsausgang Service", "Rechnungsausgang Verkauf", "Rechnungsausgang eBay",
-              "Rechnungseingang Lieferanten", "Kassenbuch", "Monatsjournal Kasse",
+              "Rechnungseingang Lieferanten", "WERTGARANTIE Schadenabrechnung", "WERTGARANTIE Gutschrift",
+              "Kassenbuch", "Monatsjournal Kasse",
               "Rechnungsausgangliste"]
 EINGANG = "Rechnungseingang Lieferanten"
 UNKLAR = "Nicht zugeordnet"
 ZAHLARTEN = ("Bank", "Bar", "Karte", "Scheck")
-RECHNUNGSARTEN = ("Rechnungsausgang Service", "Rechnungsausgang Verkauf", "Rechnungsausgang eBay", "Rechnungseingang Lieferanten")
+WG_AVIS = "WERTGARANTIE Schadenabrechnung"   # Info-Schreiben: WERTGARANTIE erstattet Kundenrechnungen (kein Zahlstatus, geht aber zur Buchhaltung)
+WG_GUTSCHRIFT = "WERTGARANTIE Gutschrift"    # monatliche Gutschrift (Beratungshonorar), Zahlung = Bankeingang
+EINNAHME_GUTSCHRIFT = (WG_GUTSCHRIFT,)
+RECHNUNGSARTEN = ("Rechnungsausgang Service", "Rechnungsausgang Verkauf", "Rechnungsausgang eBay", "Rechnungseingang Lieferanten",
+                  WG_GUTSCHRIFT)
 AUSGANG_RECHNUNGEN = ("Rechnungsausgang Service", "Rechnungsausgang Verkauf", "Rechnungsausgang eBay")
 BELEGARTEN_ALLE = BELEGARTEN + [UNKLAR]
 STANDARD_ORDNER = r"Z:\Buchhaltung\Eingang"
@@ -96,7 +101,9 @@ Wentronic
 Wertgarantie
 BüroShop = Bürobedarf
 büroshop24 GmbH = Bürobedarf"""
-STANDARD_REGELN = """Rechnungsausgangliste = rechnungsausgangsliste, rechnungsausgangliste, ausgangsliste
+STANDARD_REGELN = """WERTGARANTIE Schadenabrechnung = schadenabrechnung, schadenregulierung
+WERTGARANTIE Gutschrift = beratungshonorar, gutschrift wertgarantie
+Rechnungsausgangliste = rechnungsausgangsliste, rechnungsausgangliste, ausgangsliste
 Monatsjournal Kasse = monatsjournal
 Kassenbuch = kassenbuch
 Rechnungsausgang eBay = ebay
@@ -494,10 +501,10 @@ def index():
         sql += " AND COALESCE(zahl_art,'') LIKE ?"
         par.append(f"%{zahlart}%")
     if zahlung == "unbezahlt":  # nur Rechnungen, die noch nicht (voll) bezahlt sind
-        sql += " AND COALESCE(zahlung,'offen')<>'bezahlt' AND belegart IN (?,?,?,?)"
+        sql += " AND COALESCE(zahlung,'offen')<>'bezahlt' AND belegart IN (" + ",".join("?" * len(RECHNUNGSARTEN)) + ")"
         par += list(RECHNUNGSARTEN)
     elif zahlung:
-        sql += " AND COALESCE(zahlung,'offen')=? AND belegart IN (?,?,?,?)"
+        sql += " AND COALESCE(zahlung,'offen')=? AND belegart IN (" + ",".join("?" * len(RECHNUNGSARTEN)) + ")"
         par += [zahlung] + list(RECHNUNGSARTEN)
     if monat:
         sql += " AND substr(datum,1,7)=?"
@@ -1038,7 +1045,7 @@ def finde_datum(text, fallback):
 
 
 def finde_nummer(text):
-    for m in re.finditer(r"(?:Rechnungs?-?\s?(?:nummer|nr\.?)|Beleg-?\s?Nr\.?)\s*:?\s*([A-Za-z0-9][A-Za-z0-9\-/]*)",
+    for m in re.finditer(r"(?:Rechnungs?-?\s?(?:nummer|nr\.?)|Abrechnungs-?\s?(?:nummer|nr\.?)|Gutschrifts?-?\s?(?:nummer|nr\.?)|Beleg-?\s?Nr\.?)\s*:?\s*([A-Za-z0-9][A-Za-z0-9\-/]*)",
                          text, re.I):
         if re.search(r"\d", m.group(1)):  # 'Kunden-Nr' o. ae. ist keine Nummer
             return m.group(1)
@@ -1158,6 +1165,10 @@ def eingang_einlesen():
             b = finde_endsumme(text)
             if b is not None:
                 brutto, satz = b, finde_ausgang_satz(text)
+        elif art == WG_GUTSCHRIFT:  # monatliche WERTGARANTIE-Gutschrift (Einnahme)
+            b, sz = finde_betrag(text)
+            if b:
+                brutto, satz, hinweis = abs(b), sz, " | Betrag automatisch gelesen - bitte pruefen"
         anzeige = lief or art
         nr_beleg = finde_nummer(text)
         if ex:  # E-Rechnung: strukturierte Daten sind verlaesslicher als der Text
@@ -1251,7 +1262,7 @@ def neu_pruefen():
         if art in ("Rechnungsausgang Service", "Rechnungsausgang Verkauf") and not re.fullmatch(r"26[13]\d{4}", r["rechnungsnr"] or ""):
             eigene = True  # keine eigene 7-stellige Nummer (261xxxx/263xxxx) = eher Eingangsrechnung eines Lieferanten
         if eigene:
-            art = UNKLAR
+            art, lief = UNKLAR, ""
         if art == UNKLAR:
             art = klassifiziere(text + ("\n" + ex["nr"] if ex else ""), Path(r["notiz"] or "").stem, regeln)
             if art in (UNKLAR, EINGANG):
@@ -1272,7 +1283,11 @@ def neu_pruefen():
             b = finde_endsumme(text)
             if b is not None:
                 brutto, satz = b, finde_ausgang_satz(text)
-        alt_nr = r["rechnungsnr"] if re.search(r"\d", r["rechnungsnr"] or "") else ""
+        if art == WG_GUTSCHRIFT and not brutto:
+            b, sz = finde_betrag(text)
+            if b:
+                brutto, satz = abs(b), sz
+        alt_nr =r["rechnungsnr"] if re.search(r"\d", r["rechnungsnr"] or "") else ""
         nr = alt_nr or (ex["nr"] if ex and ex["nr"] else finde_nummer(text))
         if ex:
             if art in (EINGANG,) + AUSGANG_RECHNUNGEN and not r["brutto"] and ex["brutto"] is not None:
@@ -1925,11 +1940,28 @@ def kartentage():
     return {d: v for d, v in tage.items() if v}
 
 
+def wg_avis():
+    """WERTGARANTIE-Schadenabrechnungen (Info-Schreiben): [{summe, positionen=[(Rechnungsnr, Betrag)]}] aus den abgelegten PDFs."""
+    out = []
+    for r in db().execute("SELECT datei FROM rechnungen WHERE belegart=? AND datei IS NOT NULL", (WG_AVIS,)).fetchall():
+        pfad = BELEGE / r["datei"]
+        if not pfad.exists():
+            continue
+        t = pdf_text(pfad, max_seiten=None)
+        m = re.search(r"Summe\s+(\d[\d.]*,\d{2})\s*Euro", t)
+        pos = [(nr, abs(_betrag_de(b) or 0)) for nr, b in re.findall(r"(?<!\d)(26[13]\d{4})\s+(\d[\d.]*,\d{2})\s*Euro", t)]
+        if m and pos:
+            out.append(dict(summe=_betrag_de(m.group(1)) or 0, positionen=pos))
+    return out
+
+
 def bank_zahlungen():
     """Ordnet Bankbuchungen ueber die Rechnungsnummer im Verwendungszweck Rechnungen zu."""
     ausg = {r["rechnungsnr"]: r["brutto"] for r in db().execute(
-        "SELECT rechnungsnr, brutto FROM rechnungen WHERE rechnungsnr<>'' AND belegart IN (?,?,?)", AUSGANG_RECHNUNGEN)}
+        "SELECT rechnungsnr, brutto FROM rechnungen WHERE rechnungsnr<>'' AND belegart IN (?,?,?,?)",
+        AUSGANG_RECHNUNGEN + EINNAHME_GUTSCHRIFT)}
     kd_map = {}
+    avis = wg_avis()
     liste_eintraege, _ = liste_waehlen(listen_laden(), "alle")  # auch Rechnungen, deren PDF noch fehlt
     for nr, e in liste_eintraege.items():
         if nr.startswith(NUMMERNKREISE):
@@ -1943,6 +1975,7 @@ def bank_zahlungen():
     eing_lief = {r["rechnungsnr"]: r["lieferant"] or "" for r in db().execute(
         "SELECT rechnungsnr, lieferant FROM rechnungen WHERE rechnungsnr<>'' AND belegart=?", (EINGANG,))}
     out = []
+    zahlen_gesamt = set()
     for b in db().execute("SELECT * FROM bank ORDER BY datum, id"):
         text = f"{b['zweck']} {b['name']}"
         nt = _norm(text)
@@ -1955,6 +1988,18 @@ def bank_zahlungen():
             treffer += [(nr, abs(br)) for nr, br in eing.items() if br < 0 and _nr_im_text(nr, nt)]
         else:  # Zahlungsausgang an Lieferanten
             treffer += [(nr, abs(br)) for nr, br in eing.items() if br > 0 and _nr_im_text(nr, nt)]
+        if not treffer and b["betrag"] > 0 and "wertgarantie" in _norm(text):
+            # Schadenabrechnung (Info-Schreiben): Summe = Bankeingang -> die dort genannten Kundenrechnungen sind bezahlt
+            for a in avis:
+                if abs(a["summe"] - b["betrag"]) <= 0.011 and a["positionen"]:
+                    treffer = list(a["positionen"])
+                    break
+        if not treffer and b["betrag"] > 0 and "wertgarantie" in _norm(text) and "provision" in text.lower():
+            offene = [(nr, abs(br)) for nr, br in ausg.items() if abs(abs(br) - b["betrag"]) <= 0.011 and nr not in zahlen_gesamt]
+            gut = {r[0] for r in db().execute("SELECT rechnungsnr FROM rechnungen WHERE belegart=?", (WG_GUTSCHRIFT,))}
+            offene = [t for t in offene if t[0] in gut]
+            if len(offene) == 1:  # monatliche Gutschrift (Beratungshonorar): Betrag passt zu genau einer Gutschrift
+                treffer = offene
         if not treffer:  # ohne Rechnungsnummer: Lieferant im Namen + passender Betrag
             treffer += _eingang_fallback(f"{b['name']} {b['zweck']}", b["betrag"], eing, eing_lief, aliase, eing_sk)  # PayPal: Lieferant steht im Zweck
         if not treffer:
@@ -2027,7 +2072,7 @@ def zahlungen_synchronisieren():
     quitt = {r[0]: r[1] for r in db().execute("SELECT rechnungsnr, am FROM quittiert")}
     abzug_set = lieferanten_abzug(settings())
     for r in db().execute("SELECT id, rechnungsnr, brutto, belegart, lieferant, zahlung, zahl_am, zahl_quelle, zahl_art, skonto FROM rechnungen "
-                          "WHERE rechnungsnr<>'' AND belegart IN (?,?,?,?)", AUSGANG_RECHNUNGEN + (EINGANG,)).fetchall():
+                          "WHERE rechnungsnr<>'' AND belegart IN (?,?,?,?,?)", AUSGANG_RECHNUNGEN + (EINGANG,) + EINNAHME_GUTSCHRIFT).fetchall():
         p, soll = pay.get(r["rechnungsnr"]), abs(r["brutto"] or 0)
         abzug_ok = r["belegart"] == EINGANG and r["lieferant"] in abzug_set  # z. B. GLS: Gutschriften werden abgezogen
         if p and (p["summe"] >= soll - 0.01 or (r["belegart"] == EINGANG and p["summe"] >= soll * _sk_faktor(r["skonto"] or 0))
