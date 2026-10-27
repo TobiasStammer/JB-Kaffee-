@@ -73,7 +73,7 @@ BACKUP_ORDNER = r"Z:\Buchhaltung\Backup-Rechnungen-App"   # App und Daten liegen
 # Gesucht wird im PDF-Text und im Dateinamen (Gross/Klein egal).
 # "nr:261" = Rechnungsnummer beginnt mit 261.
 STANDARD_LIEFERANTEN = """Jura Gastro = Wareneinkauf
-Jura = Wareneinkauf
+Jura = Wareneinkauf ; lastschrift
 Amazon Business | Amazon Payments
 Frank Windhorn | Windhorn
 Nexi Germany | Nexi
@@ -176,7 +176,7 @@ def init_db():
         c.execute("DELETE FROM kassenzeilen")
     except sqlite3.OperationalError:
         pass
-    for spalte in ("skonto_bis TEXT", "skonto_zahl REAL", "skonto_v2 INTEGER"):  # Skonto-Frist und Zahlbetrag laut Rechnung
+    for spalte in ("skonto_bis TEXT", "skonto_zahl REAL", "skonto_v2 INTEGER", "lastschrift INTEGER"):  # Skonto-Frist und Zahlbetrag laut Rechnung
         try:
             c.execute(f"ALTER TABLE rechnungen ADD COLUMN {spalte}")
         except sqlite3.OperationalError:
@@ -359,7 +359,7 @@ INDEX = """
  <td><input type=checkbox name=ids value="{{r.id}}" style="width:auto" {{'checked' if r.status!='an DATEV gesendet'}}></td>
  <td>{{r.datum}}</td><td><small>{{r.belegart}}</small></td><td>{{r.lieferant}}</td><td>{{r.rechnungsnr}}</td><td>{{r.kategorie}} <small>({{r.konto}})</small></td>
  <td class=r>{{'%.2f'|format(r.brutto)|replace('.',',')}}</td>
- {% if r.belegart in RECHNUNGSARTEN %}<td class="z-{{r.zahlung or 'offen'}}">{{r.zahlung or 'offen'}}{% if r.zahlung!='bezahlt' and r.skonto and r.skonto_bis and r.skonto_bis>=heute %}<br><small style="color:#b45309">Skonto {{'%g'|format(r.skonto)|replace('.',',')}} % bis {{r.skonto_bis[8:]}}.{{r.skonto_bis[5:7]}}.</small>{% endif %}</td>
+ {% if r.belegart in RECHNUNGSARTEN %}<td class="z-{{r.zahlung or 'offen'}}">{{r.zahlung or 'offen'}}{% if r.zahlung!='bezahlt' and r.skonto and r.skonto_bis and r.skonto_bis>=heute and not r.lastschrift and r.lieferant not in lastschrift_lief %}<br><small style="color:#b45309">Skonto {{'%g'|format(r.skonto)|replace('.',',')}} % bis {{r.skonto_bis[8:]}}.{{r.skonto_bis[5:7]}}.</small>{% endif %}</td>
  <td>{% if r.zahl_am %}{{r.zahl_am[8:]}}.{{r.zahl_am[5:7]}}.{{r.zahl_am[:4]}}{% endif %}</td>
  <td>{{r.zahl_art or ''}}</td>
  {% else %}<td>&ndash;</td><td></td><td></td>{% endif %}
@@ -528,7 +528,7 @@ def index():
         doppelte.append(db().execute("SELECT id, rechnungsnr, lieferant, datum FROM rechnungen WHERE hash=? "
                                      "ORDER BY id", (g["hash"],)).fetchall())
     return page(INDEX, pruefen=pruefliste(), skonto_n=len(skonto_offen()), skonto_dringend=sum(1 for x in skonto_offen() if x["rest"] <= 3),
-                heute=date.today().isoformat(), doppelte=doppelte, summen=list(summen.values()), rows=rows, q=q, status=status, zahlung=zahlung, zahlart=zahlart, ZAHLARTEN=ZAHLARTEN, STATUS=STATUS, ZAHLUNG=ZAHLUNG, RECHNUNGSARTEN=RECHNUNGSARTEN, monat=monat,
+                heute=date.today().isoformat(), lastschrift_lief=lieferanten_lastschrift(settings()), doppelte=doppelte, summen=list(summen.values()), rows=rows, q=q, status=status, zahlung=zahlung, zahlart=zahlart, ZAHLARTEN=ZAHLARTEN, STATUS=STATUS, ZAHLUNG=ZAHLUNG, RECHNUNGSARTEN=RECHNUNGSARTEN, monat=monat,
                 belegart=belegart, BELEGARTEN=BELEGARTEN_ALLE, UNKLAR=UNKLAR,
                 ordner=settings()["eingang_ordner"], ausg_fehlt=len(fehlende_ausgangsrechnungen()[0]),
                 unklar=db().execute("SELECT COUNT(*) FROM rechnungen WHERE belegart=?", (UNKLAR,)).fetchone()[0],
@@ -867,7 +867,8 @@ def _lief_zeilen(cfg):
         namen, _, kat = kopf.partition("=")
         teile = [t.strip() for t in namen.split("|") if t.strip()]
         if teile:
-            out.append(dict(name=teile[0], suche=teile, kategorie=kat.strip(), abzug="abzug" in opt.lower()))
+            out.append(dict(name=teile[0], suche=teile, kategorie=kat.strip(), abzug="abzug" in opt.lower(),
+                            lastschrift="lastschrift" in opt.lower()))
     return out
 
 
@@ -877,6 +878,17 @@ def lieferanten_liste(cfg):
 
 def lieferanten_suchliste(cfg):
     return [(l["name"], l["suche"]) for l in _lief_zeilen(cfg)]
+
+
+def lieferanten_lastschrift(cfg):
+    """Lieferanten, die selbst per Lastschrift einziehen (Skonto wird dort automatisch abgezogen) - kein Skonto-Hinweis noetig."""
+    return {l["name"] for l in _lief_zeilen(cfg) if l["lastschrift"]}
+
+
+def ist_lastschrift_text(text):
+    """Rechnungstext nennt Einzug per Lastschrift (SEPA-LS, Mandat, Glaeubiger-ID, 'wird abgebucht')."""
+    return bool(re.search(r"SEPA-?\s?(?:Basis-?)?(?:LS|Lastschrift)|per Lastschrift|Lastschrifteinzug|Mandats(?:nr|referenz)|"
+                          r"wird automatisch[^\n]{0,40}abgebucht", text, re.I))
 
 
 def lieferanten_abzug(cfg):
@@ -1863,8 +1875,12 @@ def skonto_offen():
     """Offene Eingangsrechnungen mit noch laufender Skonto-Frist, nach Frist sortiert."""
     heute = date.today()
     out = []
+    lastschrift = lieferanten_lastschrift(settings())
     for r in db().execute("SELECT * FROM rechnungen WHERE belegart=? AND COALESCE(zahlung,'offen')<>'bezahlt' AND skonto>0 "
-                          "AND skonto_bis<>'' AND skonto_bis>=? AND brutto>0 ORDER BY skonto_bis, id", (EINGANG, heute.isoformat())):
+                          "AND skonto_bis<>'' AND skonto_bis>=? AND brutto>0 AND COALESCE(lastschrift,0)=0 ORDER BY skonto_bis, id",
+                          (EINGANG, heute.isoformat())):
+        if r["lieferant"] in lastschrift:
+            continue
         zahl = skonto_zahlbetrag(r)
         rest = (date.fromisoformat(r["skonto_bis"]) - heute).days
         out.append(dict(r, zahl=zahl, spart=round(r["brutto"] - zahl, 2), rest=rest,
@@ -2078,12 +2094,12 @@ def zahlungen_synchronisieren():
                              "VALUES(?,?,?,?,?,?,?,?)", (r["id"], z["datum"], z["beleg"], z["name"], z["betrag"],
                                                          z["zeit"], z["rechnungsnr"], arten.get(z["beleg"], "Kasse")))
             db().execute("INSERT OR IGNORE INTO kasse_geprueft(dokument_id) VALUES(?)", (r["id"],))
-    for r in db().execute("SELECT id, datei, datum FROM rechnungen WHERE belegart=? AND skonto_v2 IS NULL", (EINGANG,)).fetchall():
+    for r in db().execute("SELECT id, datei, datum FROM rechnungen WHERE belegart=? AND (skonto_v2 IS NULL OR lastschrift IS NULL)", (EINGANG,)).fetchall():
         pfad = BELEGE / r["datei"] if r["datei"] else None  # Skonto-Prozent, Frist und Zahlbetrag aus der Rechnung
         txt = pdf_text(pfad, max_seiten=None) if pfad and pfad.exists() else ""
         pct, bis, zahl = skonto_info(txt, r["datum"])
-        db().execute("UPDATE rechnungen SET skonto=?, skonto_bis=?, skonto_zahl=?, skonto_v2=1 WHERE id=?",
-                     (pct, bis, zahl, r["id"]))
+        db().execute("UPDATE rechnungen SET skonto=?, skonto_bis=?, skonto_zahl=?, skonto_v2=1, lastschrift=? WHERE id=?",
+                     (pct, bis, zahl, 1 if ist_lastschrift_text(txt) else 0, r["id"]))
     ids = "(SELECT id FROM rechnungen)"
     db().execute(f"DELETE FROM kassenzeilen WHERE dokument_id NOT IN {ids}")
     db().execute(f"DELETE FROM kasse_geprueft WHERE dokument_id NOT IN {ids}")
@@ -2260,13 +2276,14 @@ def bank_seite():
     alle_rechnungen = [dict(r) for r in db().execute(sql + " ORDER BY datum DESC, id DESC", par)
                        if (r["datum"] or "") >= start or r["zahlung"] != "bezahlt" or (r["zahl_am"] or "") >= start]
     pay, abzug_set = zahlungsstand(), lieferanten_abzug(settings())
+    lastschrift_set = lieferanten_lastschrift(settings())
     for r in alle_rechnungen:  # Abzug = Rechnung - tatsaechliche Zahlung (nur bei Lieferanten mit 'abzug')
         p = pay.get(r["rechnungsnr"])
         diff = abs(r["brutto"] or 0) - (p["summe"] if p else 0)
         r["abzug"] = diff if p and (r["lieferant"] in abzug_set or r["skonto"]) and r["zahlung"] == "bezahlt" and diff > 0.01 else 0
         r["skonto_hinweis"] = ""
         zahl_sk = skonto_zahlbetrag(r)
-        if r.get("skonto_bis") and zahl_sk:
+        if r.get("skonto_bis") and zahl_sk and not r.get("lastschrift") and r["lieferant"] not in lastschrift_set:  # Lastschrift: Lieferant zieht selbst ein
             ersparnis = f'{abs(r["brutto"] or 0) - zahl_sk:.2f}'.replace(".", ",")
             zahl = f'{zahl_sk:.2f}'.replace(".", ",")
             bis = f'{r["skonto_bis"][8:]}.{r["skonto_bis"][5:7]}.{r["skonto_bis"][:4]}'
