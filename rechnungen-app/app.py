@@ -1139,6 +1139,10 @@ def eingang_einlesen():
             shutil.move(str(f), str(fertig / f"doppelt_{int(time.time())}_{f.name}"))
             continue
         text = pdf_text(f)
+        if ist_kontoauszug(text):  # Kontoauszug als PDF: nur Datenquelle, kein Beleg (das Steuerbuero holt ihn selbst)
+            (DATA / "kontoauszuege").mkdir(exist_ok=True)
+            shutil.move(str(f), str(DATA / "kontoauszuege" / f"{datetime.now():%Y%m%d-%H%M%S}_{secure_filename(f.name)}"))
+            continue
         ex = lese_erechnung(f)
         if ex and ex["nr"] and ex["brutto"] is not None and c.execute(
                 "SELECT 1 FROM rechnungen WHERE rechnungsnr=? AND ABS(brutto-?)<0.005 AND belegart=?",
@@ -1241,8 +1245,31 @@ def _waechter():
 
 
 @app.route("/eingang/neu-pruefen", methods=["POST"])
+def ist_kontoauszug(text):
+    """Kontoauszug einer Bank als PDF ('Kontoauszug 9/2026' ... 'Kontostand am ...')."""
+    return bool(re.search(r"Kontoauszug\s+\d{1,2}/\d{4}", text[:1500]) and re.search(r"Kontostand am", text[:4000]))
+
+
+def kontoauszuege_aus_belegen_entfernen():
+    """Fruehere Kontoauszug-PDFs, die als Beleg abgelegt wurden: aus der Belegliste nehmen (Datei bleibt in data/kontoauszuege)."""
+    n = 0
+    for r in db().execute("SELECT id, datei FROM rechnungen WHERE datei IS NOT NULL AND (notiz LIKE '%Auszug%' OR notiz LIKE 'Konto%') "
+                          "AND belegart NOT IN ('Kassenbuch','Monatsjournal Kasse')").fetchall():
+        pfad = BELEGE / r["datei"]
+        if pfad.exists() and pfad.suffix.lower() == ".pdf" and ist_kontoauszug(pdf_text(pfad, max_seiten=None)):
+            (DATA / "kontoauszuege").mkdir(exist_ok=True)
+            shutil.move(str(pfad), str(DATA / "kontoauszuege" / f"{datetime.now():%Y%m%d-%H%M%S}_{r['id']}_{secure_filename(pfad.name)}"))
+            db().execute("DELETE FROM rechnungen WHERE id=?", (r["id"],))
+            n += 1
+    db().commit()
+    return n
+
+
 def neu_pruefen():
     """Wendet Regeln, Lieferantenliste und Betragserkennung erneut auf noch unfertige Belege an."""
+    entfernt = kontoauszuege_aus_belegen_entfernen()
+    if entfernt:
+        flash(f"{entfernt} Kontoauszug-PDF(s) aus den Belegen genommen (nur Datenquelle).")
     cfg = settings()
     regeln = regeln_parsen(cfg["regeln"])
     liste = lieferanten_suchliste(cfg)
