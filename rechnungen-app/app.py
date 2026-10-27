@@ -1256,7 +1256,6 @@ def _waechter():
         time.sleep(10)
 
 
-@app.route("/eingang/neu-pruefen", methods=["POST"])
 def ist_kontoauszug(text):
     """Kontoauszug einer Bank als PDF ('Kontoauszug 9/2026' ... 'Kontostand am ...')."""
     return bool(re.search(r"Kontoauszug\s+\d{1,2}/\d{4}", text[:1500]) and re.search(r"Kontostand am", text[:4000]))
@@ -1277,6 +1276,7 @@ def kontoauszuege_aus_belegen_entfernen():
     return n
 
 
+@app.route("/eingang/neu-pruefen", methods=["POST"])
 def neu_pruefen():
     """Wendet Regeln, Lieferantenliste und Betragserkennung erneut auf noch unfertige Belege an."""
     entfernt = kontoauszuege_aus_belegen_entfernen()
