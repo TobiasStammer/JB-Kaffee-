@@ -40,6 +40,20 @@ html,body{margin:0;background:#f2f4f6;color:#1c1c1c;font-family:'Source Sans 3',
 header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px}
 header h1{font-family:Tahoma,Arial,sans-serif;font-size:22px;margin:0;color:#334155}
 header small{color:#777;font-size:14px}
+header .logo{height:64px;width:auto;max-width:45%;object-fit:contain}
+@media(orientation:landscape) and (min-width:800px){
+  .wrap{max-width:1280px;padding:14px 22px 40px}
+  header{margin-bottom:10px}
+  header .logo{height:72px}
+  #ta-form{display:grid;grid-template-columns:1.05fr 1fr;gap:0 18px;align-items:start}
+  #ta-form .card{margin-bottom:12px}
+  #ta-form .err,#ta-form>.row{grid-column:1/-1}
+  .grid{gap:12px 14px}
+  input[type=text],input[type=tel],input[type=email]{padding:16px 16px;font-size:24px}
+  label{font-size:16px}
+  .sig{height:300px}
+  .btn{padding:18px 34px;font-size:20px}
+}
 .card{background:#fff;border:1px solid #dde1e6;border-radius:10px;padding:18px 18px 20px;margin:0 0 16px}
 .card h2{font-family:Tahoma,Arial,sans-serif;font-size:16px;margin:0 0 12px;padding:0 0 6px;border-bottom:1px solid #e2e2e2;color:#1c1c1c}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px}
@@ -74,7 +88,7 @@ input:focus{outline:none;border-color:#334155;box-shadow:0 0 0 3px rgba(51,65,85
 </head>
 <body>
 <div class="wrap">
-<header><h1>Reparaturauftrag &ndash; Ihre Daten</h1><small>Joachim Bl&ouml;chle Elektro-Service GmbH</small></header>
+<header><div><h1>Reparaturauftrag &ndash; Ihre Daten</h1><small>Joachim Bl&ouml;chle Elektro-Service GmbH</small></div><img class="logo" src="https://kaffeetechniker.de/wp-content/uploads/2026/08/jb-logo-kaffeemaschinen-scaled.png" alt="JB Kaffeemaschinen"></header>
 
 <!-- Schritt 1: Kunde -->
 <form id="ta-form" novalidate autocomplete="off">
