@@ -35,11 +35,11 @@ function kt_ta_page() {
 <title>Annahme am Tablet</title>
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;background:#f2f4f6;color:#1c1c1c;font-family:'Source Sans 3','Source Sans Pro',system-ui,-apple-system,Segoe UI,Arial,sans-serif;font-size:18px;line-height:1.5;-webkit-text-size-adjust:100%}
+html,body{margin:0;background:#f2f4f6;color:#1c1c1c;font-family:'Source Sans 3','Source Sans Pro',system-ui,-apple-system,Segoe UI,Arial,sans-serif;font-size:22px;font-weight:700;line-height:1.5;-webkit-text-size-adjust:100%}
 .wrap{max-width:860px;margin:0 auto;padding:18px 16px 60px}
 header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px}
-header h1{font-family:Tahoma,Arial,sans-serif;font-size:22px;margin:0;color:#334155}
-header small{color:#777;font-size:14px}
+header h1{font-family:Tahoma,Arial,sans-serif;font-size:30px;margin:0;color:#334155}
+header small{font-weight:700;color:#555;font-size:18px}
 header .logo{height:64px;width:auto;max-width:45%;object-fit:contain}
 @media(orientation:landscape) and (min-width:800px){
   .wrap{max-width:1280px;padding:14px 22px 40px}
@@ -49,41 +49,41 @@ header .logo{height:64px;width:auto;max-width:45%;object-fit:contain}
   #ta-form .card{margin-bottom:12px}
   #ta-form .err,#ta-form>.row{grid-column:1/-1}
   .grid{gap:12px 14px}
-  input[type=text],input[type=tel],input[type=email]{padding:16px 16px;font-size:24px}
-  label{font-size:16px}
-  .sig{height:300px}
-  .btn{padding:18px 34px;font-size:20px}
+  input[type=text],input[type=tel],input[type=email]{padding:18px 18px;font-size:30px}
+  label{font-size:21px}
+  .sig{height:290px}
+  .btn{padding:20px 38px;font-size:26px}
 }
 .card{background:#fff;border:1px solid #dde1e6;border-radius:10px;padding:18px 18px 20px;margin:0 0 16px}
-.card h2{font-family:Tahoma,Arial,sans-serif;font-size:16px;margin:0 0 12px;padding:0 0 6px;border-bottom:1px solid #e2e2e2;color:#1c1c1c}
+.card h2{font-family:Tahoma,Arial,sans-serif;font-size:22px;margin:0 0 12px;padding:0 0 6px;border-bottom:1px solid #e2e2e2;color:#1c1c1c}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px}
 .full{grid-column:1/-1}
 @media(max-width:620px){.grid{grid-template-columns:1fr}}
-label{display:block;font-size:15px;font-weight:600;color:#334155;margin:0 0 4px}
+label{display:block;font-size:20px;font-weight:700;color:#334155;margin:0 0 4px}
 .req::after{content:" *";color:#c0392b}
-input[type=text],input[type=tel],input[type=email]{width:100%;padding:13px 14px;border:1px solid #c4c4c4;border-radius:7px;font-size:20px;font-family:inherit;background:#fff;color:#1c1c1c}
+input[type=text],input[type=tel],input[type=email]{width:100%;padding:13px 14px;border:1px solid #c4c4c4;border-radius:7px;font-size:26px;font-weight:700;font-family:inherit;background:#fff;color:#1c1c1c}
 input:focus{outline:none;border-color:#334155;box-shadow:0 0 0 3px rgba(51,65,85,.15)}
 .invalid{border-color:#c0392b !important;background:#fdf3f3}
 .sig{position:relative;border:2px dashed #94a3b8;border-radius:10px;background:#fff;height:210px;touch-action:none}
 .sig canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;border-radius:8px}
-.sig .ph{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;color:#a0aab6;font-size:20px;pointer-events:none}
+.sig .ph{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;color:#a0aab6;font-size:26px;pointer-events:none}
 .sig .line{position:absolute;left:5%;right:5%;bottom:38px;border-bottom:1px solid #94a3b8;pointer-events:none}
 .sig.invalid{border-color:#c0392b}
-.txt{font-size:15px;color:#444;margin:0 0 10px}
-.note{font-size:13.5px;color:#777;margin:10px 0 0}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:8px;padding:15px 28px;font-family:Tahoma,Arial,sans-serif;font-weight:700;font-size:18px;cursor:pointer;background:#334155;color:#fff;text-decoration:none}
+.txt{font-size:19px;font-weight:700;color:#333;margin:0 0 10px}
+.note{font-size:17px;font-weight:700;color:#555;margin:10px 0 0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:8px;padding:15px 28px;font-family:Tahoma,Arial,sans-serif;font-weight:700;font-size:24px;cursor:pointer;background:#334155;color:#fff;text-decoration:none}
 .btn.sec{background:#fff;color:#334155;border:1px solid #334155}
 .btn[disabled]{opacity:.6;cursor:default}
 .row{display:flex;flex-wrap:wrap;gap:12px;margin-top:6px}
-.err{margin:12px 0 0;padding:12px 14px;background:#fbeeee;border:1px solid #d8a0a0;color:#8a3b3b;border-radius:8px;font-size:16px}
+.err{margin:12px 0 0;padding:12px 14px;background:#fbeeee;border:1px solid #d8a0a0;color:#8a3b3b;border-radius:8px;font-size:20px}
 .err[hidden],[hidden]{display:none !important}
-.big{font-family:Tahoma,Arial,sans-serif;font-size:30px;font-weight:700;color:#1c1c1c;margin:0 0 4px}
-.kv{display:grid;grid-template-columns:130px 1fr auto;gap:8px 12px;align-items:center;margin:0}
-.kv div.k{font-size:15px;color:#777}
-.kv div.v{font-size:20px;font-weight:600;word-break:break-word}
-.cp{border:1px solid #c4c4c4;background:#fff;border-radius:7px;padding:8px 14px;font-size:15px;cursor:pointer;font-family:inherit}
+.big{font-family:Tahoma,Arial,sans-serif;font-size:38px;font-weight:700;color:#1c1c1c;margin:0 0 4px}
+.kv{display:grid;grid-template-columns:170px 1fr auto;gap:8px 12px;align-items:center;margin:0}
+.kv div.k{font-size:19px;font-weight:700;color:#555}
+.kv div.v{font-size:26px;font-weight:800;word-break:break-word}
+.cp{border:1px solid #c4c4c4;background:#fff;border-radius:7px;padding:12px 20px;font-size:19px;cursor:pointer;font-weight:700;font-family:inherit}
 .cp.done{background:#eef7f0;border-color:#63a375;color:#2f5d3f}
-.hint{background:#eef2f7;border:1px solid #cdd6e2;border-radius:8px;padding:12px 14px;font-size:15px;color:#334155;margin:0 0 16px}
+.hint{background:#eef2f7;border:1px solid #cdd6e2;border-radius:8px;padding:14px 16px;font-size:19px;color:#334155;margin:0 0 16px}
 </style>
 </head>
 <body>
@@ -100,7 +100,7 @@ input:focus{outline:none;border-color:#334155;box-shadow:0 0 0 3px rgba(51,65,85
       <div class="full"><label class="req" for="strasse">Stra&szlig;e und Hausnummer</label><input type="text" id="strasse" name="strasse" autocapitalize="words" autocomplete="off"></div>
       <div><label class="req" for="plzort">PLZ, Ort</label><input type="text" id="plzort" name="plzort" autocapitalize="words" autocomplete="off"></div>
       <div><label class="req" for="telefon">Telefon</label><input type="tel" id="telefon" name="telefon" autocomplete="off"></div>
-      <div class="full"><label for="email">E-Mail <span style="font-weight:400;color:#777">(optional)</span></label><input type="email" id="email" name="email" autocomplete="off"></div>
+      <div class="full"><label for="email">E-Mail <span style="font-weight:700;color:#555">(optional)</span></label><input type="email" id="email" name="email" autocomplete="off"></div>
     </div>
   </div>
 
