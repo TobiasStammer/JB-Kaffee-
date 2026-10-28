@@ -229,22 +229,26 @@ input:focus{outline:none;border-color:#334155;box-shadow:0 0 0 3px rgba(51,65,85
     var buf=await fetch(TPL).then(function(r){ if(!r.ok) throw 'Vorlage nicht erreichbar ('+r.status+')'; return r.arrayBuffer(); });
     var doc=await PDFLib.PDFDocument.load(buf);
     var page=doc.getPages()[0], H=page.getHeight();
-    var font=await doc.embedFont(PDFLib.StandardFonts.Helvetica);
-    function T(str,x,topY,size){ size=size||10; page.drawText(safe(font,str,size),{x:x,y:H-topY,size:size,font:font,color:PDFLib.rgb(0.08,0.08,0.1)}); }
+    var font=await doc.embedFont(PDFLib.StandardFonts.HelveticaBold);
+    function T(str,x,topY,size,maxX){
+      size=size||14; var s=safe(font,str,size);
+      while(maxX && size>8 && x+font.widthOfTextAtSize(s,size)>maxX){ size-=0.5; s=safe(font,str,size); }
+      page.drawText(s,{x:x,y:H-topY,size:size,font:font,color:PDFLib.rgb(0,0,0)});
+    }
 
     // Positionen wie auf der Seite /reparaturauftrag/
-    T(val('nachname'),108,182);
-    T(val('vorname'),100,214);
-    T(val('strasse'),90,246.5);
-    T(val('plzort'),98,279.5);
-    T(val('telefon'),95,312.5);
+    T(val('nachname'),112,187,14,440);
+    T(val('vorname'),104,219,14,440);
+    T(val('strasse'),94,251.5,14,440);
+    T(val('plzort'),102,284.5,14,440);
+    T(val('telefon'),99,317.5,14,440);
 
     // Unterschrift ueber der Linie "Unterschrift: ____" (Linie ca. 975 von oben, x ca. 309-537)
     var png=await doc.embedPng(signatureCrop());
     var maxW=235, maxH=38, sc=Math.min(maxW/png.width,maxH/png.height), w=png.width*sc, h=png.height*sc;
     page.drawImage(png,{x:309+(maxW-w)/2,y:H-973,width:w,height:h});
     var dt=new Date(), p=function(n){return (n<10?'0':'')+n};
-    T('Hofheim, '+p(dt.getDate())+'.'+p(dt.getMonth()+1)+'.'+dt.getFullYear(),552,973,8.5);
+    T('Hofheim, '+p(dt.getDate())+'.'+p(dt.getMonth()+1)+'.'+dt.getFullYear(),548,973,9);
 
     var bytes=await doc.save();
     if(pdfUrl) URL.revokeObjectURL(pdfUrl);
