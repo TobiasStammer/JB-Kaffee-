@@ -220,7 +220,7 @@ body.woocommerce-checkout .wc-block-components-radio-control__secondary-label { 
    unschaedlich fuer alle anderen Karten) + eigener Scrollbalken nur fuers Widget als Notfallnetz. */
 .kt-sec { min-width: 0; }
 #wg-hyve-site-connect, .wg-hyve-site-connect-container {
-  max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;
+  max-width: 100%; overflow-x: clip; overflow-y: visible; /* y sichtbar: sonst wird der Kalender (Kaufdatum) abgeschnitten */
 }
 
 /* ----- Bestellbestaetigung (order-received): kompakt wie die uebrige Seite ----- */

@@ -147,7 +147,7 @@ bar.addEventListener('click',function(e){
 });
 document.addEventListener('click',function(e){
   var g=e.target.closest&&e.target.closest('[data-ktc-grant]');
-  if(g){var c=get()||{maps:0,wg:0};c[g.dataset.ktcGrant]=1;put(c);apply(c);return}
+  if(g){var c=get()||{maps:0,wg:0};c[g.dataset.ktcGrant]=1;put(c);apply(c);bar.classList.remove('on','det');pill.classList.add('on');return}
   var l=e.target.closest&&e.target.closest('a[href$="#cookie-einstellungen"]');
   if(l){e.preventDefault();show()}
 });
