@@ -9,6 +9,6 @@ add_action( 'wp_footer', function () {
 		return;
 	}
 	?>
-<script>(function(){var o=window.open;window.open=function(u,t,f){try{var s=String(u||'');if(/^https:\/\/www\.wertgarantie\.de\//.test(s)){window.location.assign(s);return null}}catch(e){}return o.apply(window,arguments)}})();</script>
+<script>(function(){var o=window.open;window.open=function(u,t,f){try{var s=String(u||'');if(/^https:\/\/www\.wertgarantie\.de\//.test(s)){window.location.assign(s);return{focus:function(){}}}}catch(e){}return o.apply(window,arguments)}})();</script>
 	<?php
 }, 100 );
