@@ -54,7 +54,7 @@ KATEGORIEN = {
 }
 BELEGARTEN = ["Rechnungsausgang Service", "Rechnungsausgang Verkauf", "Rechnungsausgang eBay",
               "Rechnungseingang Lieferanten", "WERTGARANTIE Schadenabrechnung", "WERTGARANTIE Gutschrift",
-              "Kassenbuch", "Monatsjournal Kasse",
+              "Kassenbuch", "Monatsjournal Kasse", "Primanota",
               "Rechnungsausgangliste"]
 EINGANG = "Rechnungseingang Lieferanten"
 UNKLAR = "Nicht zugeordnet"
@@ -101,7 +101,8 @@ Wentronic
 Wertgarantie
 BüroShop = Bürobedarf
 büroshop24 GmbH = Bürobedarf"""
-STANDARD_REGELN = """WERTGARANTIE Schadenabrechnung = schadenabrechnung, schadenregulierung
+STANDARD_REGELN = """Primanota = primanota
+WERTGARANTIE Schadenabrechnung = schadenabrechnung, schadenregulierung
 WERTGARANTIE Gutschrift = beratungshonorar, gutschrift wertgarantie
 Rechnungsausgangliste = rechnungsausgangsliste, rechnungsausgangliste, ausgangsliste
 Monatsjournal Kasse = monatsjournal
@@ -461,7 +462,7 @@ def pruefliste():
     out = []
     for r in db().execute("SELECT id, datum, lieferant, belegart, rechnungsnr, brutto, zahlung FROM rechnungen "
                           "WHERE datei IS NOT NULL AND (datum>=? OR COALESCE(zahlung,'offen')<>'bezahlt') "
-                          "AND belegart NOT IN ('Kassenbuch','Rechnungsausgangliste','Monatsjournal Kasse') ORDER BY datum DESC, id DESC",
+                          "AND belegart NOT IN ('Kassenbuch','Rechnungsausgangliste','Monatsjournal Kasse','Primanota') ORDER BY datum DESC, id DESC",
                           (start,)):
         probleme = []
         if r["belegart"] == UNKLAR:
@@ -1186,7 +1187,7 @@ def eingang_einlesen():
             if b:
                 brutto, satz, hinweis = abs(b), sz, " | Betrag automatisch gelesen - bitte pruefen"
         anzeige = lief or art
-        nr_beleg = finde_nummer(text)
+        nr_beleg = "" if art == "Primanota" else finde_nummer(text)
         if ex:  # E-Rechnung: strukturierte Daten sind verlaesslicher als der Text
             nr_beleg = ex["nr"] or nr_beleg
             datum = ex["datum"] or datum
@@ -1297,6 +1298,11 @@ def neu_pruefen():
         ex = lese_erechnung(pfad)
         art = r["belegart"]
         lief = r["lieferant"]
+        if art != "Primanota" and text.lstrip().upper().startswith("PRIMANOTA"):  # Buchungsliste der Kasse, keine Rechnung
+            db().execute("UPDATE rechnungen SET belegart='Primanota', lieferant='Primanota', rechnungsnr='', brutto=0 WHERE id=?",
+                         (r["id"],))
+            n += 1
+            continue
         eigene = (lief or "").startswith("Joachim Bl")  # Eigene Firma als Gegenueber = falsch eingeordnet
         if art in ("Rechnungsausgang Service", "Rechnungsausgang Verkauf") and not re.fullmatch(r"26[13]\d{4}", r["rechnungsnr"] or ""):
             eigene = True  # keine eigene 7-stellige Nummer (261xxxx/263xxxx) = eher Eingangsrechnung eines Lieferanten
@@ -1468,7 +1474,7 @@ def fehlende_ausgangsrechnungen(param=None):
     zahlungen_synchronisieren()  # Zahlstatus (Kassenbuch/Kontoauszug) bei der Gelegenheit aktuell halten
     eintraege, _ = liste_waehlen(listen, param)
     vorhanden = {r[0] for r in db().execute("SELECT rechnungsnr FROM rechnungen WHERE datei IS NOT NULL "
-                                            "AND rechnungsnr<>'' AND belegart<>'Rechnungsausgangliste'")}
+                                            "AND rechnungsnr<>'' AND belegart NOT IN ('Rechnungsausgangliste','Primanota','Kassenbuch','Monatsjournal Kasse')")}
     quitt = quittiert_laden()
     return [e for nr, e in sorted(eintraege.items())
             if nr.startswith(NUMMERNKREISE) and nr not in vorhanden and nr not in quitt], len(eintraege)
@@ -1568,7 +1574,7 @@ def abgleich():
     listen = listen_laden()
     eintraege, gewaehlt = liste_waehlen(listen, liste)
     vorhanden_nr = {r[0] for r in db().execute("SELECT rechnungsnr FROM rechnungen WHERE datei IS NOT NULL "
-                                               "AND rechnungsnr<>'' AND belegart<>'Rechnungsausgangliste'")}
+                                               "AND rechnungsnr<>'' AND belegart NOT IN ('Rechnungsausgangliste','Primanota','Kassenbuch','Monatsjournal Kasse')")}
     verlauf = [dict(id=l["id"], label=l["label"].split("  (")[0], n=len(l["eintraege"]),
                     fehlt=sum(1 for nr in l["eintraege"] if nr.startswith(NUMMERNKREISE) and nr not in vorhanden_nr
                               and nr not in quitt))
@@ -1583,7 +1589,7 @@ def abgleich():
     # abgelegte Rechnungen nach Nummer
     pdfs = {}
     for r in db().execute("SELECT * FROM rechnungen WHERE rechnungsnr<>'' AND datei IS NOT NULL "
-                          "AND belegart<>'Rechnungsausgangliste'"):
+                          "AND belegart NOT IN ('Rechnungsausgangliste','Primanota','Kassenbuch','Monatsjournal Kasse')"):
         pdfs.setdefault(r["rechnungsnr"], r)
 
     daten = sorted(e["datum"] for e in eintraege.values())  # Zeitraum der Liste(n)
@@ -2504,8 +2510,11 @@ def paket():
     ziel.mkdir(parents=True, exist_ok=True)
     fertig, fehler = [], []
     for b in BELEGARTEN:
-        rows = db().execute("SELECT * FROM rechnungen WHERE substr(datum,1,7)=? AND belegart=? AND datei "
-                            "IS NOT NULL ORDER BY datum, id", (m, b)).fetchall()
+        if b == "Primanota":  # liegt im Paket der Kassenbuecher
+            continue
+        arten = (b, "Primanota") if b == "Kassenbuch" else (b,)
+        rows = db().execute("SELECT * FROM rechnungen WHERE substr(datum,1,7)=? AND belegart IN (" + ",".join("?" * len(arten)) +
+                            ") AND datei IS NOT NULL ORDER BY datum, id", (m,) + arten).fetchall()
         if not rows:
             continue
         slug = re.sub(r"[^A-Za-z0-9_.-]+", "_", f"{m}_{b}")
