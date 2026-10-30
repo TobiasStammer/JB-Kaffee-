@@ -2081,9 +2081,23 @@ def zahlungsstand():
     return out
 
 
+def primanota_erkennen():
+    """Primanota-PDFs (Buchungsliste der Kasse), die frueher als Ausgangsrechnung/unklar abgelegt wurden, gehoeren zu den
+    Kassenbuch-Unterlagen: Belegart 'Primanota' (ohne Nummer/Betrag, nicht in Abgleich, Liste oder 'Zu pruefen')."""
+    for r in db().execute("SELECT id, datei FROM rechnungen WHERE datei IS NOT NULL AND (rechnungsnr IS NULL OR rechnungsnr='') "
+                          "AND COALESCE(brutto,0)=0 AND belegart IN ('Rechnungsausgang Service','Rechnungsausgang Verkauf',?)",
+                          (UNKLAR,)).fetchall():
+        pfad = BELEGE / r["datei"]
+        if pfad.exists() and pfad.suffix.lower() == ".pdf" and pdf_text(pfad, max_seiten=1).lstrip().upper().startswith("PRIMANOTA"):
+            db().execute("UPDATE rechnungen SET belegart='Primanota', lieferant='Primanota', rechnungsnr='', brutto=0 WHERE id=?",
+                         (r["id"],))
+    db().commit()
+
+
 def zahlungen_synchronisieren():
     """Liest neue Kassenbuecher, ordnet Bankbuchungen zu und setzt daraus den Zahlstatus der Rechnungen.
     'bezahlt' entsteht ausschliesslich aus Kassenbuch und Kontoauszug."""
+    primanota_erkennen()
     geprueft = {r[0] for r in db().execute("SELECT dokument_id FROM kasse_geprueft")}
     mit_tag = {r[0] for r in db().execute("SELECT dokument_id FROM kassentage")}
     for r in db().execute("SELECT id, datei FROM rechnungen WHERE belegart='Kassenbuch' AND datei IS NOT NULL").fetchall():
