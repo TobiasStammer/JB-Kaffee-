@@ -492,6 +492,8 @@ def index():
     monat = request.args.get("monat", "")
     belegart = request.args.get("belegart", "")
     sql, par = "SELECT * FROM rechnungen WHERE 1=1", []
+    if belegart != "Primanota":  # Primanota gehoert nur zu den Kassenbuch-Unterlagen (Monatspaket), nicht in die Liste
+        sql += " AND belegart<>'Primanota'"
     if q:
         sql += " AND (lieferant LIKE ? OR rechnungsnr LIKE ? OR notiz LIKE ?)"
         par += [f"%{q}%"] * 3
