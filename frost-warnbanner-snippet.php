@@ -1,10 +1,10 @@
 /* kaffeetechniker.de - Frost-Warnbanner: zeigt sitewide einen Hinweisbanner, sobald Frost angekuendigt ist.
- * Standort: Wallauer Str. 4, Hofheim-Langenhain (50.1029305 / 8.3966373), Umkreis 40 km.
+ * Standort: Wallauer Str. 4, Hofheim-Langenhain (50.1029305 / 8.3966373), Umkreis 20 km.
  * Quellen (beide beruhen auf DWD-Daten, kostenlos, kein API-Key):
  *  1. DWD-Warnungen ueber Bright Sky (api.brightsky.dev/alerts): amtliche Frostwarnung (event_code 22)
- *     fuer den Standort und 8 Punkte im Abstand von 40 km (N, NO, O, SO, S, SW, W, NW).
+ *     fuer den Standort und 8 Punkte im Abstand von 20 km (N, NO, O, SO, S, SW, W, NW).
  *  2. Vorhersage des DWD-Modells ICON ueber Open-Meteo (models=icon_seamless): Tiefstwert <= 0 Grad
- *     in den naechsten 3 Tagen am Standort oder an einem der 8 Punkte im 40-km-Ring.
+ *     in den naechsten 3 Tagen am Standort oder an einem der 8 Punkte im 20-km-Ring.
  * Banner, wenn Quelle 1 ODER 2 Frost meldet. Ergebnis 1 Stunde im Transient gecacht. Faellt eine Quelle aus, zaehlt die
  * andere; fallen beide aus, kein Banner (fail-safe). Admin-Test: ?kt_frost_test=1 (Banner erzwingen),
  * Details: GET /wp-json/kt/v1/frost (nur Administrator). */
@@ -12,7 +12,7 @@
 function kt_frost_punkte() {
 	$lat0 = 50.1029305;
 	$lon0 = 8.3966373;
-	$km   = 40.0;
+	$km   = 20.0;
 	$dlat = $km / 111.2;
 	$dlon = $km / ( 111.2 * cos( deg2rad( $lat0 ) ) );
 	$pts  = array( array( $lat0, $lon0 ) );
