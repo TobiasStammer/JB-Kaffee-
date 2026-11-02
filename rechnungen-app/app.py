@@ -1070,6 +1070,9 @@ def finde_datum(text, fallback):
 
 
 def finde_nummer(text):
+    m = re.search(r"Geb[üu]hrenrechnung\s*Nr\.?\s*(\d{4})\s*-\s*(\d+)", text, re.I)  # 'Gebührenrechnung Nr.2026- 2028'
+    if m:
+        return f"{m.group(1)}-{m.group(2)}"
     for m in re.finditer(r"(?:Rechnungs?-?\s?(?:nummer|nr\.?)|Abrechnungs-?\s?(?:nummer|nr\.?)|Gutschrifts?-?\s?(?:nummer|nr\.?)|Beleg-?\s?Nr\.?)\s*:?\s*([A-Za-z0-9][A-Za-z0-9\-/]*)",
                          text, re.I):
         if re.search(r"\d", m.group(1)):  # 'Kunden-Nr' o. ae. ist keine Nummer
@@ -1306,8 +1309,9 @@ def neu_pruefen():
     n = 0
     for r in db().execute("SELECT * FROM rechnungen WHERE datei IS NOT NULL AND "
                           "(belegart=? OR (belegart=? AND (brutto=0 OR konto='' OR konto IS NULL)) OR "
-                          "(belegart IN (?,?,?) AND (brutto=0 OR lieferant=belegart)) OR lieferant LIKE 'Joachim Bl%chle%')",
-                          (UNKLAR, EINGANG) + AUSGANG_RECHNUNGEN).fetchall():
+                          "(belegart IN (?,?,?) AND (brutto=0 OR lieferant=belegart)) OR lieferant LIKE 'Joachim Bl%chle%' OR "
+                          "(belegart=? AND (rechnungsnr GLOB '[12][09][0-9][0-9]' OR rechnungsnr GLOB '[12][09][0-9][0-9]-')))",
+                          (UNKLAR, EINGANG) + AUSGANG_RECHNUNGEN + (EINGANG,)).fetchall():  # letzte Zeile: abgeschnittene Nummer '2026-'
         pfad = BELEGE / r["datei"]
         if not pfad.exists():
             continue
@@ -1349,7 +1353,8 @@ def neu_pruefen():
             b, sz = finde_betrag(text)
             if b:
                 brutto, satz = abs(b), sz
-        alt_nr =r["rechnungsnr"] if re.search(r"\d", r["rechnungsnr"] or "") else ""
+        alt_nr = r["rechnungsnr"] if re.search(r"\d", r["rechnungsnr"] or "") and not re.fullmatch(
+            r"(19|20)\d{2}-?", r["rechnungsnr"] or "") else ""  # nur eine Jahreszahl ist keine Rechnungsnummer
         nr = alt_nr or (ex["nr"] if ex and ex["nr"] else finde_nummer(text))
         if ex:
             if art in (EINGANG,) + AUSGANG_RECHNUNGEN and not r["brutto"] and ex["brutto"] is not None:
