@@ -146,6 +146,33 @@ function kt_ze_state( $sid ) {
 	return array( $last->type === 'pause_start' ? 'pause' : 'working', $last );
 }
 
+/* Arbeits- und Pausenzeit von heute (laufender Abschnitt zaehlt bis jetzt mit) */
+function kt_ze_today( $sid ) {
+	global $wpdb;
+	$day  = current_time( 'Y-m-d' );
+	$rows = $wpdb->get_results( $wpdb->prepare( 'SELECT type,ts FROM ' . kt_ze_t( 'log' ) . ' WHERE staff_id=%d AND ts BETWEEN %s AND %s ORDER BY ts,id', $sid, "$day 00:00:00", "$day 23:59:59" ) );
+	$net = 0; $pause = 0; $ws = null; $ps = null;
+	foreach ( $rows as $r ) {
+		$t = strtotime( $r->ts );
+		if ( $r->type === 'kommen' ) {
+			$ws = $t;
+		} elseif ( $r->type === 'pause_ende' ) {
+			if ( $ps !== null ) { $pause += $t - $ps; $ps = null; }
+			$ws = $t;
+		} elseif ( $r->type === 'pause_start' ) {
+			if ( $ws !== null ) { $net += $t - $ws; $ws = null; }
+			$ps = $t;
+		} elseif ( $r->type === 'gehen' ) {
+			if ( $ws !== null ) { $net += $t - $ws; $ws = null; }
+			if ( $ps !== null ) { $pause += $t - $ps; $ps = null; }
+		}
+	}
+	$now = strtotime( current_time( 'mysql' ) );
+	if ( $ws !== null ) { $net += $now - $ws; }
+	if ( $ps !== null ) { $pause += $now - $ps; }
+	return array( 'net' => kt_ze_hm( $net ), 'pause' => kt_ze_hm( $pause ), 'any' => (bool) $rows );
+}
+
 function kt_ze_allowed( $state ) {
 	if ( $state === 'working' ) {
 		return array( 'pause_start', 'gehen' );
@@ -211,6 +238,7 @@ function kt_ze_api( $in ) {
 			'state'   => $state,
 			'allowed' => kt_ze_allowed( $state ),
 			'since'   => ( $last && $state !== 'out' ) ? substr( $last->ts, 11, 5 ) : '',
+			'today'   => kt_ze_today( $sid ),
 			'vac'     => array( 'anspruch' => (float) $st->vac_days, 'genommen' => kt_ze_vac_taken( $sid, $y ), 'jahr' => $y ),
 			'leaves'  => kt_ze_my_leaves( $sid ),
 		);
@@ -226,7 +254,7 @@ function kt_ze_api( $in ) {
 		$now = current_time( 'mysql' );
 		$wpdb->insert( kt_ze_t( 'log' ), array( 'staff_id' => $sid, 'type' => $t, 'ts' => $now, 'edited' => 0 ) );
 		list( $state, $last ) = kt_ze_state( $sid );
-		return array( 'ok' => true, 'done' => $t, 'time' => substr( $now, 11, 5 ), 'name' => $st->name, 'state' => $state );
+		return array( 'ok' => true, 'done' => $t, 'time' => substr( $now, 11, 5 ), 'name' => $st->name, 'state' => $state, 'today' => kt_ze_today( $sid ) );
 	}
 	if ( $a === 'leave' ) {
 		$from = (string) ( $in['from'] ?? '' );
@@ -340,6 +368,7 @@ input,select{width:100%;padding:14px;border:1px solid #c4c4c4;border-radius:8px;
 <section class="screen" id="s-act" hidden>
 <h1 id="a-name">&nbsp;</h1>
 <div class="chip out" id="a-chip">&nbsp;</div>
+<div class="sub" id="a-today" hidden></div>
 <div class="row" id="a-btns"></div>
 </section>
 
@@ -396,6 +425,7 @@ function onUid(uid){
 function showAct(d){
  $('a-name').textContent=greet()+', '+d.name;
  var c=$('a-chip');c.className='chip '+d.state;c.textContent=CH[d.state]+(d.since?' seit '+d.since+' Uhr':'');
+ var td=$('a-today');td.hidden=!d.today.any;td.textContent='Heute gearbeitet: '+d.today.net+' h · Pause: '+d.today.pause+' h';
  var b=$('a-btns');b.innerHTML='';
  d.allowed.forEach(function(t){var x=document.createElement('button');x.className='btn '+CLS[t];x.textContent=LBL[t];x.onclick=function(){stamp(t);};b.appendChild(x);});
  var u=document.createElement('button');u.className='btn sec';u.textContent='Urlaub beantragen';u.onclick=function(){showLeave(S.d);};b.appendChild(u);
@@ -406,7 +436,7 @@ function stamp(t){
  var btns=$('a-btns').querySelectorAll('button');for(var i=0;i<btns.length;i++)btns[i].disabled=true;
  post({a:'stamp',uid:S.uid,t:t}).then(function(r){
   if(!r.ok){if(r.name||r.allowed){showAct(r);}else{msg('⚠','Nicht möglich','Bitte Karte erneut halten.','bad');}return;}
-  var txt={kommen:'Kommen gebucht um ',pause_start:'Pause gestartet um ',pause_ende:'Pause beendet um ',gehen:'Gehen gebucht um '}[r.done]+r.time+' Uhr';
+  var txt={kommen:'Kommen gebucht um ',pause_start:'Pause gestartet um ',pause_ende:'Pause beendet um ',gehen:'Gehen gebucht um '}[r.done]+r.time+' Uhr'+(r.done==='gehen'||r.done==='pause_start'?'. Heute gearbeitet: '+r.today.net+' h':'');
   msg(r.done==='gehen'?'👋':'✓',r.done==='gehen'?'Schönen Feierabend, '+r.name:'Danke, '+r.name,txt,'ok',4000);
  }).catch(function(){msg('⚠','Keine Verbindung','Buchung wurde NICHT gespeichert. Bitte erneut versuchen.','bad',6000);});
 }
