@@ -57,7 +57,6 @@ BELEGARTEN = ["Rechnungsausgang Service", "Rechnungsausgang Verkauf", "Rechnungs
               "Kassenbuch", "Monatsjournal Kasse", "Primanota",
               "Rechnungsausgangliste"]
 EINGANG = "Rechnungseingang Lieferanten"
-EINZEL_ARTEN = (EINGANG,)   # im Monatspaket: Ordner mit einzelnen PDFs statt einer Sammel-PDF
 UNKLAR = "Nicht zugeordnet"
 ZAHLARTEN = ("Bank", "Bar", "Karte", "Scheck")
 WG_AVIS = "WERTGARANTIE Schadenabrechnung"   # Info-Schreiben: WERTGARANTIE erstattet Kundenrechnungen (kein Zahlstatus, geht aber zur Buchhaltung)
@@ -2409,12 +2408,13 @@ MONAT = """
 kannst du hier aus den PDFs neu lesen lassen.</small> <button class=sek>Rechnungsdaten prüfen</button></form>
 <form method=post action="{{url_for('paket')}}" class=card>
 <h2>Monatspaket für Unternehmen online</h2><input type=hidden name=m value="{{m}}">
-<p><b>Rechnungseingang Lieferanten</b> kommt als Ordner mit den <b>einzelnen PDFs</b> (Dateiname wie hochgeladen).
-Die übrigen Belegarten von {{m}} werden je Belegart zu <b>einer</b> PDF zusammengefügt
-(z. B. <code>{{m}}_Kassenbuch.pdf</code>, inkl. Primanota) und in denselben Ordner gelegt.
-<b>E-Rechnungen</b> (PDF mit eingebetteter XML, z. B. deine Ausgangsrechnungen) werden dabei <b>nicht</b> zusammengefügt,
-sondern einzeln als unveränderte Originale im Unterordner <code>E-Rechnungen</code> abgelegt, damit der XML-Anhang erhalten bleibt. Diese Dateien lädst du in
-DATEV Unternehmen online unter „Belege“ hoch.</p>
+<p>Legt für {{m}} <b>vier Ordner</b> an, passend zu den Belegtypen in DATEV „Upload online“. Darin liegen die
+<b>einzelnen PDFs</b> mit dem Dateinamen wie hochgeladen (E-Rechnungen mit XML-Anhang unverändert):</p>
+<ul style="margin:0 0 10px 18px"><li><code>1_Rechnungseingang</code> &ndash; Rechnungseingänge</li>
+<li><code>2_Rechnungsausgang</code> &ndash; Service, Verkauf, eBay, WERTGARANTIE-Gutschrift</li>
+<li><code>3_Kasse</code> &ndash; Kassenbücher, Monatsjournal, Primanota</li>
+<li><code>4_Sonstige</code> &ndash; WERTGARANTIE-Schadenabrechnung, Rechnungsausgangsliste</li></ul>
+<p>Jeden Ordner lädst du einmal in den passenden Belegtyp hoch.</p>
 <button>Monatspaket erstellen &amp; Ordner öffnen</button></form>
 <form class=card style="background:none;padding:0"><small>Pro Datei entsteht ein Beleg mit Datum = Monatsende. Rechnungseingänge mit Beträgen besser über „+ Neue Rechnung“ erfassen.</small>
 </form>"""
@@ -2521,75 +2521,52 @@ def daten_pruefen():
     return redirect(url_for("monat", m=request.form.get("m", "")))
 
 
+PAKET_ORDNER = (  # DATEV Unternehmen online / Upload online: vier Belegtypen = vier Ordner, je Ordner einmal hochladen
+    ("1_Rechnungseingang", (EINGANG,)),
+    ("2_Rechnungsausgang", ("Rechnungsausgang Service", "Rechnungsausgang Verkauf", "Rechnungsausgang eBay", WG_GUTSCHRIFT)),
+    ("3_Kasse", ("Kassenbuch", "Monatsjournal Kasse", "Primanota")),
+    ("4_Sonstige", (WG_AVIS, "Rechnungsausgangliste")),
+)
+
+
 @app.route("/monat/paket", methods=["POST"])
 def paket():
+    """Monatspaket fuer DATEV Upload online: vier Ordner (Rechnungseingang, Rechnungsausgang, Kasse, Sonstige), darin die
+    einzelnen Original-PDFs mit dem Dateinamen wie hochgeladen."""
     m = request.form["m"]
     ziel = PAKETE / m
-    ziel.mkdir(parents=True, exist_ok=True)
-    fertig, fehler = [], []
-    for b in BELEGARTEN:
-        if b == "Primanota":  # liegt im Paket der Kassenbuecher
-            continue
-        arten = (b, "Primanota") if b == "Kassenbuch" else (b,)
+    if ziel.exists():
+        shutil.rmtree(ziel)  # eigener Ausgabeordner: alte Staende (Sammel-PDFs etc.) wegraeumen
+    ziel.mkdir(parents=True)
+    fertig = []
+    jetzt = datetime.now().isoformat(timespec="seconds")
+    for ordnername, arten in PAKET_ORDNER:
         rows = db().execute("SELECT * FROM rechnungen WHERE substr(datum,1,7)=? AND belegart IN (" + ",".join("?" * len(arten)) +
                             ") AND datei IS NOT NULL ORDER BY datum, id", (m,) + arten).fetchall()
         if not rows:
             continue
-        slug = re.sub(r"[^A-Za-z0-9_.-]+", "_", f"{m}_{b}")
-        if b in EINZEL_ARTEN:  # Ordner mit den einzelnen Original-PDFs, Dateiname wie hochgeladen
-            ordner = ziel / re.sub(r"[^A-Za-z0-9ÄÖÜäöüß_.-]+", "_", b)
-            if ordner.exists():
-                shutil.rmtree(ordner)  # eigener Ausgabeordner: alte Staende wegraeumen
-            (ziel / f"{slug}.pdf").unlink(missing_ok=True)  # frueher zusammengefuegte Sammel-PDF
-            ordner.mkdir(parents=True)
-            benutzt = set()
-            for r in rows:
-                ext = Path(r["datei"]).suffix
-                name = (r["notiz"] or "").split(" | ")[0].strip()
-                if not name:
-                    name = f'{r["datum"]}_{r["lieferant"]}_{r["rechnungsnr"] or r["id"]}'
-                if not Path(name).suffix:
-                    name += ext
-                name = re.sub(r'[\\/:*?"<>|]+', "_", name)
-                if name.lower() in benutzt:
-                    name = f"{Path(name).stem}_{r['id']}{Path(name).suffix}"
-                benutzt.add(name.lower())
-                shutil.copy2(BELEGE / r["datei"], ordner / name)
-            fertig.append(f"{ordner.name}/ ({len(rows)} Einzeldateien wie hochgeladen)")
-            for r in rows:
-                db().execute("UPDATE rechnungen SET status='an DATEV gesendet', gesendet=? WHERE id=?",
-                             (datetime.now().isoformat(timespec="seconds"), r["id"]))
-            continue
-        erech = [r for r in rows if pdf_xml(BELEGE / r["datei"])]
-        normal = [r for r in rows if r not in erech]
-        if erech:  # E-Rechnungen: Originaldatei samt XML-Anhang unveraendert, nie zusammenfuegen
-            (ziel / "E-Rechnungen").mkdir(exist_ok=True)
-            for r in erech:
-                nr = re.sub(r"[^A-Za-z0-9_.-]+", "_", r["rechnungsnr"] or str(r["id"]))
-                shutil.copy2(BELEGE / r["datei"], ziel / "E-Rechnungen" / f"{slug}_{nr}.pdf")
-            fertig.append(f"E-Rechnungen/{slug}_*.pdf ({len(erech)} Originale mit XML, einzeln)")
-        w = PdfWriter()
-        for r in normal:
-            try:
-                _in_pdf(w, BELEGE / r["datei"])
-            except Exception as e:  # noqa: BLE001
-                fehler.append(f'{r["notiz"] or r["datei"]}: {e}')
-        if len(w.pages):
-            name = slug + ".pdf"
-            with open(ziel / name, "wb") as fh:
-                w.write(fh)
-            fertig.append(f"{name} ({len(normal)} Dateien, {(ziel / name).stat().st_size / 1e6:.1f} MB)")
-        w.close()
-        if not erech and not normal:
-            continue
+        ordner = ziel / ordnername
+        ordner.mkdir()
+        benutzt = set()
         for r in rows:
-            db().execute("UPDATE rechnungen SET status='an DATEV gesendet', gesendet=? WHERE id=?",
-                         (datetime.now().isoformat(timespec="seconds"), r["id"]))
+            ext = Path(r["datei"]).suffix
+            name = (r["notiz"] or "").split(" | ")[0].strip()
+            if not name:
+                name = f'{r["datum"]}_{r["lieferant"]}_{r["rechnungsnr"] or r["id"]}'
+            if not Path(name).suffix:
+                name += ext
+            name = re.sub(r'[\\/:*?"<>|]+', "_", name)
+            if name.lower() in benutzt:
+                name = f"{Path(name).stem}_{r['id']}{Path(name).suffix}"
+            benutzt.add(name.lower())
+            shutil.copy2(BELEGE / r["datei"], ordner / name)
+            db().execute("UPDATE rechnungen SET status='an DATEV gesendet', gesendet=? WHERE id=?", (jetzt, r["id"]))
+        fertig.append(f"{ordnername} ({len(rows)} PDFs)")
     db().commit()
-    if fehler:
-        flash("Nicht verarbeitbar: " + "; ".join(fehler))
-    flash("Erstellt: " + (", ".join(fertig) if fertig else "nichts – für diesen Monat liegen keine Belege vor.")
-          + f" → {ziel}")
+    unklar = db().execute("SELECT COUNT(*) FROM rechnungen WHERE substr(datum,1,7)=? AND belegart=?", (m, UNKLAR)).fetchone()[0]
+    if unklar:
+        flash(f"Achtung: {unklar} Belege dieses Monats sind noch „Nicht zugeordnet“ und nicht im Paket.")
+    flash("Erstellt: " + (", ".join(fertig) if fertig else "nichts – für diesen Monat liegen keine Belege vor.") + f" → {ziel}")
     if fertig and hasattr(os, "startfile"):
         os.startfile(ziel)
     return redirect(url_for("monat", m=m))
