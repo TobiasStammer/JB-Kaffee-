@@ -349,9 +349,10 @@ INDEX = """
 <td class=r>{{'%.2f'|format(r.brutto)|replace('.',',')}}</td><td style="color:#b91c1c">{{r.probleme|join('; ')}}</td>
 <td><a href="{{url_for('bearbeiten',rid=r.id)}}"><b>prüfen / bearbeiten</b></a> <small>(mit PDF)</small></td></tr>{% endfor %}</table></details>{% endif %}
 {% if doppelte %}<div class=card style="border-left-color:#b91c1c"><b style="color:#b91c1c">Doppelte Belege</b>
- &ndash; dieselbe Datei ist mehrfach abgelegt:
- {% for g in doppelte %}<div>{% for r in g %}<a href="{{url_for('bearbeiten',rid=r.id)}}">#{{r.id}} {{r.rechnungsnr or r.lieferant}} ({{r.datum}})</a>{{' &middot; '|safe if not loop.last}}{% endfor %}</div>{% endfor %}
- <small>Das überzählige Exemplar kannst du unter &bdquo;bearbeiten&ldquo; löschen.</small></div>{% endif %}
+ &ndash; dieselbe Rechnung ist mehrfach abgelegt ({{doppelte|length}}):
+ {% for g in doppelte %}<div style="margin:6px 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center">{% for r in g %}<span><a href="{{url_for('bearbeiten',rid=r.id)}}">#{{r.id}} {{r.rechnungsnr or r.lieferant}} ({{r.datum}}{{', '~r.notiz.split(' | ')[0] if r.notiz}})</a>{% if not loop.first %}
+ <form method=post action="{{url_for('loeschen',rid=r.id)}}" style="display:inline" onsubmit="return confirm('Doppeltes Exemplar #{{r.id}} wirklich löschen?')"><button class=sek style="padding:2px 8px;font-size:12px">dieses löschen</button></form>{% else %} <small>(behalten)</small>{% endif %}</span>{% endfor %}</div>{% endfor %}
+ <small>Das jeweils erste Exemplar bleibt, das zweite kannst du hier löschen. Erkannt an Belegart, Rechnungsnummer und Betrag bzw. gleicher Datei.</small></div>{% endif %}
 <form method=post action="{{url_for('export')}}">
 <details class=bank><summary>Belege ({{rows|length}}){% if summen|length<2 %} &ndash; {{'%.2f'|format(sb)|replace('.',',')}} &euro;{% endif %}</summary>
 <table><tr><th></th><th>Datum</th><th>Belegart</th><th>Lieferant</th><th>Rechnungsnr.</th><th>Kategorie</th>
@@ -528,8 +529,17 @@ def index():
         z["brutto"] += r.brutto
     doppelte = []
     for g in db().execute("SELECT hash FROM rechnungen WHERE hash IS NOT NULL GROUP BY hash HAVING COUNT(*)>1"):
-        doppelte.append(db().execute("SELECT id, rechnungsnr, lieferant, datum FROM rechnungen WHERE hash=? "
+        doppelte.append(db().execute("SELECT id, rechnungsnr, lieferant, datum, notiz FROM rechnungen WHERE hash=? "
                                      "ORDER BY id", (g["hash"],)).fetchall())
+    # gleiche Rechnung als zweites PDF (anderer Dateiinhalt, z. B. erneut gedruckt/gescannt): Belegart + Nummer + Betrag
+    marks = ",".join("?" * len(RECHNUNGSARTEN))
+    for g in db().execute("SELECT belegart, rechnungsnr, ROUND(brutto,2) b FROM rechnungen WHERE rechnungsnr<>'' AND datei IS NOT NULL "
+                          f"AND belegart IN ({marks}) GROUP BY belegart, rechnungsnr, ROUND(brutto,2) HAVING COUNT(*)>1",
+                          RECHNUNGSARTEN):
+        gruppe = db().execute("SELECT id, rechnungsnr, lieferant, datum, notiz FROM rechnungen WHERE belegart=? AND rechnungsnr=? "
+                              "AND ROUND(brutto,2)=? ORDER BY id", (g["belegart"], g["rechnungsnr"], g["b"])).fetchall()
+        if not any({r["id"] for r in gruppe} <= {x["id"] for x in alt} for alt in doppelte):
+            doppelte.append(gruppe)
     return page(INDEX, pruefen=pruefliste(), skonto_n=len(skonto_offen()), skonto_dringend=sum(1 for x in skonto_offen() if x["rest"] <= 3),
                 heute=date.today().isoformat(), lastschrift_lief=lieferanten_lastschrift(settings()), doppelte=doppelte, summen=list(summen.values()), rows=rows, q=q, status=status, zahlung=zahlung, zahlart=zahlart, ZAHLARTEN=ZAHLARTEN, STATUS=STATUS, ZAHLUNG=ZAHLUNG, RECHNUNGSARTEN=RECHNUNGSARTEN, monat=monat,
                 belegart=belegart, BELEGARTEN=BELEGARTEN_ALLE, UNKLAR=UNKLAR,
@@ -1200,6 +1210,11 @@ def eingang_einlesen():
                 anzeige = ex["kaeufer"]
             elif art == EINGANG and not lief and ex["verkaeufer"]:
                 anzeige = ex["verkaeufer"]
+        if nr_beleg and art in RECHNUNGSARTEN and brutto and c.execute(
+                "SELECT 1 FROM rechnungen WHERE belegart=? AND rechnungsnr=? AND ABS(brutto-?)<0.005",
+                (art, nr_beleg, brutto)).fetchone():  # dieselbe Rechnung (Nummer+Betrag) ist schon da, nur anderes PDF
+            shutil.move(str(f), str(fertig / f"doppelt_{int(time.time())}_{f.name}"))
+            continue
         name = f"{uuid.uuid4().hex}{f.suffix.lower()}"
         (BELEGE / name).write_bytes(daten)
         c.execute("INSERT INTO rechnungen(datum,lieferant,rechnungsnr,brutto,mwst_satz,kategorie,konto,status,"
@@ -2550,10 +2565,16 @@ def paket():
         benutzt = set()
         for r in rows:
             ext = Path(r["datei"]).suffix
-            name = (r["notiz"] or "").split(" | ")[0].strip()
+            nr = (r["rechnungsnr"] or "").strip()
+            name = (r["notiz"] or "").split(" | ")[0].strip()  # sonst: Dateiname wie hochgeladen
+            art_slug = re.sub(r"[^A-Za-z0-9_.-]+", "_", r["belegart"])
+            if nr and ordnername == "2_Rechnungsausgang":  # Ausgang (auch eBay): Monat_Belegart_Rechnungsnummer
+                name = f"{m}_{art_slug}_{nr}"
+            elif nr and ordnername == "1_Rechnungseingang":  # Eingang: Monat_Belegart_Lieferant_Rechnungsnummer
+                name = f"{m}_Rechnungseingang_" + re.sub(r"\s+", "_", (r["lieferant"] or "").strip())[:40] + "_" + nr
             if not name:
                 name = f'{r["datum"]}_{r["lieferant"]}_{r["rechnungsnr"] or r["id"]}'
-            if not Path(name).suffix:
+            if not Path(name).suffix.lower() == ext.lower():
                 name += ext
             name = re.sub(r'[\\/:*?"<>|]+', "_", name)
             if name.lower() in benutzt:
