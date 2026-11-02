@@ -57,6 +57,7 @@ BELEGARTEN = ["Rechnungsausgang Service", "Rechnungsausgang Verkauf", "Rechnungs
               "Kassenbuch", "Monatsjournal Kasse", "Primanota",
               "Rechnungsausgangliste"]
 EINGANG = "Rechnungseingang Lieferanten"
+EINZEL_ARTEN = (EINGANG,)   # im Monatspaket: Ordner mit einzelnen PDFs statt einer Sammel-PDF
 UNKLAR = "Nicht zugeordnet"
 ZAHLARTEN = ("Bank", "Bar", "Karte", "Scheck")
 WG_AVIS = "WERTGARANTIE Schadenabrechnung"   # Info-Schreiben: WERTGARANTIE erstattet Kundenrechnungen (kein Zahlstatus, geht aber zur Buchhaltung)
@@ -2408,8 +2409,9 @@ MONAT = """
 kannst du hier aus den PDFs neu lesen lassen.</small> <button class=sek>Rechnungsdaten prüfen</button></form>
 <form method=post action="{{url_for('paket')}}" class=card>
 <h2>Monatspaket für Unternehmen online</h2><input type=hidden name=m value="{{m}}">
-<p>Fügt pro Belegart alle PDFs/Bilder von {{m}} zu <b>einer</b> PDF zusammen
-(z. B. <code>{{m}}_Kassenbuch.pdf</code>) und legt sie in einen Ordner.
+<p><b>Rechnungseingang Lieferanten</b> kommt als Ordner mit den <b>einzelnen PDFs</b> (Dateiname wie hochgeladen).
+Die übrigen Belegarten von {{m}} werden je Belegart zu <b>einer</b> PDF zusammengefügt
+(z. B. <code>{{m}}_Kassenbuch.pdf</code>, inkl. Primanota) und in denselben Ordner gelegt.
 <b>E-Rechnungen</b> (PDF mit eingebetteter XML, z. B. deine Ausgangsrechnungen) werden dabei <b>nicht</b> zusammengefügt,
 sondern einzeln als unveränderte Originale im Unterordner <code>E-Rechnungen</code> abgelegt, damit der XML-Anhang erhalten bleibt. Diese Dateien lädst du in
 DATEV Unternehmen online unter „Belege“ hoch.</p>
@@ -2534,6 +2536,30 @@ def paket():
         if not rows:
             continue
         slug = re.sub(r"[^A-Za-z0-9_.-]+", "_", f"{m}_{b}")
+        if b in EINZEL_ARTEN:  # Ordner mit den einzelnen Original-PDFs, Dateiname wie hochgeladen
+            ordner = ziel / re.sub(r"[^A-Za-z0-9ÄÖÜäöüß_.-]+", "_", b)
+            if ordner.exists():
+                shutil.rmtree(ordner)  # eigener Ausgabeordner: alte Staende wegraeumen
+            (ziel / f"{slug}.pdf").unlink(missing_ok=True)  # frueher zusammengefuegte Sammel-PDF
+            ordner.mkdir(parents=True)
+            benutzt = set()
+            for r in rows:
+                ext = Path(r["datei"]).suffix
+                name = (r["notiz"] or "").split(" | ")[0].strip()
+                if not name:
+                    name = f'{r["datum"]}_{r["lieferant"]}_{r["rechnungsnr"] or r["id"]}'
+                if not Path(name).suffix:
+                    name += ext
+                name = re.sub(r'[\\/:*?"<>|]+', "_", name)
+                if name.lower() in benutzt:
+                    name = f"{Path(name).stem}_{r['id']}{Path(name).suffix}"
+                benutzt.add(name.lower())
+                shutil.copy2(BELEGE / r["datei"], ordner / name)
+            fertig.append(f"{ordner.name}/ ({len(rows)} Einzeldateien wie hochgeladen)")
+            for r in rows:
+                db().execute("UPDATE rechnungen SET status='an DATEV gesendet', gesendet=? WHERE id=?",
+                             (datetime.now().isoformat(timespec="seconds"), r["id"]))
+            continue
         erech = [r for r in rows if pdf_xml(BELEGE / r["datei"])]
         normal = [r for r in rows if r not in erech]
         if erech:  # E-Rechnungen: Originaldatei samt XML-Anhang unveraendert, nie zusammenfuegen
