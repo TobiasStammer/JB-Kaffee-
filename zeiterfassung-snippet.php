@@ -474,6 +474,7 @@ async function startNfc(){
  }catch(e){warn('NFC ist noch nicht aktiv ('+e.name+'). Bitte tippen, dann die Berechtigung erlauben.',true);}
 }
 $('b-start').onclick=startNfc;
+document.addEventListener('click',function(){var e=document.documentElement;if(!document.fullscreenElement&&e.requestFullscreen)e.requestFullscreen().catch(function(){});});
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')startNfc();});
 startNfc();home();
 })();
