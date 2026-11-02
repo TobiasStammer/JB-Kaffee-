@@ -7,7 +7,8 @@
  *     in den naechsten 3 Tagen am Standort oder an einem der 8 Punkte im 20-km-Ring.
  * Banner, wenn Quelle 1 ODER 2 Frost meldet. Ergebnis 1 Stunde im Transient gecacht. Faellt eine Quelle aus, zaehlt die
  * andere; fallen beide aus, kein Banner (fail-safe). Admin-Test: ?kt_frost_test=1 (Banner erzwingen),
- * Details: GET /wp-json/kt/v1/frost (nur Administrator). */
+ * Details: GET /wp-json/kt/v1/frost (nur Administrator). Banner verlinkt auf /frostwarnung/ (Erklaerseite,
+ * zeigt den Stand ueber das oeffentliche /wp-json/kt/v1/frost-info). */
 
 function kt_frost_punkte() {
 	$lat0 = 50.1029305;
@@ -111,6 +112,23 @@ function kt_frost_warnung_pruefen() {
 	return ! empty( $s['frost'] );
 }
 
+// oeffentlich: Kurzstatus fuer die Erklaerseite /frostwarnung/ (keine personenbezogenen Daten)
+add_action( 'rest_api_init', function () {
+	register_rest_route( 'kt/v1', '/frost-info', array(
+		'methods'             => 'GET',
+		'permission_callback' => '__return_true',
+		'callback'            => function () {
+			$s = kt_frost_status();
+			return rest_ensure_response( array(
+				'frost'      => ! empty( $s['frost'] ),
+				'vorhersage' => array( 'frost' => ! empty( $s['vorhersage']['frost'] ), 'tiefstwert' => $s['vorhersage']['tiefstwert'] ),
+				'dwd'        => array( 'frost' => ! empty( $s['dwd']['frost'] ), 'orte' => $s['dwd']['orte'] ),
+				'stand'      => $s['stand'],
+			) );
+		},
+	) );
+} );
+
 add_action( 'rest_api_init', function () {
 	register_rest_route( 'kt/v1', '/frost', array(
 		'methods'             => 'GET',
@@ -132,7 +150,7 @@ add_action( 'wp_body_open', function () {
 	}
 	?>
 	<div id="kt-frost-banner" style="background:#b91c1c;color:#fff;text-align:center;padding:10px 44px;font-size:15px;line-height:1.4;position:relative;">
-		<span>Achtung Frostgefahr: Bitte lassen Sie Ihr Gerät bei diesen Temperaturen nicht länger im Auto stehen.</span>
+		<span>Achtung Frostgefahr: Bitte lassen Sie Ihr Gerät bei diesen Temperaturen nicht länger im Auto stehen. <a href="<?php echo esc_url( home_url( '/frostwarnung/' ) ); ?>" style="color:#fff;text-decoration:underline;font-weight:600;white-space:nowrap;">Warum?</a></span>
 		<button type="button" onclick="document.getElementById('kt-frost-banner').style.display='none'" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#fff;font-size:20px;cursor:pointer;line-height:1;" aria-label="Banner schließen">&times;</button>
 	</div>
 	<?php

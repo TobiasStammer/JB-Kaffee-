@@ -1221,6 +1221,99 @@
       ]
     },
     {
+      "slug": "frostwarnung",
+      "menu": "Frostwarnung",
+      "title": "Frostwarnung – warum wir warnen",
+      "excerpt": "Warum wir bei Frost warnen: Was Kälte mit Kaffeemaschinen macht, wie Sie Frostschäden vermeiden und woher die Warnung kommt.",
+      "blocks": [
+        {
+          "t": "p",
+          "x": "Auf unserer Website erscheint ein roter Hinweis „Achtung Frostgefahr“, sobald Frost angekündigt ist. Hier erklären wir, warum – und was Sie tun können, damit Ihre Kaffeemaschine den Winter ohne Schaden übersteht."
+        },
+        {
+          "t": "html",
+          "x": "<div id=\"kt-frost-status\" style=\"margin:6px 0 4px;padding:14px 18px;border-radius:10px;border:1px solid #e0e0e0;background:#f6f6f4;font-size:15px;line-height:1.55\">Aktueller Stand wird geladen &hellip;</div><script>(function(){var b=document.getElementById(\"kt-frost-status\");if(!b)return;function set(bg,bd,t){b.style.background=bg;b.style.borderColor=bd;b.innerHTML=t;}fetch(\"/wp-json/kt/v1/frost-info\").then(function(r){return r.json();}).then(function(d){if(!d||typeof d.frost===\"undefined\"){throw 0;}if(!d.frost){set(\"#eef7f0\",\"#63a375\",\"<b>Aktuell keine Frostwarnung.</b> In den n&auml;chsten drei Tagen ist in der N&auml;he keine Frostnacht vorhergesagt, und es liegt keine amtliche DWD-Frostwarnung vor.\");return;}var w=[];if(d.vorhersage&&d.vorhersage.frost){w.push(\"Die Wettervorhersage (DWD-Modell ICON) meldet f&uuml;r die n&auml;chsten drei Tage Tiefstwerte bis \"+String(d.vorhersage.tiefstwert).replace(\".\",\",\")+\"&nbsp;&deg;C im Umkreis von 20&nbsp;km.\");}if(d.dwd&&d.dwd.frost){w.push(\"Der Deutsche Wetterdienst hat eine amtliche Frostwarnung herausgegeben\"+(d.dwd.orte&&d.dwd.orte.length?\" (u.&nbsp;a. f&uuml;r \"+d.dwd.orte.join(\", \").replace(/Stadt |Gemeinde /g,\"\")+\")\":\"\")+\".\");}set(\"#fbeeee\",\"#d08a8a\",\"<b>Frostwarnung aktiv.</b> \"+w.join(\" \"));}).catch(function(){set(\"#f6f6f4\",\"#e0e0e0\",\"Der aktuelle Stand konnte gerade nicht geladen werden. Die Hinweise unten gelten trotzdem.\");});})();</script>"
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "x": "Warum ist Frost für Kaffeemaschinen gefährlich?"
+        },
+        {
+          "t": "p",
+          "x": "In jedem Kaffeevollautomaten und jeder Siebträgermaschine steht Wasser: im Tank, in der Pumpe, im Boiler bzw. Thermoblock, in Schläuchen, Ventilen und in der Brüheinheit. Gefriert dieses Wasser, dehnt es sich um rund 9 % aus. Dabei können Leitungen, Dichtungen, Ventile und Pumpenteile reißen oder undicht werden."
+        },
+        {
+          "t": "p",
+          "x": "Das Tückische: Man sieht den Schaden nicht sofort. Er zeigt sich oft erst nach dem Auftauen – das Gerät tropft, zieht Luft, pumpt nicht mehr oder meldet Fehler. Eingeschaltet im gefrorenen Zustand kann es zusätzlich Pumpe und Heizung beschädigen."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "x": "Wo droht Gefahr?"
+        },
+        {
+          "t": "ul",
+          "x": [
+            "Im Auto – etwa auf dem Weg zu uns oder wenn das Gerät über Nacht im Fahrzeug bleibt",
+            "In ungeheizten Räumen: Garage, Keller, Gartenhaus, Ferienwohnung, Büro über das Wochenende",
+            "Beim Transport und beim Versand bei Minusgraden",
+            "Im Außenbereich oder in der Gastronomie bei ausgefallener Heizung"
+          ]
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "x": "Was Sie tun können"
+        },
+        {
+          "t": "ul",
+          "x": [
+            "Lassen Sie das Gerät bei Frost nicht im Auto stehen – nehmen Sie es mit in die Wohnung bzw. transportieren Sie es im geheizten Innenraum.",
+            "Wird das Gerät länger in einem kalten Raum nicht genutzt: Wassertank leeren und, falls möglich, nach Anleitung entleeren bzw. spülen.",
+            "Hatte das Gerät Frost: Nicht sofort einschalten, sondern mehrere Stunden – am besten über Nacht – bei Zimmertemperatur auftauen lassen.",
+            "Zeigt es danach Undichtigkeiten, Geräusche oder Fehlermeldungen: Bitte ausgeschaltet lassen und uns kontaktieren, bevor weiterer Schaden entsteht."
+          ]
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "x": "Woher stammt die Warnung?"
+        },
+        {
+          "t": "p",
+          "x": "Wir werten zwei Datenquellen aus, beide auf Basis von Daten des Deutschen Wetterdienstes (DWD): die Wettervorhersage des DWD-Modells ICON (über open-meteo.com) und die amtlichen DWD-Warnungen (über brightsky.dev). Berücksichtigt werden unser Standort in Hofheim-Langenhain und die Umgebung im Umkreis von 20 km."
+        },
+        {
+          "t": "p",
+          "x": "Der Hinweis erscheint, sobald in den nächsten drei Tagen ein Tiefstwert von 0 °C oder darunter vorhergesagt ist oder der DWD eine Frostwarnung herausgibt. Wir warnen bewusst früh – lieber einmal zu viel als ein Frostschaden. Die Angaben werden stündlich aktualisiert und sind Richtwerte; die Temperatur an Ihrem Standort kann abweichen."
+        },
+        {
+          "t": "h",
+          "lvl": 2,
+          "x": "Schaden entstanden?"
+        },
+        {
+          "t": "p",
+          "x": "Bringen Sie das Gerät einfach während der Öffnungszeiten vorbei – ohne Termin – oder nutzen Sie den <a href=\"/reparatur-check/\">Reparatur-Check</a> für eine erste Einschätzung. Wir prüfen, was passiert ist, und erstellen Ihnen einen Kostenvoranschlag, bevor etwas repariert wird."
+        },
+        {
+          "t": "btns",
+          "keep": true,
+          "x": [
+            {
+              "label": "Reparatur-Check",
+              "url": "/reparatur-check/"
+            },
+            {
+              "label": "Kontakt",
+              "url": "/kontakt/"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "slug": "hinweise-nach-der-reparatur",
       "menu": "Hinweise nach der Reparatur",
       "title": "Hinweise nach der Reparatur",
