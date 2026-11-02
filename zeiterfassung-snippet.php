@@ -335,14 +335,12 @@ input,select{width:100%;padding:14px;border:1px solid #c4c4c4;border-radius:8px;
 <path d="M92 82a52 52 0 0 1 76 0"/><path d="M108 62a78 78 0 0 1 44 0" opacity=".7"/><path d="M76 98a76 76 0 0 1 108 0" opacity=".45"/>
 </g></svg></div>
 <div id="h-btn" hidden><button class="btn" id="b-start">Zum Aktivieren tippen</button></div>
-<div id="h-cancel" hidden><button class="btn sec" id="b-cancel">Abbrechen</button></div>
 </section>
 
 <section class="screen" id="s-act" hidden>
 <h1 id="a-name">&nbsp;</h1>
 <div class="chip out" id="a-chip">&nbsp;</div>
 <div class="row" id="a-btns"></div>
-<div class="list" id="a-vac" style="text-align:center"></div>
 </section>
 
 <section class="screen" id="s-leave" hidden>
@@ -368,7 +366,6 @@ input,select{width:100%;padding:14px;border:1px solid #c4c4c4;border-radius:8px;
 </section>
 
 </main>
-<footer id="foot"><button class="btn sec" id="b-menu">Urlaub beantragen</button></footer>
 </div>
 <script>
 (function(){
@@ -378,10 +375,9 @@ var KIND={urlaub:'Urlaub',sonder:'Sonderurlaub',ueberstunden:'Überstundenausgle
 var LBL={kommen:'Kommen',pause_start:'Pause',pause_ende:'Pause beenden',gehen:'Gehen'};
 var CLS={kommen:'grn',pause_start:'org',pause_ende:'grn',gehen:'red'};
 var CH={out:'Nicht eingestempelt',working:'Eingestempelt',pause:'In der Pause'};
-function show(id){['home','act','leave','msg'].forEach(function(s){$('s-'+s).hidden=(s!==id);});$('foot').hidden=(id!=='home'||S.mode==='leave');}
+function show(id){['home','act','leave','msg'].forEach(function(s){$('s-'+s).hidden=(s!==id);});}
 function later(ms){clearTimeout(S.timer);S.timer=setTimeout(home,ms);}
-function home(){clearTimeout(S.timer);S.mode='';S.uid='';
- $('h-title').textContent='Willkommen';$('h-sub').textContent='Bitte Karte ans Tablet halten';$('h-cancel').hidden=true;show('home');}
+function home(){clearTimeout(S.timer);S.uid='';show('home');}
 function tick(){var n=new Date();$('clk').textContent=n.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
  $('dat').textContent=n.toLocaleDateString('de-DE',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});}
 setInterval(tick,1000);tick();
@@ -394,7 +390,7 @@ function onUid(uid){
  var now=Date.now();if(uid===S.uid&&now-S.last<1500)return;S.last=now;
  post({a:'scan',uid:uid}).then(function(d){
   if(!d.ok){msg(d.unknown?'⚠':'⚠',d.unknown?'Karte nicht zugeordnet':'Fehler',d.unknown?'Bitte beim Chef melden.':'Bitte erneut versuchen.','bad',5000);return;}
-  S.uid=uid;S.d=d;if(S.mode==='leave')showLeave(d);else showAct(d);
+  S.uid=uid;S.d=d;showAct(d);
  }).catch(function(){msg('⚠','Keine Verbindung','Bitte Karte erneut halten oder Internet prüfen.','bad',5000);});
 }
 function showAct(d){
@@ -402,8 +398,8 @@ function showAct(d){
  var c=$('a-chip');c.className='chip '+d.state;c.textContent=CH[d.state]+(d.since?' seit '+d.since+' Uhr':'');
  var b=$('a-btns');b.innerHTML='';
  d.allowed.forEach(function(t){var x=document.createElement('button');x.className='btn '+CLS[t];x.textContent=LBL[t];x.onclick=function(){stamp(t);};b.appendChild(x);});
+ var u=document.createElement('button');u.className='btn sec';u.textContent='Urlaub beantragen';u.onclick=function(){showLeave(S.d);};b.appendChild(u);
  var x=document.createElement('button');x.className='btn sec';x.textContent='Abbrechen';x.onclick=home;b.appendChild(x);
- $('a-vac').textContent=vacText(d.vac);
  show('act');later(14000);
 }
 function stamp(t){
@@ -435,8 +431,6 @@ $('l-send').onclick=function(){
   msg('✓','Antrag gesendet',r.days+' Arbeitstag'+(r.days===1?'':'e')+' beantragt. Sie bekommen Bescheid.','ok',5000);
  }).catch(function(){$('l-send').disabled=false;$('l-err').textContent='Keine Verbindung. Bitte erneut versuchen.';$('l-err').hidden=false;});
 };
-$('b-menu').onclick=function(){S.mode='leave';$('h-title').textContent='Urlaub beantragen';$('h-sub').textContent='Bitte Karte ans Tablet halten';$('h-cancel').hidden=false;show('home');later(30000);};
-$('b-cancel').onclick=home;
 /* NFC */
 function wake(){try{navigator.wakeLock&&navigator.wakeLock.request('screen').catch(function(){});}catch(e){}}
 function warn(t,btn){var w=$('warn');w.textContent=t;w.hidden=!t;$('h-btn').hidden=!btn;}
