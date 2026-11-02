@@ -11,6 +11,7 @@ import hashlib
 import itertools
 import shutil
 import smtplib
+import subprocess
 import sqlite3
 import threading
 import time
@@ -120,6 +121,7 @@ SETTINGS_DEFAULT = {
     "datev_mail": "", "smtp_host": "", "smtp_port": "587", "smtp_user": "",
     "smtp_pass": "", "absender": "",
     "start_datum": "2026-10-01",   # Anzeige ab diesem Tag; aeltere Rechnungen nur, solange sie offen sind
+    "drucker": "Brother HL-5250DN",   # Papierdrucker fuer PDFs im Unterordner 'Drucken' des Eingangsordners
     "lieferanten_zusatz": "",       # im Formular 'Rechnung bearbeiten' angelegte Lieferanten (stehen vor der Standardliste)
     "eingang_ordner": STANDARD_ORDNER, "lieferanten": STANDARD_LIEFERANTEN, "regeln": STANDARD_REGELN,
 }
@@ -429,6 +431,8 @@ EINST = """
 <div><label>SMTP-Passwort</label><input type=password name=smtp_pass value="{{s.smtp_pass}}"></div></div>
 <h3>Automatischer Eingang (Kassensoftware &rarr; PDF)</h3>
 <label>Eingangsordner (hier speicherst du die PDFs aus der Kasse ab)</label><input name=eingang_ordner value="{{s.eingang_ordner}}">
+<label>Papierdrucker für Rechnungen im Unterordner <code>Drucken</code> des Eingangsordners (Name wie in Windows; leer = nicht drucken)</label>
+<input name=drucker value="{{s.drucker}}">
 <label>Weitere Lieferanten (im Formular „Rechnung bearbeiten“ angelegt, gelten vor der Liste unten; gleiches Zeilenformat)</label>
 <textarea name=lieferanten_zusatz rows=3>{{s.lieferanten_zusatz}}</textarea>
 <label>Lieferanten (eine Zeile je Lieferant: <code>Name | Alias = Kategorie ; abzug</code> &ndash; Alias = weiterer Name im PDF/auf dem Kontoauszug,
@@ -1132,6 +1136,53 @@ def _kontoauszug_importieren(c, f, fertig):
     return True
 
 
+GS_EXE = r"C:\Program Files\PDF24\gs\bin\gswin64c.exe"   # Ghostscript aus PDF24 (stilles Drucken ohne Programmfenster)
+
+
+def drucke_pdf(pfad, drucker):
+    """Druckt eine PDF still auf dem Windows-Drucker (A4). True bei Erfolg."""
+    if not drucker or not Path(GS_EXE).exists():
+        return False
+    cmd = [GS_EXE, "-dBATCH", "-dNOPAUSE", "-dNOSAFER", "-q", "-sDEVICE=mswinpr2", "-sPAPERSIZE=a4", "-dFIXEDMEDIA",
+           "-dPDFFitPage", f"-sOutputFile=%printer%{drucker}", str(pfad)]
+    try:
+        r = subprocess.run(cmd, capture_output=True, timeout=180, creationflags=0x08000000)  # CREATE_NO_WINDOW
+        return r.returncode == 0
+    except (OSError, subprocess.SubprocessError):
+        return False
+
+
+def drucken_ordner_abarbeiten(ordner, drucker):
+    """PDFs, die du im Unterordner 'Drucken' ablegst, werden auf Papier gedruckt und danach in den Eingangsordner verschoben
+    (Dateiname bleibt, z. B. die Rechnungsnummer). Schlaegt der Druck fehl, wandert die Datei nach 'Drucken\\fehler'."""
+    dr = ordner / "Drucken"
+    try:
+        dr.mkdir(exist_ok=True)
+        dateien = [f for f in sorted(dr.iterdir()) if f.is_file() and f.suffix.lower() == ".pdf"
+                   and time.time() - f.stat().st_mtime >= 3]
+    except OSError:
+        return
+    for f in dateien:
+        if drucke_pdf(f, drucker):
+            ziel = ordner / f.name
+            if ziel.exists():
+                ziel = ordner / f"{f.stem}_{int(time.time())}{f.suffix}"
+            try:
+                shutil.move(str(f), str(ziel))
+            except OSError:
+                pass
+        else:
+            try:
+                (dr / "fehler").mkdir(exist_ok=True)
+                shutil.move(str(f), str(dr / "fehler" / f.name))
+                (dr / "fehler" / "druckfehler.txt").write_text(
+                    f"{datetime.now():%d.%m.%Y %H:%M}: {f.name} konnte nicht auf '{drucker}' gedruckt werden "
+                    "(Drucker/Ghostscript pruefen). Datei in den Ordner 'Drucken' zurueckziehen, um es erneut zu versuchen.\n",
+                    encoding="utf-8")
+            except OSError:
+                pass
+
+
 def eingang_einlesen():
     """Liest alle neuen PDFs/Bilder aus dem Eingangsordner. Eigene DB-Verbindung (laeuft auch im Thread)."""
     c = sqlite3.connect(DB)
@@ -1147,6 +1198,7 @@ def eingang_einlesen():
         return 0
     regeln = regeln_parsen(cfg["regeln"])
     n = 0
+    drucken_ordner_abarbeiten(ordner, (cfg.get("drucker") or "").strip())  # zuerst drucken, dann ganz normal einlesen
     for f in sorted(ordner.iterdir()):
         if f.is_file() and f.suffix.lower() in (".csv", ".xml", ".camt"):
             # Kontoauszug (CSV-CAMT / CAMT.053): einlesen; andere CSV/XML-Dateien bleiben unberuehrt liegen
