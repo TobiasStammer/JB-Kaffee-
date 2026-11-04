@@ -1148,6 +1148,137 @@ def _kontoauszug_importieren(c, f, fertig):
     return True
 
 
+LS_ORDNER = "Lieferscheine"
+_LS_NR = r"\d{2}[A-Z]{2}\d{5,}"   # z. B. 26LS085281 (JURA)
+
+
+def _seiten_texte(pfad):
+    """Text je Seite eines PDFs: eingebetteter Text, bei Scans OCR (je Seite in data/ocr zwischengespeichert)."""
+    import pymupdf
+    roh = Path(pfad).read_bytes()
+    h = hashlib.sha1(roh).hexdigest()
+    out = []
+    for i, pg in enumerate(pymupdf.open(stream=roh, filetype="pdf")):
+        t = pg.get_text() or ""
+        if len(re.sub(r"\s", "", t)) < 40:
+            cache = DATA / "ocr" / f"{h}_s{i}.txt"
+            if cache.exists():
+                t = cache.read_text(encoding="utf-8")
+            else:
+                eng = _ocr_engine()
+                t = ""
+                if eng is not None:
+                    res = eng(pg.get_pixmap(dpi=200).tobytes("png"))
+                    t = "\n".join(res.txts) if res is not None and res.txts else ""
+                cache.parent.mkdir(exist_ok=True)
+                cache.write_text(t, encoding="utf-8")
+        out.append(t)
+    return out
+
+
+def _seite_art(t):
+    """('ls', Nr) = erste Seite eines Lieferscheins, ('serial', Nr) = Seriennummernliste zu Lieferschein Nr,
+    ('pick', '') = Pickliste, ('fort', '') = Folgeseite, ('anders', '') = etwas anderes (z. B. Rechnung)."""
+    kopf = t[:2500]
+    if re.search(r"Seriennummern\s+f[üu]r\s+Lieferschein", kopf, re.I):
+        m = re.search(r"\b(" + _LS_NR + r")\b", kopf)
+        return "serial", (m.group(1).upper() if m else "")
+    if re.search(r"Pickliste", kopf, re.I):
+        return "pick", ""
+    if re.search(r"Rechnungs?-?\s?(?:nr|nummer|datum)\b", kopf, re.I):
+        return "anders", ""
+    m = re.search(r"Lieferschein\s*-?\s*(?:Nr\.?|nummer)\s*[:.]?\s*(" + _LS_NR + r"|[A-Z0-9][A-Z0-9\-/]{4,})", kopf, re.I)
+    if m:
+        return "ls", m.group(1).upper()
+    if re.search(r"Seite\s*[2-9]\s*(?:/|von)", kopf + t[-300:], re.I):
+        return "fort", ""
+    return "anders", ""
+
+
+def _pdf_schreiben(ziel, quellen):
+    """Schreibt ein PDF aus Seiten [(Pfad, [Seitenindex, ...]), ...]. Bestehende Zieldatei wird ersetzt."""
+    w = PdfWriter()
+    for pfad, seiten in quellen:
+        r = PdfReader(str(pfad))
+        for i in seiten:
+            w.add_page(r.pages[i])
+    ziel.parent.mkdir(parents=True, exist_ok=True)
+    tmp = ziel.with_suffix(".tmp")
+    with open(tmp, "wb") as fh:
+        w.write(fh)
+    tmp.replace(ziel)
+
+
+def lieferschein_ablegen(f, ordner, fertig, cfg):
+    """Rein aus Lieferscheinen bestehendes PDF (auch ein Sammel-Scan): in einzelne Lieferscheine trennen, Seriennummernliste
+    und Pickliste zum jeweiligen Lieferschein dazu, ablegen unter Eingang\\Lieferscheine\\<Hersteller>\\<Lieferscheinnummer>.pdf.
+    Gehoert eine Seriennummernliste zu einem Lieferschein, der noch nicht da ist, wartet sie in '_Seriennummern offen'.
+    True = erledigt, False = kein reines Lieferschein-PDF (normal einlesen)."""
+    try:
+        texte = _seiten_texte(f)
+    except Exception as e:  # noqa: BLE001
+        print("Lieferschein-Pruefung:", f.name, e)
+        return False
+    arten = [_seite_art(t) for t in texte]
+    if not arten or arten[0][0] not in ("ls", "serial") or any(a == "anders" for a, _ in arten):
+        return False
+    docs, serials, aktuell = [], [], None
+    for i, (art, nr) in enumerate(arten):
+        if art == "ls":
+            aktuell = dict(nr=nr, seiten=[i], serien=[], text=texte[i])
+            docs.append(aktuell)
+        elif art in ("pick", "fort"):
+            if aktuell is None:
+                return False
+            aktuell["seiten"].append(i)
+        else:  # serial
+            serials.append((nr, i))
+    liste = lieferanten_suchliste(cfg)
+    basis = ordner / LS_ORDNER
+    offen = basis / "_Seriennummern offen"
+    zeit = int(time.time())
+
+    def sauber(x):
+        return re.sub(r'[\\/:*?"<>|]+', "_", x).strip() or "unbekannt"
+
+    for nr, i in list(serials):  # Seriennummern zu einem Lieferschein derselben Datei
+        d = next((x for x in docs if x["nr"] == nr), None)
+        if d:
+            d["serien"].append(i)
+            serials.remove((nr, i))
+    for d in docs:
+        hersteller = sauber(finde_lieferant(d["text"], "", liste) or "_unklar")
+        name = sauber(d["nr"]) + ".pdf"
+        ziel = basis / hersteller / name
+        if ziel.exists():
+            ziel = ziel.with_name(f"{ziel.stem}_{zeit}.pdf")
+        quellen = [(f, d["seiten"] + d["serien"])]
+        wartend = offen / name  # Seriennummern, die schon vorher da waren
+        if wartend.exists():
+            quellen.append((wartend, list(range(len(PdfReader(str(wartend)).pages)))))
+        _pdf_schreiben(ziel, quellen)
+        if wartend.exists():
+            wartend.unlink()
+    gruppen = {}
+    for nr, i in serials:  # Seriennummern ohne Lieferschein in dieser Datei
+        gruppen.setdefault(nr or f"ohne-Nr-{zeit}", []).append(i)
+    for nr, seiten in gruppen.items():
+        name = sauber(nr) + ".pdf"
+        vorhanden = next(iter(sorted(basis.glob("*/" + name))), None) if basis.exists() else None
+        vorhanden = vorhanden if vorhanden and vorhanden.parent.name != "_Seriennummern offen" else None
+        if vorhanden:  # Lieferschein liegt schon im Archiv: Seriennummern hinten anhaengen
+            alt = list(range(len(PdfReader(str(vorhanden)).pages)))
+            _pdf_schreiben(vorhanden, [(vorhanden, alt), (f, seiten)])
+        else:
+            ziel = offen / name
+            quellen = [(f, seiten)]
+            if ziel.exists():
+                quellen.insert(0, (ziel, list(range(len(PdfReader(str(ziel)).pages)))))
+            _pdf_schreiben(ziel, quellen)
+    shutil.move(str(f), str(fertig / f"lieferschein_{zeit}_{f.name}"))
+    return True
+
+
 def eingang_einlesen():
     """Liest alle neuen PDFs/Bilder aus dem Eingangsordner. Eigene DB-Verbindung (laeuft auch im Thread)."""
     c = sqlite3.connect(DB)
@@ -1183,6 +1314,16 @@ def eingang_einlesen():
             shutil.move(str(f), str(fertig / f"doppelt_{int(time.time())}_{f.name}"))
             continue
         text = pdf_text(f)
+        if f.suffix.lower() == ".pdf" and re.search(r"Lieferschein", text, re.I):  # Lieferscheine: trennen/zusammenfuehren/ablegen
+            lsh = DATA / "lieferschein_hashes.txt"
+            if h in (lsh.read_text().split() if lsh.exists() else []):
+                shutil.move(str(f), str(fertig / f"doppelt_{int(time.time())}_{f.name}"))
+                continue
+            if lieferschein_ablegen(f, ordner, fertig, cfg):
+                with open(lsh, "a") as fh:
+                    fh.write(h + "\n")
+                n += 1
+                continue
         if ist_kontoauszug(text):  # Kontoauszug als PDF: nur Datenquelle, kein Beleg (das Steuerbuero holt ihn selbst)
             (DATA / "kontoauszuege").mkdir(exist_ok=True)
             shutil.move(str(f), str(DATA / "kontoauszuege" / f"{datetime.now():%Y%m%d-%H%M%S}_{secure_filename(f.name)}"))
