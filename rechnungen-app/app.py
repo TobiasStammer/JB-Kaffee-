@@ -150,6 +150,7 @@ def init_db():
     CREATE TABLE IF NOT EXISTS kasse_geprueft(dokument_id INTEGER PRIMARY KEY);
     CREATE TABLE IF NOT EXISTS kassentage(dokument_id INTEGER PRIMARY KEY, datum TEXT, credit REAL, bar REAL, scheck REAL);
     CREATE TABLE IF NOT EXISTS bank_ignoriert(bank_id INTEGER PRIMARY KEY, grund TEXT);
+    CREATE TABLE IF NOT EXISTS bank_zuordnung(bank_id INTEGER PRIMARY KEY, rechnungsnr TEXT);
     CREATE TABLE IF NOT EXISTS quittiert(rechnungsnr TEXT PRIMARY KEY, bemerkung TEXT, am TEXT);
     CREATE TABLE IF NOT EXISTS bank(
         id INTEGER PRIMARY KEY AUTOINCREMENT, datum TEXT, betrag REAL, name TEXT, zweck TEXT,
@@ -2062,7 +2063,12 @@ def bank_zahlungen():
         "SELECT rechnungsnr, lieferant FROM rechnungen WHERE rechnungsnr<>'' AND belegart=?", (EINGANG,))}
     out = []
     zahlen_gesamt = set()
+    manuell = {r[0]: r[1] for r in db().execute("SELECT bank_id, rechnungsnr FROM bank_zuordnung")}
     for b in db().execute("SELECT * FROM bank ORDER BY datum, id"):
+        if b["id"] in manuell:  # per Klick einer Rechnung zugeordnet
+            out.append(("Kontoauszug", b["datum"], abs(b["betrag"]), manuell[b["id"]],
+                        f"{b['name']}: {b['zweck'][:60]} (manuell zugeordnet)", b["id"]))
+            continue
         text = f"{b['zweck']} {b['name']}"
         nt = _norm(text)
         treffer = []
@@ -2309,12 +2315,20 @@ BANK = """
 {{ credit_tabelle('Credit-Zahlungen: Geldeingang bestätigt', credit_ok, credit_ok_summe, '', false) }}
 <details class=bank><summary>Bankausgänge ohne Rechnung ({{ohne|length}}) &ndash; {{'%.2f'|format(ohne_summe)|replace('.',',')}} &euro;</summary>
 <p><small>Zahlungen vom Konto, zu denen keine Eingangsrechnung gefunden wurde &ndash; entweder fehlt die Rechnung in der App oder es braucht keinen Beleg
-(z. B. Versicherung, Steuer). Dann auf &bdquo;Kein Beleg nötig&ldquo; klicken.</small></p>
-<table><tr><th>Datum</th><th>Empfänger</th><th>Verwendungszweck</th><th class=r>Betrag</th><th></th></tr>
+(z. B. Versicherung, Steuer). Dann auf &bdquo;Kein Beleg nötig&ldquo; klicken. Gehört die Zahlung zu einer vorhandenen Rechnung, wähle sie
+aus und klicke &bdquo;Zuordnen&ldquo;.</small></p>
+<table><tr><th>Datum</th><th>Empfänger</th><th>Verwendungszweck</th><th class=r>Betrag</th><th>Rechnung zuordnen</th><th></th></tr>
 {% for b in ohne %}<tr><td>{{b.datum}}</td><td>{{b.name}}</td><td><small>{{b.zweck[:90]}}</small></td><td class=r>{{'%.2f'|format(b.betrag)|replace('.',',')}}</td>
+<td><form method=post action="{{url_for('bank_zuordnen')}}" style="display:flex;gap:6px"><input type=hidden name=bank_id value="{{b.id}}"><input type=hidden name=zurueck value="{{zurueck}}">
+<select name=rechnungsnr required style="max-width:300px;padding:4px"><option value="">&ndash; offene Rechnung wählen &ndash;</option>
+{% for k in b.kandidaten %}<option value="{{k.rechnungsnr}}">{{k.lieferant}} &middot; {{k.rechnungsnr}} &middot; {{'%.2f'|format(k.brutto)|replace('.',',')}} &euro;</option>{% endfor %}</select>
+<button class=sek style="padding:4px 10px">Zuordnen</button></form></td>
 <td><form method=post action="{{url_for('bank_ignorieren')}}" style="display:flex;gap:6px"><input type=hidden name=bank_id value="{{b.id}}"><input type=hidden name=zurueck value="{{zurueck}}">
 <input name=grund placeholder="Grund (optional)" style="width:150px;padding:4px"><button class=sek style="padding:4px 10px;white-space:nowrap">Kein Beleg nötig</button></form></td></tr>
-{% else %}<tr><td colspan=5 style="color:#047857"><b>&#10003; Alle Bankausgänge sind Rechnungen zugeordnet.</b></td></tr>{% endfor %}</table>
+{% else %}<tr><td colspan=6 style="color:#047857"><b>&#10003; Alle Bankausgänge sind Rechnungen zugeordnet.</b></td></tr>{% endfor %}</table>
+{% if manuell_liste %}<details style="margin-top:12px"><summary>{{manuell_liste|length}} von Hand zugeordnet</summary>
+<table>{% for m in manuell_liste %}<tr><td>{{m.datum}}</td><td>{{m.name}}</td><td class=r>{{'%.2f'|format(m.betrag)|replace('.',',')}}</td><td>&rarr; Rechnung {{m.rechnungsnr}}</td>
+<td><form method=post action="{{url_for('bank_zuordnung_loesen')}}"><input type=hidden name=bank_id value="{{m.id}}"><input type=hidden name=zurueck value="{{zurueck}}"><button class=sek style="padding:4px 10px">Zuordnung lösen</button></form></td></tr>{% endfor %}</table></details>{% endif %}
 {% if ignoriert %}<details style="margin-top:12px"><summary>{{ignoriert|length}} als &bdquo;kein Beleg nötig&ldquo; markiert</summary>
 <table>{% for b in ignoriert %}<tr><td>{{b.datum}}</td><td>{{b.name}}</td><td class=r>{{'%.2f'|format(b.betrag)|replace('.',',')}}</td><td><small>{{b.grund}}</small></td>
 <td>{% if not b.auto %}<form method=post action="{{url_for('bank_ignorieren')}}"><input type=hidden name=bank_id value="{{b.id}}"><input type=hidden name=aufheben value=1><input type=hidden name=zurueck value="{{zurueck}}"><button class=sek style="padding:4px 10px">wieder anzeigen</button></form>{% endif %}</td></tr>{% endfor %}</table></details>{% endif %}</details>"""
@@ -2376,7 +2390,7 @@ def bank_seite():
         elif any(k in text for k in BANK_OHNE_BELEG):
             ignoriert.append(dict(dict(b), grund="Bankentgelt \u2013 kein Beleg nötig", auto=True))
         else:
-            ohne.append(b)
+            ohne.append(dict(b))
     karten = kartenabrechnungen()
     gedeckt = {}
     for bid, k in karten.items():
@@ -2392,7 +2406,14 @@ def bank_seite():
     credit_ok = [dict(kasse=k["kasse"], betrag=k["betrag"], bank="Gutschrift vom " + dmy(bank_datum[bid]))
                  for bid, k in sorted(karten.items(), key=lambda x: x[1]["dat"], reverse=True)
                  if k["kasse"] and k["dat"] >= start and (not monat or k["dat"][:7] == monat)]
-    return page(BANK, monat=monat, summen=summen, info=info, skonto_liste=skonto_offen(),
+    offene_eingang = db().execute("SELECT rechnungsnr, lieferant, brutto, datum FROM rechnungen WHERE belegart=? AND rechnungsnr<>'' "
+                                  "AND COALESCE(zahlung,'offen')<>'bezahlt' ORDER BY datum DESC", (EINGANG,)).fetchall()
+    for b in ohne:  # passendste Rechnung (naechster Betrag) zuerst
+        b["kandidaten"] = sorted(offene_eingang, key=lambda r: abs(abs(r["brutto"] or 0) - abs(b["betrag"])))
+    manuell_liste = [dict(r) for r in db().execute(
+        "SELECT b.id, b.datum, b.name, b.betrag, z.rechnungsnr FROM bank_zuordnung z JOIN bank b ON b.id=z.bank_id "
+        "ORDER BY b.datum DESC, b.id DESC")]
+    return page(BANK, monat=monat, summen=summen, info=info, skonto_liste=skonto_offen(), manuell_liste=manuell_liste,
                 credit_offen=credit_offen, credit_offen_summe=sum(c["betrag"] for c in credit_offen),
                 credit_ok=credit_ok, credit_ok_summe=sum(c["betrag"] for c in credit_ok),
                 offene_liste=offene_liste, offene_summe=sum(abs(r["brutto"] or 0) for r in offene_liste),
@@ -2410,6 +2431,32 @@ def bank_aktualisieren():
     flash(f"{n} neue Dateien eingelesen, Abgleich aktualisiert." if n else "Keine neuen Dateien - Abgleich aktualisiert.")
     monat = request.form.get("monat", "")
     return redirect(url_for("bank_seite", monat=monat) if monat else url_for("bank_seite"))
+
+
+@app.route("/bank/zuordnen", methods=["POST"])
+def bank_zuordnen():
+    """Bankausgang per Klick einer vorhandenen Eingangsrechnung zuordnen (zaehlt als Zahlung dieser Rechnung)."""
+    bid = request.form.get("bank_id", type=int)
+    nr = request.form.get("rechnungsnr", "").strip()
+    if bid and nr:
+        db().execute("INSERT OR REPLACE INTO bank_zuordnung(bank_id, rechnungsnr) VALUES(?,?)", (bid, nr))
+        db().commit()
+        zahlungen_synchronisieren()
+        flash(f"Bankbuchung der Rechnung {nr} zugeordnet.")
+    ziel = request.form.get("zurueck", "")
+    return redirect(ziel if ziel.startswith("/bank") else url_for("bank_seite"))
+
+
+@app.route("/bank/zuordnung-loesen", methods=["POST"])
+def bank_zuordnung_loesen():
+    bid = request.form.get("bank_id", type=int)
+    if bid:
+        db().execute("DELETE FROM bank_zuordnung WHERE bank_id=?", (bid,))
+        db().commit()
+        zahlungen_synchronisieren()
+        flash("Zuordnung gelöst.")
+    ziel = request.form.get("zurueck", "")
+    return redirect(ziel if ziel.startswith("/bank") else url_for("bank_seite"))
 
 
 @app.route("/bank/ignorieren", methods=["POST"])
