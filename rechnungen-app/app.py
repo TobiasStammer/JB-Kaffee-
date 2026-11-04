@@ -1281,6 +1281,8 @@ def lieferschein_ablegen(f, ordner, fertig, cfg, c=None):
             serials.remove((nr, i))
     for d in docs:
         hersteller = sauber(finde_lieferant(d["text"], "", liste) or "_unklar")
+        if d["nr"].upper().startswith("JG"):  # JURA Gastro liefert auch mit dem Briefkopf der Elektrogeraete-GmbH (Nummer JG26L...)
+            hersteller = "Jura Gastro"
         name = sauber(d["nr"]) + ".pdf"
         ziel = basis / hersteller / name
         if ziel.exists():
