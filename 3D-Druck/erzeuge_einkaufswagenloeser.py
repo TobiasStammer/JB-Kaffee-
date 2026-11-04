@@ -23,6 +23,13 @@ TIEFE = 0.6          # mm Tiefe der Logo-Vertiefung
 LOGO_BREITE = 17.0   # mm Breite des Logos
 SPIEL = 0.0          # mm Spiel der Logo-Einlage (Zweifarbdruck), 0 = bündig
 
+STICKER_D = 20.0     # mm Durchmesser des NFC-Stickers (25 mm passt nicht: Körper ist nur 25 mm breit)
+STICKER_SPIEL = 0.4  # mm Spiel um den Sticker (Durchmesser der Tasche = Sticker + Spiel)
+STICKER_Y = 40.0     # mm Mitte des Stickers von der Unterkante (Loch sitzt bei ca. 61,5 mm)
+TASCHE_TIEFE = 0.6   # mm Tiefe der offenen Tasche (Sticker ca. 0,3-0,5 mm dick)
+HOHLRAUM_Z = 1.0     # mm Boden unter dem eingeschlossenen Sticker; Druck-Pause bei dieser Hoehe
+HOHLRAUM_H = 0.6     # mm Hoehe des Hohlraums (darüber bleiben DICKE-1,0-0,6 = 0,4 mm Deckel)
+
 MM = 25.4 / 72.0
 
 
@@ -124,7 +131,7 @@ def lade_logo():
     sys.exit("Logo nicht gefunden")
 
 
-def vorschau(body, logo, loch, pfad):
+def vorschau(body, logo, loch, pfad, sticker=None):
     s = 12
     minx, miny, maxx, maxy = body.bounds
     im = Image.new("RGB", (int((maxx - minx) * s) + 40, int((maxy - miny) * s) + 40), "white")
@@ -136,6 +143,10 @@ def vorschau(body, logo, loch, pfad):
     dr.polygon(pt(body), fill=(200, 205, 212), outline=(40, 40, 40))
     for g in ([loch] if loch is not None else []):
         dr.polygon(pt(g), fill="white", outline=(40, 40, 40))
+    if sticker is not None:
+        dr.polygon(pt(sticker), fill=(235, 238, 242), outline=(180, 40, 40))
+        cx, cy = sticker.centroid.x, sticker.centroid.y
+        dr.text(((cx - minx) * s + 20 - 22, (maxy - cy) * s + 20 - 6), "NFC", fill=(180, 40, 40))
     geoms = logo.geoms if logo.geom_type == "MultiPolygon" else [logo]
     for g in geoms:
         dr.polygon(pt(g), fill=(51, 65, 85))
@@ -181,9 +192,27 @@ def main():
     out = os.path.join(HERE)
     koerper.export(os.path.join(out, "einkaufswagenloeser_JB_koerper.stl"))
     einlage.export(os.path.join(out, "einkaufswagenloeser_JB_logo-einlage.stl"))
-    kombi = trimesh.util.concatenate([koerper, einlage])
     print("Körper watertight:", koerper.is_watertight, "Volumen %.0f mm³" % koerper.volume, "Einlage watertight:", einlage.is_watertight)
-    vorschau(body, logo, loch, os.path.join(out, "vorschau.png"))
+
+    # NFC-Sticker: Position pruefen, Varianten mit Tasche bauen
+    from shapely.geometry import Point
+    tasche = Point(achse, STICKER_Y).buffer((STICKER_D + STICKER_SPIEL) / 2, 64)
+    assert body_mit_loch.contains(tasche.buffer(2.0)), "Sticker-Tasche passt nicht in den Körper (Rand < 2 mm)"
+    assert not tasche.buffer(1.0).intersects(logo), "Sticker-Tasche kollidiert mit Logo"
+    r = (STICKER_D + STICKER_SPIEL) / 2
+
+    def zylinder(z0, z1):
+        z = trimesh.creation.cylinder(radius=r, height=z1 - z0, sections=96)
+        z.apply_translation([achse, STICKER_Y, (z0 + z1) / 2])
+        return z
+
+    offen = trimesh.boolean.difference([koerper, zylinder(DICKE - TASCHE_TIEFE, DICKE + 0.5)], engine="manifold")
+    zu = trimesh.boolean.difference([koerper, zylinder(HOHLRAUM_Z, HOHLRAUM_Z + HOHLRAUM_H)], engine="manifold")
+    offen.export(os.path.join(out, "einkaufswagenloeser_JB_NFC_offene-tasche.stl"))
+    zu.export(os.path.join(out, "einkaufswagenloeser_JB_NFC_eingeschlossen.stl"))
+    print("NFC offen watertight:", offen.is_watertight, "| eingeschlossen watertight:", zu.is_watertight,
+          "| Sticker %.0f mm bei y=%.0f mm, Rand zur Kontur >= 2 mm" % (STICKER_D, STICKER_Y))
+    vorschau(body, logo, loch, os.path.join(out, "vorschau.png"), tasche)
 
 
 if __name__ == "__main__":
