@@ -1199,8 +1199,9 @@ def _seite_art(t):
     if re.search(r"Seriennummern\s+f[üu]r\s+Lieferschein", kopf, re.I):
         m = re.search(r"\b(" + _LS_NR + r")\b", kopf)
         return "serial", (m.group(1).upper() if m else "")
-    if re.search(r"Pickliste", kopf, re.I):
-        return "pick", ""
+    if re.search(r"Pickliste", kopf, re.I):  # Pickliste des BND-Shops = eigener Lieferschein mit eigener Nummer
+        m = re.search(r"Lieferschein\s*[:.]?\s*(\d{5,})", kopf, re.I)
+        return "pick", (m.group(1) if m else "")
     if re.search(r"Rechnungs?-?\s?(?:nr|nummer|datum)\b", kopf, re.I):
         return "anders", ""
     # 'Lieferschein Nr. 26LS084420', 'Lieferschein: 26LS083746', 'Lieferschein: JG26L17536', 'Lieferschein 271443'
@@ -1260,7 +1261,10 @@ def lieferschein_ablegen(f, ordner, fertig, cfg, c=None):
         if art == "ls":
             aktuell = dict(nr=nr, seiten=[i], serien=[], text=texte[i])
             docs.append(aktuell)
-        elif art in ("pick", "fort"):
+        elif art == "pick":
+            aktuell = dict(nr=nr or f"Pickliste-{int(time.time())}-{i + 1}", seiten=[i], serien=[], text=texte[i], hersteller="BND")
+            docs.append(aktuell)
+        elif art == "fort":
             if aktuell is None:
                 return False
             aktuell["seiten"].append(i)
@@ -1283,6 +1287,8 @@ def lieferschein_ablegen(f, ordner, fertig, cfg, c=None):
         hersteller = sauber(finde_lieferant(d["text"], "", liste) or "_unklar")
         if d["nr"].upper().startswith("JG"):  # JURA Gastro liefert auch mit dem Briefkopf der Elektrogeraete-GmbH (Nummer JG26L...)
             hersteller = "Jura Gastro"
+        if d.get("hersteller"):
+            hersteller = d["hersteller"]
         name = sauber(d["nr"]) + ".pdf"
         ziel = basis / hersteller / name
         if ziel.exists():
