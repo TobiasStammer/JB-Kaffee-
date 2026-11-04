@@ -180,7 +180,7 @@ def init_db():
         c.execute("DELETE FROM kassenzeilen")
     except sqlite3.OperationalError:
         pass
-    for spalte in ("skonto_bis TEXT", "skonto_zahl REAL", "skonto_v2 INTEGER", "lastschrift INTEGER", "zu_rechnung TEXT"):  # Skonto-Frist und Zahlbetrag laut Rechnung
+    for spalte in ("skonto_bis TEXT", "skonto_zahl REAL", "skonto_v2 INTEGER", "lastschrift INTEGER", "zu_rechnung TEXT", "inhalt_geprueft INTEGER", "pn_geprueft INTEGER"):  # Skonto-Frist und Zahlbetrag laut Rechnung
         try:
             c.execute(f"ALTER TABLE rechnungen ADD COLUMN {spalte}")
         except sqlite3.OperationalError:
@@ -1030,7 +1030,23 @@ def ocr_text(pfad, max_seiten=3):
     return text
 
 
+_PDF_CACHE = {}   # (Pfad, Aenderungszeit, Groesse, Seiten) -> Text: dieselbe Datei wird nicht bei jedem Seitenaufruf neu gelesen
+
+
 def pdf_text(pfad, max_seiten=3):
+    try:
+        st = Path(pfad).stat()
+        schluessel = (str(pfad), st.st_mtime_ns, st.st_size, max_seiten)
+    except OSError:
+        return _pdf_text_lesen(pfad, max_seiten)
+    if schluessel not in _PDF_CACHE:
+        if len(_PDF_CACHE) > 600:
+            _PDF_CACHE.clear()
+        _PDF_CACHE[schluessel] = _pdf_text_lesen(pfad, max_seiten)
+    return _PDF_CACHE[schluessel]
+
+
+def _pdf_text_lesen(pfad, max_seiten=3):
     text = ""
     if Path(pfad).suffix.lower() == ".pdf":
         try:
@@ -1229,7 +1245,9 @@ def bestellung_zuordnen():
 def bestelluebersicht_erkennen():
     """Kuerzlich abgelegte PDFs, die eine Bestelluebersicht sind (aber als Eingangsrechnung o. ae. eingelesen wurden), umstellen."""
     for r in db().execute("SELECT id, datei, notiz FROM rechnungen WHERE datei IS NOT NULL AND belegart IN (?,?) "
-                          "AND angelegt>=? ", (EINGANG, UNKLAR, (datetime.now() - timedelta(days=3)).isoformat(timespec="seconds"))).fetchall():
+                          "AND angelegt>=? AND inhalt_geprueft IS NULL",
+                          (EINGANG, UNKLAR, (datetime.now() - timedelta(days=3)).isoformat(timespec="seconds"))).fetchall():
+        db().execute("UPDATE rechnungen SET inhalt_geprueft=1 WHERE id=?", (r["id"],))  # jedes Dokument nur einmal lesen
         pfad = BELEGE / r["datei"]
         if not (pfad.exists() and pfad.suffix.lower() == ".pdf"):
             continue
@@ -2401,8 +2419,9 @@ def primanota_erkennen():
     """Primanota-PDFs (Buchungsliste der Kasse), die frueher als Ausgangsrechnung/unklar abgelegt wurden, gehoeren zu den
     Kassenbuch-Unterlagen: Belegart 'Primanota' (ohne Nummer/Betrag, nicht in Abgleich, Liste oder 'Zu pruefen')."""
     for r in db().execute("SELECT id, datei FROM rechnungen WHERE datei IS NOT NULL AND (rechnungsnr IS NULL OR rechnungsnr='') "
-                          "AND COALESCE(brutto,0)=0 AND belegart IN ('Rechnungsausgang Service','Rechnungsausgang Verkauf',?)",
+                          "AND COALESCE(brutto,0)=0 AND pn_geprueft IS NULL AND belegart IN ('Rechnungsausgang Service','Rechnungsausgang Verkauf',?)",
                           (UNKLAR,)).fetchall():
+        db().execute("UPDATE rechnungen SET pn_geprueft=1 WHERE id=?", (r["id"],))  # jedes Dokument nur einmal lesen
         pfad = BELEGE / r["datei"]
         if pfad.exists() and pfad.suffix.lower() == ".pdf" and pdf_text(pfad, max_seiten=1).lstrip().upper().startswith("PRIMANOTA"):
             db().execute("UPDATE rechnungen SET belegart='Primanota', lieferant='Primanota', rechnungsnr='', brutto=0 WHERE id=?",
