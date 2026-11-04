@@ -29,12 +29,13 @@ BREIT_AB = 23.0      # mm von unten: ab hier wird verbreitert (Hals liegt bei ca
 BREIT_BIS = 36.0     # mm von unten: ab hier volle Breite (weicher Uebergang)
 STICKER_SPIEL = 0.4  # mm Spiel um den Sticker (Tasche = Sticker + Spiel)
 MARGIN = 1.8         # mm Mindest-Wandstaerke zwischen Tasche und Aussenkontur
-LOGO2_BREITE = 19.0  # mm Logobreite im oberen Teil (NFC-unten-Varianten)
+LOGO3_BREITE = 18.0  # mm Logobreite auf dem runden Kopf (ueber dem Sticker)
+LOGO_TIEFE_NFC = 0.4 # mm Tiefe der Logo-Vertiefung ueber dem Sticker (darunter bleiben 0,4 mm)
 STICKER_FORMEN = {"rund25": ("kreis", 25.0), "rechteck10x20": ("rechteck", 20.0, 10.0)}
 STICKER_Y = 43.0     # mm Mitte des Stickers von der Unterkante (Loch sitzt bei ca. 61,5 mm)
 TASCHE_TIEFE = 0.6   # mm Tiefe der offenen Tasche (Sticker ca. 0,3-0,5 mm dick)
-HOHLRAUM_Z = 1.0     # mm Boden unter dem eingeschlossenen Sticker; Druck-Pause bei dieser Hoehe
-HOHLRAUM_H = 0.6     # mm Hoehe des Hohlraums (darüber bleiben DICKE-1,0-0,6 = 0,4 mm Deckel)
+HOHLRAUM_Z = 0.8     # mm Boden unter dem eingeschlossenen Sticker; Druck-Pause bei dieser Hoehe (4 Schichten à 0,2)
+HOHLRAUM_H = 0.4     # mm Hoehe des Hohlraums (Sticker ca. 0,3 mm)
 
 MM = 25.4 / 72.0
 
@@ -231,38 +232,39 @@ def nfc_unten(name, form, body, loch, achse, out):
         sys.exit("Keine passende Kopfgroesse gefunden (%s)" % name)
     S, D, kb, lochn, yneck, pk, m = best
 
-    # Logo in den oberen Teil
-    logo = lade_logo()
-    f_ = LOGO2_BREITE / (logo.bounds[2] - logo.bounds[0])
-    logo = affinity.scale(logo, f_, f_, origin=(0, 0))
-    lh = logo.bounds[3] - logo.bounds[1]
-    unten = max(pk.bounds[3], yneck) + 3.0
-    oben = lochn.bounds[1] - 3.0
-    logo = affinity.translate(logo, achse, (unten + oben) / 2)
-    assert kb.contains(logo.buffer(1.5)), "Logo passt oben nicht (%s)" % name
-    assert not pk.buffer(1.0).intersects(logo)
+    # Logo auf den runden Kopf, ueber den eingeschlossenen Sticker
+    logo0 = lade_logo()
+    logo = None
+    for bw in [LOGO3_BREITE - i for i in range(0, 9)]:
+        f_ = bw / (logo0.bounds[2] - logo0.bounds[0])
+        cand = affinity.translate(affinity.scale(logo0, f_, f_, origin=(0, 0)), achse, yc * S)
+        if kb.contains(cand.buffer(1.2)):
+            logo = cand
+            break
+    assert logo is not None, "Logo passt nicht auf den Kopf (%s)" % name
+    print("   Logo %.0f mm breit, Mitte y=%.1f mm" % (bw, yc * S))
+    LT = LOGO_TIEFE_NFC
+    assert DICKE - LT - (HOHLRAUM_Z + HOHLRAUM_H) >= 0.4 - 1e-9, "zu wenig Material ueber dem Sticker"
     kminx, kminy, kmaxx, kmaxy = kb.bounds
-    print("%s: Kopf x%.2f, Hals +%.0f mm -> %.1f x %.1f mm, Wand %.1f mm, Logo %.1f mm hoch" % (name, S, D, kmaxx - kminx, kmaxy - kminy, m, lh))
+    print("%s: Kopf x%.2f, Hals +%.0f mm -> %.1f x %.1f mm, Wand %.1f mm" % (name, S, D, kmaxx - kminx, kmaxy - kminy, m))
 
-    boden = trimesh.creation.extrude_polygon(kb, DICKE - TIEFE)
+    boden = trimesh.creation.extrude_polygon(kb, DICKE - LT)
     teile = kb.difference(logo.buffer(SPIEL))
     teile = list(teile.geoms) if teile.geom_type == "MultiPolygon" else [teile]
-    deckel = [trimesh.creation.extrude_polygon(t, TIEFE) for t in teile]
+    deckel = [trimesh.creation.extrude_polygon(t, LT) for t in teile]
     for mm in deckel:
-        mm.apply_translation([0, 0, DICKE - TIEFE])
+        mm.apply_translation([0, 0, DICKE - LT])
     koerper = trimesh.boolean.union([boden] + deckel, engine="manifold")
-
-    def prisma(z0, z1):
-        pr = trimesh.creation.extrude_polygon(pk, z1 - z0)
-        pr.apply_translation([0, 0, z0])
-        return pr
-
-    offen = trimesh.boolean.difference([koerper, prisma(DICKE - TASCHE_TIEFE, DICKE + 0.5)], engine="manifold")
-    zu = trimesh.boolean.difference([koerper, prisma(HOHLRAUM_Z, HOHLRAUM_Z + HOHLRAUM_H)], engine="manifold")
-    offen.export(os.path.join(out, "einkaufswagenloeser_JB_NFC-unten_%s_offene-tasche.stl" % name))
-    zu.export(os.path.join(out, "einkaufswagenloeser_JB_NFC-unten_%s_eingeschlossen.stl" % name))
-    print("   watertight: offen %s, eingeschlossen %s" % (offen.is_watertight, zu.is_watertight))
-    vorschau(kb, logo, lochn, os.path.join(out, "vorschau_NFC-unten_%s.png" % name), pk)
+    hohl = trimesh.creation.extrude_polygon(pk, HOHLRAUM_H)
+    hohl.apply_translation([0, 0, HOHLRAUM_Z])
+    zu = trimesh.boolean.difference([koerper, hohl], engine="manifold")
+    lt_ = list(logo.geoms) if logo.geom_type == "MultiPolygon" else [logo]
+    einlage = trimesh.util.concatenate([trimesh.creation.extrude_polygon(t, LT) for t in lt_])
+    einlage.apply_translation([0, 0, DICKE - LT])
+    zu.export(os.path.join(out, "einkaufswagenloeser_JB_NFC_%s_logo-ueber-sticker.stl" % name))
+    einlage.export(os.path.join(out, "einkaufswagenloeser_JB_NFC_%s_logo-einlage.stl" % name))
+    print("   watertight: Körper %s, Einlage %s" % (zu.is_watertight, einlage.is_watertight))
+    vorschau(kb, logo, lochn, os.path.join(out, "vorschau_NFC_%s.png" % name), pk)
 
 
 def main():
