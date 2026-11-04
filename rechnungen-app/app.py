@@ -53,10 +53,11 @@ KATEGORIEN = {
     "Sonstiges": "4980",
 }
 BELEGARTEN = ["Rechnungsausgang Service", "Rechnungsausgang Verkauf", "Rechnungsausgang eBay",
-              "Rechnungseingang Lieferanten", "Lieferschein", "WERTGARANTIE Schadenabrechnung", "WERTGARANTIE Gutschrift",
+              "Rechnungseingang Lieferanten", "Lieferschein", "Bestellübersicht", "WERTGARANTIE Schadenabrechnung", "WERTGARANTIE Gutschrift",
               "Kassenbuch", "Monatsjournal Kasse", "Primanota",
               "Rechnungsausgangliste"]
 EINGANG = "Rechnungseingang Lieferanten"
+BESTELLUEBERSICHT = "Bestellübersicht"   # Shop-Bestellung zur Ausgangsrechnung (Zahlart, Gebuehr, Auszahlung); Abgleich ueber Name + Brutto
 UNKLAR = "Nicht zugeordnet"
 ZAHLARTEN = ("Bank", "Bar", "Karte", "Scheck")
 WG_AVIS = "WERTGARANTIE Schadenabrechnung"   # Info-Schreiben: WERTGARANTIE erstattet Kundenrechnungen (kein Zahlstatus, geht aber zur Buchhaltung)
@@ -101,7 +102,8 @@ Wentronic
 Wertgarantie
 BüroShop = Bürobedarf
 büroshop24 GmbH = Bürobedarf"""
-STANDARD_REGELN = """Primanota = primanota
+STANDARD_REGELN = """Bestellübersicht = bestellübersicht, bestelluebersicht
+Primanota = primanota
 WERTGARANTIE Schadenabrechnung = schadenabrechnung, schadenregulierung
 WERTGARANTIE Gutschrift = beratungshonorar, gutschrift wertgarantie
 Rechnungsausgangliste = rechnungsausgangsliste, rechnungsausgangliste, ausgangsliste
@@ -360,8 +362,8 @@ INDEX = """
 <table><tr><th></th><th>Datum</th><th>Belegart</th><th>Lieferant</th><th>Rechnungsnr.</th><th>Kategorie</th>
 <th class=r>Brutto</th><th>Zahlung</th><th>Bezahlt am</th><th>Zahlart</th><th>DATEV</th><th>Beleg</th><th></th></tr>
 {% for r in rows %}<tr>
- <td><input type=checkbox name=ids value="{{r.id}}" style="width:auto" {{'checked' if r.status!='an DATEV gesendet' and r.belegart!='Lieferschein'}}></td>
- <td>{{r.datum}}</td><td><small>{{r.belegart}}</small></td><td>{{r.lieferant}}</td><td>{{r.rechnungsnr}}{% if r.belegart=='Lieferschein' %}{% if r.zu_rechnung %}<br><small>&rarr; Rechnung {{r.zu_rechnung}}</small>{% else %}<br><small style="color:#b45309">keiner Rechnung zugeordnet</small>{% endif %}{% endif %}</td><td>{% if r.belegart!='Lieferschein' %}{{r.kategorie}} <small>({{r.konto}})</small>{% endif %}</td>
+ <td><input type=checkbox name=ids value="{{r.id}}" style="width:auto" {{'checked' if r.status!='an DATEV gesendet' and r.belegart not in ('Lieferschein','Bestellübersicht')}}></td>
+ <td>{{r.datum}}</td><td><small>{{r.belegart}}</small></td><td>{{r.lieferant}}</td><td>{{r.rechnungsnr}}{% if r.belegart in ('Lieferschein','Bestellübersicht') %}{% if r.zu_rechnung %}<br><small>&rarr; Rechnung {{r.zu_rechnung}}</small>{% else %}<br><small style="color:#b45309">keiner Rechnung zugeordnet</small>{% endif %}{% endif %}</td><td>{% if r.belegart not in ('Lieferschein','Bestellübersicht') %}{{r.kategorie}} <small>({{r.konto}})</small>{% endif %}</td>
  <td class=r>{{'%.2f'|format(r.brutto)|replace('.',',')}}</td>
  {% if r.belegart in RECHNUNGSARTEN %}<td class="z-{{r.zahlung or 'offen'}}">{{r.zahlung or 'offen'}}{% if r.zahlung!='bezahlt' and r.skonto and r.skonto_bis and r.skonto_bis>=heute and not r.lastschrift and r.lieferant not in lastschrift_lief %}<br><small style="color:#b45309">Skonto {{'%g'|format(r.skonto)|replace('.',',')}} % bis {{r.skonto_bis[8:]}}.{{r.skonto_bis[5:7]}}.</small>{% endif %}</td>
  <td>{% if r.zahl_am %}{{r.zahl_am[8:]}}.{{r.zahl_am[5:7]}}.{{r.zahl_am[:4]}}{% endif %}</td>
@@ -386,6 +388,7 @@ INDEX = """
 FORM = """
 <form method=post enctype=multipart/form-data class=card>
 <h2>{{'Rechnung bearbeiten' if r.id else 'Neue Rechnung'}}</h2>
+{% if r.belegart=='Bestellübersicht' and r.notiz %}<p style="margin:0 0 10px"><small>{{r.notiz}}</small></p>{% endif %}
 <div class=grid>
 <div><label>Belegart</label><select name=belegart>
  {% for b in BELEGARTEN %}<option {{'selected' if b==r.belegart}}>{{b}}</option>{% endfor %}</select></div>
@@ -403,7 +406,7 @@ FORM = """
  {% for k,v in KAT.items() %}<option {{'selected' if k==r.kategorie}}>{{k}}</option>{% endfor %}</select></div>
 <div><label>Aufwandskonto (leer = Standard der Kategorie)</label><input name=konto value="{{r.konto or ''}}"></div>
 <div><label>Zahlung (aus Kassenbuch/Kontoauszug)</label><input disabled value="{{r.zahlung or 'offen'}}{{' – '~(r.zahl_art or r.zahl_quelle)~' '~r.zahl_am if r.zahl_am else ''}}"></div>
-{% if r.belegart=='Lieferschein' %}<div><label>Gehört zu Rechnung</label><select name=zu_rechnung><option value="">&ndash; keiner Rechnung zugeordnet &ndash;</option>
+{% if r.belegart in ('Lieferschein','Bestellübersicht') %}<div><label>Gehört zu Rechnung</label><select name=zu_rechnung><option value="">&ndash; keiner Rechnung zugeordnet &ndash;</option>
 {% for k in AUSWAHL %}<option value="{{k.rechnungsnr}}" {{'selected' if k.rechnungsnr==r.zu_rechnung}}>{{k.lieferant}} &middot; {{k.rechnungsnr}} &middot; {{k.datum}} &middot; {{'%.2f'|format(k.brutto)|replace('.',',')}} &euro;</option>{% endfor %}</select></div>{% endif %}
 <div><label>DATEV-Stand</label><select name=status>{% for s in STATUS %}<option {{'selected' if s==r.status}}>{{s}}</option>{% endfor %}</select></div>
 </div>
@@ -411,8 +414,8 @@ FORM = """
 <label>Beleg (PDF/JPG/PNG){{' – vorhanden, neue Datei ersetzt sie' if r.datei}}</label><input type=file name=datei accept=".pdf,.jpg,.jpeg,.png,.tif,.tiff">
 <p><button>Speichern</button> <a class="btn sek" href="{{url_for('index')}}">Abbrechen</a></p>
 </form>
-{% if LIEFERSCHEINE %}<div class=card><b>Lieferscheine zu dieser Rechnung</b><ul style="margin:6px 0 0 18px">
-{% for l in LIEFERSCHEINE %}<li><a href="{{url_for('bearbeiten',rid=l.id)}}">{{l.rechnungsnr}}</a> ({{l.lieferant}}, {{l.datum}}) &middot; <a href="{{url_for('beleg',rid=l.id)}}" target=_blank>PDF</a></li>{% endfor %}</ul></div>{% endif %}
+{% if LIEFERSCHEINE %}<div class=card><b>Zugehörige Unterlagen (Lieferscheine, Bestellübersicht)</b><ul style="margin:6px 0 0 18px">
+{% for l in LIEFERSCHEINE %}<li>{{l.belegart}}: <a href="{{url_for('bearbeiten',rid=l.id)}}">{{l.rechnungsnr}}</a> ({{l.lieferant}}, {{l.datum}}) &middot; <a href="{{url_for('beleg',rid=l.id)}}" target=_blank>PDF</a></li>{% endfor %}</ul></div>{% endif %}
 {% if r.id and r.datei %}<div class=card id=beleg><b>Beleg</b> &nbsp;<a href="{{url_for('beleg',rid=r.id)}}" target=_blank><small>in neuem Fenster öffnen</small></a>
 <iframe src="{{url_for('beleg',rid=r.id)}}" style="width:100%;height:1100px;border:1px solid var(--line);margin-top:8px;background:#fff"></iframe></div>{% endif %}
 {% if r.id %}<form method=post action="{{url_for('loeschen',rid=r.id)}}" onsubmit="return confirm('Rechnung wirklich löschen?')"><button class=sek>Löschen</button></form>{% endif %}"""
@@ -468,7 +471,7 @@ def pruefliste():
     start = settings()["start_datum"]
     out = []
     quitt = {r[0] for r in db().execute("SELECT rechnungsnr FROM quittiert")}  # als 0,00 bestaetigt = in Ordnung
-    for r in db().execute("SELECT id, datum, lieferant, belegart, rechnungsnr, brutto, zahlung FROM rechnungen "
+    for r in db().execute("SELECT id, datum, lieferant, belegart, rechnungsnr, brutto, zahlung, zu_rechnung FROM rechnungen "
                           "WHERE datei IS NOT NULL AND (datum>=? OR COALESCE(zahlung,'offen')<>'bezahlt') "
                           "AND belegart NOT IN ('Kassenbuch','Rechnungsausgangliste','Monatsjournal Kasse','Primanota') ORDER BY datum DESC, id DESC",
                           (start,)):
@@ -480,6 +483,8 @@ def pruefliste():
         if r["belegart"] in ("Rechnungsausgang Service", "Rechnungsausgang Verkauf") and not re.fullmatch(
                 r"26[13]\d{4}", r["rechnungsnr"] or ""):
             probleme.append("Ausgangsrechnung ohne eigene Nummer (261xxxx/263xxxx) - evtl. Eingangsrechnung?")
+        if r["belegart"] == BESTELLUEBERSICHT and not r["zu_rechnung"]:
+            probleme.append("keine passende Ausgangsrechnung (Name + Gesamtbetrag brutto) gefunden - bitte zuordnen")
         if r["belegart"] == EINGANG:
             if not r["brutto"] and (r["rechnungsnr"] or "") not in quitt:
                 probleme.append("Betrag fehlt (0,00 €)")
@@ -642,14 +647,21 @@ def bearbeiten(rid):
         flash("Änderungen gespeichert.")
         return redirect(url_for("index"))
     auswahl, lieferscheine = [], []
-    if r["belegart"] == "Lieferschein":  # Rechnungen zur Auswahl: gleicher Hersteller zuerst, dann die uebrigen (letzte 150 Tage)
+    if r["belegart"] == BESTELLUEBERSICHT:  # Ausgangsrechnungen zur Auswahl: gleicher Betrag und Name zuerst
+        bn = _norm(r["lieferant"] or "")
+        alle = db().execute("SELECT rechnungsnr, lieferant, brutto, datum FROM rechnungen WHERE belegart IN (?,?) AND rechnungsnr<>'' "
+                            "AND datum>=? ORDER BY datum DESC", AUSGANG_RECHNUNGEN[:2] + ((date.today() - timedelta(days=150)).isoformat(),)).fetchall()
+        auswahl = sorted(alle, key=lambda x: (0 if abs(abs(x["brutto"] or 0) - abs(r["brutto"] or 0)) < 0.005 else 1,
+                                              0 if _norm(x["lieferant"] or "") and (_norm(x["lieferant"] or "") in bn or bn in _norm(x["lieferant"] or "")) else 1))
+    elif r["belegart"] == "Lieferschein":  # Rechnungen zur Auswahl: gleicher Hersteller zuerst, dann die uebrigen (letzte 150 Tage)
         alle = db().execute("SELECT rechnungsnr, lieferant, brutto, datum FROM rechnungen WHERE belegart=? AND rechnungsnr<>'' "
                             "AND datum>=? ORDER BY datum DESC", (EINGANG, (date.today() - timedelta(days=150)).isoformat())).fetchall()
         kern = (r["lieferant"] or "").split()[0].lower() if r["lieferant"] else ""
         auswahl = sorted(alle, key=lambda x: 0 if kern and (x["lieferant"] or "").lower().startswith(kern) else 1)
     elif r["rechnungsnr"]:
-        lieferscheine = db().execute("SELECT id, rechnungsnr, lieferant, datum FROM rechnungen WHERE belegart='Lieferschein' "
-                                     "AND zu_rechnung=? ORDER BY datum", (r["rechnungsnr"],)).fetchall()
+        lieferscheine = db().execute("SELECT id, belegart, rechnungsnr, lieferant, datum FROM rechnungen "
+                                     "WHERE belegart IN ('Lieferschein', ?) AND zu_rechnung=? ORDER BY datum",
+                                     (BESTELLUEBERSICHT, r["rechnungsnr"])).fetchall()
     return page(FORM, r=type("R", (), dict(r)), KAT=KATEGORIEN, STATUS=STATUS, ZAHLUNG=ZAHLUNG, BELEGARTEN=BELEGARTEN_ALLE,
                 LIEFERANTEN=lieferanten_liste(settings()), AUSWAHL=auswahl, LIEFERSCHEINE=lieferscheine)
 
@@ -1164,6 +1176,72 @@ def _kontoauszug_importieren(c, f, fertig):
     return True
 
 
+def lese_bestelluebersicht(text):
+    """Bestelluebersicht aus dem Shop: Kunde (Rechnungsadresse), Gesamtbetrag brutto, Bestellnummer/-datum, Zahlart, Gebuehr, Auszahlung."""
+    if not re.match(r"\s*Bestell[üu]bersicht", text, re.I):
+        return None
+    def betrag(muster):
+        m = re.search(muster + r"\s*\n?\s*(-?\d[\d.]*,\d{2})\s*€", text, re.I)
+        return _betrag_de(m.group(1)) if m else None
+    gesamt = betrag(r"Gesamtbetrag\s+brutto")
+    name = ""
+    m = re.search(r"Rechnungsadresse\s*\n\s*Lieferadresse\s*\n\s*([^\n]+)", text)
+    if m:
+        name = m.group(1).strip()
+    nr = (re.search(r"Bestellnummer\s*\n\s*(\d+)", text) or re.search(r"Bestellung Nr\.\s*(\d+)", text) or [None, ""])[1]
+    d = re.search(r"Bestelldatum\s*\n\s*(\d{1,2})\.(\d{1,2})\.(\d{4})", text)
+    zahlart = (re.search(r"Zahlungsart\s*\n\s*([^\n]+)", text) or [None, ""])[1].strip()
+    m = re.search(r"Geb[üu]hr[^€]*?(-?\d[\d.]*,\d{2})\s*€", text, re.S)
+    gebuehr = _betrag_de(m.group(1)) if m else None
+    netto = betrag(r"Nettoeingang[^\n]*")
+    return dict(name=name, brutto=gesamt, nr=nr, zahlart=zahlart, gebuehr=gebuehr, auszahlung=netto,
+                datum=_iso_datum(d.group(1), d.group(2), d.group(3)) if d else "")
+
+
+def _bestell_notiz(b, dateiname):
+    teile = [dateiname.split(" | ")[0], f"Bestellung {b['nr']}" if b["nr"] else "", b["zahlart"]]
+    if b["gebuehr"] is not None:
+        teile.append(f"Gebühr {abs(b['gebuehr']):.2f} €".replace(".", ","))
+    if b["auszahlung"] is not None:
+        teile.append(f"Auszahlung {b['auszahlung']:.2f} €".replace(".", ","))
+    return " | ".join(t for t in teile if t)
+
+
+def bestellung_zuordnen():
+    """Ordnet Bestelluebersichten ohne Rechnung automatisch der Ausgangsrechnung zu: gleicher Gesamtbetrag brutto UND passender
+    Name (nur bei genau einem Treffer)."""
+    for b in db().execute("SELECT id, lieferant, brutto FROM rechnungen WHERE belegart=? AND COALESCE(zu_rechnung,'')=''",
+                          (BESTELLUEBERSICHT,)).fetchall():
+        bn = _norm(b["lieferant"] or "")
+        if not bn or not b["brutto"]:
+            continue
+        kand = []
+        for r in db().execute("SELECT rechnungsnr, lieferant FROM rechnungen WHERE belegart IN (?,?) AND rechnungsnr<>'' "
+                              "AND ABS(ABS(brutto)-?)<0.005", AUSGANG_RECHNUNGEN[:2] + (abs(b["brutto"]),)).fetchall():
+            rn = _norm(r["lieferant"] or "")
+            if rn and (rn in bn or bn in rn):
+                kand.append(r["rechnungsnr"])
+        if len(kand) == 1:
+            db().execute("UPDATE rechnungen SET zu_rechnung=? WHERE id=?", (kand[0], b["id"]))
+    db().commit()
+
+
+def bestelluebersicht_erkennen():
+    """Kuerzlich abgelegte PDFs, die eine Bestelluebersicht sind (aber als Eingangsrechnung o. ae. eingelesen wurden), umstellen."""
+    for r in db().execute("SELECT id, datei, notiz FROM rechnungen WHERE datei IS NOT NULL AND belegart IN (?,?) "
+                          "AND angelegt>=? ", (EINGANG, UNKLAR, (datetime.now() - timedelta(days=3)).isoformat(timespec="seconds"))).fetchall():
+        pfad = BELEGE / r["datei"]
+        if not (pfad.exists() and pfad.suffix.lower() == ".pdf"):
+            continue
+        b = lese_bestelluebersicht(pdf_text(pfad, max_seiten=2))
+        if b and b["brutto"]:
+            db().execute("UPDATE rechnungen SET belegart=?, lieferant=?, rechnungsnr=?, brutto=?, mwst_satz=0, kategorie='Sonstiges', "
+                         "konto='', notiz=?, datum=COALESCE(NULLIF(?,''), datum) WHERE id=?",
+                         (BESTELLUEBERSICHT, b["name"] or "Bestellübersicht", f"Bestellung {b['nr']}", b["brutto"],
+                          _bestell_notiz(b, r["notiz"] or ""), b["datum"], r["id"]))
+    db().commit()
+
+
 LS_ORDNER = "Lieferscheine"
 _LS_NR = r"\d{2}[A-Z]{2}\d{5,}"   # z. B. 26LS085281 (JURA)
 
@@ -1401,12 +1479,21 @@ def eingang_einlesen():
             b = finde_endsumme(text)
             if b is not None:
                 brutto, satz = b, finde_ausgang_satz(text)
+        elif art == BESTELLUEBERSICHT:  # Shop-Bestelluebersicht: Kunde, Brutto, Gebuehr
+            bs = lese_bestelluebersicht(text)
+            if bs and bs["brutto"]:
+                brutto, lief, hinweis = bs["brutto"], bs["name"] or lief, ""
+                datum = bs["datum"] or datum
         elif art == WG_GUTSCHRIFT:  # monatliche WERTGARANTIE-Gutschrift (Einnahme)
             b, sz = finde_betrag(text)
             if b:
                 brutto, satz, hinweis = abs(b), sz, " | Betrag automatisch gelesen - bitte pruefen"
         anzeige = lief or art
         nr_beleg = "" if art == "Primanota" else finde_nummer(text)
+        if art == BESTELLUEBERSICHT:
+            bs = lese_bestelluebersicht(text)
+            if bs:
+                nr_beleg, hinweis = f"Bestellung {bs['nr']}", " | " + _bestell_notiz(bs, "").lstrip(" |")
         if ex:  # E-Rechnung: strukturierte Daten sind verlaesslicher als der Text
             nr_beleg = ex["nr"] or nr_beleg
             datum = ex["datum"] or datum
@@ -2327,6 +2414,8 @@ def zahlungen_synchronisieren():
     """Liest neue Kassenbuecher, ordnet Bankbuchungen zu und setzt daraus den Zahlstatus der Rechnungen.
     'bezahlt' entsteht ausschliesslich aus Kassenbuch und Kontoauszug."""
     primanota_erkennen()
+    bestelluebersicht_erkennen()
+    bestellung_zuordnen()
     geprueft = {r[0] for r in db().execute("SELECT dokument_id FROM kasse_geprueft")}
     mit_tag = {r[0] for r in db().execute("SELECT dokument_id FROM kassentage")}
     for r in db().execute("SELECT id, datei FROM rechnungen WHERE belegart='Kassenbuch' AND datei IS NOT NULL").fetchall():
@@ -2837,6 +2926,26 @@ def paket():
             benutzt.add(name.lower())
             shutil.copy2(BELEGE / r["datei"], ordner / name)
             db().execute("UPDATE rechnungen SET status='an DATEV gesendet', gesendet=? WHERE id=?", (jetzt, r["id"]))
+        if ordnername == "2_Rechnungsausgang":  # Bestelluebersichten des Monats neben die zugehoerige Rechnung legen
+            pdf_namen = {}
+            for r in rows:
+                pdf_namen.setdefault(r["rechnungsnr"], None)
+            for b in db().execute("SELECT * FROM rechnungen WHERE substr(datum,1,7)=? AND belegart=? AND datei IS NOT NULL "
+                                  "ORDER BY datum, id", (m, BESTELLUEBERSICHT)).fetchall():
+                kunde = re.sub(r"[^A-Za-z0-9ÄÖÜäöüß_.-]+", "_", b["lieferant"] or "Kunde")
+                inv = db().execute("SELECT belegart FROM rechnungen WHERE rechnungsnr=? AND belegart IN (?,?)",
+                                   (b["zu_rechnung"] or "", AUSGANG_RECHNUNGEN[0], AUSGANG_RECHNUNGEN[1])).fetchone()
+                if b["zu_rechnung"] and inv:  # neben der Rechnung: <Monat>_<Belegart>_<Nr>_Bestelluebersicht.pdf
+                    name = f"{m}_{re.sub(r'[^A-Za-z0-9_.-]+', '_', inv['belegart'])}_{b['zu_rechnung']}_Bestelluebersicht.pdf"
+                else:
+                    name = f"{m}_Bestelluebersicht_{(b['rechnungsnr'] or '').replace(' ', '_')}_{kunde}.pdf"
+                name = re.sub(r'[\\/:*?"<>|]+', "_", name)
+                if name.lower() in benutzt:
+                    name = f"{Path(name).stem}_{b['id']}.pdf"
+                benutzt.add(name.lower())
+                shutil.copy2(BELEGE / b["datei"], ordner / name)
+                db().execute("UPDATE rechnungen SET status='an DATEV gesendet', gesendet=? WHERE id=?", (jetzt, b["id"]))
+                rows.append(b)
         fertig.append(f"{ordnername} ({len(rows)} PDFs)")
     db().commit()
     unklar = db().execute("SELECT COUNT(*) FROM rechnungen WHERE substr(datum,1,7)=? AND belegart=?", (m, UNKLAR)).fetchone()[0]
