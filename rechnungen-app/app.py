@@ -347,7 +347,8 @@ INDEX = """
 <table><tr><th>Datum</th><th>Belegart</th><th>Lieferant</th><th>Rg.-Nr.</th><th class=r>Brutto</th><th>Hinweis</th><th></th></tr>
 {% for r in pruefen %}<tr><td>{{r.datum}}</td><td><small>{{r.belegart}}</small></td><td>{{r.lieferant}}</td><td>{{r.rechnungsnr}}</td>
 <td class=r>{{'%.2f'|format(r.brutto)|replace('.',',')}}</td><td style="color:#b91c1c">{{r.probleme|join('; ')}}</td>
-<td><a href="{{url_for('bearbeiten',rid=r.id)}}"><b>prüfen / bearbeiten</b></a> <small>(mit PDF)</small></td></tr>{% endfor %}</table></details>{% endif %}
+<td><a href="{{url_for('bearbeiten',rid=r.id)}}"><b>prüfen / bearbeiten</b></a> <small>(mit PDF)</small>
+{% if r.brutto==0 and r.rechnungsnr and r.belegart=='Rechnungseingang Lieferanten' %}<form method=post action="{{url_for('null_ok',rid=r.id)}}" style="margin-top:4px" onsubmit="return confirm('Diese Rechnung wirklich mit 0,00 € verbuchen?')"><button class=sek style="padding:2px 8px;font-size:12px">0,00 € ist richtig &ndash; so verbuchen</button></form>{% endif %}</td></tr>{% endfor %}</table></details>{% endif %}
 {% if doppelte %}<div class=card style="border-left-color:#b91c1c"><b style="color:#b91c1c">Doppelte Belege</b>
  &ndash; dieselbe Rechnung ist mehrfach abgelegt ({{doppelte|length}}):
  {% for g in doppelte %}<div style="margin:6px 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center">{% for r in g %}<span><a href="{{url_for('bearbeiten',rid=r.id)}}">#{{r.id}} {{r.rechnungsnr or r.lieferant}} ({{r.datum}}{{', '~r.notiz.split(' | ')[0] if r.notiz}})</a>{% if not loop.first %}
@@ -461,6 +462,7 @@ def pruefliste():
     """Belege, bei denen etwas nicht stimmen kann (falsch eingeordnet, Betrag/Nummer fehlt) - werden auf der Uebersicht gemeldet."""
     start = settings()["start_datum"]
     out = []
+    quitt = {r[0] for r in db().execute("SELECT rechnungsnr FROM quittiert")}  # als 0,00 bestaetigt = in Ordnung
     for r in db().execute("SELECT id, datum, lieferant, belegart, rechnungsnr, brutto, zahlung FROM rechnungen "
                           "WHERE datei IS NOT NULL AND (datum>=? OR COALESCE(zahlung,'offen')<>'bezahlt') "
                           "AND belegart NOT IN ('Kassenbuch','Rechnungsausgangliste','Monatsjournal Kasse','Primanota') ORDER BY datum DESC, id DESC",
@@ -474,7 +476,7 @@ def pruefliste():
                 r"26[13]\d{4}", r["rechnungsnr"] or ""):
             probleme.append("Ausgangsrechnung ohne eigene Nummer (261xxxx/263xxxx) - evtl. Eingangsrechnung?")
         if r["belegart"] == EINGANG:
-            if not r["brutto"]:
+            if not r["brutto"] and (r["rechnungsnr"] or "") not in quitt:
                 probleme.append("Betrag fehlt (0,00 €)")
             if not (r["rechnungsnr"] or "").strip():
                 probleme.append("Rechnungsnummer fehlt")
@@ -633,6 +635,19 @@ def bearbeiten(rid):
         return redirect(url_for("index"))
     return page(FORM, r=type("R", (), dict(r)), KAT=KATEGORIEN, STATUS=STATUS, ZAHLUNG=ZAHLUNG, BELEGARTEN=BELEGARTEN_ALLE,
                 LIEFERANTEN=lieferanten_liste(settings()))
+
+
+@app.route("/<int:rid>/null-ok", methods=["POST"])
+def null_ok(rid):
+    """Rechnung mit 0,00 EUR ist in Ordnung: gilt als bezahlt (ohne Zahlung) und steht nicht mehr unter 'Zu pruefen'."""
+    r = lade(rid)
+    if r["rechnungsnr"] and not (r["brutto"] or 0):
+        db().execute("INSERT OR REPLACE INTO quittiert(rechnungsnr,bemerkung,am) VALUES(?,?,?)",
+                     (r["rechnungsnr"], "0,00-Rechnung bestätigt", date.today().isoformat()))
+        db().commit()
+        zahlungen_synchronisieren()
+        flash(f"Rechnung {r['rechnungsnr']} mit 0,00 € als in Ordnung verbucht.")
+    return redirect(url_for("index"))
 
 
 @app.route("/<int:rid>/loeschen", methods=["POST"])
