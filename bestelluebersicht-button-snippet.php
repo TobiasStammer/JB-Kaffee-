@@ -100,8 +100,8 @@ if ( ! function_exists( 'kt_ov_eur' ) ) {
 				. '<p class="note">Die Geb&uuml;hr wird von PayPal einbehalten und ist nicht Teil der Kundenrechnung. Angaben laut PayPal-Daten der Bestellung; ma&szlig;geblich ist die PayPal-Abrechnung.</p>';
 		} elseif ( 0 === strpos( (string) $order->get_payment_method(), 'ppcp' ) ) {
 			$feeblock = '<h2>Zahlungsabwicklung (PayPal)</h2><p class="note">Zu dieser Bestellung liegen keine PayPal-Geb&uuml;hrendaten vor.</p>';
-		} elseif ( 'woocommerce_payments' === $order->get_payment_method() ) {
-			// WooPayments (Karte, Apple/Google Pay): Gebuehr + Netto in den Bestell-Metadaten
+		} elseif ( 0 === strpos( (string) $order->get_payment_method(), 'woocommerce_payments' ) ) {
+			// WooPayments (Karte, Apple/Google Pay, Amazon Pay): Gebuehr + Netto in den Bestell-Metadaten
 			$wfee = $order->get_meta( '_wcpay_transaction_fee' );
 			if ( '' !== (string) $wfee ) {
 				$fee   = (float) $wfee;
@@ -117,12 +117,18 @@ if ( ! function_exists( 'kt_ov_eur' ) ) {
 				if ( is_array( $pmd ) && ! empty( $pmd['card']['brand'] ) ) {
 					$brand = ' (' . esc_html( ucfirst( $pmd['card']['brand'] ) ) . ')';
 				}
-				$feeblock = '<h2>Zahlungsabwicklung (Kartenzahlung' . $brand . ')</h2><table class="sum"><tr><td>Zahlungseingang brutto (Kundenzahlung)</td><td class="r">' . kt_ov_eur( $gross ) . '</td></tr>'
-					. '<tr><td>Kartengeb&uuml;hr WooPayments (' . $quote . ' vom Bruttobetrag)</td><td class="r">-' . kt_ov_eur( $fee ) . '</td></tr>'
+				$label = 'Kartenzahlung';
+				if ( 'woocommerce_payments_amazon_pay' === $order->get_payment_method() ) {
+					$label = 'Amazon Pay';
+					$cb    = is_array( $pmd ) && ! empty( $pmd['amazon_pay']['funding']['card']['brand'] ) ? $pmd['amazon_pay']['funding']['card']['brand'] : '';
+					$brand = $cb ? ' (' . esc_html( ucfirst( $cb ) ) . ')' : '';
+				}
+				$feeblock = '<h2>Zahlungsabwicklung (' . $label . $brand . ')</h2><table class="sum"><tr><td>Zahlungseingang brutto (Kundenzahlung)</td><td class="r">' . kt_ov_eur( $gross ) . '</td></tr>'
+					. '<tr><td>' . ( 'Amazon Pay' === $label ? 'Amazon-Pay-Geb&uuml;hr' : 'Kartengeb&uuml;hr' ) . ' WooPayments (' . $quote . ' vom Bruttobetrag)</td><td class="r">-' . kt_ov_eur( $fee ) . '</td></tr>'
 					. '<tr class="tot"><td>Nettoeingang (Auszahlungsbetrag)</td><td class="r">' . kt_ov_eur( $netin ) . '</td></tr></table>'
 					. '<p class="note">Die Geb&uuml;hr wird von WooPayments/Stripe einbehalten und ist nicht Teil der Kundenrechnung. Angaben laut Bestelldaten; ma&szlig;geblich ist die WooPayments-Abrechnung.</p>';
 			} else {
-				$feeblock = '<h2>Zahlungsabwicklung (Kartenzahlung)</h2><p class="note">Zu dieser Bestellung liegen keine Geb&uuml;hrendaten vor.</p>';
+				$feeblock = '<h2>Zahlungsabwicklung (Kartenzahlung / Amazon Pay)</h2><p class="note">Zu dieser Bestellung liegen keine Geb&uuml;hrendaten vor.</p>';
 			}
 		}
 		$note = $order->get_customer_note() ? '<h2>Kundenhinweis</h2><p>' . esc_html( $order->get_customer_note() ) . '</p>' : '';
