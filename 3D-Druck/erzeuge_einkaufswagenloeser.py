@@ -23,9 +23,12 @@ TIEFE = 0.6          # mm Tiefe der Logo-Vertiefung
 LOGO_BREITE = 17.0   # mm Breite des Logos
 SPIEL = 0.0          # mm Spiel der Logo-Einlage (Zweifarbdruck), 0 = bündig
 
-STICKER_D = 20.0     # mm Durchmesser des NFC-Stickers (25 mm passt nicht: Körper ist nur 25 mm breit)
+STICKER_D = 25.0     # mm Durchmesser des NFC-Stickers
+OBERTEIL_PLUS = 6.5  # mm: NFC-Varianten werden im oberen Teil um dieses Mass breiter (Hals/Logoteil bleiben)
+BREIT_AB = 23.0      # mm von unten: ab hier wird verbreitert (Hals liegt bei ca. 21 mm)
+BREIT_BIS = 36.0     # mm von unten: ab hier volle Breite (weicher Uebergang)
 STICKER_SPIEL = 0.4  # mm Spiel um den Sticker (Durchmesser der Tasche = Sticker + Spiel)
-STICKER_Y = 40.0     # mm Mitte des Stickers von der Unterkante (Loch sitzt bei ca. 61,5 mm)
+STICKER_Y = 43.0     # mm Mitte des Stickers von der Unterkante (Loch sitzt bei ca. 61,5 mm)
 TASCHE_TIEFE = 0.6   # mm Tiefe der offenen Tasche (Sticker ca. 0,3-0,5 mm dick)
 HOHLRAUM_Z = 1.0     # mm Boden unter dem eingeschlossenen Sticker; Druck-Pause bei dieser Hoehe
 HOHLRAUM_H = 0.6     # mm Hoehe des Hohlraums (darüber bleiben DICKE-1,0-0,6 = 0,4 mm Deckel)
@@ -194,24 +197,50 @@ def main():
     einlage.export(os.path.join(out, "einkaufswagenloeser_JB_logo-einlage.stl"))
     print("Körper watertight:", koerper.is_watertight, "Volumen %.0f mm³" % koerper.volume, "Einlage watertight:", einlage.is_watertight)
 
-    # NFC-Sticker: Position pruefen, Varianten mit Tasche bauen
+    # NFC-Varianten: oberen Teil verbreitern, damit ein 25-mm-Sticker mit Rand hineinpasst
+    from shapely import segmentize
     from shapely.geometry import Point
+    from shapely.ops import transform as sh_transform
+
+    def weich(t):
+        t = max(0.0, min(1.0, t))
+        return t * t * (3 - 2 * t)
+
+    faktor = 1 + OBERTEIL_PLUS / (maxx - minx)
+
+    def breiter(x, y, z=None):
+        f = 1 + (faktor - 1) * weich((y - miny - BREIT_AB) / (BREIT_BIS - BREIT_AB))
+        return (achse + (x - achse) * f, y)
+
+    body_w = Polygon(sh_transform(breiter, segmentize(body, 0.4)).exterior)
+    body_w_loch = Polygon(body_w.exterior, [loch.exterior.coords]) if loch is not None else body_w
+    wmin, _, wmax, _ = body_w.bounds
+    print("NFC-Varianten: %.1f x %.1f mm" % (wmax - wmin, maxy - miny))
     tasche = Point(achse, STICKER_Y).buffer((STICKER_D + STICKER_SPIEL) / 2, 64)
-    assert body_mit_loch.contains(tasche.buffer(2.0)), "Sticker-Tasche passt nicht in den Körper (Rand < 2 mm)"
+    assert body_w_loch.contains(tasche.buffer(2.0)), "Sticker-Tasche passt nicht in den Körper (Rand < 2 mm)"
     assert not tasche.buffer(1.0).intersects(logo), "Sticker-Tasche kollidiert mit Logo"
     r = (STICKER_D + STICKER_SPIEL) / 2
+
+    boden_w = trimesh.creation.extrude_polygon(body_w_loch, DICKE - TIEFE)
+    teile_w = body_w_loch.difference(logo.buffer(SPIEL))
+    teile_w = list(teile_w.geoms) if teile_w.geom_type == "MultiPolygon" else [teile_w]
+    deckel_w = [trimesh.creation.extrude_polygon(t, TIEFE) for t in teile_w]
+    for m in deckel_w:
+        m.apply_translation([0, 0, DICKE - TIEFE])
+    koerper_w = trimesh.boolean.union([boden_w] + deckel_w, engine="manifold")
 
     def zylinder(z0, z1):
         z = trimesh.creation.cylinder(radius=r, height=z1 - z0, sections=96)
         z.apply_translation([achse, STICKER_Y, (z0 + z1) / 2])
         return z
 
-    offen = trimesh.boolean.difference([koerper, zylinder(DICKE - TASCHE_TIEFE, DICKE + 0.5)], engine="manifold")
-    zu = trimesh.boolean.difference([koerper, zylinder(HOHLRAUM_Z, HOHLRAUM_Z + HOHLRAUM_H)], engine="manifold")
+    offen = trimesh.boolean.difference([koerper_w, zylinder(DICKE - TASCHE_TIEFE, DICKE + 0.5)], engine="manifold")
+    zu = trimesh.boolean.difference([koerper_w, zylinder(HOHLRAUM_Z, HOHLRAUM_Z + HOHLRAUM_H)], engine="manifold")
     offen.export(os.path.join(out, "einkaufswagenloeser_JB_NFC_offene-tasche.stl"))
     zu.export(os.path.join(out, "einkaufswagenloeser_JB_NFC_eingeschlossen.stl"))
     print("NFC offen watertight:", offen.is_watertight, "| eingeschlossen watertight:", zu.is_watertight,
           "| Sticker %.0f mm bei y=%.0f mm, Rand zur Kontur >= 2 mm" % (STICKER_D, STICKER_Y))
+    body = body_w
     vorschau(body, logo, loch, os.path.join(out, "vorschau.png"), tasche)
 
 
