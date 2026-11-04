@@ -53,7 +53,7 @@ KATEGORIEN = {
     "Sonstiges": "4980",
 }
 BELEGARTEN = ["Rechnungsausgang Service", "Rechnungsausgang Verkauf", "Rechnungsausgang eBay",
-              "Rechnungseingang Lieferanten", "WERTGARANTIE Schadenabrechnung", "WERTGARANTIE Gutschrift",
+              "Rechnungseingang Lieferanten", "Lieferschein", "WERTGARANTIE Schadenabrechnung", "WERTGARANTIE Gutschrift",
               "Kassenbuch", "Monatsjournal Kasse", "Primanota",
               "Rechnungsausgangliste"]
 EINGANG = "Rechnungseingang Lieferanten"
@@ -178,7 +178,7 @@ def init_db():
         c.execute("DELETE FROM kassenzeilen")
     except sqlite3.OperationalError:
         pass
-    for spalte in ("skonto_bis TEXT", "skonto_zahl REAL", "skonto_v2 INTEGER", "lastschrift INTEGER"):  # Skonto-Frist und Zahlbetrag laut Rechnung
+    for spalte in ("skonto_bis TEXT", "skonto_zahl REAL", "skonto_v2 INTEGER", "lastschrift INTEGER", "zu_rechnung TEXT"):  # Skonto-Frist und Zahlbetrag laut Rechnung
         try:
             c.execute(f"ALTER TABLE rechnungen ADD COLUMN {spalte}")
         except sqlite3.OperationalError:
@@ -360,8 +360,8 @@ INDEX = """
 <table><tr><th></th><th>Datum</th><th>Belegart</th><th>Lieferant</th><th>Rechnungsnr.</th><th>Kategorie</th>
 <th class=r>Brutto</th><th>Zahlung</th><th>Bezahlt am</th><th>Zahlart</th><th>DATEV</th><th>Beleg</th><th></th></tr>
 {% for r in rows %}<tr>
- <td><input type=checkbox name=ids value="{{r.id}}" style="width:auto" {{'checked' if r.status!='an DATEV gesendet'}}></td>
- <td>{{r.datum}}</td><td><small>{{r.belegart}}</small></td><td>{{r.lieferant}}</td><td>{{r.rechnungsnr}}</td><td>{{r.kategorie}} <small>({{r.konto}})</small></td>
+ <td><input type=checkbox name=ids value="{{r.id}}" style="width:auto" {{'checked' if r.status!='an DATEV gesendet' and r.belegart!='Lieferschein'}}></td>
+ <td>{{r.datum}}</td><td><small>{{r.belegart}}</small></td><td>{{r.lieferant}}</td><td>{{r.rechnungsnr}}{% if r.belegart=='Lieferschein' %}{% if r.zu_rechnung %}<br><small>&rarr; Rechnung {{r.zu_rechnung}}</small>{% else %}<br><small style="color:#b45309">keiner Rechnung zugeordnet</small>{% endif %}{% endif %}</td><td>{% if r.belegart!='Lieferschein' %}{{r.kategorie}} <small>({{r.konto}})</small>{% endif %}</td>
  <td class=r>{{'%.2f'|format(r.brutto)|replace('.',',')}}</td>
  {% if r.belegart in RECHNUNGSARTEN %}<td class="z-{{r.zahlung or 'offen'}}">{{r.zahlung or 'offen'}}{% if r.zahlung!='bezahlt' and r.skonto and r.skonto_bis and r.skonto_bis>=heute and not r.lastschrift and r.lieferant not in lastschrift_lief %}<br><small style="color:#b45309">Skonto {{'%g'|format(r.skonto)|replace('.',',')}} % bis {{r.skonto_bis[8:]}}.{{r.skonto_bis[5:7]}}.</small>{% endif %}</td>
  <td>{% if r.zahl_am %}{{r.zahl_am[8:]}}.{{r.zahl_am[5:7]}}.{{r.zahl_am[:4]}}{% endif %}</td>
@@ -403,12 +403,16 @@ FORM = """
  {% for k,v in KAT.items() %}<option {{'selected' if k==r.kategorie}}>{{k}}</option>{% endfor %}</select></div>
 <div><label>Aufwandskonto (leer = Standard der Kategorie)</label><input name=konto value="{{r.konto or ''}}"></div>
 <div><label>Zahlung (aus Kassenbuch/Kontoauszug)</label><input disabled value="{{r.zahlung or 'offen'}}{{' – '~(r.zahl_art or r.zahl_quelle)~' '~r.zahl_am if r.zahl_am else ''}}"></div>
+{% if r.belegart=='Lieferschein' %}<div><label>Gehört zu Rechnung</label><select name=zu_rechnung><option value="">&ndash; keiner Rechnung zugeordnet &ndash;</option>
+{% for k in AUSWAHL %}<option value="{{k.rechnungsnr}}" {{'selected' if k.rechnungsnr==r.zu_rechnung}}>{{k.lieferant}} &middot; {{k.rechnungsnr}} &middot; {{k.datum}} &middot; {{'%.2f'|format(k.brutto)|replace('.',',')}} &euro;</option>{% endfor %}</select></div>{% endif %}
 <div><label>DATEV-Stand</label><select name=status>{% for s in STATUS %}<option {{'selected' if s==r.status}}>{{s}}</option>{% endfor %}</select></div>
 </div>
 <label>Notiz</label><textarea name=notiz rows=2>{{r.notiz or ''}}</textarea>
 <label>Beleg (PDF/JPG/PNG){{' – vorhanden, neue Datei ersetzt sie' if r.datei}}</label><input type=file name=datei accept=".pdf,.jpg,.jpeg,.png,.tif,.tiff">
 <p><button>Speichern</button> <a class="btn sek" href="{{url_for('index')}}">Abbrechen</a></p>
 </form>
+{% if LIEFERSCHEINE %}<div class=card><b>Lieferscheine zu dieser Rechnung</b><ul style="margin:6px 0 0 18px">
+{% for l in LIEFERSCHEINE %}<li><a href="{{url_for('bearbeiten',rid=l.id)}}">{{l.rechnungsnr}}</a> ({{l.lieferant}}, {{l.datum}}) &middot; <a href="{{url_for('beleg',rid=l.id)}}" target=_blank>PDF</a></li>{% endfor %}</ul></div>{% endif %}
 {% if r.id and r.datei %}<div class=card id=beleg><b>Beleg</b> &nbsp;<a href="{{url_for('beleg',rid=r.id)}}" target=_blank><small>in neuem Fenster öffnen</small></a>
 <iframe src="{{url_for('beleg',rid=r.id)}}" style="width:100%;height:1100px;border:1px solid var(--line);margin-top:8px;background:#fff"></iframe></div>{% endif %}
 {% if r.id %}<form method=post action="{{url_for('loeschen',rid=r.id)}}" onsubmit="return confirm('Rechnung wirklich löschen?')"><button class=sek>Löschen</button></form>{% endif %}"""
@@ -625,17 +629,29 @@ def neu():
                            brutto=0, mwst_satz=19, kategorie="Sonstiges", konto="",
                            status=STATUS[0], zahlung="offen", notiz="", datei=None, belegart=EINGANG))
     return page(FORM, r=r, KAT=KATEGORIEN, STATUS=STATUS, ZAHLUNG=ZAHLUNG, BELEGARTEN=BELEGARTEN_ALLE,
-                LIEFERANTEN=lieferanten_liste(settings()))
+                LIEFERANTEN=lieferanten_liste(settings()), AUSWAHL=[], LIEFERSCHEINE=[])
 
 
 @app.route("/<int:rid>/bearbeiten", methods=["GET", "POST"])
 def bearbeiten(rid):
     r = lade(rid)
     if request.method == "POST" and _speichern(rid):
+        if "zu_rechnung" in request.form:
+            db().execute("UPDATE rechnungen SET zu_rechnung=? WHERE id=?", (request.form["zu_rechnung"].strip(), rid))
+            db().commit()
         flash("Änderungen gespeichert.")
         return redirect(url_for("index"))
+    auswahl, lieferscheine = [], []
+    if r["belegart"] == "Lieferschein":  # Rechnungen zur Auswahl: gleicher Hersteller zuerst, dann die uebrigen (letzte 150 Tage)
+        alle = db().execute("SELECT rechnungsnr, lieferant, brutto, datum FROM rechnungen WHERE belegart=? AND rechnungsnr<>'' "
+                            "AND datum>=? ORDER BY datum DESC", (EINGANG, (date.today() - timedelta(days=150)).isoformat())).fetchall()
+        kern = (r["lieferant"] or "").split()[0].lower() if r["lieferant"] else ""
+        auswahl = sorted(alle, key=lambda x: 0 if kern and (x["lieferant"] or "").lower().startswith(kern) else 1)
+    elif r["rechnungsnr"]:
+        lieferscheine = db().execute("SELECT id, rechnungsnr, lieferant, datum FROM rechnungen WHERE belegart='Lieferschein' "
+                                     "AND zu_rechnung=? ORDER BY datum", (r["rechnungsnr"],)).fetchall()
     return page(FORM, r=type("R", (), dict(r)), KAT=KATEGORIEN, STATUS=STATUS, ZAHLUNG=ZAHLUNG, BELEGARTEN=BELEGARTEN_ALLE,
-                LIEFERANTEN=lieferanten_liste(settings()))
+                LIEFERANTEN=lieferanten_liste(settings()), AUSWAHL=auswahl, LIEFERSCHEINE=lieferscheine)
 
 
 @app.route("/<int:rid>/null-ok", methods=["POST"])
@@ -1187,7 +1203,8 @@ def _seite_art(t):
         return "pick", ""
     if re.search(r"Rechnungs?-?\s?(?:nr|nummer|datum)\b", kopf, re.I):
         return "anders", ""
-    m = re.search(r"Lieferschein\s*-?\s*(?:Nr\.?|nummer)\s*[:.]?\s*(" + _LS_NR + r"|[A-Z0-9][A-Z0-9\-/]{4,})", kopf, re.I)
+    # 'Lieferschein Nr. 26LS084420', 'Lieferschein: 26LS083746', 'Lieferschein: JG26L17536', 'Lieferschein 271443'
+    m = re.search(r"Lieferschein\s*-?\s*(?:Nr\.?|nummer)?\s*[:.]?\s*(" + _LS_NR + r"|[A-Z]{1,3}\d{2}[A-Z]\d{4,}|\d{5,})\b", kopf, re.I)
     if m:
         return "ls", m.group(1).upper()
     if re.search(r"Seite\s*[2-9]\s*(?:/|von)", kopf + t[-300:], re.I):
@@ -1209,7 +1226,23 @@ def _pdf_schreiben(ziel, quellen):
     tmp.replace(ziel)
 
 
-def lieferschein_ablegen(f, ordner, fertig, cfg):
+def _ls_beleg_eintragen(c, pfad, nr, hersteller, text, quelle):
+    """Legt den abgelegten Lieferschein als Beleg an (Belegart 'Lieferschein') bzw. aktualisiert die PDF, wenn er schon da ist."""
+    daten = Path(pfad).read_bytes()
+    rec = c.execute("SELECT id, datei FROM rechnungen WHERE belegart='Lieferschein' AND rechnungsnr=?", (nr,)).fetchone()
+    if rec and rec["datei"]:
+        (BELEGE / rec["datei"]).write_bytes(daten)
+        return
+    name = f"{uuid.uuid4().hex}.pdf"
+    (BELEGE / name).write_bytes(daten)
+    c.execute("INSERT INTO rechnungen(datum,lieferant,rechnungsnr,brutto,mwst_satz,kategorie,konto,status,notiz,datei,guid,angelegt,"
+              "belegart,hash) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+              (finde_datum(text, date.today().isoformat()), hersteller if hersteller != "_unklar" else "Hersteller unbekannt",
+               nr, 0, 0, "Sonstiges", "", "noch nicht gesendet", f"Lieferschein {nr} (aus {quelle})", name, str(uuid.uuid4()),
+               datetime.now().isoformat(timespec="seconds"), "Lieferschein", hashlib.sha1(daten).hexdigest()))
+
+
+def lieferschein_ablegen(f, ordner, fertig, cfg, c=None):
     """Rein aus Lieferscheinen bestehendes PDF (auch ein Sammel-Scan): in einzelne Lieferscheine trennen, Seriennummernliste
     und Pickliste zum jeweiligen Lieferschein dazu, ablegen unter Eingang\\Lieferscheine\\<Hersteller>\\<Lieferscheinnummer>.pdf.
     Gehoert eine Seriennummernliste zu einem Lieferschein, der noch nicht da ist, wartet sie in '_Seriennummern offen'.
@@ -1259,6 +1292,8 @@ def lieferschein_ablegen(f, ordner, fertig, cfg):
         _pdf_schreiben(ziel, quellen)
         if wartend.exists():
             wartend.unlink()
+        if c is not None:
+            _ls_beleg_eintragen(c, ziel, d["nr"], hersteller, "\n".join(texte[i] for i in d["seiten"]), f.name)
     gruppen = {}
     for nr, i in serials:  # Seriennummern ohne Lieferschein in dieser Datei
         gruppen.setdefault(nr or f"ohne-Nr-{zeit}", []).append(i)
@@ -1269,12 +1304,16 @@ def lieferschein_ablegen(f, ordner, fertig, cfg):
         if vorhanden:  # Lieferschein liegt schon im Archiv: Seriennummern hinten anhaengen
             alt = list(range(len(PdfReader(str(vorhanden)).pages)))
             _pdf_schreiben(vorhanden, [(vorhanden, alt), (f, seiten)])
+            if c is not None:
+                _ls_beleg_eintragen(c, vorhanden, vorhanden.stem, vorhanden.parent.name, "", f.name)
         else:
             ziel = offen / name
             quellen = [(f, seiten)]
             if ziel.exists():
                 quellen.insert(0, (ziel, list(range(len(PdfReader(str(ziel)).pages)))))
             _pdf_schreiben(ziel, quellen)
+    if c is not None:
+        c.commit()
     shutil.move(str(f), str(fertig / f"lieferschein_{zeit}_{f.name}"))
     return True
 
@@ -1319,7 +1358,7 @@ def eingang_einlesen():
             if h in (lsh.read_text().split() if lsh.exists() else []):
                 shutil.move(str(f), str(fertig / f"doppelt_{int(time.time())}_{f.name}"))
                 continue
-            if lieferschein_ablegen(f, ordner, fertig, cfg):
+            if lieferschein_ablegen(f, ordner, fertig, cfg, c):
                 with open(lsh, "a") as fh:
                     fh.write(h + "\n")
                 n += 1
