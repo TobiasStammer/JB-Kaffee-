@@ -30,6 +30,9 @@ $o = wp GET "/wc/v3/orders/$Id"
 if (-not $o.id) { throw "Bestellung $Id nicht gefunden" }
 
 $status = @{ completed = 'Abgeschlossen'; processing = 'In Bearbeitung'; 'on-hold' = 'Wartet auf Zahlung'; pending = 'Zahlung ausstehend'; cancelled = 'Storniert'; refunded = 'Erstattet'; failed = 'Fehlgeschlagen' }
+$rnr = ''; $rm = $o.meta_data | Where-Object { $_.key -eq 'kt_rechnungsnr' } | Select-Object -First 1; if ($rm) { $rnr = "$($rm.value)".Trim() }
+$rnrRow = if ($rnr) { '<tr><th>Rechnungsnummer</th><td>' + (Hx $rnr) + '</td></tr>' } else { '' }
+$rnrSub = if ($rnr) { ' &middot; Rechnung Nr. ' + (Hx $rnr) } else { '' }
 $st = if ($status.ContainsKey($o.status)) { $status[$o.status] } else { $o.status }
 function Meta($k) { ($o.meta_data | Where-Object { $_.key -eq $k } | Select-Object -First 1).value }
 
@@ -133,12 +136,13 @@ table { border-collapse: collapse; width: 100%; }
 .foot { margin-top: 22px; padding-top: 8px; border-top: 1px solid #ccc; font-size: 8pt; color: #666; }
 </style></head><body>
 <div class="head">
-  <div><h1>Bestell&uuml;bersicht</h1><div class="sub">Bestellung Nr. $($o.number) &middot; $(Dt $o.date_created_gmt)</div></div>
+  <div><h1>Bestell&uuml;bersicht</h1><div class="sub">Bestellung Nr. $($o.number)$rnrSub &middot; $(Dt $o.date_created_gmt)</div></div>
   <div class="firm"><b>Joachim Bl&ouml;chle Elektro-Service GmbH</b><br>JB Kaffeemaschinen &ndash; Service &amp; Verkauf<br>Wallauer Str. 4, 65719 Hofheim-Langenhain<br>shop@kaffeetechniker.de</div>
 </div>
 <h2>Bestelldaten</h2>
 <table class="info">
 <tr><th>Bestellnummer</th><td>$($o.number)</td></tr>
+$rnrRow
 <tr><th>Bestelldatum</th><td>$(Dt $o.date_created_gmt)</td></tr>
 <tr><th>Bezahlt am</th><td>$(Dt $o.date_paid_gmt)</td></tr>
 <tr><th>Status</th><td>$(Hx $st)</td></tr>

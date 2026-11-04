@@ -1210,12 +1210,15 @@ def lese_bestelluebersicht(text):
     m = re.search(r"Geb[üu]hr[^€]*?(-?\d[\d.]*,\d{2})\s*€", text, re.S)
     gebuehr = _betrag_de(m.group(1)) if m else None
     netto = betrag(r"Nettoeingang[^\n]*")
+    rn = re.search(r"Rechnungsnummer\s*\n\s*([^\n]+)", text)  # im Shop (Bestellung > Bestelluebersicht) eingetragen
     return dict(name=name, brutto=gesamt, nr=nr, zahlart=zahlart, gebuehr=gebuehr, auszahlung=netto,
+                rechnungsnr=rn.group(1).strip() if rn else "",
                 datum=_iso_datum(d.group(1), d.group(2), d.group(3)) if d else "")
 
 
 def _bestell_notiz(b, dateiname):
-    teile = [dateiname.split(" | ")[0], f"Bestellung {b['nr']}" if b["nr"] else "", b["zahlart"]]
+    teile = [dateiname.split(" | ")[0], f"Bestellung {b['nr']}" if b["nr"] else "",
+             f"Rechnungsnr. {b['rechnungsnr']}" if b.get("rechnungsnr") else "", b["zahlart"]]
     if b["gebuehr"] is not None:
         teile.append(f"Gebühr {abs(b['gebuehr']):.2f} €".replace(".", ","))
     if b["auszahlung"] is not None:
@@ -1226,8 +1229,13 @@ def _bestell_notiz(b, dateiname):
 def bestellung_zuordnen():
     """Ordnet Bestelluebersichten ohne Rechnung automatisch der Ausgangsrechnung zu: gleicher Gesamtbetrag brutto UND passender
     Name (nur bei genau einem Treffer)."""
-    for b in db().execute("SELECT id, lieferant, brutto FROM rechnungen WHERE belegart=? AND COALESCE(zu_rechnung,'')=''",
+    for b in db().execute("SELECT id, lieferant, brutto, notiz FROM rechnungen WHERE belegart=? AND COALESCE(zu_rechnung,'')=''",
                           (BESTELLUEBERSICHT,)).fetchall():
+        m = re.search(r"Rechnungsnr\. (\S+)", b["notiz"] or "")  # Nummer steht auf der Bestelluebersicht: direkte Zuordnung
+        if m and db().execute("SELECT 1 FROM rechnungen WHERE belegart IN (?,?) AND rechnungsnr=?",
+                              AUSGANG_RECHNUNGEN[:2] + (m.group(1),)).fetchone():
+            db().execute("UPDATE rechnungen SET zu_rechnung=? WHERE id=?", (m.group(1), b["id"]))
+            continue
         bn = _norm(b["lieferant"] or "")
         if not bn or not b["brutto"]:
             continue

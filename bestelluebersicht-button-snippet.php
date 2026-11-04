@@ -133,6 +133,8 @@ if ( ! function_exists( 'kt_ov_eur' ) ) {
 		}
 		$note = $order->get_customer_note() ? '<h2>Kundenhinweis</h2><p>' . esc_html( $order->get_customer_note() ) . '</p>' : '';
 		$nr   = esc_html( $order->get_order_number() );
+		$rnr  = trim( (string) $order->get_meta( 'kt_rechnungsnr' ) ); // im Kasten "Bestelluebersicht" der Bestellung eingetragen
+		$rnrrow = '' !== $rnr ? '<tr><th>Rechnungsnummer</th><td>' . esc_html( $rnr ) . '</td></tr>' : '';
 
 		$css = '@page{size:A4;margin:16mm}*{box-sizing:border-box}body{font-family:"Segoe UI",Arial,sans-serif;color:#1c1c1c;font-size:10pt;line-height:1.45;margin:0;padding:18px}'
 			. '.bar{max-width:820px;margin:0 auto 14px;display:flex;gap:10px;justify-content:flex-end}.bar button{font:inherit;padding:8px 16px;border:1px solid #334155;background:#334155;color:#fff;border-radius:5px;cursor:pointer}.bar button.sec{background:#fff;color:#334155}'
@@ -147,9 +149,9 @@ if ( ! function_exists( 'kt_ov_eur' ) ) {
 
 		return '<!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><meta name="robots" content="noindex"><title>Bestell&uuml;bersicht ' . $nr . '</title><style>' . $css . '</style></head><body>'
 			. '<div class="bar"><button type="button" onclick="window.print()">Drucken / als PDF speichern</button><button type="button" class="sec" onclick="window.close()">Schlie&szlig;en</button></div><div class="doc">'
-			. '<div class="head"><div><h1>Bestell&uuml;bersicht</h1><div class="sub">Bestellung Nr. ' . $nr . ' &middot; ' . kt_ov_dt( $order->get_date_created() ) . '</div></div>'
+			. '<div class="head"><div><h1>Bestell&uuml;bersicht</h1><div class="sub">Bestellung Nr. ' . $nr . ( '' !== $rnr ? ' &middot; Rechnung Nr. ' . esc_html( $rnr ) : '' ) . ' &middot; ' . kt_ov_dt( $order->get_date_created() ) . '</div></div>'
 			. '<div class="firm"><b>Joachim Bl&ouml;chle Elektro-Service GmbH</b><br>JB Kaffeemaschinen &ndash; Service &amp; Verkauf<br>Wallauer Str. 4, 65719 Hofheim-Langenhain<br>shop@kaffeetechniker.de</div></div>'
-			. '<h2>Bestelldaten</h2><table class="info"><tr><th>Bestellnummer</th><td>' . $nr . '</td></tr><tr><th>Bestelldatum</th><td>' . kt_ov_dt( $order->get_date_created() ) . '</td></tr>'
+			. '<h2>Bestelldaten</h2><table class="info"><tr><th>Bestellnummer</th><td>' . $nr . '</td></tr>' . $rnrrow . '<tr><th>Bestelldatum</th><td>' . kt_ov_dt( $order->get_date_created() ) . '</td></tr>'
 			. '<tr><th>Bezahlt am</th><td>' . kt_ov_dt( $order->get_date_paid() ) . '</td></tr><tr><th>Status</th><td>' . esc_html( wc_get_order_status_name( $order->get_status() ) ) . '</td></tr>' . $pay . '</table>'
 			. '<div class="cols"><div><h2>Rechnungsadresse</h2>' . wp_kses_post( $order->get_formatted_billing_address( '-' ) ) . '<br>' . esc_html( $order->get_billing_email() ) . '</div>'
 			. '<div><h2>Lieferadresse</h2>' . wp_kses_post( $order->get_formatted_shipping_address( '-' ) ) . '</div></div>'
@@ -196,10 +198,27 @@ add_action( 'add_meta_boxes', function () {
 		if ( ! $order ) {
 			return;
 		}
-		echo '<p style="margin:0 0 8px">Preise, MwSt., Versand und PayPal-Geb&uuml;hren &ndash; druckfertig f&uuml;r den Steuerberater.</p>'
+		$rn = esc_attr( (string) $order->get_meta( 'kt_rechnungsnr' ) );
+		echo '<p style="margin:0 0 4px"><label for="kt_rechnungsnr"><b>Rechnungsnummer</b> (erscheint auf der Bestell&uuml;bersicht)</label></p>'
+			. '<input type="text" id="kt_rechnungsnr" name="kt_rechnungsnr" value="' . $rn . '" placeholder="z. B. 2610230" style="width:100%;margin-bottom:6px">'
+			. '<p class="description" style="margin:0 0 10px">Nach dem Eintragen &bdquo;Aktualisieren&ldquo; klicken, dann drucken.</p>'
+			. '<p style="margin:0 0 8px">Preise, MwSt., Versand und PayPal-Geb&uuml;hren &ndash; druckfertig f&uuml;r den Steuerberater.</p>'
 			. '<a class="button button-primary" target="_blank" rel="noopener" href="' . esc_url( kt_ov_url( $order->get_id() ) ) . '">Bestell&uuml;bersicht drucken</a>';
 	}, $screen, 'side', 'high' );
 } );
+
+// Rechnungsnummer speichern (kommt mit dem normalen "Aktualisieren" der Bestellung)
+add_action( 'woocommerce_process_shop_order_meta', function ( $order_id ) {
+	if ( ! isset( $_POST['kt_rechnungsnr'] ) || ! current_user_can( 'manage_woocommerce' ) ) {
+		return;
+	}
+	$order = wc_get_order( $order_id );
+	if ( ! $order ) {
+		return;
+	}
+	$order->update_meta_data( 'kt_rechnungsnr', sanitize_text_field( wp_unslash( $_POST['kt_rechnungsnr'] ) ) );
+	$order->save_meta_data();
+}, 50 );
 
 // Druck-Symbol in der Bestellliste (Spalte "Aktionen")
 add_filter( 'woocommerce_admin_order_actions', function ( $actions, $order ) {
