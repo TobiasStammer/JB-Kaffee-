@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rechnungen nachdrucken</title>
+<style>
+:root{--accent:#334155;--accentd:#1e293b;--dark:#4a4a4a;--line:#d8d8d8;--soft:#f0efec;--head:#2b2b2b}
+*{box-sizing:border-box}
+body{font-family:'Source Sans 3','Source Sans Pro','Segoe UI',system-ui,sans-serif;margin:0;background:#e3e5ea;color:#1c1c1c;line-height:1.5}
+.top{background:#fff;border-bottom:1px solid var(--line);text-align:center;padding:14px 16px 12px}
+.top b{font-family:Tahoma,Arial,sans-serif;font-size:19px;color:var(--head);letter-spacing:.01em}
+.top small{display:block;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-top:2px}
+main{max-width:1100px;margin:18px auto;padding:0 16px}
+.card{background:#fff;padding:16px 20px;margin-bottom:16px;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:6px}
+.filter{display:flex;gap:12px;align-items:end;flex-wrap:wrap}
+label{display:block;font-family:Tahoma,Arial,sans-serif;font-size:13px;font-weight:700;margin-bottom:4px}
+input[type=search]{padding:8px 10px;border:1px solid #bbb;border-radius:4px;font:inherit;min-width:260px}
+.seg{display:flex}.seg button{font:inherit;font-family:Tahoma,Arial,sans-serif;padding:8px 16px;border:1px solid #334155;background:#fff;color:#334155;cursor:pointer}
+.seg button:first-child{border-radius:4px 0 0 4px}.seg button:last-child{border-radius:0 4px 4px 0}.seg button+button{border-left:0}
+.seg button.on{background:#334155;color:#fff}
+button.btn{font:inherit;font-family:Tahoma,Arial,sans-serif;padding:8px 16px;border:1px solid #334155;background:#334155;color:#fff;border-radius:4px;cursor:pointer}
+button.btn.sek{background:#fff;color:#334155}button.btn:disabled{opacity:.45;cursor:default}
+table{width:100%;border-collapse:collapse}
+th{font-family:Tahoma,Arial,sans-serif;font-size:13px;text-align:left;background:var(--soft);padding:8px 10px;border-bottom:1px solid #c9c9c9}
+td{padding:7px 10px;border-bottom:1px solid #eee}
+tr:hover td{background:#f7f8fa}.r{text-align:right}
+.kreis{font-size:12px;color:#475569}
+.hinweis{color:#555;font-size:13px}
+.leer{padding:22px;text-align:center;color:#666}
+a.pdf{color:#334155;font-weight:700}
+</style>
+</head>
+<body>
+<div class="top"><b>Rechnungen nachdrucken</b><small>kaffeetechniker.de</small></div>
+<main>
+<div class="card filter">
+  <div><label>Rechnungskreis</label>
+    <div class="seg" id="kreis"><button data-k="" class="on">Alle</button><button data-k="261">261 Verkauf</button><button data-k="263">263 Service</button></div></div>
+  <div style="flex:1"><label for="q">Suche (Rechnungsnummer oder Kunde)</label><input type="search" id="q" placeholder="z. B. 2631054 oder Müller" autofocus></div>
+  <button class="btn" id="drucken" disabled>Ausgewählte öffnen &amp; drucken</button>
+</div>
+<div class="card">
+  <p class="hinweis" id="stand"></p>
+  <table><thead><tr><th style="width:34px"><input type="checkbox" id="alle" title="alle sichtbaren auswählen"></th><th>Datum</th><th>Rg.-Nr.</th><th>Kreis</th><th>Kunde</th><th class="r">Betrag</th><th></th></tr></thead>
+  <tbody id="zeilen"></tbody></table>
+  <div class="leer" id="leer" style="display:none">Keine Rechnungen gefunden.</div>
+  <p class="hinweis" style="margin-top:12px">Die Rechnung öffnet sich im Browser. Dort mit <b>Strg + P</b> (oder dem Drucker-Symbol) ganz normal über Windows drucken. Die Liste zeigt die zuletzt erstellten Ausgangsrechnungen, die neueste zuerst.</p>
+</div>
+</main>
+<script src="liste.js"></script>
+<script>
+(function(){
+  var D = window.NACHDRUCK || {stand:'', rechnungen:[]}, alle = D.rechnungen, kreis = '';
+  var tb = document.getElementById('zeilen'), qf = document.getElementById('q'), btn = document.getElementById('drucken');
+  function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function eur(v){return Number(v).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'}
+  function dat(i){return i? i.slice(8)+'.'+i.slice(5,7)+'.'+i.slice(0,4):''}
+  function sichtbar(){
+    var q = qf.value.trim().toLowerCase();
+    return alle.filter(function(r){
+      return (!kreis || r.kreis===kreis) && (!q || r.nr.toLowerCase().indexOf(q)>=0 || (r.name||'').toLowerCase().indexOf(q)>=0);
+    }).slice(0,300);
+  }
+  function zeichnen(){
+    var l = sichtbar();
+    tb.innerHTML = l.map(function(r,i){
+      return '<tr><td><input type="checkbox" class="sel" data-i="'+i+'"></td><td>'+dat(r.datum)+'</td><td><b>'+esc(r.nr)+'</b></td><td class="kreis">'+esc(r.kreis==='261'?'261 Verkauf':'263 Service')+'</td><td>'+esc(r.name)+'</td><td class="r">'+eur(r.brutto)+'</td><td><a class="pdf" href="'+esc(r.pdf)+'" target="_blank" rel="noopener">PDF öffnen / drucken</a></td></tr>';
+    }).join('');
+    document.getElementById('leer').style.display = l.length ? 'none' : 'block';
+    document.getElementById('stand').textContent = alle.length+' Rechnungen in der Liste' + (D.stand ? ' · Stand '+D.stand : '') + ' · angezeigt: '+l.length+(l.length===300?' (die neuesten)':'');
+    document.getElementById('alle').checked = false;
+    pruefen(l);
+    tb._liste = l;
+  }
+  function pruefen(){ btn.disabled = !tb.querySelector('.sel:checked'); }
+  tb.addEventListener('change', pruefen);
+  document.getElementById('alle').addEventListener('change', function(){
+    var an = this.checked; [].forEach.call(tb.querySelectorAll('.sel'), function(c){c.checked = an}); pruefen();
+  });
+  document.getElementById('kreis').addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b) return;
+    kreis = b.getAttribute('data-k'); [].forEach.call(this.children, function(x){x.classList.toggle('on', x===b)}); zeichnen();
+  });
+  qf.addEventListener('input', zeichnen);
+  btn.addEventListener('click', function(){
+    var l = tb._liste || [];
+    [].forEach.call(tb.querySelectorAll('.sel:checked'), function(c){ var r = l[+c.getAttribute('data-i')]; if(r) window.open(r.pdf,'_blank'); });
+  });
+  zeichnen();
+})();
+</script>
+</body>
+</html>

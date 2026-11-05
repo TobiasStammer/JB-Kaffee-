@@ -69,6 +69,7 @@ AUSGANG_RECHNUNGEN = ("Rechnungsausgang Service", "Rechnungsausgang Verkauf", "R
 BELEGARTEN_ALLE = BELEGARTEN + [UNKLAR]
 STANDARD_ORDNER = r"Z:\Buchhaltung\Eingang"
 BANK_OHNE_BELEG = ("entgeltabrechnung",)   # Bankbuchungen, die grundsaetzlich keinen Beleg brauchen (Stichwort im Zweck/Namen)
+NACHDRUCK_ORDNER = r"Z:\Buchhaltung\Nachdruck"   # Liste + PDFs der Ausgangsrechnungen zum Nachdrucken (von allen Rechnern oeffnbar)
 BACKUP_ORDNER = r"Z:\Buchhaltung\Backup-Rechnungen-App"   # App und Daten liegen lokal, hierhin geht nur die Sicherung
 # Zuordnungsregeln: "Belegart = stichwort, stichwort" - erste passende Zeile gewinnt.
 # Gesucht wird im PDF-Text und im Dateinamen (Gross/Klein egal).
@@ -1610,13 +1611,70 @@ def backup_nach_z():
         return False
 
 
+def nachdruck_aktualisieren():
+    """Schreibt fuer die Mitarbeiter-Seite 'Rechnungen nachdrucken' (Z:\\Buchhaltung\\Nachdruck) die Liste der zuletzt erstellten
+    Ausgangsrechnungen 261xxxx/263xxxx (liste.js) und legt die PDFs als <Nummer>.pdf dazu. Laeuft auch im Hintergrund-Thread."""
+    ziel = Path(NACHDRUCK_ORDNER)
+    try:
+        (ziel / "pdf").mkdir(parents=True, exist_ok=True)
+    except OSError:  # Laufwerk nicht erreichbar
+        return False
+    c = sqlite3.connect(DB)
+    c.row_factory = sqlite3.Row
+    try:
+        zeilen = c.execute("SELECT id, datum, lieferant, belegart, rechnungsnr, brutto, datei FROM rechnungen WHERE belegart IN (?,?) "
+                           "AND datei IS NOT NULL AND rechnungsnr GLOB '26[13][0-9][0-9][0-9][0-9]' "
+                           "ORDER BY datum DESC, id DESC LIMIT 500", AUSGANG_RECHNUNGEN[:2]).fetchall()
+    finally:
+        c.close()
+    liste = []
+    for r in zeilen:
+        quelle = BELEGE / r["datei"]
+        pdf = ziel / "pdf" / f"{r['rechnungsnr']}{quelle.suffix.lower()}"
+        try:
+            if quelle.exists() and (not pdf.exists() or pdf.stat().st_size != quelle.stat().st_size):
+                shutil.copy2(quelle, pdf)
+        except OSError:
+            continue
+        if not pdf.exists():
+            continue
+        name = r["lieferant"] if r["lieferant"] and r["lieferant"] != r["belegart"] else ""
+        liste.append(dict(nr=r["rechnungsnr"], kreis=r["rechnungsnr"][:3], datum=r["datum"], name=name,
+                          brutto=r["brutto"] or 0, pdf="pdf/" + pdf.name))
+    import json
+    text = "window.NACHDRUCK = " + json.dumps(dict(stand=datetime.now().strftime("%d.%m.%Y %H:%M"), rechnungen=liste),
+                                              ensure_ascii=False) + ";\n"
+    try:
+        icon = BASE / "static" / "icon.ico"
+        if icon.exists() and not (ziel / "icon.ico").exists():
+            shutil.copy2(icon, ziel / "icon.ico")
+        for name, inhalt in (("liste.js", text), ("index.html", (BASE / "nachdruck_index.html").read_text(encoding="utf-8")),
+                             ("Verknuepfung-anlegen.ps1", (BASE / "Nachdruck-Verknuepfung-anlegen.ps1").read_text(encoding="utf-8"))):
+            datei = ziel / name
+            if not datei.exists() or datei.read_text(encoding="utf-8") != inhalt:
+                tmp = datei.with_suffix(".tmp")
+                tmp.write_text(inhalt, encoding="utf-8")
+                tmp.replace(datei)
+    except OSError:
+        return False
+    return True
+
+
 def _waechter():
     letzte_sicherung = 0
+    letzte_liste = 0
     while True:
         try:
-            eingang_einlesen()
+            eingelesen = eingang_einlesen()
         except Exception as e:  # noqa: BLE001
+            eingelesen = 0
             print("Eingang:", e)
+        if eingelesen or time.time() - letzte_liste > 120:  # Nachdruck-Liste: nach neuen Belegen und sonst alle 2 Minuten
+            try:
+                nachdruck_aktualisieren()
+            except Exception as e:  # noqa: BLE001
+                print("Nachdruck:", e)
+            letzte_liste = time.time()
         if time.time() - letzte_sicherung > 3600:  # beim Start und danach stuendlich
             backup_nach_z()
             letzte_sicherung = time.time()
