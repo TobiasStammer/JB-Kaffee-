@@ -2452,6 +2452,8 @@ def bank_zahlungen():
     out = []
     zahlen_gesamt = set()
     manuell = {r[0]: r[1] for r in db().execute("SELECT bank_id, rechnungsnr FROM bank_zuordnung")}
+    # Rechnungen, die schon aus der Kasse oder (chronologisch frueher) per Bank bezahlt sind, kommen fuer Sammelzahlungen nicht mehr in Frage
+    bereits_bezahlt = {r[0] for r in db().execute("SELECT DISTINCT rechnungsnr FROM kassenzeilen WHERE rechnungsnr<>''")} | set(manuell.values())
     for b in db().execute("SELECT * FROM bank ORDER BY datum, id"):
         if b["id"] in manuell:  # per Klick einer Rechnung zugeordnet
             out.append(("Kontoauszug", b["datum"], abs(b["betrag"]), manuell[b["id"]],
@@ -2474,6 +2476,20 @@ def bank_zahlungen():
                 if abs(a["summe"] - b["betrag"]) <= 0.011 and a["positionen"]:
                     treffer = list(a["positionen"])
                     break
+        if not treffer and b["betrag"] > 0 and "wertgarantie" in _norm(text) and "provision" not in text.lower():
+            # Sammelzahlung ohne Rechnungsnummer ('RENR -') und ohne Schadenabrechnung: noch nicht bezahlte Kundenrechnungen suchen,
+            # deren Summe genau dem Betrag entspricht (1-3 Rechnungen, nur wenn die Kombination eindeutig ist)
+            grenze = (date.fromisoformat(b["datum"]) - timedelta(days=75)).isoformat()
+            frei = [(r["rechnungsnr"], abs(r["brutto"])) for r in db().execute(
+                "SELECT rechnungsnr, brutto FROM rechnungen WHERE belegart IN (?,?) AND rechnungsnr<>'' AND brutto>0 AND datum<=? AND datum>=?",
+                AUSGANG_RECHNUNGEN[:2] + (b["datum"], grenze)) if r["rechnungsnr"] not in bereits_bezahlt]
+            kombis = []
+            for n in (1, 2, 3):
+                kombis = [cb for cb in itertools.combinations(frei, n) if abs(sum(x[1] for x in cb) - b["betrag"]) <= 0.011]
+                if kombis:
+                    break
+            if len(kombis) == 1:
+                treffer = list(kombis[0])
         if not treffer and b["betrag"] > 0 and "wertgarantie" in _norm(text) and "provision" in text.lower():
             offene = [(nr, abs(br)) for nr, br in ausg.items() if abs(abs(br) - b["betrag"]) <= 0.011 and nr not in zahlen_gesamt]
             gut = {r[0] for r in db().execute("SELECT rechnungsnr FROM rechnungen WHERE belegart=?", (WG_GUTSCHRIFT,))}
@@ -2491,6 +2507,7 @@ def bank_zahlungen():
             continue  # mehrere Rechnungen, Betrag passt nicht -> nicht raten
         faktor = gesamt / summe if len(treffer) > 1 and summe else 1
         for nr, br in treffer:
+            bereits_bezahlt.add(nr)
             out.append(("Kontoauszug", b["datum"], gesamt if len(treffer) == 1 else round(br * faktor, 2), nr,
                         f"{b['name']}: {b['zweck'][:70]}", b["id"]))
     return out
