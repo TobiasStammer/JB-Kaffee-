@@ -121,6 +121,7 @@ SETTINGS_DEFAULT = {
     "sachkontenlaenge": "4", "gegenkonto": "1600", "diktatkuerzel": "",
     "datev_mail": "", "smtp_host": "", "smtp_port": "587", "smtp_user": "",
     "smtp_pass": "", "absender": "",
+    "erinnerung_tage": "14",       # Ausgangsrechnungen, die laenger als so viele Tage offen sind, erscheinen als Erinnerung
     "start_datum": "2026-10-01",   # Anzeige ab diesem Tag; aeltere Rechnungen nur, solange sie offen sind
     "lieferanten_zusatz": "",       # im Formular 'Rechnung bearbeiten' angelegte Lieferanten (stehen vor der Standardliste)
     "eingang_ordner": STANDARD_ORDNER, "lieferanten": STANDARD_LIEFERANTEN, "regeln": STANDARD_REGELN,
@@ -340,11 +341,18 @@ INDEX = """
 <form method=post action="{{url_for('eingang_jetzt')}}" class=card style="display:flex;gap:14px;align-items:center">
  <span style="flex:1">Eingangsordner: <code>{{ordner}}</code>
  {% if pruefen %} &middot; <a href="#pruefen"><b style="color:#b91c1c">{{pruefen|length}} zu prüfen</b></a>{% endif %}
+ {% if erinnerung %} &middot; <a href="#erinnerung"><b style="color:#b45309">{{erinnerung|length}} Rechnung{{'en' if erinnerung|length>1}} überfällig</b></a>{% endif %}
  {% if skonto_n %} &middot; <a href="{{url_for('bank_seite')}}#skonto"><b style="color:{{'#b91c1c' if skonto_dringend else '#b45309'}}">{{skonto_n}} Skonto-Fristen{% if skonto_dringend %} ({{skonto_dringend}} dringend){% endif %}</b></a>{% endif %}
  {% if unklar %} &middot; <a href="{{url_for('index',belegart=UNKLAR)}}"><b style="color:#b45309">{{unklar}} nicht zugeordnet</b></a>{% endif %}
  {% if ausg_fehlt %} &middot; <a href="{{url_for('abgleich')}}"><b style="color:#b91c1c">{{ausg_fehlt}} Ausgangsrechnungen fehlen</b></a>{% endif %}</span>
  <button class=sek>Jetzt einlesen</button>
  <button class=sek formaction="{{url_for('neu_pruefen')}}">Neu prüfen</button></form>
+{% if erinnerung %}<details class=bank id=erinnerung style="border-left-color:#b45309"><summary style="color:#b45309">Erinnerung: Ausgangsrechnungen offen ({{erinnerung|length}}) &ndash; {{'%.2f'|format(erinnerung|sum(attribute='rest'))|replace('.',',')}} &euro;</summary>
+<p><small>Diese Ausgangsrechnungen sind seit mehr als {{settings_tage}} Tagen nicht (voll) bezahlt. Der Zahlstatus kommt aus Kassenbuch und Kontoauszug.</small></p>
+<table><tr><th>Rechnungsdatum</th><th class=r>Tage offen</th><th>Rg.-Nr.</th><th>Kunde</th><th class=r>Rechnung</th><th class=r>noch offen</th><th></th></tr>
+{% for r in erinnerung %}<tr><td>{{r.datum[8:]}}.{{r.datum[5:7]}}.{{r.datum[:4]}}</td><td class=r {{'style="color:#b91c1c;font-weight:700"'|safe if r.tage>30}}>{{r.tage}}</td><td>{{r.rechnungsnr}}</td><td>{{r.lieferant}}</td>
+<td class=r>{{'%.2f'|format(r.brutto|abs)|replace('.',',')}}</td><td class=r><b>{{'%.2f'|format(r.rest)|replace('.',',')}}</b>{% if r.bezahlt %}<br><small>{{'%.2f'|format(r.bezahlt)|replace('.',',')}} bezahlt</small>{% endif %}</td>
+<td><a href="{{url_for('bearbeiten',rid=r.id)}}">prüfen</a></td></tr>{% endfor %}</table></details>{% endif %}
 {% if pruefen %}<details class=bank id=pruefen style="border-left-color:#b91c1c"><summary style="color:#b91c1c">Zu prüfen ({{pruefen|length}})</summary>
 <p><small>Bei diesen Belegen kann etwas nicht stimmen (falsch eingeordnet, Betrag oder Nummer fehlt). Mit „Bearbeiten“ korrigieren oder auf der Bank-Seite „Aktualisieren“ klicken.</small></p>
 <table><tr><th>Datum</th><th>Belegart</th><th>Lieferant</th><th>Rg.-Nr.</th><th class=r>Brutto</th><th>Hinweis</th><th></th></tr>
@@ -437,6 +445,7 @@ EINST = """
 <div><label>SMTP-Benutzer</label><input name=smtp_user value="{{s.smtp_user}}"></div>
 <div><label>SMTP-Passwort</label><input type=password name=smtp_pass value="{{s.smtp_pass}}"></div></div>
 <h3>Automatischer Eingang (Kassensoftware &rarr; PDF)</h3>
+<label>Erinnerung: Ausgangsrechnungen anzeigen, die länger als so viele Tage offen sind</label><input name=erinnerung_tage value="{{s.erinnerung_tage}}" style="max-width:120px">
 <label>Eingangsordner (hier speicherst du die PDFs aus der Kasse ab)</label><input name=eingang_ordner value="{{s.eingang_ordner}}">
 <label>Weitere Lieferanten (im Formular „Rechnung bearbeiten“ angelegt, gelten vor der Liste unten; gleiches Zeilenformat)</label>
 <textarea name=lieferanten_zusatz rows=3>{{s.lieferanten_zusatz}}</textarea>
@@ -464,6 +473,26 @@ STAND = str(os.path.getmtime(__file__))
 def stand():
     """Versionskennung (Aenderungszeit von app.py); der Starter prueft damit, ob der laufende Server aktuell ist."""
     return STAND
+
+
+def ausgang_ueberfaellig():
+    """Ausgangsrechnungen (Service/Verkauf), die seit mehr als N Tagen (Einstellung, Standard 14) offen oder nur teilweise bezahlt sind."""
+    try:
+        tage = int(settings().get("erinnerung_tage") or 14)
+    except ValueError:
+        tage = 14
+    grenze = (date.today() - timedelta(days=tage)).isoformat()
+    pay = zahlungsstand()
+    out = []
+    for r in db().execute("SELECT id, datum, lieferant, rechnungsnr, brutto, zahlung FROM rechnungen WHERE belegart IN (?,?) "
+                          "AND COALESCE(zahlung,'offen')<>'bezahlt' AND datum<=? AND ABS(COALESCE(brutto,0))>0.004 "
+                          "ORDER BY datum, id", AUSGANG_RECHNUNGEN[:2] + (grenze,)):
+        bezahlt = (pay.get(r["rechnungsnr"]) or {}).get("summe", 0)
+        rest = round(abs(r["brutto"]) - bezahlt, 2)
+        if rest <= 0.01:
+            continue
+        out.append(dict(r, tage=(date.today() - date.fromisoformat(r["datum"])).days, rest=rest, bezahlt=bezahlt))
+    return out
 
 
 def pruefliste():
@@ -552,8 +581,8 @@ def index():
                               "AND ROUND(brutto,2)=? ORDER BY id", (g["belegart"], g["rechnungsnr"], g["b"])).fetchall()
         if not any({r["id"] for r in gruppe} <= {x["id"] for x in alt} for alt in doppelte):
             doppelte.append(gruppe)
-    return page(INDEX, pruefen=pruefliste(), skonto_n=len(skonto_offen()), skonto_dringend=sum(1 for x in skonto_offen() if x["rest"] <= 3),
-                heute=date.today().isoformat(), lastschrift_lief=lieferanten_lastschrift(settings()), doppelte=doppelte, summen=list(summen.values()), rows=rows, q=q, status=status, zahlung=zahlung, zahlart=zahlart, ZAHLARTEN=ZAHLARTEN, STATUS=STATUS, ZAHLUNG=ZAHLUNG, RECHNUNGSARTEN=RECHNUNGSARTEN, monat=monat,
+    return page(INDEX, pruefen=pruefliste(), erinnerung=ausgang_ueberfaellig(), skonto_n=len(skonto_offen()), skonto_dringend=sum(1 for x in skonto_offen() if x["rest"] <= 3),
+                heute=date.today().isoformat(), settings_tage=settings().get("erinnerung_tage") or 14, lastschrift_lief=lieferanten_lastschrift(settings()), doppelte=doppelte, summen=list(summen.values()), rows=rows, q=q, status=status, zahlung=zahlung, zahlart=zahlart, ZAHLARTEN=ZAHLARTEN, STATUS=STATUS, ZAHLUNG=ZAHLUNG, RECHNUNGSARTEN=RECHNUNGSARTEN, monat=monat,
                 belegart=belegart, BELEGARTEN=BELEGARTEN_ALLE, UNKLAR=UNKLAR,
                 ordner=settings()["eingang_ordner"], ausg_fehlt=len(fehlende_ausgangsrechnungen()[0]),
                 unklar=db().execute("SELECT COUNT(*) FROM rechnungen WHERE belegart=?", (UNKLAR,)).fetchone()[0],
