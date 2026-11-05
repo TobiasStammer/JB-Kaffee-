@@ -4,7 +4,7 @@ $ordner = $PSScriptRoot
 $lokal = Join-Path $env:LOCALAPPDATA 'Rechnungen-Nachdruck'
 New-Item -ItemType Directory -Force $lokal | Out-Null
 if (Test-Path (Join-Path $ordner 'icon.ico')) { Copy-Item (Join-Path $ordner 'icon.ico') (Join-Path $lokal 'icon.ico') -Force }
-$url = 'file:///' + ((Join-Path $ordner 'index.html') -replace '\', '/')
+$url = 'file:///' + (Join-Path $ordner 'index.html').Replace('\', '/')
 $browser = @("${env:ProgramFiles(x86)}\Microsoft\Edge\Application\msedge.exe", "$env:ProgramFiles\Microsoft\Edge\Application\msedge.exe",
              "$env:ProgramFiles\Google\Chrome\Application\chrome.exe", "${env:ProgramFiles(x86)}\Google\Chrome\Application\chrome.exe") |
            Where-Object { Test-Path $_ } | Select-Object -First 1
