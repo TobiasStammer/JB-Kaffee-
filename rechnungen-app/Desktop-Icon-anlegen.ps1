@@ -1,6 +1,6 @@
 ﻿# Legt die Desktop-Verknuepfung "Rechnungen DATEV" an (mit lokalem Icon, unabhaengig von Netzlaufwerken).
 # Aufruf: Rechtsklick -> "Mit PowerShell ausfuehren"  oder  powershell -ExecutionPolicy Bypass -File Desktop-Icon-anlegen.ps1
-$app   = $PSScriptRoot
+$app   = if (Test-Path 'C:\Buchhaltung\fenster.pyw') { 'C:\Buchhaltung' } else { $PSScriptRoot }   # die echte App liegt in C:\Buchhaltung, nie die Entwicklungskopie im Repo
 $lokal = Join-Path $env:LOCALAPPDATA "Rechnungen-App"
 New-Item -ItemType Directory -Force $lokal | Out-Null
 Copy-Item (Join-Path $app "static\icon.ico") (Join-Path $lokal "rechnungen-app-4.ico") -Force
