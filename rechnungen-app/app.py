@@ -329,8 +329,6 @@ INDEX = """
  <div><label>Monat</label><input type=month name=monat value="{{monat}}"></div>
  <div><label>Belegart</label><select name=belegart><option value="">alle</option>
   {% for b in BELEGARTEN %}<option {{'selected' if b==belegart}}>{{b}}</option>{% endfor %}</select></div>
- <div><label>DATEV</label><select name=status><option value="">alle</option>
-  {% for s in STATUS %}<option {{'selected' if s==status}}>{{s}}</option>{% endfor %}</select></div>
  <div><label>Zahlung</label><select name=zahlung><option value="">alle</option>
   <option value="unbezahlt" {{'selected' if zahlung=='unbezahlt'}}>nur offene (offen + teilweise)</option>
   {% for z in ZAHLUNG %}<option {{'selected' if z==zahlung}}>{{z}}</option>{% endfor %}</select></div>
@@ -369,7 +367,7 @@ INDEX = """
 <form method=post action="{{url_for('export')}}">
 <details class=bank><summary>Belege ({{rows|length}}){% if summen|length<2 %} &ndash; {{'%.2f'|format(sb)|replace('.',',')}} &euro;{% endif %}</summary>
 <table><tr><th></th><th>Datum</th><th>Belegart</th><th>Lieferant</th><th>Rechnungsnr.</th><th>Kategorie</th>
-<th class=r>Brutto</th><th>Zahlung</th><th>Bezahlt am</th><th>Zahlart</th><th>DATEV</th><th>Beleg</th><th></th></tr>
+<th class=r>Brutto</th><th>Zahlung</th><th>Bezahlt am</th><th>Zahlart</th><th>Beleg</th><th></th></tr>
 {% for r in rows %}<tr>
  <td><input type=checkbox name=ids value="{{r.id}}" style="width:auto" {{'checked' if r.status!='an DATEV gesendet' and r.belegart not in ('Lieferschein','Bestellübersicht')}}></td>
  <td>{{r.datum}}</td><td><small>{{r.belegart}}</small></td><td>{{r.lieferant}}</td><td>{{r.rechnungsnr}}{% if r.belegart in ('Lieferschein','Bestellübersicht') %}{% if r.zu_rechnung %}<br><small>&rarr; Rechnung {{r.zu_rechnung}}</small>{% else %}<br><small style="color:#b45309">keiner Rechnung zugeordnet</small>{% endif %}{% endif %}</td><td>{% if r.belegart not in ('Lieferschein','Bestellübersicht') %}{{r.kategorie}} <small>({{r.konto}})</small>{% endif %}</td>
@@ -378,12 +376,11 @@ INDEX = """
  <td>{% if r.zahl_am %}{{r.zahl_am[8:]}}.{{r.zahl_am[5:7]}}.{{r.zahl_am[:4]}}{% endif %}</td>
  <td>{{r.zahl_art or ''}}</td>
  {% else %}<td>&ndash;</td><td></td><td></td>{% endif %}
- <td class="st-{{ 'an' if r.status.startswith('an') else 'neu' }}">{{r.status}}</td>
  <td>{% if r.datei %}<a href="{{url_for('beleg',rid=r.id)}}" target=_blank>öffnen</a>{% else %}<small>fehlt</small>{% endif %}</td>
  <td><a href="{{url_for('bearbeiten',rid=r.id)}}">bearbeiten</a></td></tr>
-{% else %}<tr><td colspan=13>Noch keine Rechnungen.</td></tr>{% endfor %}
+{% else %}<tr><td colspan=12>Noch keine Rechnungen.</td></tr>{% endfor %}
 {% if summen|length<2 %}<tr><th colspan=6 class=r>Summe ({{rows|length}})</th>
-<th class=r>{{'%.2f'|format(sb)|replace('.',',')}}</th><th colspan=6></th></tr>{% endif %}</table>
+<th class=r>{{'%.2f'|format(sb)|replace('.',',')}}</th><th colspan=5></th></tr>{% endif %}</table>
 {% if summen|length>1 %}<table style="margin-top:14px;max-width:560px"><tr><th>Summe je Belegart</th><th class=r>Anzahl</th>
 <th class=r>Brutto</th></tr>
 {% for z in summen %}<tr><td>{{z.art}}</td><td class=r>{{z.n}}</td>
