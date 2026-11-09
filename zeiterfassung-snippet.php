@@ -133,11 +133,11 @@ function kt_ze_workdays( $from, $to, $lo = null, $hi = null ) {
 	return $n;
 }
 
-function kt_ze_vac_taken( $sid, $year ) {
+function kt_ze_vac_taken( $sid, $year, $status = 'genehmigt' ) {
 	global $wpdb;
 	$rows = $wpdb->get_results( $wpdb->prepare(
-		'SELECT d_from,d_to FROM ' . kt_ze_t( 'leave' ) . " WHERE staff_id=%d AND status='genehmigt' AND kind='urlaub' AND d_to>=%s AND d_from<=%s",
-		$sid, "$year-01-01", "$year-12-31"
+		'SELECT d_from,d_to FROM ' . kt_ze_t( 'leave' ) . " WHERE staff_id=%d AND status=%s AND kind='urlaub' AND d_to>=%s AND d_from<=%s",
+		$sid, $status, "$year-01-01", "$year-12-31"
 	) );
 	$n = 0;
 	foreach ( $rows as $r ) {
@@ -180,7 +180,7 @@ function kt_ze_today( $sid ) {
 	$now = strtotime( current_time( 'mysql' ) );
 	if ( $ws !== null ) { $net += $now - $ws; }
 	if ( $ps !== null ) { $pause += $now - $ps; }
-	return array( 'net' => kt_ze_hm( $net ), 'pause' => kt_ze_hm( $pause ), 'any' => (bool) $rows );
+	return array( 'net' => kt_ze_hm( $net ), 'pause' => kt_ze_hm( $pause ), 'any' => (bool) $rows, 'net_s' => $net, 'pause_s' => $pause );
 }
 
 function kt_ze_allowed( $state ) {
@@ -271,6 +271,48 @@ function kt_ze_api( $in ) {
 		list( $state, $last ) = kt_ze_state( $sid );
 		return array( 'ok' => true, 'done' => $t, 'time' => substr( $now, 11, 5 ), 'name' => $st->name, 'state' => $state, 'today' => kt_ze_today( $sid ) );
 	}
+	if ( $a === 'overview' ) {
+		$cur   = current_time( 'Y-m' );
+		$lower = gmdate( 'Y-m', strtotime( $cur . '-01 12:00:00 UTC -24 months' ) );
+		$ym    = preg_match( '/^\d{4}-\d{2}$/', (string) ( $in['ym'] ?? '' ) ) ? (string) $in['ym'] : $cur;
+		if ( $ym > $cur ) {
+			$ym = $cur;
+		}
+		if ( $ym < $lower ) {
+			$ym = $lower;
+		}
+		list( $rows ) = kt_ze_month_rows( $sid, $ym );
+		$today = current_time( 'Y-m-d' );
+		$td    = kt_ze_today( $sid );
+		$sum   = 0;
+		$out   = array();
+		foreach ( $rows as $r ) {
+			$net   = $r['net'];
+			$pause = $r['pause'];
+			$secs  = $r['netsec'];
+			$note  = $r['note'] ?: ( $r['missing'] ? 'keine Buchung' : '' );
+			if ( $r['date'] === $today && $td['any'] ) {
+				$net   = $td['net'];
+				$pause = $td['pause'];
+				$secs  = $td['net_s'];
+				$note  = $state !== 'out' ? 'läuft' : $note;
+			}
+			$sum  += $secs;
+			$out[] = array( 'd' => $r['label'], 'k' => $r['in'], 'g' => $r['out'], 'p' => $pause, 'n' => $net, 'h' => $note );
+		}
+		$y = (int) substr( $ym, 0, 4 );
+		return array(
+			'ok'     => true,
+			'ym'     => $ym,
+			'monat'  => mysql2date( 'F Y', $ym . '-01' ),
+			'sum'    => kt_ze_hm( $sum ),
+			'rows'   => $out,
+			'vac'    => array( 'anspruch' => (float) $st->vac_days, 'genommen' => kt_ze_vac_taken( $sid, $y ), 'angefragt' => kt_ze_vac_taken( $sid, $y, 'offen' ), 'jahr' => $y ),
+			'leaves' => kt_ze_my_leaves( $sid ),
+			'prev'   => $ym > $lower ? gmdate( 'Y-m', strtotime( $ym . '-01 12:00:00 UTC -1 month' ) ) : null,
+			'next'   => $ym < $cur ? gmdate( 'Y-m', strtotime( $ym . '-01 12:00:00 UTC +1 month' ) ) : null,
+		);
+	}
 	if ( $a === 'leave' ) {
 		$from = (string) ( $in['from'] ?? '' );
 		$to   = (string) ( $in['to'] ?? '' );
@@ -301,7 +343,7 @@ function kt_ze_my_leaves( $sid ) {
 			'from'   => mysql2date( 'd.m.', $r->d_from ),
 			'to'     => mysql2date( 'd.m.Y', $r->d_to ),
 			'kind'   => kt_ze_kinds()[ $r->kind ] ?? $r->kind,
-			'status' => $r->status,
+			'status' => array( 'offen' => 'angefragt', 'genehmigt' => 'bestätigt', 'abgelehnt' => 'abgelehnt' )[ $r->status ] ?? $r->status,
 		);
 	}
 	return $out;
@@ -414,6 +456,8 @@ input,select{width:100%;padding:14px;border:1px solid #c4c4c4;border-radius:8px;
 .full{grid-column:1/-1}
 .list{margin:14px 0 0;font-size:17px;color:#444;text-align:left}
 .list div{padding:3px 0;border-bottom:1px solid #eceef1}
+.ovt{width:100%;border-collapse:collapse;font-size:18px;text-align:left}.ovt th,.ovt td{padding:5px 8px;border-bottom:1px solid #eceef1}.ovt th{color:#555;font-size:15px}.ovt td.n,.ovt th.n{text-align:right}
+.btn.sm{min-width:0;padding:8px 22px;font-size:28px}.btn[disabled]{opacity:.35}
 .msg-ok h1{color:#1d6a3d}.msg-bad h1{color:#a8392f}
 .big{font-size:60px;line-height:1;margin:0 0 8px}
 .side{display:flex;position:fixed;left:calc(80% - 70px);bottom:22px;flex-direction:column;align-items:flex-start;gap:6px;width:140px;color:#334155;font-family:Tahoma,Arial,sans-serif;font-weight:700;font-size:26px;line-height:1.2}
@@ -477,6 +521,14 @@ input,select{width:100%;padding:14px;border:1px solid #c4c4c4;border-radius:8px;
 <p class="sub" id="m-text"></p>
 </section>
 
+<section class="screen" id="s-ov" hidden>
+<h1 id="ov-h">&Uuml;bersicht</h1>
+<div class="row" style="margin:4px 0 8px;align-items:center"><button class="btn sec sm" id="ov-prev">&lsaquo;</button><div class="sub" id="ov-month" style="margin:0;min-width:240px"></div><button class="btn sec sm" id="ov-next">&rsaquo;</button></div>
+<div class="row" id="ov-sum" style="margin:6px 0"></div>
+<div class="card" style="max-height:36vh;overflow:auto;padding:6px 12px"><table class="ovt" id="ov-tab"></table></div>
+<div class="list" id="ov-leaves"></div>
+<div class="row"><button class="btn sec" id="ov-back">Zur&uuml;ck</button></div>
+</section>
 <section class="screen" id="s-adm" hidden>
 <h1>Verwaltung</h1>
 <p class="sub">Master-Men&uuml;</p>
@@ -503,7 +555,7 @@ var KIND={urlaub:'Urlaub',sonder:'Sonderurlaub',ueberstunden:'Überstundenausgle
 var LBL={kommen:'Kommen',pause_start:'Pause',pause_ende:'Pause beenden',gehen:'Gehen'};
 var CLS={kommen:'grn',pause_start:'org',pause_ende:'grn',gehen:'red'};
 var CH={out:'Nicht eingestempelt',working:'Eingestempelt',pause:'In der Pause'};
-function show(id){['home','act','leave','msg','adm','name','list'].forEach(function(s){$('s-'+s).hidden=(s!==id);});}
+function show(id){['home','act','leave','msg','adm','name','list','ov'].forEach(function(s){$('s-'+s).hidden=(s!==id);});}
 function later(ms){clearTimeout(S.timer);S.timer=setTimeout(home,ms);}
 function home(){clearTimeout(S.timer);S.uid='';S.mode='';S.token='';S.pend=null;$('h-title').textContent='Willkommen';$('h-sub').textContent='Bitte Karte ans Tablet halten';$('h-cancel').hidden=true;show('home');}
 function tick(){var n=new Date();$('clk').textContent=n.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
@@ -529,6 +581,7 @@ function showAct(d){
  var b=$('a-btns');b.innerHTML='';
  d.allowed.forEach(function(t){var x=document.createElement('button');x.className='btn '+CLS[t];x.textContent=LBL[t];x.onclick=function(){stamp(t);};b.appendChild(x);});
  if(d.master){S.token=d.token;var a2=document.createElement('button');a2.className='btn';a2.textContent='Verwaltung';a2.onclick=function(){showAdm();};b.appendChild(a2);}
+ var ov=document.createElement('button');ov.className='btn sec';ov.textContent='Meine Übersicht';ov.onclick=function(){showOv('');};b.appendChild(ov);
  var u=document.createElement('button');u.className='btn sec';u.textContent='Urlaub beantragen';u.onclick=function(){showLeave(S.d);};b.appendChild(u);
  var x=document.createElement('button');x.className='btn sec';x.textContent='Abbrechen';x.onclick=home;b.appendChild(x);
  show('act');later(14000);
@@ -562,6 +615,23 @@ $('l-send').onclick=function(){
   msg('✓','Antrag gesendet',r.days+' Arbeitstag'+(r.days===1?'':'e')+' beantragt. Sie bekommen Bescheid.','ok',5000);
  }).catch(function(){$('l-send').disabled=false;$('l-err').textContent='Keine Verbindung. Bitte erneut versuchen.';$('l-err').hidden=false;});
 };
+/* Uebersicht */
+function showOv(ym){later(60000);
+ post({a:'overview',uid:S.uid,ym:ym||''}).then(function(r){
+  if(!r.ok){msg('\u26A0','Nicht m\u00f6glich','Bitte Karte erneut halten.','bad',5000);return;}
+  $('ov-h').textContent='\u00dcbersicht \u2013 '+S.d.name;$('ov-month').textContent=r.monat;
+  $('ov-prev').disabled=!r.prev;$('ov-prev').onclick=function(){if(r.prev)showOv(r.prev);};
+  $('ov-next').disabled=!r.next;$('ov-next').onclick=function(){if(r.next)showOv(r.next);};
+  var s=$('ov-sum');s.innerHTML='';
+  [['working','Gearbeitet: '+r.sum+' h'],['out','Urlaub '+r.vac.jahr+': '+r.vac.genommen+' von '+r.vac.anspruch+' Tagen bestätigt, Rest '+(r.vac.anspruch-r.vac.genommen)+(r.vac.angefragt?' (angefragt: '+r.vac.angefragt+')':'')]].forEach(function(c){var e=document.createElement('div');e.className='chip '+c[0];e.textContent=c[1];s.appendChild(e);});
+  var t=$('ov-tab');t.innerHTML='<tr><th>Tag</th><th class="n">Kommen</th><th class="n">Gehen</th><th class="n">Pause</th><th class="n">Netto</th><th></th></tr>';
+  r.rows.forEach(function(x){var tr=document.createElement('tr');[x.d,x.k,x.g,x.p,x.n,x.h].forEach(function(v,i){var td=document.createElement('td');td.textContent=v;if(i>=1&&i<=4)td.className='n';tr.appendChild(td);});t.appendChild(tr);});
+  if(!r.rows.length){var e0=document.createElement('tr');e0.innerHTML='<td colspan="6">Keine Eintr\u00e4ge in diesem Monat.</td>';t.appendChild(e0);}
+  var L=$('ov-leaves');L.innerHTML='';
+  if(r.leaves.length){var h=document.createElement('div');h.innerHTML='<b>Ihr Urlaub</b>';L.appendChild(h);r.leaves.forEach(function(x){var e=document.createElement('div');e.textContent=x.from+' \u2013 '+x.to+'  \u00b7  '+x.kind+'  \u00b7  '+x.status;L.appendChild(e);});}
+  show('ov');
+ }).catch(function(){msg('\u26A0','Keine Verbindung','Bitte erneut versuchen.','bad',5000);});}
+$('ov-back').onclick=function(){showAct(S.d);};
 /* Ton */
 var AC=null;
 function audio(){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();}catch(e){}}
