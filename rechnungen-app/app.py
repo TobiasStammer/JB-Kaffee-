@@ -508,7 +508,7 @@ def pruefliste():
         if (r["lieferant"] or "").startswith("Joachim Bl"):
             probleme.append("eigene Firma als Lieferant/Kunde - vermutlich falsch eingeordnet")
         if r["belegart"] in ("Rechnungsausgang Service", "Rechnungsausgang Verkauf") and not re.fullmatch(
-                r"26[13]\d{4}", r["rechnungsnr"] or ""):
+                r"26[13]\d{4}(/\d)?", r["rechnungsnr"] or ""):  # '/1' = Stornorechnung
             probleme.append("Ausgangsrechnung ohne eigene Nummer (261xxxx/263xxxx) - evtl. Eingangsrechnung?")
         if r["belegart"] == BESTELLUEBERSICHT and not r["zu_rechnung"]:
             probleme.append("keine passende Ausgangsrechnung (Name + Gesamtbetrag brutto) gefunden - bitte zuordnen")
