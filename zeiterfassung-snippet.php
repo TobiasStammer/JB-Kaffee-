@@ -12,7 +12,7 @@ function kt_ze_t( $n ) {
 }
 
 add_action( 'init', function () {
-	if ( get_option( 'kt_ze_db' ) === '2' ) {
+	if ( get_option( 'kt_ze_db' ) === '3' ) {
 		return;
 	}
 	global $wpdb;
@@ -60,7 +60,7 @@ add_action( 'init', function () {
 			$wpdb->insert( kt_ze_t( 'staff' ), array( 'name' => 'Tobias Stammer', 'uid' => '', 'email' => '', 'vac_days' => 30, 'active' => 1, 'is_master' => 1, 'created' => current_time( 'mysql' ) ) );
 		}
 	}
-	update_option( 'kt_ze_db', '2', false );
+	update_option( 'kt_ze_db', '3', false );
 }, 0 );
 
 /* ---------- Hilfsfunktionen ---------- */
