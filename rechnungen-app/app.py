@@ -278,6 +278,7 @@ LAYOUT = """<!doctype html><html lang=de><meta charset=utf-8>
 <div class=top><b>Rechnungen &amp; DATEV</b><small>kaffeetechniker.de</small></div>
 <nav class=band><ul>
 <li><a href="{{url_for('index')}}" class="{{'on' if request.endpoint in ('index','bearbeiten') else ''}}">Übersicht</a></li>
+<li><a href="{{url_for('op_seite')}}" class="{{'on' if request.endpoint=='op_seite' else ''}}">OP</a></li>
 <li><a href="{{url_for('abgleich')}}" class="{{'on' if request.endpoint=='abgleich' else ''}}">Abgleich</a></li>
 <li><a href="{{url_for('zahlungen_seite')}}" class="{{'on' if request.endpoint=='zahlungen_seite' else ''}}">Zahlungen</a></li>
 <li><a href="{{url_for('bank_seite')}}" class="{{'on' if request.endpoint=='bank_seite' else ''}}">Bank</a></li>
@@ -340,18 +341,12 @@ INDEX = """
 <form method=post action="{{url_for('eingang_jetzt')}}" class=card style="display:flex;gap:14px;align-items:center">
  <span style="flex:1">Eingangsordner: <code>{{ordner}}</code>
  {% if pruefen %} &middot; <a href="#pruefen"><b style="color:#b91c1c">{{pruefen|length}} zu prüfen</b></a>{% endif %}
- {% if erinnerung %} &middot; <a href="#erinnerung"><b style="color:#b45309">{{erinnerung|length}} Rechnung{{'en' if erinnerung|length>1}} überfällig</b></a>{% endif %}
+ {% if erinnerung %} &middot; <a href="{{url_for('op_seite')}}#erinnerung"><b style="color:#b45309">{{erinnerung|length}} Rechnung{{'en' if erinnerung|length>1}} überfällig</b></a>{% endif %}
  {% if skonto_n %} &middot; <a href="{{url_for('bank_seite')}}#skonto"><b style="color:{{'#b91c1c' if skonto_dringend else '#b45309'}}">{{skonto_n}} Skonto-Fristen{% if skonto_dringend %} ({{skonto_dringend}} dringend){% endif %}</b></a>{% endif %}
  {% if unklar %} &middot; <a href="{{url_for('index',belegart=UNKLAR)}}"><b style="color:#b45309">{{unklar}} nicht zugeordnet</b></a>{% endif %}
  {% if ausg_fehlt %} &middot; <a href="{{url_for('abgleich')}}"><b style="color:#b91c1c">{{ausg_fehlt}} Ausgangsrechnungen fehlen</b></a>{% endif %}</span>
  <button class=sek>Jetzt einlesen</button>
  <button class=sek formaction="{{url_for('neu_pruefen')}}">Neu prüfen</button></form>
-{% if erinnerung %}<details class=bank id=erinnerung style="border-left-color:#b45309"><summary style="color:#b45309">Erinnerung: Ausgangsrechnungen offen ({{erinnerung|length}}) &ndash; {{'%.2f'|format(erinnerung|sum(attribute='rest'))|replace('.',',')}} &euro;</summary>
-<p><small>Diese Ausgangsrechnungen sind seit mehr als {{settings_tage}} Tagen nicht (voll) bezahlt. Der Zahlstatus kommt aus Kassenbuch und Kontoauszug.</small></p>
-<table><tr><th>Rechnungsdatum</th><th class=r>Tage offen</th><th>Rg.-Nr.</th><th>Kunde</th><th class=r>Rechnung</th><th class=r>noch offen</th><th></th></tr>
-{% for r in erinnerung %}<tr><td>{{r.datum[8:]}}.{{r.datum[5:7]}}.{{r.datum[:4]}}</td><td class=r {{'style="color:#b91c1c;font-weight:700"'|safe if r.tage>30}}>{{r.tage}}</td><td>{{r.rechnungsnr}}</td><td>{{r.lieferant}}</td>
-<td class=r>{{'%.2f'|format(r.brutto|abs)|replace('.',',')}}</td><td class=r><b>{{'%.2f'|format(r.rest)|replace('.',',')}}</b>{% if r.bezahlt %}<br><small>{{'%.2f'|format(r.bezahlt)|replace('.',',')}} bezahlt</small>{% endif %}</td>
-<td><a href="{{url_for('bearbeiten',rid=r.id)}}">prüfen</a></td></tr>{% endfor %}</table></details>{% endif %}
 {% if pruefen %}<details class=bank id=pruefen style="border-left-color:#b91c1c"><summary style="color:#b91c1c">Zu prüfen ({{pruefen|length}})</summary>
 <p><small>Bei diesen Belegen kann etwas nicht stimmen (falsch eingeordnet, Betrag oder Nummer fehlt). Mit „Bearbeiten“ korrigieren oder auf der Bank-Seite „Aktualisieren“ klicken.</small></p>
 <table><tr><th>Datum</th><th>Belegart</th><th>Lieferant</th><th>Rg.-Nr.</th><th class=r>Brutto</th><th>Hinweis</th><th></th></tr>
@@ -491,6 +486,58 @@ def ausgang_ueberfaellig():
             continue
         out.append(dict(r, tage=(date.today() - date.fromisoformat(r["datum"])).days, rest=rest, bezahlt=bezahlt))
     return out
+
+
+OP_SEITE = """
+<style>details.bank{background:#fff;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:6px;margin-bottom:10px;padding:0 18px}details.bank>summary{cursor:pointer;font:600 14px Tahoma,Arial,sans-serif;color:var(--head);padding:9px 0}details.bank[open]{padding-bottom:14px}details.bank[open]>summary{border-bottom:1px solid var(--line);margin-bottom:10px}
+@media print{.top,nav.band,.noprint{display:none!important}}</style>
+<form method=get class="card noprint" style="display:flex;gap:12px;align-items:end;flex-wrap:wrap">
+ <div><label>Rechnungskreis</label><select name=kreis onchange="this.form.submit()"><option value="">alle</option>
+  <option value=261 {{'selected' if kreis=='261'}}>261 Verkauf</option><option value=263 {{'selected' if kreis=='263'}}>263 Service</option></select></div>
+ <div style="flex:1"><label>Suche (Kunde oder Rechnungsnummer)</label><input name=q value="{{q}}"></div>
+ <button>Filtern</button> <a class="btn sek" href="{{url_for('op_seite')}}">Zurücksetzen</a>
+ <button type=button class=sek onclick="window.print()">Drucken</button></form>
+{% if erinnerung %}<details class=bank id=erinnerung open style="border-left-color:#b45309"><summary style="color:#b45309">Erinnerung: länger als {{tage}} Tage offen ({{erinnerung|length}}) &ndash; {{'%.2f'|format(erinnerung|sum(attribute='rest'))|replace('.',',')}} &euro;</summary>
+<table><tr><th>Rechnungsdatum</th><th class=r>Tage offen</th><th>Rg.-Nr.</th><th>Kunde</th><th class=r>Rechnung</th><th class=r>noch offen</th><th class=noprint></th></tr>
+{% for r in erinnerung %}<tr><td>{{r.datum[8:]}}.{{r.datum[5:7]}}.{{r.datum[:4]}}</td><td class=r {{'style="color:#b91c1c;font-weight:700"'|safe if r.tage>30}}>{{r.tage}}</td><td>{{r.rechnungsnr}}</td><td>{{r.name}}</td>
+<td class=r>{{'%.2f'|format(r.brutto)|replace('.',',')}}</td><td class=r><b>{{'%.2f'|format(r.rest)|replace('.',',')}}</b>{% if r.bezahlt %}<br><small>{{'%.2f'|format(r.bezahlt)|replace('.',',')}} bezahlt</small>{% endif %}</td>
+<td class=noprint><a href="{{url_for('bearbeiten',rid=r.id)}}">prüfen</a></td></tr>{% endfor %}</table></details>{% endif %}
+<details class=bank open><summary>Offene-Posten-Liste Ausgangsrechnungen &ndash; Stand {{heute}} ({{liste|length}} Posten, {{'%.2f'|format(summe)|replace('.',',')}} &euro; offen)</summary>
+<table><tr><th>Kd.-Nr.</th><th>Name</th><th>Rg.-Nr.</th><th>Rg.-Datum</th><th class=r>Rg.-Betrag</th><th class=r>off.-Betrag</th><th class=r>Tage</th><th class=noprint></th></tr>
+{% for r in liste %}<tr><td>{{r.kd}}</td><td>{{r.name}}</td><td>{{r.rechnungsnr}}</td><td>{{r.datum[8:]}}.{{r.datum[5:7]}}.{{r.datum[:4]}}</td>
+<td class=r>{{'%.2f'|format(r.brutto)|replace('.',',')}}</td><td class=r><b>{{'%.2f'|format(r.rest)|replace('.',',')}}</b></td>
+<td class=r {{'style="color:#b91c1c"'|safe if r.tage>tage}}>{{r.tage}}</td><td class=noprint><a href="{{url_for('bearbeiten',rid=r.id)}}">öffnen</a></td></tr>
+{% else %}<tr><td colspan=8 style="color:#047857"><b>&#10003; Keine offenen Posten.</b></td></tr>{% endfor %}
+<tr><th colspan=4 class=r>Summe</th><th class=r>{{'%.2f'|format(liste|sum(attribute='brutto'))|replace('.',',')}}</th><th class=r>{{'%.2f'|format(summe)|replace('.',',')}}</th><th colspan=2></th></tr></table>
+<small>Offen = Rechnungsbetrag minus Zahlungen aus Kassenbuch und Kontoauszug (inkl. von Hand bestätigter Zahlungen).</small></details>"""
+
+
+@app.route("/op")
+def op_seite():
+    zahlungen_synchronisieren()
+    kreis = request.args.get("kreis", "")
+    q = request.args.get("q", "").strip().lower()
+    try:
+        tage = int(settings().get("erinnerung_tage") or 14)
+    except ValueError:
+        tage = 14
+    eintraege, _ = liste_waehlen(listen_laden(), "alle")
+    pay = zahlungsstand()
+    liste = []
+    for r in db().execute("SELECT id, datum, lieferant, rechnungsnr, brutto FROM rechnungen WHERE belegart IN (?,?) AND rechnungsnr<>'' "
+                          "AND COALESCE(zahlung,'offen')<>'bezahlt' AND ABS(COALESCE(brutto,0))>0.004 ORDER BY rechnungsnr", AUSGANG_RECHNUNGEN[:2]):
+        bezahlt = (pay.get(r["rechnungsnr"]) or {}).get("summe", 0)
+        rest = round(abs(r["brutto"]) - bezahlt, 2)
+        e = eintraege.get(r["rechnungsnr"]) or {}
+        if rest <= 0.01 or (kreis and not r["rechnungsnr"].startswith(kreis)):
+            continue
+        if q and q not in f"{r['lieferant']} {r['rechnungsnr']}".lower():
+            continue
+        liste.append(dict(r, name=r["lieferant"], kd=e.get("kd", ""), brutto=abs(r["brutto"]), rest=rest, bezahlt=bezahlt,
+                          tage=(date.today() - date.fromisoformat(r["datum"])).days))
+    erinnerung = sorted((dict(r) for r in liste if r["tage"] > tage), key=lambda r: -r["tage"])
+    return page(OP_SEITE, liste=liste, summe=sum(r["rest"] for r in liste), erinnerung=erinnerung, tage=tage, kreis=kreis, q=request.args.get("q", ""),
+                heute=date.today().strftime("%d.%m.%Y"))
 
 
 def pruefliste():
