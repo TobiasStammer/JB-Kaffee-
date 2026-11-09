@@ -12,7 +12,7 @@ function kt_ze_t( $n ) {
 }
 
 add_action( 'init', function () {
-	if ( get_option( 'kt_ze_db' ) === '1' ) {
+	if ( get_option( 'kt_ze_db' ) === '2' ) {
 		return;
 	}
 	global $wpdb;
@@ -25,6 +25,7 @@ add_action( 'init', function () {
   email varchar(190) NOT NULL DEFAULT '',
   vac_days decimal(4,1) NOT NULL DEFAULT 0,
   active tinyint(1) NOT NULL DEFAULT 1,
+  is_master tinyint(1) NOT NULL DEFAULT 0,
   created datetime NOT NULL,
   PRIMARY KEY  (id),
   KEY uid (uid)
@@ -50,7 +51,16 @@ add_action( 'init', function () {
   PRIMARY KEY  (id),
   KEY staff_id (staff_id)
 ) $cs;" );
-	update_option( 'kt_ze_db', '1', false );
+	// Master-Benutzer (Menue am Tablet): Tobias Stammer; die Karte wird im Backend zugeordnet
+	if ( ! $wpdb->get_var( 'SELECT id FROM ' . kt_ze_t( 'staff' ) . ' WHERE is_master=1 LIMIT 1' ) ) {
+		$tid = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM ' . kt_ze_t( 'staff' ) . ' WHERE name=%s LIMIT 1', 'Tobias Stammer' ) );
+		if ( $tid ) {
+			$wpdb->update( kt_ze_t( 'staff' ), array( 'is_master' => 1 ), array( 'id' => $tid ) );
+		} else {
+			$wpdb->insert( kt_ze_t( 'staff' ), array( 'name' => 'Tobias Stammer', 'uid' => '', 'email' => '', 'vac_days' => 30, 'active' => 1, 'is_master' => 1, 'created' => current_time( 'mysql' ) ) );
+		}
+	}
+	update_option( 'kt_ze_db', '2', false );
 }, 0 );
 
 /* ---------- Hilfsfunktionen ---------- */
@@ -213,6 +223,9 @@ function kt_ze_api( $in ) {
 	global $wpdb;
 	$a   = (string) ( $in['a'] ?? '' );
 	$uid = kt_ze_norm_uid( $in['uid'] ?? '' );
+	if ( strpos( $a, 'adm_' ) === 0 ) {
+		return kt_ze_api_admin( $a, $in );
+	}
 	if ( $uid === '' ) {
 		return array( 'ok' => false, 'err' => 'uid' );
 	}
@@ -241,6 +254,8 @@ function kt_ze_api( $in ) {
 			'today'   => kt_ze_today( $sid ),
 			'vac'     => array( 'anspruch' => (float) $st->vac_days, 'genommen' => kt_ze_vac_taken( $sid, $y ), 'jahr' => $y ),
 			'leaves'  => kt_ze_my_leaves( $sid ),
+			'master'  => (bool) $st->is_master,
+			'token'   => $st->is_master ? kt_ze_adm_token( $sid ) : '',
 		);
 	};
 	if ( $a === 'scan' ) {
@@ -292,6 +307,68 @@ function kt_ze_my_leaves( $sid ) {
 	return $out;
 }
 
+/* Master-Sitzung: nach dem Scan der Master-Karte gibt der Server ein Token (5 Min.), das jede Verwaltungsaktion braucht */
+function kt_ze_adm_token( $sid ) {
+	$tok = wp_generate_password( 24, false );
+	set_transient( 'kt_ze_adm_' . $tok, (int) $sid, 300 );
+	return $tok;
+}
+
+function kt_ze_api_admin( $a, $in ) {
+	global $wpdb;
+	$tok = preg_replace( '/[^A-Za-z0-9]/', '', (string) ( $in['token'] ?? '' ) );
+	$sid = $tok ? (int) get_transient( 'kt_ze_adm_' . $tok ) : 0;
+	$m   = $sid ? $wpdb->get_row( $wpdb->prepare( 'SELECT id FROM ' . kt_ze_t( 'staff' ) . ' WHERE id=%d AND is_master=1 AND active=1', $sid ) ) : null;
+	if ( ! $m ) {
+		return array( 'ok' => false, 'err' => 'token' );
+	}
+	set_transient( 'kt_ze_adm_' . $tok, $sid, 300 );
+	$uid = kt_ze_norm_uid( $in['uid'] ?? '' );
+	if ( $a === 'adm_list' ) {
+		$rows = $wpdb->get_results( 'SELECT id,name,uid FROM ' . kt_ze_t( 'staff' ) . ' WHERE active=1 ORDER BY name' );
+		$out  = array();
+		foreach ( $rows as $r ) {
+			$out[] = array( 'id' => (int) $r->id, 'name' => $r->name, 'card' => $r->uid !== '' );
+		}
+		return array( 'ok' => true, 'staff' => $out );
+	}
+	if ( $a === 'adm_present' ) {
+		$rows = $wpdb->get_results( 'SELECT id,name FROM ' . kt_ze_t( 'staff' ) . ' WHERE active=1 ORDER BY name' );
+		$out  = array();
+		foreach ( $rows as $r ) {
+			list( $state, $last ) = kt_ze_state( (int) $r->id );
+			$out[] = array( 'name' => $r->name, 'state' => $state, 'since' => ( $last && $state !== 'out' ) ? substr( $last->ts, 11, 5 ) : '' );
+		}
+		return array( 'ok' => true, 'staff' => $out );
+	}
+	if ( $a === 'adm_new' || $a === 'adm_repl' ) {
+		if ( strlen( $uid ) < 8 ) {
+			return array( 'ok' => false, 'err' => 'uid' );
+		}
+		$id = $a === 'adm_repl' ? (int) ( $in['id'] ?? 0 ) : 0;
+		$o  = $wpdb->get_row( $wpdb->prepare( 'SELECT id,name FROM ' . kt_ze_t( 'staff' ) . ' WHERE uid=%s AND active=1 AND id<>%d LIMIT 1', $uid, $id ) );
+		if ( $o ) {
+			return array( 'ok' => false, 'err' => 'vergeben', 'name' => $o->name );
+		}
+		if ( $a === 'adm_new' ) {
+			$name = mb_substr( sanitize_text_field( (string) ( $in['name'] ?? '' ) ), 0, 80 );
+			if ( mb_strlen( $name ) < 2 ) {
+				return array( 'ok' => false, 'err' => 'name' );
+			}
+			$wpdb->insert( kt_ze_t( 'staff' ), array( 'name' => $name, 'uid' => $uid, 'email' => '', 'vac_days' => 30, 'active' => 1, 'is_master' => 0, 'created' => current_time( 'mysql' ) ) );
+			delete_option( 'kt_ze_unknown' );
+			return array( 'ok' => true, 'name' => $name );
+		}
+		$st = $wpdb->get_row( $wpdb->prepare( 'SELECT id,name FROM ' . kt_ze_t( 'staff' ) . ' WHERE id=%d AND active=1', $id ) );
+		if ( ! $st ) {
+			return array( 'ok' => false, 'err' => 'name' );
+		}
+		$wpdb->update( kt_ze_t( 'staff' ), array( 'uid' => $uid ), array( 'id' => $id ) );
+		return array( 'ok' => true, 'name' => $st->name );
+	}
+	return array( 'ok' => false, 'err' => 'action' );
+}
+
 function kt_ze_page() {
 	return <<<'KTHTML'
 <!doctype html>
@@ -339,10 +416,9 @@ input,select{width:100%;padding:14px;border:1px solid #c4c4c4;border-radius:8px;
 .list div{padding:3px 0;border-bottom:1px solid #eceef1}
 .msg-ok h1{color:#1d6a3d}.msg-bad h1{color:#a8392f}
 .big{font-size:60px;line-height:1;margin:0 0 8px}
-.side{display:none;position:fixed;right:20px;top:50%;transform:translateY(-50%);flex-direction:column;align-items:center;gap:6px;width:170px;text-align:center;color:#334155;font-family:Tahoma,Arial,sans-serif;font-weight:700;font-size:26px;line-height:1.2}
-.side svg{width:104px;height:104px;animation:nudge 1.4s ease-in-out infinite}
-@keyframes nudge{0%,100%{transform:translateX(-12px)}50%{transform:translateX(12px)}}
-@media(orientation:landscape) and (min-width:700px){.side{display:flex}}
+.side{display:flex;position:fixed;left:22px;bottom:22px;flex-direction:column;align-items:flex-start;gap:6px;width:200px;color:#334155;font-family:Tahoma,Arial,sans-serif;font-weight:700;font-size:26px;line-height:1.2}
+.side svg{width:110px;height:110px;animation:nudge 1.4s ease-in-out infinite}
+@keyframes nudge{0%,100%{transform:translate(0,0)}50%{transform:translate(-12px,12px)}}
 @media(max-width:700px){.grid{grid-template-columns:1fr}.btn{min-width:0;width:100%}.nfc{width:200px;height:200px}h1{font-size:28px}}
 </style>
 </head>
@@ -358,6 +434,7 @@ input,select{width:100%;padding:14px;border:1px solid #c4c4c4;border-radius:8px;
 <div id="warn" class="warn" hidden></div>
 <h1 id="h-title">Willkommen</h1>
 <p class="sub" id="h-sub">Bitte Karte ans Tablet halten</p>
+<p class="sub" id="snd" hidden style="font-size:16px;color:#888">Ton aus: einmal auf den Bildschirm tippen</p>
 <div class="nfc"><i></i><i></i><i></i>
 <svg viewBox="0 0 260 260" aria-hidden="true">
 <g fill="none" stroke="#334155" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
@@ -366,7 +443,8 @@ input,select{width:100%;padding:14px;border:1px solid #c4c4c4;border-radius:8px;
 <path d="M126 150h64M126 170h44" stroke-width="5" opacity=".45"/>
 <path d="M92 82a52 52 0 0 1 76 0"/><path d="M108 62a78 78 0 0 1 44 0" opacity=".7"/><path d="M76 98a76 76 0 0 1 108 0" opacity=".45"/>
 </g></svg></div>
-<div class="side" aria-hidden="true"><span>Karte rechts scannen</span><svg viewBox="0 0 96 96"><path d="M14 48h58M52 26l22 22-22 22" fill="none" stroke="#334155" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+<div class="side" aria-hidden="true"><span>Karte hier scannen</span><svg viewBox="0 0 96 96"><path d="M82 14L20 76M20 40V76H56" fill="none" stroke="#334155" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+<div id="h-cancel" hidden><button class="btn sec" id="b-cancel">Abbrechen</button></div>
 <div id="h-btn" hidden><button class="btn" id="b-start">Zum Aktivieren tippen</button></div>
 </section>
 
@@ -399,6 +477,22 @@ input,select{width:100%;padding:14px;border:1px solid #c4c4c4;border-radius:8px;
 <p class="sub" id="m-text"></p>
 </section>
 
+<section class="screen" id="s-adm" hidden>
+<h1>Verwaltung</h1>
+<p class="sub">Master-Men&uuml;</p>
+<div class="row"><button class="btn" id="adm-new">Neuer Mitarbeiter</button><button class="btn" id="adm-repl">Karte ersetzen</button></div>
+<div class="row"><button class="btn sec" id="adm-pres">Wer ist da?</button><button class="btn sec" id="adm-back">Zur&uuml;ck</button></div>
+</section>
+<section class="screen" id="s-name" hidden>
+<h1>Neuer Mitarbeiter</h1>
+<div class="card"><label for="n-name">Vor- und Nachname</label><input type="text" id="n-name" maxlength="80" autocomplete="off"></div>
+<div class="row"><button class="btn sec" id="n-back">Zur&uuml;ck</button><button class="btn grn" id="n-go">Weiter: Karte scannen</button></div>
+</section>
+<section class="screen" id="s-list" hidden>
+<h1 id="li-title"></h1>
+<div class="row" id="li-btns"></div>
+<div class="row"><button class="btn sec" id="li-back">Zur&uuml;ck</button></div>
+</section>
 </main>
 </div>
 <script>
@@ -409,18 +503,19 @@ var KIND={urlaub:'Urlaub',sonder:'Sonderurlaub',ueberstunden:'Überstundenausgle
 var LBL={kommen:'Kommen',pause_start:'Pause',pause_ende:'Pause beenden',gehen:'Gehen'};
 var CLS={kommen:'grn',pause_start:'org',pause_ende:'grn',gehen:'red'};
 var CH={out:'Nicht eingestempelt',working:'Eingestempelt',pause:'In der Pause'};
-function show(id){['home','act','leave','msg'].forEach(function(s){$('s-'+s).hidden=(s!==id);});}
+function show(id){['home','act','leave','msg','adm','name','list'].forEach(function(s){$('s-'+s).hidden=(s!==id);});}
 function later(ms){clearTimeout(S.timer);S.timer=setTimeout(home,ms);}
-function home(){clearTimeout(S.timer);S.uid='';show('home');}
+function home(){clearTimeout(S.timer);S.uid='';S.mode='';S.token='';S.pend=null;$('h-title').textContent='Willkommen';$('h-sub').textContent='Bitte Karte ans Tablet halten';$('h-cancel').hidden=true;show('home');}
 function tick(){var n=new Date();$('clk').textContent=n.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
  $('dat').textContent=n.toLocaleDateString('de-DE',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});}
 setInterval(tick,1000);tick();
 function post(o){return fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(o),cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('http '+r.status);return r.json();});}
-function msg(ico,title,text,cls,ms){$('m-ico').textContent=ico;$('m-title').textContent=title;$('m-text').textContent=text||'';
+function msg(ico,title,text,cls,ms,snd){beep(snd||(cls==='bad'?'err':'ok'));$('m-ico').textContent=ico;$('m-title').textContent=title;$('m-text').textContent=text||'';
  $('s-msg').className='screen msg-'+cls;show('msg');later(ms||4500);}
 function greet(){var h=new Date().getHours();return h<11?'Guten Morgen':(h<18?'Hallo':'Guten Abend');}
 function vacText(v){var rest=v.anspruch-v.genommen;return 'Urlaub '+v.jahr+': '+v.genommen+' von '+v.anspruch+' Tagen genommen, Rest '+rest;}
 function onUid(uid){
+ if(S.mode==='enrol'||S.mode==='replace'){enrol(uid);return;}
  var now=Date.now();if(uid===S.uid&&now-S.last<1500)return;S.last=now;
  post({a:'scan',uid:uid}).then(function(d){
   if(!d.ok){msg(d.unknown?'⚠':'⚠',d.unknown?'Karte nicht zugeordnet':'Fehler',d.unknown?'Bitte beim Chef melden.':'Bitte erneut versuchen.','bad',5000);return;}
@@ -433,6 +528,7 @@ function showAct(d){
  var td=$('a-today');td.hidden=!d.today.any;td.textContent='Heute gearbeitet: '+d.today.net+' h · Pause: '+d.today.pause+' h';
  var b=$('a-btns');b.innerHTML='';
  d.allowed.forEach(function(t){var x=document.createElement('button');x.className='btn '+CLS[t];x.textContent=LBL[t];x.onclick=function(){stamp(t);};b.appendChild(x);});
+ if(d.master){S.token=d.token;var a2=document.createElement('button');a2.className='btn';a2.textContent='Verwaltung';a2.onclick=function(){showAdm();};b.appendChild(a2);}
  var u=document.createElement('button');u.className='btn sec';u.textContent='Urlaub beantragen';u.onclick=function(){showLeave(S.d);};b.appendChild(u);
  var x=document.createElement('button');x.className='btn sec';x.textContent='Abbrechen';x.onclick=home;b.appendChild(x);
  show('act');later(14000);
@@ -442,7 +538,7 @@ function stamp(t){
  post({a:'stamp',uid:S.uid,t:t}).then(function(r){
   if(!r.ok){if(r.name||r.allowed){showAct(r);}else{msg('⚠','Nicht möglich','Bitte Karte erneut halten.','bad');}return;}
   var txt={kommen:'Kommen gebucht um ',pause_start:'Pause gestartet um ',pause_ende:'Pause beendet um ',gehen:'Gehen gebucht um '}[r.done]+r.time+' Uhr'+(r.done==='gehen'||r.done==='pause_start'?'. Heute gearbeitet: '+r.today.net+' h':'');
-  msg(r.done==='gehen'?'👋':'✓',r.done==='gehen'?'Schönen Feierabend, '+r.name:'Danke, '+r.name,txt,'ok',4000);
+  msg(r.done==='gehen'?'👋':'✓',r.done==='gehen'?'Schönen Feierabend, '+r.name:'Danke, '+r.name,txt,'ok',4000,r.done);
  }).catch(function(){msg('⚠','Keine Verbindung','Buchung wurde NICHT gespeichert. Bitte erneut versuchen.','bad',6000);});
 }
 /* Urlaub */
@@ -466,6 +562,48 @@ $('l-send').onclick=function(){
   msg('✓','Antrag gesendet',r.days+' Arbeitstag'+(r.days===1?'':'e')+' beantragt. Sie bekommen Bescheid.','ok',5000);
  }).catch(function(){$('l-send').disabled=false;$('l-err').textContent='Keine Verbindung. Bitte erneut versuchen.';$('l-err').hidden=false;});
 };
+/* Ton */
+var AC=null;
+function audio(){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();}catch(e){}}
+['click','touchstart','keydown'].forEach(function(ev){document.addEventListener(ev,audio,{passive:true});});
+function tone(f,t0,d,type,vol){var o=AC.createOscillator(),g=AC.createGain();o.type=type||'sine';o.frequency.value=f;
+ g.gain.setValueAtTime(0.0001,AC.currentTime+t0);g.gain.exponentialRampToValueAtTime(vol||0.35,AC.currentTime+t0+0.02);g.gain.exponentialRampToValueAtTime(0.0001,AC.currentTime+t0+d);
+ o.connect(g);g.connect(AC.destination);o.start(AC.currentTime+t0);o.stop(AC.currentTime+t0+d+0.05);}
+function beep(k){try{audio();if(!AC||AC.state!=='running')return;
+ if(k==='err'){tone(220,0,0.18,'square',0.25);tone(180,0.22,0.3,'square',0.25);}
+ else if(k==='gehen'){tone(880,0,0.13);tone(660,0.15,0.2);}
+ else if(k==='pause_start'){tone(740,0,0.2);}
+ else{tone(660,0,0.13);tone(990,0.15,0.2);}}catch(e){}}
+setInterval(function(){$('snd').hidden=!!(AC&&AC.state==='running');},1500);
+/* Master-Verwaltung */
+function showAdm(){later(90000);show('adm');}
+$('adm-back').onclick=function(){showAct(S.d);};
+$('adm-new').onclick=function(){$('n-name').value='';later(90000);show('name');setTimeout(function(){$('n-name').focus();},100);};
+$('n-back').onclick=showAdm;
+$('n-go').onclick=function(){var n=$('n-name').value.trim();if(n.length<2){$('n-name').focus();return;}
+ S.mode='enrol';S.pend={name:n};$('h-title').textContent='Neue Karte scannen';$('h-sub').textContent='Karte f\u00fcr '+n+' jetzt ans Tablet halten';$('h-cancel').hidden=false;show('home');later(60000);};
+$('b-cancel').onclick=function(){var t=S.token,d=S.d;home();if(t&&d){S.token=t;S.d=d;showAdm();}};
+function liste(titel,fn){later(90000);$('li-title').textContent=titel;$('li-btns').innerHTML='Lade \u2026';show('list');
+ post({a:'adm_list',token:S.token}).then(function(r){
+  if(!r.ok){msg('\u26A0','Sitzung abgelaufen','Bitte Master-Karte erneut scannen.','bad',5000);return;}
+  var b=$('li-btns');b.innerHTML='';r.staff.forEach(function(x){var e=document.createElement('button');e.className='btn sec';e.textContent=x.name+(x.card?'':' (keine Karte)');e.onclick=function(){fn(x);};b.appendChild(e);});
+ }).catch(function(){msg('\u26A0','Keine Verbindung','Bitte erneut versuchen.','bad',5000);});}
+$('adm-repl').onclick=function(){liste('F\u00fcr wen ist die neue Karte?',function(x){S.mode='replace';S.pend={id:x.id,name:x.name};
+ $('h-title').textContent='Neue Karte scannen';$('h-sub').textContent='Neue Karte f\u00fcr '+x.name+' jetzt ans Tablet halten';$('h-cancel').hidden=false;show('home');later(60000);});};
+$('adm-pres').onclick=function(){later(90000);$('li-title').textContent='Wer ist da?';$('li-btns').innerHTML='Lade \u2026';show('list');
+ post({a:'adm_present',token:S.token}).then(function(r){
+  if(!r.ok){msg('\u26A0','Sitzung abgelaufen','Bitte Master-Karte erneut scannen.','bad',5000);return;}
+  var b=$('li-btns');b.innerHTML='';var T={out:'nicht da',working:'da seit ',pause:'Pause seit '};
+  r.staff.forEach(function(x){var e=document.createElement('div');e.className='chip '+x.state;e.textContent=x.name+': '+T[x.state]+(x.since||'');b.appendChild(e);});
+ }).catch(function(){msg('\u26A0','Keine Verbindung','Bitte erneut versuchen.','bad',5000);});};
+$('li-back').onclick=showAdm;
+function enrol(uid){
+ var o=S.mode==='enrol'?{a:'adm_new',name:S.pend.name}:{a:'adm_repl',id:S.pend.id};o.token=S.token;o.uid=uid;var nm=S.pend.name;
+ post(o).then(function(r){
+  if(!r.ok){var t=r.err==='vergeben'?['Karte schon vergeben','Diese Karte geh\u00f6rt '+r.name+'.']:(r.err==='token'?['Sitzung abgelaufen','Bitte Master-Karte erneut scannen.']:['Nicht m\u00f6glich','Bitte erneut versuchen.']);
+   S.mode='';msg('\u26A0',t[0],t[1],'bad',6000);return;}
+  msg('\u2713','Karte zugeordnet',nm+' kann jetzt stempeln.','ok',5000);
+ }).catch(function(){S.mode='';msg('\u26A0','Keine Verbindung','Nichts gespeichert. Bitte erneut versuchen.','bad',6000);});}
 /* NFC */
 function wake(){try{navigator.wakeLock&&navigator.wakeLock.request('screen').catch(function(){});}catch(e){}}
 function warn(t,btn){var w=$('warn');w.textContent=t;w.hidden=!t;$('h-btn').hidden=!btn;}
@@ -524,6 +662,7 @@ add_action( 'admin_init', function () {
 			'email'    => sanitize_email( wp_unslash( $_POST['email'] ?? '' ) ),
 			'vac_days' => (float) str_replace( ',', '.', (string) ( $_POST['vac_days'] ?? 0 ) ),
 			'active'   => empty( $_POST['active'] ) ? 0 : 1,
+			'is_master' => empty( $_POST['is_master'] ) ? 0 : 1,
 		);
 		$dupe = $uid ? (int) $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM ' . kt_ze_t( 'staff' ) . ' WHERE uid=%s AND id<>%d AND active=1 LIMIT 1', $uid, $id ) ) : 0;
 		if ( $d['name'] === '' ) {
@@ -791,9 +930,9 @@ function kt_ze_tab_staff( $staff ) {
 		echo '<div class="notice notice-info"><p>Zuletzt am Tablet gescannte, <b>nicht zugeordnete Karte</b>: <code>' . esc_html( $unk['uid'] ) . '</code> (' . esc_html( mysql2date( 'd.m.Y H:i', $unk['at'] ) ) . ') – unten eintragen.</p></div>';
 	}
 	echo '<p>Karte zuordnen: neue Karte am Tablet scannen (erscheint dann oben als „nicht zugeordnet“), Namen eintragen, Karten-ID einfügen.</p>';
-	echo '<table class="widefat striped" style="max-width:1100px"><thead><tr><th>Name</th><th>Karten-ID (UID)</th><th>E-Mail (für Urlaubs-Bescheid)</th><th>Urlaubstage/Jahr</th><th>Aktiv</th><th></th></tr></thead><tbody>';
+	echo '<table class="widefat striped" style="max-width:1100px"><thead><tr><th>Name</th><th>Karten-ID (UID)</th><th>E-Mail (für Urlaubs-Bescheid)</th><th>Urlaubstage/Jahr</th><th>Aktiv</th><th>Master (Menü am Tablet)</th><th></th></tr></thead><tbody>';
 	$rows = $staff;
-	$rows[] = (object) array( 'id' => 0, 'name' => '', 'uid' => $unk['uid'] ?? '', 'email' => '', 'vac_days' => 30, 'active' => 1 );
+	$rows[] = (object) array( 'id' => 0, 'name' => '', 'uid' => $unk['uid'] ?? '', 'email' => '', 'vac_days' => 30, 'active' => 1, 'is_master' => 0 );
 	foreach ( $rows as $s ) {
 		echo '<tr><form method="post">' . kt_ze_hidden( 'staff_save', array( 'tab' => 'mitarbeiter', 'id' => $s->id ) );
 		echo '<td><input type="text" name="name" value="' . esc_attr( $s->name ) . '" placeholder="' . ( $s->id ? '' : 'Neuer Mitarbeiter' ) . '"></td>';
@@ -801,6 +940,7 @@ function kt_ze_tab_staff( $staff ) {
 		echo '<td><input type="email" name="email" value="' . esc_attr( $s->email ) . '"></td>';
 		echo '<td><input type="number" step="0.5" min="0" name="vac_days" value="' . esc_attr( $s->vac_days ) . '" style="width:80px"></td>';
 		echo '<td><input type="checkbox" name="active" value="1"' . checked( $s->active, 1, false ) . '></td>';
+		echo '<td><input type="checkbox" name="is_master" value="1"' . checked( $s->is_master, 1, false ) . '></td>';
 		echo '<td><button class="button' . ( $s->id ? '' : ' button-primary' ) . '">' . ( $s->id ? 'Speichern' : 'Anlegen' ) . '</button></td></form></tr>';
 	}
 	echo '</tbody></table>';
