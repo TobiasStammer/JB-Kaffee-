@@ -259,6 +259,13 @@ function kt_ze_api( $in ) {
 		);
 	};
 	if ( $a === 'scan' ) {
+		// Erster Scan des Tages = automatisch "Kommen"; erst danach gibt es die Auswahl
+		if ( $state === 'out' && ! (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . kt_ze_t( 'log' ) . ' WHERE staff_id=%d AND ts>=%s', $sid, current_time( 'Y-m-d' ) . ' 00:00:00' ) ) ) {
+			$now = current_time( 'mysql' );
+			$wpdb->insert( kt_ze_t( 'log' ), array( 'staff_id' => $sid, 'type' => 'kommen', 'ts' => $now, 'edited' => 0 ) );
+			list( $state, $last ) = kt_ze_state( $sid );
+			return array( 'ok' => true, 'auto' => true, 'done' => 'kommen', 'time' => substr( $now, 11, 5 ), 'name' => $st->name, 'state' => $state );
+		}
 		return $info();
 	}
 	if ( $a === 'stamp' ) {
@@ -571,7 +578,9 @@ function onUid(uid){
  var now=Date.now();if(uid===S.uid&&now-S.last<1500)return;S.last=now;
  post({a:'scan',uid:uid}).then(function(d){
   if(!d.ok){msg(d.unknown?'⚠':'⚠',d.unknown?'Karte nicht zugeordnet':'Fehler',d.unknown?'Bitte beim Chef melden.':'Bitte erneut versuchen.','bad',5000);return;}
-  S.uid=uid;S.d=d;showAct(d);
+  S.uid=uid;
+  if(d.auto){msg('✓',greet()+', '+d.name,'Kommen gebucht um '+d.time+' Uhr','ok',4000,'kommen');return;}
+  S.d=d;showAct(d);
  }).catch(function(){msg('⚠','Keine Verbindung','Bitte Karte erneut halten oder Internet prüfen.','bad',5000);});
 }
 function showAct(d){
