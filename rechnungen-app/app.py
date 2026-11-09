@@ -2584,6 +2584,7 @@ def zahlungen_synchronisieren():
                      (q, datum, betrag, nr, info, bank_id, "Bank"))
     pay = zahlungsstand()
     quitt = {r[0]: r[1] for r in db().execute("SELECT rechnungsnr, am FROM quittiert")}
+    quitt_bezahlt = {r[0] for r in db().execute("SELECT rechnungsnr FROM quittiert WHERE bemerkung LIKE 'bezahlt%'")}  # von Hand als bezahlt bestaetigt
     abzug_set = lieferanten_abzug(settings())
     for r in db().execute("SELECT id, rechnungsnr, brutto, belegart, lieferant, zahlung, zahl_am, zahl_quelle, zahl_art, skonto FROM rechnungen "
                           "WHERE rechnungsnr<>'' AND belegart IN (?,?,?,?,?)", AUSGANG_RECHNUNGEN + (EINGANG,) + EINNAHME_GUTSCHRIFT).fetchall():
@@ -2597,7 +2598,7 @@ def zahlungen_synchronisieren():
         else:
             z = "offen"
         am, quelle, art = (p["am"], p["quellen"], p["arten"]) if p else (None, None, None)
-        if not p and soll < 0.005 and r["rechnungsnr"] in quitt:  # 0,00-Rechnung ohne Zahlung, vom Benutzer bestaetigt
+        if not p and (soll < 0.005 or r["rechnungsnr"] in quitt_bezahlt) and r["rechnungsnr"] in quitt:  # 0,00-Rechnung ohne Zahlung bzw. von Hand als bezahlt bestaetigt
             z, am, quelle, art = "bezahlt", quitt[r["rechnungsnr"]], "Bestätigt", ""
         if (z, r["zahl_am"], r["zahl_quelle"], r["zahl_art"]) != (r["zahlung"], am, quelle, art) and not (
                 z == r["zahlung"] == "offen" and not r["zahl_am"] and not r["zahl_art"]):
