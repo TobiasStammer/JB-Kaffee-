@@ -2689,6 +2689,12 @@ BANK = """
  <div><label>Monat</label><input type=month name=monat value="{{monat}}"></div>
  <button>Filtern</button> <a class="btn sek" href="{{url_for('bank_seite')}}">Zurücksetzen</a>
  <button type=submit formmethod=post formaction="{{url_for('bank_aktualisieren')}}" class=sek>&#8635; Aktualisieren</button></form>
+<form method=post action="{{url_for('bank_kontrolliert_speichern')}}" class=card style="display:flex;gap:12px;align-items:end;flex-wrap:wrap">
+ <input type=hidden name=zurueck value="{{zurueck}}">
+ <div><label>Letzte Buchung kontrolliert am</label><input type=date name=datum value="{{kontrolliert}}" style="width:auto"></div>
+ <button class=sek>Speichern</button>
+ <button class=sek name=heute value=1 title="Setzt das Datum der neuesten Buchung im Kontoauszug">Alles bis zur neuesten Buchung kontrolliert</button>
+ <small>{% if kontrolliert %}Seit diesem Datum: <b>{{neu_seit_kontrolle}}</b> neue Buchung{{'en' if neu_seit_kontrolle != 1}} im Kontoauszug (neueste vom {{neueste_buchung}}).{% else %}Noch nichts eingetragen. Neueste Buchung im Kontoauszug: {{neueste_buchung}}.{% endif %}</small></form>
 <details class=bank><summary>Offene Rechnungen &ndash; Stand laut Kontoauszug</summary>
 {% if bank_n == 0 %}<p style="color:#b45309"><b>Noch kein Kontoauszug vorhanden.</b> Lege eine CSV/CAMT-Datei in den Eingangsordner, die App liest sie automatisch ein.</p>{% endif %}
 <table style="max-width:640px"><tr><th>Eingangsrechnungen</th><th class=r>Anzahl</th><th class=r>Summe brutto</th></tr>
@@ -2821,7 +2827,11 @@ def bank_seite():
     manuell_liste = [dict(r) for r in db().execute(
         "SELECT b.id, b.datum, b.name, b.betrag, z.rechnungsnr FROM bank_zuordnung z JOIN bank b ON b.id=z.bank_id "
         "ORDER BY b.datum DESC, b.id DESC")]
-    return page(BANK, monat=monat, summen=summen, info=info, skonto_liste=skonto_offen(), manuell_liste=manuell_liste,
+    kontrolliert = settings().get("bank_kontrolliert") or ""
+    neueste = db().execute("SELECT MAX(datum) FROM bank").fetchone()[0] or ""
+    neu_seit = db().execute("SELECT COUNT(*) FROM bank WHERE datum>?", (kontrolliert,)).fetchone()[0] if kontrolliert else 0
+    return page(BANK, kontrolliert=kontrolliert, neueste_buchung=f"{neueste[8:]}.{neueste[5:7]}.{neueste[:4]}" if neueste else "-",
+                neu_seit_kontrolle=neu_seit, monat=monat, summen=summen, info=info, skonto_liste=skonto_offen(), manuell_liste=manuell_liste,
                 credit_offen=credit_offen, credit_offen_summe=sum(c["betrag"] for c in credit_offen),
                 credit_ok=credit_ok, credit_ok_summe=sum(c["betrag"] for c in credit_ok),
                 offene_liste=offene_liste, offene_summe=sum(abs(r["brutto"] or 0) for r in offene_liste),
@@ -2839,6 +2849,20 @@ def bank_aktualisieren():
     flash(f"{n} neue Dateien eingelesen, Abgleich aktualisiert." if n else "Keine neuen Dateien - Abgleich aktualisiert.")
     monat = request.form.get("monat", "")
     return redirect(url_for("bank_seite", monat=monat) if monat else url_for("bank_seite"))
+
+
+@app.route("/bank/kontrolliert", methods=["POST"])
+def bank_kontrolliert_speichern():
+    """Merkt sich, bis zu welcher Buchung der Kontoauszug zuletzt kontrolliert wurde."""
+    if request.form.get("heute"):
+        datum = db().execute("SELECT MAX(datum) FROM bank").fetchone()[0] or ""
+    else:
+        datum = request.form.get("datum", "").strip()
+    db().execute("INSERT OR REPLACE INTO settings(k,v) VALUES('bank_kontrolliert',?)", (datum,))
+    db().commit()
+    flash("Kontrolldatum gespeichert.")
+    ziel = request.form.get("zurueck", "")
+    return redirect(ziel if ziel.startswith("/bank") else url_for("bank_seite"))
 
 
 @app.route("/bank/zuordnen", methods=["POST"])
