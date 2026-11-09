@@ -512,6 +512,22 @@ OP_SEITE = """
 <small>Offen = Rechnungsbetrag minus Zahlungen aus Kassenbuch und Kontoauszug (inkl. von Hand bestätigter Zahlungen).</small></details>"""
 
 
+def kundennr_aus_beleg(datei):
+    """Kundennummer aus der Ausgangsrechnung selbst ('Kd.-Nr.' im Kopf, erster Wert nach der Beschriftungszeile 'Seite-Nr.:')."""
+    if not datei or not str(datei).lower().endswith(".pdf"):
+        return ""
+    pfad = BELEGE / datei
+    if not pfad.exists():
+        return ""
+    zeilen = [z.strip() for z in pdf_text(pfad, max_seiten=1).split("\n")]
+    for i, z in enumerate(zeilen):
+        if z.startswith("Seite-Nr"):
+            for y in zeilen[i + 1:i + 12]:
+                if re.fullmatch(r"\d{2,6}", y):
+                    return y
+    return ""
+
+
 @app.route("/op")
 def op_seite():
     zahlungen_synchronisieren()
@@ -524,7 +540,7 @@ def op_seite():
     eintraege, _ = liste_waehlen(listen_laden(), "alle")
     pay = zahlungsstand()
     liste = []
-    for r in db().execute("SELECT id, datum, lieferant, rechnungsnr, brutto FROM rechnungen WHERE belegart IN (?,?) AND rechnungsnr<>'' "
+    for r in db().execute("SELECT id, datum, lieferant, rechnungsnr, brutto, datei FROM rechnungen WHERE belegart IN (?,?) AND rechnungsnr<>'' "
                           "AND COALESCE(zahlung,'offen')<>'bezahlt' AND ABS(COALESCE(brutto,0))>0.004 ORDER BY rechnungsnr", AUSGANG_RECHNUNGEN[:2]):
         bezahlt = (pay.get(r["rechnungsnr"]) or {}).get("summe", 0)
         rest = round(abs(r["brutto"]) - bezahlt, 2)
@@ -533,7 +549,7 @@ def op_seite():
             continue
         if q and q not in f"{r['lieferant']} {r['rechnungsnr']}".lower():
             continue
-        liste.append(dict(r, name=r["lieferant"], kd=e.get("kd", ""), brutto=abs(r["brutto"]), rest=rest, bezahlt=bezahlt,
+        liste.append(dict(r, name=r["lieferant"], kd=kundennr_aus_beleg(r["datei"]) or e.get("kd", ""), brutto=abs(r["brutto"]), rest=rest, bezahlt=bezahlt,
                           tage=(date.today() - date.fromisoformat(r["datum"])).days))
     erinnerung = sorted((dict(r) for r in liste if r["tage"] > tage), key=lambda r: -r["tage"])
     return page(OP_SEITE, liste=liste, summe=sum(r["rest"] for r in liste), erinnerung=erinnerung, tage=tage, kreis=kreis, q=request.args.get("q", ""),
