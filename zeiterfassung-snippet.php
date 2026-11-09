@@ -648,11 +648,16 @@ function audio(){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioConte
 function tone(f,t0,d,type,vol){var o=AC.createOscillator(),g=AC.createGain();o.type=type||'sine';o.frequency.value=f;
  g.gain.setValueAtTime(0.0001,AC.currentTime+t0);g.gain.exponentialRampToValueAtTime(vol||0.35,AC.currentTime+t0+0.02);g.gain.exponentialRampToValueAtTime(0.0001,AC.currentTime+t0+d);
  o.connect(g);g.connect(AC.destination);o.start(AC.currentTime+t0);o.stop(AC.currentTime+t0+d+0.05);}
-var TON=(new URLSearchParams(location.search)).get('ton')||'glocke';
+var TON=(new URLSearchParams(location.search)).get('ton')||'bling';
 function clack(v){var n=Math.floor(AC.sampleRate*0.04),b=AC.createBuffer(1,n,AC.sampleRate),d=b.getChannelData(0);for(var i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);var q=AC.createBufferSource();q.buffer=b;var g=AC.createGain();g.gain.value=v||0.5;var f=AC.createBiquadFilter();f.type='highpass';f.frequency.value=1500;q.connect(f);f.connect(g);g.connect(AC.destination);q.start();}
 function bell(f,t0,d,v){v=v||0.3;tone(f,t0,d*2,'sine',v);tone(f*2.76,t0,d,'sine',v*0.33);tone(f*5.4,t0,d*0.5,'sine',v*0.13);}
 function pluck(f,t0,v){tone(f,t0,0.3,'triangle',v||0.4);tone(f*4,t0,0.07,'sine',0.12);}
+function sweep(f1,f2,t0,d,v){var o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.setValueAtTime(f1,AC.currentTime+t0);o.frequency.exponentialRampToValueAtTime(f2,AC.currentTime+t0+d);
+ g.gain.setValueAtTime(0.0001,AC.currentTime+t0);g.gain.exponentialRampToValueAtTime(v||0.2,AC.currentTime+t0+0.015);g.gain.exponentialRampToValueAtTime(0.0001,AC.currentTime+t0+d+0.02);
+ o.connect(g);g.connect(AC.destination);o.start(AC.currentTime+t0);o.stop(AC.currentTime+t0+d+0.05);}
+function bling(f,t0,v){v=v||0.28;tone(f,t0,0.5,'sine',v);tone(f*2,t0,0.28,'sine',v*0.35);tone(f*3,t0,0.14,'sine',v*0.15);}
 var SETS={
+ bling:{ok:function(){sweep(900,1800,0,0.09,0.2);bling(2093,0.09);},gehen:function(){bling(1760,0);sweep(1700,850,0.14,0.1,0.18);},pause_start:function(){sweep(1100,1700,0,0.07,0.18);bling(1568,0.07,0.24);},err:function(){tone(196,0,0.25,'triangle',0.3);tone(147,0.28,0.4,'triangle',0.3);}},
  klassisch:{ok:function(){tone(660,0,0.13);tone(990,0.15,0.2);},gehen:function(){tone(880,0,0.13);tone(660,0.15,0.2);},pause_start:function(){tone(740,0,0.2);},err:function(){tone(220,0,0.18,'square',0.25);tone(180,0.22,0.3,'square',0.25);}},
  glocke:{ok:function(){bell(784,0,0.4);bell(1175,0.2,0.5);},gehen:function(){bell(1175,0,0.4);bell(784,0.2,0.5);},pause_start:function(){bell(880,0,0.5);},err:function(){tone(196,0,0.25,'triangle',0.3);tone(147,0.28,0.4,'triangle',0.3);}},
  xylo:{ok:function(){pluck(523,0);pluck(659,0.1);pluck(784,0.2);},gehen:function(){pluck(784,0);pluck(659,0.1);pluck(523,0.2);},pause_start:function(){pluck(659,0);pluck(659,0.14);},err:function(){pluck(196,0,0.5);pluck(165,0.18,0.5);}},
