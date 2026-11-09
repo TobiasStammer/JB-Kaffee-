@@ -648,7 +648,7 @@ function audio(){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioConte
 function tone(f,t0,d,type,vol){var o=AC.createOscillator(),g=AC.createGain();o.type=type||'sine';o.frequency.value=f;
  g.gain.setValueAtTime(0.0001,AC.currentTime+t0);g.gain.exponentialRampToValueAtTime(vol||0.35,AC.currentTime+t0+0.02);g.gain.exponentialRampToValueAtTime(0.0001,AC.currentTime+t0+d);
  o.connect(g);g.connect(AC.destination);o.start(AC.currentTime+t0);o.stop(AC.currentTime+t0+d+0.05);}
-var TON=(new URLSearchParams(location.search)).get('ton')||'klassisch';
+var TON=(new URLSearchParams(location.search)).get('ton')||'glocke';
 function clack(v){var n=Math.floor(AC.sampleRate*0.04),b=AC.createBuffer(1,n,AC.sampleRate),d=b.getChannelData(0);for(var i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);var q=AC.createBufferSource();q.buffer=b;var g=AC.createGain();g.gain.value=v||0.5;var f=AC.createBiquadFilter();f.type='highpass';f.frequency.value=1500;q.connect(f);f.connect(g);g.connect(AC.destination);q.start();}
 function bell(f,t0,d,v){v=v||0.3;tone(f,t0,d*2,'sine',v);tone(f*2.76,t0,d,'sine',v*0.33);tone(f*5.4,t0,d*0.5,'sine',v*0.13);}
 function pluck(f,t0,v){tone(f,t0,0.3,'triangle',v||0.4);tone(f*4,t0,0.07,'sine',0.12);}
