@@ -281,6 +281,7 @@ LAYOUT = """<!doctype html><html lang=de><meta charset=utf-8>
 <li><a href="{{url_for('op_seite')}}" class="{{'on' if request.endpoint=='op_seite' else ''}}">OP</a></li>
 <li><a href="{{url_for('abgleich')}}" class="{{'on' if request.endpoint=='abgleich' else ''}}">Abgleich</a></li>
 <li><a href="{{url_for('zahlungen_seite')}}" class="{{'on' if request.endpoint=='zahlungen_seite' else ''}}">Zahlungen</a></li>
+<li><a href="{{url_for('kasse_seite')}}" class="{{'on' if request.endpoint=='kasse_seite' else ''}}">Kasse</a></li>
 <li><a href="{{url_for('bank_seite')}}" class="{{'on' if request.endpoint=='bank_seite' else ''}}">Bank</a></li>
 <li><a href="{{url_for('monat')}}" class="{{'on' if request.endpoint=='monat' else ''}}">Monatsunterlagen</a></li>
 <li><a href="{{url_for('einstellungen')}}" class="{{'on' if request.endpoint=='einstellungen' else ''}}">Einstellungen</a></li>
@@ -486,6 +487,52 @@ def ausgang_ueberfaellig():
             continue
         out.append(dict(r, tage=(date.today() - date.fromisoformat(r["datum"])).days, rest=rest, bezahlt=bezahlt))
     return out
+
+
+KASSE_SEITE = """
+<style>@media print{.top,nav.band,.noprint{display:none!important}}</style>
+<form method=get class="card noprint" style="display:flex;gap:12px;align-items:end;flex-wrap:wrap">
+ <div><label>Kassentag</label><select name=tag onchange="this.form.submit()">
+  {% for t in tage %}<option value="{{t}}" {{'selected' if t==tag}}>{{t[8:]}}.{{t[5:7]}}.{{t[:4]}}{{' (neuestes)' if loop.first}}</option>{% endfor %}</select></div>
+ <button type=button class=sek onclick="window.print()">Drucken</button></form>
+{% if not tag %}<div class=card>Noch kein Kassenbuch vorhanden. Lege die Kassenbuch-PDFs in den Eingangsordner.</div>{% else %}
+<div class=card><h2 style="margin-top:0">Kassenbuch {{tag[8:]}}.{{tag[5:7]}}.{{tag[:4]}}</h2>
+<table style="max-width:760px"><tr>{% for z in summen %}<th class=r>{{z.art}}</th>{% endfor %}<th class=r>Gesamt</th></tr>
+<tr>{% for z in summen %}<td class=r><b>{{'%.2f'|format(z.summe)|replace('.',',')}}</b> <small>({{z.n}})</small></td>{% endfor %}<td class=r><b>{{'%.2f'|format(gesamt)|replace('.',',')}}</b></td></tr></table>
+</div>
+<div class=card><table><tr><th>Zeit</th><th>Beleg</th><th>Kunde</th><th>Rechnung</th><th>Zahlart</th><th class=r>Betrag</th><th>Status der Rechnung</th></tr>
+{% for z in zeilen %}<tr><td>{{z.zeit}}</td><td>{{z.beleg}}</td><td>{{z.name}}</td><td>{{z.rechnungsnr}}</td><td>{{z.zahlart}}</td>
+<td class=r>{{'%.2f'|format(z.betrag)|replace('.',',')}}</td>
+<td class="z-{{z.status or 'offen'}}">{% if z.rechnungsnr %}{{z.status or 'nicht in der App'}}{% endif %}</td></tr>
+{% else %}<tr><td colspan=7>Keine Buchungszeilen in diesem Kassenbuch gefunden.</td></tr>{% endfor %}</table></div>
+{% for d in dokumente %}<details class="card noprint" open><summary><b>{{d.notiz}}</b> &ndash; <a href="{{url_for('beleg',rid=d.id)}}" target=_blank>PDF in neuem Fenster</a></summary>
+<iframe src="{{url_for('beleg',rid=d.id)}}" style="width:100%;height:820px;border:1px solid var(--line);margin-top:8px"></iframe></details>{% endfor %}
+{% endif %}"""
+
+
+@app.route("/kasse")
+def kasse_seite():
+    zahlungen_synchronisieren()
+    tage = [r[0] for r in db().execute("SELECT DISTINCT datum FROM rechnungen WHERE belegart='Kassenbuch' AND datei IS NOT NULL ORDER BY datum DESC")]
+    tag = request.args.get("tag") if request.args.get("tag") in tage else (tage[0] if tage else "")
+    dokumente, zeilen, tagesjournal = [], [], None
+    if tag:
+        dokumente = [dict(r) for r in db().execute(
+            "SELECT id, notiz FROM rechnungen WHERE belegart='Kassenbuch' AND datum=? AND datei IS NOT NULL ORDER BY notiz, id", (tag,))]
+        ids = [d["id"] for d in dokumente]
+        marks = ",".join("?" * len(ids))
+        status = {r[0]: r[1] for r in db().execute("SELECT rechnungsnr, zahlung FROM rechnungen WHERE rechnungsnr<>'' AND belegart IN (?,?)", AUSGANG_RECHNUNGEN[:2])}
+        zeilen = [dict(r, status=status.get(r["rechnungsnr"])) for r in db().execute(
+            f"SELECT * FROM kassenzeilen WHERE dokument_id IN ({marks}) ORDER BY datum, zeit, beleg", ids)]
+        tj = db().execute(f"SELECT credit, bar, scheck FROM kassentage WHERE dokument_id IN ({marks}) LIMIT 1", ids).fetchone()
+        tagesjournal = dict(tj) if tj else None
+    summen = []
+    for art in ZAHLARTEN:
+        sel = [z for z in zeilen if (z["zahlart"] or "Bar") == art]
+        if sel:
+            summen.append(dict(art=art, n=len(sel), summe=sum(z["betrag"] for z in sel)))
+    return page(KASSE_SEITE, tage=tage, tag=tag, dokumente=dokumente, zeilen=zeilen, summen=summen, tagesjournal=tagesjournal,
+                gesamt=sum(z["betrag"] for z in zeilen))
 
 
 OP_SEITE = """
