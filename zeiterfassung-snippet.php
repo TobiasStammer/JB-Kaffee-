@@ -5,6 +5,7 @@
  * Daten: eigene Tabellen kt_ze_staff, kt_ze_log, kt_ze_leave (Teil der normalen DB-Sicherung).
  * Einbau: Code Snippets, PHP, "Ueberall ausfuehren" (Deploy: deploy-zeiterfassung.ps1). */
 define( 'KT_ZE_SLUG', 'zeit-r6n2v' );
+define( 'KT_ZE_MAIL_TO', 't.stammer@kaffeetechniker.de' ); // Empfaenger der Urlaubsantraege
 
 function kt_ze_t( $n ) {
 	global $wpdb;
@@ -331,7 +332,7 @@ function kt_ze_api( $in ) {
 		}
 		$wpdb->insert( kt_ze_t( 'leave' ), array( 'staff_id' => $sid, 'd_from' => $from, 'd_to' => $to, 'kind' => $kind, 'note' => $note, 'status' => 'offen', 'created' => current_time( 'mysql' ) ) );
 		$days = kt_ze_workdays( $from, $to );
-		wp_mail( get_option( 'admin_email' ), 'Urlaubsantrag: ' . $st->name,
+		wp_mail( KT_ZE_MAIL_TO, 'Urlaubsantrag: ' . $st->name,
 			$st->name . ' beantragt ' . kt_ze_kinds()[ $kind ] . ' vom ' . mysql2date( 'd.m.Y', $from ) . ' bis ' . mysql2date( 'd.m.Y', $to ) . " ($days Arbeitstage).\n" . ( $note ? "Bemerkung: $note\n" : '' ) . "\nBearbeiten: " . admin_url( 'admin.php?page=kt-ze&tab=urlaub' ) );
 		return array( 'ok' => true, 'days' => $days );
 	}
