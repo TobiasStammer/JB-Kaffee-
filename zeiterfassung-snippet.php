@@ -416,7 +416,7 @@ input,select{width:100%;padding:14px;border:1px solid #c4c4c4;border-radius:8px;
 .list div{padding:3px 0;border-bottom:1px solid #eceef1}
 .msg-ok h1{color:#1d6a3d}.msg-bad h1{color:#a8392f}
 .big{font-size:60px;line-height:1;margin:0 0 8px}
-.side{display:flex;position:fixed;left:10%;bottom:22px;flex-direction:column;align-items:flex-start;gap:6px;width:200px;color:#334155;font-family:Tahoma,Arial,sans-serif;font-weight:700;font-size:26px;line-height:1.2}
+.side{display:flex;position:fixed;left:max(12px,calc(10% - 135px));bottom:22px;flex-direction:column;align-items:flex-start;gap:6px;width:140px;color:#334155;font-family:Tahoma,Arial,sans-serif;font-weight:700;font-size:26px;line-height:1.2}
 .side svg{width:110px;height:110px;animation:nudge 1.4s ease-in-out infinite}
 @keyframes nudge{0%,100%{transform:translate(0,0)}50%{transform:translate(14px,0)}}
 @media(max-width:700px){.grid{grid-template-columns:1fr}.btn{min-width:0;width:100%}.nfc{width:200px;height:200px}h1{font-size:28px}}
