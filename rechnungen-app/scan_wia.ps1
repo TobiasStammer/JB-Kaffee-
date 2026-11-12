@@ -4,6 +4,18 @@
 param([Parameter(Mandatory = $true)][string]$Ziel)
 try {
     $dlg = New-Object -ComObject WIA.CommonDialog
+    # Papierquelle vorab auf Papiereinzug (Feeder) stellen: Eigenschaft 3088 'Document Handling Select' (1 = Einzug, 2 = Flachbett)
+    try {
+        $dm = New-Object -ComObject WIA.DeviceManager
+        foreach ($info in $dm.DeviceInfos) {
+            if ($info.Type -eq 1) {
+                $dev = $info.Connect()
+                $prop = $dev.Properties | Where-Object { $_.PropertyID -eq 3088 }
+                if ($prop) { $prop.Value = 1 }
+                break
+            }
+        }
+    } catch { }
     # Scanner (1), Farbe (1), beste Qualitaet (0x20000), Format JPEG, Geraet nicht erzwingen, Windows-Oberflaeche an, Abbruch ohne Fehler
     $bild = $dlg.ShowAcquireImage(1, 1, 0x20000, '{B96B3CAE-0728-11D3-9D7B-0000F81EF32E}', $false, $true, $false)
     if ($null -eq $bild) { exit 3 }
