@@ -502,6 +502,10 @@ LS_SEITE = """
  <div style="flex:1"><label>Suche (Hersteller oder Lieferschein-Nr.)</label><input name=q value="{{q}}"></div>
  <button>Filtern</button> <a class="btn sek" href="{{url_for('lieferscheine_seite')}}">Zurücksetzen</a>
  <button type=submit formmethod=post formaction="{{url_for('scan_start')}}" title="Öffnet den Scandialog des Brother-Scanners">&#128424; Neues Dokument scannen</button></form>
+{% if scan_wartend %}<div class=card style="border-left-color:#b45309;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+ <b style="color:#b45309">{{scan_wartend}} gescannte Seite{{'n' if scan_wartend>1}} warte{{'n' if scan_wartend>1 else 't'}} noch auf das Ablegen.</b>
+ <form method=post style="display:flex;gap:8px;margin:0"><button formaction="{{url_for('scan_fertig')}}">&#10003; Fertig &ndash; ablegen</button>
+ <a class="btn sek" href="{{url_for('scan_seite')}}">Ansehen / weitere Seite</a></form></div>{% endif %}
 {% if unbekannt %}<details class=bank open style="border-left-color:#b45309"><summary style="color:#b45309">Hersteller nicht erkannt ({{unbekannt|length}})</summary>
 <p><small>Bei diesen Lieferscheinen konnte kein Hersteller gelesen werden. Mit &bdquo;bearbeiten&ldquo; den Hersteller eintragen.</small></p>
 <table>{% for l in unbekannt %}<tr><td>{{l.datum[8:]}}.{{l.datum[5:7]}}.{{l.datum[:4]}}</td><td><a href="{{url_for('beleg',rid=l.id)}}" target=_blank>{{l.rechnungsnr}}</a></td>
@@ -534,7 +538,8 @@ def lieferscheine_seite():
             warten = sorted(f.name for f in wo.iterdir() if f.is_file())
     except OSError:
         pass
-    return page(LS_SEITE, q=request.args.get("q", ""), hersteller=hersteller, hersteller_liste=hersteller_liste, liste=liste,
+    scan_wartend = len(list(SCAN_ORDNER.glob("*.jpg"))) if SCAN_ORDNER.exists() else 0
+    return page(LS_SEITE, scan_wartend=scan_wartend, q=request.args.get("q", ""), hersteller=hersteller, hersteller_liste=hersteller_liste, liste=liste,
                 unbekannt=unbekannt, warten=warten)
 
 
