@@ -278,12 +278,12 @@ LAYOUT = """<!doctype html><html lang=de><meta charset=utf-8>
 <div class=top><b>Rechnungen &amp; DATEV</b><small>kaffeetechniker.de</small></div>
 <nav class=band><ul>
 <li><a href="{{url_for('index')}}" class="{{'on' if request.endpoint in ('index','bearbeiten') else ''}}">Übersicht</a></li>
-<li><a href="{{url_for('op_seite')}}" class="{{'on' if request.endpoint=='op_seite' else ''}}">OP</a></li>
-<li><a href="{{url_for('abgleich')}}" class="{{'on' if request.endpoint=='abgleich' else ''}}">Abgleich</a></li>
-<li><a href="{{url_for('zahlungen_seite')}}" class="{{'on' if request.endpoint=='zahlungen_seite' else ''}}">Zahlungen</a></li>
-<li><a href="{{url_for('lieferscheine_seite')}}" class="{{'on' if request.endpoint=='lieferscheine_seite' else ''}}">Lieferscheine</a></li>
 <li><a href="{{url_for('kasse_seite')}}" class="{{'on' if request.endpoint=='kasse_seite' else ''}}">Kasse</a></li>
 <li><a href="{{url_for('bank_seite')}}" class="{{'on' if request.endpoint=='bank_seite' else ''}}">Bank</a></li>
+<li><a href="{{url_for('op_seite')}}" class="{{'on' if request.endpoint=='op_seite' else ''}}">OP</a></li>
+<li><a href="{{url_for('zahlungen_seite')}}" class="{{'on' if request.endpoint=='zahlungen_seite' else ''}}">Zahlungen</a></li>
+<li><a href="{{url_for('abgleich')}}" class="{{'on' if request.endpoint=='abgleich' else ''}}">Abgleich</a></li>
+<li><a href="{{url_for('lieferscheine_seite')}}" class="{{'on' if request.endpoint=='lieferscheine_seite' else ''}}">Lieferscheine</a></li>
 <li><a href="{{url_for('monat')}}" class="{{'on' if request.endpoint=='monat' else ''}}">Monatsunterlagen</a></li>
 <li><a href="{{url_for('einstellungen')}}" class="{{'on' if request.endpoint=='einstellungen' else ''}}">Einstellungen</a></li>
 </ul></nav><main>
