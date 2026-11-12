@@ -446,7 +446,7 @@ function kt_ze_cal_events( $from, $to, $sid = 0 ) {
 	return $out;
 }
 
-/* Schulferien Hessen (Quellen: Kalenderpedia, schulferien.eu, hessenschau; bitte jaehrlich mit dem Hessischen Kultusministerium abgleichen und ergaenzen) */
+/* Schulferien Hessen (Quelle: schulferien.org, abgeglichen am 12.11.2026; jaehrlich ergaenzen) */
 function kt_ze_school_for( $from, $to ) {
 	$all = array(
 		array( '2026-03-30', '2026-04-10', 'Osterferien' ),
@@ -460,6 +460,7 @@ function kt_ze_school_for( $from, $to ) {
 		array( '2028-04-03', '2028-04-14', 'Osterferien' ),
 		array( '2028-07-03', '2028-08-11', 'Sommerferien' ),
 		array( '2028-10-09', '2028-10-20', 'Herbstferien' ),
+		array( '2028-12-27', '2029-01-12', 'Weihnachtsferien' ),
 	);
 	$out = array();
 	foreach ( $all as $r ) {
@@ -601,7 +602,7 @@ function kt_ze_tab_cal() {
 	$data = array( 'events' => kt_ze_cal_events( ( $cy - 1 ) . '-01-01', ( $cy + 1 ) . '-12-31' ), 'holidays' => $ho, 'school' => kt_ze_school_for( ( $cy - 1 ) . '-01-01', ( $cy + 1 ) . '-12-31' ) );
 	echo '<style>' . kt_ze_cal_css() . '</style>';
 	echo '<div id="ktcal" class="ktcal" style="max-width:1150px;background:#fff;padding:14px 16px;border:1px solid #dcdcde;margin-top:14px"></div>';
-	echo '<p style="color:#666">Alle Urlaube aller Mitarbeiter. Gestreift = angefragt, noch nicht genehmigt (Genehmigen unter „Urlaub“). Feiertage und Schulferien: Hessen (Schulferien hinterlegt bis 2028).</p>';
+	echo '<p style="color:#666">Alle Urlaube aller Mitarbeiter. Gestreift = angefragt, noch nicht genehmigt (Genehmigen unter „Urlaub“). Feiertage und Schulferien: Hessen (Schulferien nach schulferien.org, hinterlegt bis Januar 2029).</p>';
 	echo '<script>' . kt_ze_cal_js() . '(function(){var D=' . wp_json_encode( $data ) . ';KTCal(document.getElementById("ktcal"),{names:true,max:4,load:function(y,cb){cb(D);}});})();</script>';
 }
 
