@@ -582,8 +582,9 @@ def scan_start():
     try:
         p = subprocess.run(["powershell.exe", "-NoProfile", "-STA", "-ExecutionPolicy", "Bypass", "-File", str(BASE / "scan_wia.ps1"), str(ziel)],
                            capture_output=True, timeout=600, creationflags=0x08000000)
-        if p.returncode == 0 and ziel.exists():
-            flash("Seite gescannt.")
+        neu = sorted(SCAN_ORDNER.glob(ziel.stem + "*.jpg"))
+        if p.returncode == 0 and neu:
+            flash(f"{len(neu)} Seite(n) gescannt." if len(neu) > 1 else "Seite gescannt.")
         elif p.returncode == 3:
             flash("Scan abgebrochen.")
         else:
