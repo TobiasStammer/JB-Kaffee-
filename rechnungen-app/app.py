@@ -500,7 +500,8 @@ LS_SEITE = """
  <div><label>Hersteller</label><select name=hersteller onchange="this.form.submit()"><option value="">alle</option>
   {% for h in hersteller_liste %}<option {{'selected' if h==hersteller}}>{{h}}</option>{% endfor %}</select></div>
  <div style="flex:1"><label>Suche (Hersteller oder Lieferschein-Nr.)</label><input name=q value="{{q}}"></div>
- <button>Filtern</button> <a class="btn sek" href="{{url_for('lieferscheine_seite')}}">Zurücksetzen</a></form>
+ <button>Filtern</button> <a class="btn sek" href="{{url_for('lieferscheine_seite')}}">Zurücksetzen</a>
+ <button type=submit formmethod=post formaction="{{url_for('scan_start')}}" title="Öffnet den Scandialog des Brother-Scanners">&#128424; Neues Dokument scannen</button></form>
 {% if unbekannt %}<details class=bank open style="border-left-color:#b45309"><summary style="color:#b45309">Hersteller nicht erkannt ({{unbekannt|length}})</summary>
 <p><small>Bei diesen Lieferscheinen konnte kein Hersteller gelesen werden. Mit &bdquo;bearbeiten&ldquo; den Hersteller eintragen.</small></p>
 <table>{% for l in unbekannt %}<tr><td>{{l.datum[8:]}}.{{l.datum[5:7]}}.{{l.datum[:4]}}</td><td><a href="{{url_for('beleg',rid=l.id)}}" target=_blank>{{l.rechnungsnr}}</a></td>
@@ -535,6 +536,87 @@ def lieferscheine_seite():
         pass
     return page(LS_SEITE, q=request.args.get("q", ""), hersteller=hersteller, hersteller_liste=hersteller_liste, liste=liste,
                 unbekannt=unbekannt, warten=warten)
+
+
+SCAN_SEITE = """
+<div class=card><h2 style="margin-top:0">Dokument scannen</h2>
+{% if seiten %}<p><b>{{seiten|length}} Seite{{'n' if seiten|length>1}}</b> gescannt. Weitere Seiten desselben Dokuments mit &bdquo;Weitere Seite scannen&ldquo;, danach &bdquo;Fertig &ndash; ablegen&ldquo;.</p>
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">{% for n in seiten %}<a href="{{url_for('scan_bild',name=n)}}" target=_blank><img src="{{url_for('scan_bild',name=n)}}" style="height:170px;border:1px solid var(--line)"></a>{% endfor %}</div>
+{% else %}<p>Noch keine Seite gescannt.</p>{% endif %}
+<form method=post style="display:flex;gap:10px;flex-wrap:wrap">
+ <button formaction="{{url_for('scan_start')}}">&#128424; {{'Weitere Seite scannen' if seiten else 'Seite scannen'}}</button>
+ {% if seiten %}<button formaction="{{url_for('scan_fertig')}}">&#10003; Fertig &ndash; ablegen</button>
+ <button class=sek formaction="{{url_for('scan_verwerfen')}}" onclick="return confirm('Gescannte Seiten wirklich verwerfen?')">Verwerfen</button>{% endif %}
+ <a class="btn sek" href="{{url_for('lieferscheine_seite')}}">Zurück zu Lieferscheinen</a></form>
+<p><small>Der Scandialog öffnet sich auf diesem Rechner. Das fertige Dokument landet im Eingangsordner und wird automatisch eingelesen (Lieferscheine werden erkannt, getrennt und nach Hersteller abgelegt).</small></p></div>"""
+
+SCAN_ORDNER = DATA / "scan_aktuell"
+
+
+@app.route("/scan")
+def scan_seite():
+    seiten = sorted(f.name for f in SCAN_ORDNER.glob("*.jpg")) if SCAN_ORDNER.exists() else []
+    return page(SCAN_SEITE, seiten=seiten)
+
+
+@app.route("/scan/bild/<name>")
+def scan_bild(name):
+    pfad = SCAN_ORDNER / secure_filename(name)
+    if not pfad.exists():
+        abort(404)
+    return send_file(pfad)
+
+
+@app.route("/scan/start", methods=["POST"])
+def scan_start():
+    """Oeffnet den Windows-Scandialog (WIA) und legt die gescannte Seite als JPEG ab."""
+    import subprocess
+    SCAN_ORDNER.mkdir(exist_ok=True)
+    ziel = SCAN_ORDNER / f"seite_{datetime.now():%Y%m%d-%H%M%S}.jpg"
+    try:
+        p = subprocess.run(["powershell.exe", "-NoProfile", "-STA", "-ExecutionPolicy", "Bypass", "-File", str(BASE / "scan_wia.ps1"), str(ziel)],
+                           capture_output=True, timeout=600, creationflags=0x08000000)
+        if p.returncode == 0 and ziel.exists():
+            flash("Seite gescannt.")
+        elif p.returncode == 3:
+            flash("Scan abgebrochen.")
+        else:
+            flash("Scan fehlgeschlagen: " + (p.stderr.decode("utf-8", "replace").strip()[:200] or f"Code {p.returncode}"))
+    except subprocess.TimeoutExpired:
+        flash("Scan: Zeitüberschreitung (10 Minuten).")
+    except OSError as e:
+        flash(f"Scan nicht möglich: {e}")
+    return redirect(url_for("scan_seite"))
+
+
+@app.route("/scan/fertig", methods=["POST"])
+def scan_fertig():
+    """Alle gescannten Seiten zu EINEM PDF im Eingangsordner zusammenfassen (wird danach normal eingelesen)."""
+    seiten = sorted(SCAN_ORDNER.glob("*.jpg")) if SCAN_ORDNER.exists() else []
+    if not seiten:
+        flash("Keine gescannten Seiten vorhanden.")
+        return redirect(url_for("scan_seite"))
+    bilder = []
+    for f in seiten:
+        im = Image.open(f)
+        bilder.append(im.convert("RGB"))
+    eingang = Path(settings()["eingang_ordner"])
+    ziel = eingang / f"Scan_{datetime.now():%Y%m%d-%H%M%S}.pdf"
+    tmp = ziel.with_suffix(".tmp")
+    bilder[0].save(tmp, "PDF", save_all=True, append_images=bilder[1:], resolution=200.0)
+    tmp.replace(ziel)
+    for f in seiten:
+        f.unlink(missing_ok=True)
+    flash(f"{len(seiten)} Seite(n) als {ziel.name} im Eingang abgelegt - wird in wenigen Sekunden eingelesen.")
+    return redirect(url_for("lieferscheine_seite"))
+
+
+@app.route("/scan/verwerfen", methods=["POST"])
+def scan_verwerfen():
+    for f in (SCAN_ORDNER.glob("*.jpg") if SCAN_ORDNER.exists() else []):
+        f.unlink(missing_ok=True)
+    flash("Gescannte Seiten verworfen.")
+    return redirect(url_for("scan_seite"))
 
 
 KASSE_SEITE = """
