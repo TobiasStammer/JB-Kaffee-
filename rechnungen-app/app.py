@@ -187,6 +187,10 @@ def init_db():
             c.execute(f"ALTER TABLE rechnungen ADD COLUMN {spalte}")
         except sqlite3.OperationalError:
             pass
+    try:  # vorgemerkte (noch nicht gebuchte) Umsaetze zaehlen nicht als Zahlung
+        c.execute("ALTER TABLE bank ADD COLUMN vorgemerkt INTEGER DEFAULT 0")
+    except sqlite3.OperationalError:
+        pass
     try:  # Skonto-Prozent laut Rechnungstext (NULL = noch nicht gelesen)
         c.execute("ALTER TABLE rechnungen ADD COLUMN skonto REAL")
     except sqlite3.OperationalError:
@@ -1351,6 +1355,30 @@ def bank_doppelt(c, b, dokument):
                            (d - timedelta(days=3)).isoformat(), (d + timedelta(days=3)).isoformat())).fetchone())
 
 
+def bank_buchung_aufnehmen(c, b, dokument):
+    """Nimmt eine Buchung auf. True = neu. Eine Buchung, die schon als 'vorgemerkt' da ist und in einer spaeteren Datei
+    gebucht auftaucht, wird nur auf 'gebucht' gesetzt (neues Datum), nicht doppelt angelegt."""
+    key = hashlib.sha1(f"{b['datum']}|{b['betrag']:.2f}|{b['name']}|{b['zweck']}".encode()).hexdigest()
+    vm = 1 if b.get("vorgemerkt") else 0
+    try:
+        d = date.fromisoformat(b["datum"])
+    except ValueError:
+        return False
+    dup = c.execute("SELECT id, vorgemerkt FROM bank WHERE betrag=? AND name=? AND zweck=? AND dokument<>? AND datum BETWEEN ? AND ?",
+                    (b["betrag"], b["name"], b["zweck"], dokument,
+                     (d - timedelta(days=3)).isoformat(), (d + timedelta(days=3)).isoformat())).fetchone()
+    if dup:
+        if dup[1] and not vm:
+            try:
+                c.execute("UPDATE bank SET datum=?, vorgemerkt=0, dokument=?, schluessel=? WHERE id=?", (b["datum"], dokument, key, dup[0]))
+            except sqlite3.IntegrityError:
+                c.execute("UPDATE bank SET datum=?, vorgemerkt=0, dokument=? WHERE id=?", (b["datum"], dokument, dup[0]))
+        return False
+    cur = c.execute("INSERT OR IGNORE INTO bank(datum,betrag,name,zweck,dokument,schluessel,vorgemerkt) VALUES(?,?,?,?,?,?,?)",
+                    (b["datum"], b["betrag"], b["name"], b["zweck"], dokument, key, vm))
+    return bool(cur.rowcount)
+
+
 def _kontoauszug_importieren(c, f, fertig):
     """Liest eine Kontoauszugsdatei aus dem Eingangsordner in die Tabelle bank. True, wenn es einer war."""
     try:
@@ -1361,11 +1389,7 @@ def _kontoauszug_importieren(c, f, fertig):
     if not buchungen:
         return False
     for b in buchungen:
-        if bank_doppelt(c, b, f.name):
-            continue
-        key = hashlib.sha1(f"{b['datum']}|{b['betrag']:.2f}|{b['name']}|{b['zweck']}".encode()).hexdigest()
-        c.execute("INSERT OR IGNORE INTO bank(datum,betrag,name,zweck,dokument,schluessel) VALUES(?,?,?,?,?,?)",
-                  (b["datum"], b["betrag"], b["name"], b["zweck"], f.name, key))
+        bank_buchung_aufnehmen(c, b, f.name)
     c.commit()
     (DATA / "kontoauszuege").mkdir(exist_ok=True)
     (DATA / "kontoauszuege" / f"{datetime.now():%Y%m%d-%H%M%S}_{secure_filename(f.name)}").write_bytes(daten)
@@ -2361,7 +2385,8 @@ def parse_kontoauszug(daten, dateiname):
             datum = _txt(ntry, "BookgDt", "Dt") or _txt(ntry, "BookgDt", "DtTm")[:10]
             zweck = " ".join((x.text or "").strip() for x in ntry.iter() if _lokal(x.tag) == "Ustrd")
             name = _txt(ntry, "RltdPties", "Dbtr", "Nm") if betrag > 0 else _txt(ntry, "RltdPties", "Cdtr", "Nm")
-            out.append(dict(datum=datum[:10], betrag=betrag, name=name, zweck=zweck))
+            out.append(dict(datum=datum[:10], betrag=betrag, name=name, zweck=zweck,
+                            vorgemerkt=1 if "PDNG" in (_txt(ntry, "Sts") or "").upper() else 0))
         return out
     try:
         text = daten.decode("utf-8-sig")
@@ -2390,6 +2415,7 @@ def parse_kontoauszug(daten, dateiname):
         i_bet = spalte("betrag")
     i_zw = spalte("verwendungszweck", "buchungstext")
     i_nm = spalte("beguenstigter", "begünstigter", "zahlungspflichtiger", "auftraggeber", "name")
+    i_info = spalte("info", exakt=True)  # Sparkasse: 'Umsatz gebucht' / 'Umsatz vorgemerkt'
     for r in rows[kopf_i + 1:]:
         if not r or max(i_dat, i_bet) >= len(r):
             continue
@@ -2397,7 +2423,8 @@ def parse_kontoauszug(daten, dateiname):
         if betrag is None or not datum:
             continue
         out.append(dict(datum=datum, betrag=betrag, name=r[i_nm].strip() if i_nm is not None and i_nm < len(r) else "",
-                        zweck=" ".join(r[i_zw].split()) if i_zw is not None and i_zw < len(r) else ""))
+                        zweck=" ".join(r[i_zw].split()) if i_zw is not None and i_zw < len(r) else "",
+                        vorgemerkt=1 if i_info is not None and i_info < len(r) and "vorgemerkt" in r[i_info].lower() else 0))
     return out
 
 
@@ -2528,7 +2555,7 @@ def kartenabrechnungen():
     tage = kartentage()
     out = {}
     for b in db().execute("SELECT id, zweck, name, datum, betrag FROM bank "
-                          "WHERE zweck LIKE '%INIT:CC:ABR%' OR UPPER(name) LIKE '%NEXI%'"):
+                          "WHERE COALESCE(vorgemerkt,0)=0 AND (zweck LIKE '%INIT:CC:ABR%' OR UPPER(name) LIKE '%NEXI%')"):
         if b["betrag"] < 0:  # Lastschrift von Nexi = Entgelte (Rechnung), keine Kartenabrechnung
             continue
         m = re.search(r"DAT(\d{2})\.(\d{2})\.(\d{2}).*?BRUTTO(\d+),(\d{2})", b["zweck"])
@@ -2605,7 +2632,7 @@ def bank_zahlungen():
     manuell = {r[0]: r[1] for r in db().execute("SELECT bank_id, rechnungsnr FROM bank_zuordnung")}
     # Rechnungen, die schon aus der Kasse oder (chronologisch frueher) per Bank bezahlt sind, kommen fuer Sammelzahlungen nicht mehr in Frage
     bereits_bezahlt = {r[0] for r in db().execute("SELECT DISTINCT rechnungsnr FROM kassenzeilen WHERE rechnungsnr<>''")} | set(manuell.values())
-    for b in db().execute("SELECT * FROM bank ORDER BY datum, id"):
+    for b in db().execute("SELECT * FROM bank WHERE COALESCE(vorgemerkt,0)=0 ORDER BY datum, id"):  # vorgemerkt = noch nicht gebucht
         if b["id"] in manuell:  # per Klick einer Rechnung zugeordnet
             out.append(("Kontoauszug", b["datum"], abs(b["betrag"]), manuell[b["id"]],
                         f"{b['name']}: {b['zweck'][:60]} (manuell zugeordnet)", b["id"]))
@@ -2799,15 +2826,10 @@ def zahlungen_seite():
                 flash(f"{up.filename}: keine Buchungen erkannt. Bitte CSV oder CAMT.053 aus dem Online-Banking verwenden.")
                 continue
             for b in buchungen:
-                if bank_doppelt(db(), b, up.filename):
+                if bank_buchung_aufnehmen(db(), b, up.filename):
+                    neu += 1
+                else:
                     doppelt += 1
-                    continue
-                key = hashlib.sha1(f"{b['datum']}|{b['betrag']:.2f}|{b['name']}|{b['zweck']}".encode()).hexdigest()
-                cur = db().execute("INSERT OR IGNORE INTO bank(datum,betrag,name,zweck,dokument,schluessel) "
-                                   "VALUES(?,?,?,?,?,?)", (b["datum"], b["betrag"], b["name"], b["zweck"],
-                                                           up.filename, key))
-                neu += cur.rowcount
-                doppelt += 1 - cur.rowcount
             (DATA / "kontoauszuege").mkdir(exist_ok=True)
             (DATA / "kontoauszuege" / f"{datetime.now():%Y%m%d-%H%M%S}_{secure_filename(up.filename)}").write_bytes(daten)
         db().commit()
@@ -2884,7 +2906,7 @@ BANK = """
 (z. B. Versicherung, Steuer). Dann auf &bdquo;Kein Beleg nötig&ldquo; klicken. Gehört die Zahlung zu einer vorhandenen Rechnung, wähle sie
 aus und klicke &bdquo;Zuordnen&ldquo;.</small></p>
 <table><tr><th>Datum</th><th>Empfänger</th><th>Verwendungszweck</th><th class=r>Betrag</th><th>Rechnung zuordnen</th><th></th></tr>
-{% for b in ohne %}<tr><td>{{b.datum}}</td><td>{{b.name}}</td><td><small>{{b.zweck[:90]}}</small></td><td class=r>{{'%.2f'|format(b.betrag)|replace('.',',')}}</td>
+{% for b in ohne %}<tr><td>{{b.datum}}</td><td>{{b.name}}{% if b.vorgemerkt %}<br><small style="color:#b45309">vorgemerkt &ndash; noch nicht gebucht</small>{% endif %}</td><td><small>{{b.zweck[:90]}}</small></td><td class=r>{{'%.2f'|format(b.betrag)|replace('.',',')}}</td>
 <td><form method=post action="{{url_for('bank_zuordnen')}}" style="display:flex;gap:6px"><input type=hidden name=bank_id value="{{b.id}}"><input type=hidden name=zurueck value="{{zurueck}}">
 <select name=rechnungsnr required style="max-width:300px;padding:4px"><option value="">&ndash; offene Rechnung wählen &ndash;</option>
 {% for k in b.kandidaten %}<option value="{{k.rechnungsnr}}">{{k.lieferant}} &middot; {{k.rechnungsnr}} &middot; {{'%.2f'|format(k.brutto)|replace('.',',')}} &euro;</option>{% endfor %}</select>
