@@ -598,12 +598,14 @@ def scan_fertig():
         return redirect(url_for("scan_seite"))
     bilder = []
     for f in seiten:
-        im = Image.open(f)
-        bilder.append(im.convert("RGB"))
+        im = Image.open(f).convert("RGB")
+        if max(im.size) > 2400:  # Scan mit sehr hoher Aufloesung: auf ca. 200 dpi (A4) verkleinern, sonst werden die PDFs riesig
+            im.thumbnail((2400, 2400))
+        bilder.append(im)
     eingang = Path(settings()["eingang_ordner"])
     ziel = eingang / f"Scan_{datetime.now():%Y%m%d-%H%M%S}.pdf"
     tmp = ziel.with_suffix(".tmp")
-    bilder[0].save(tmp, "PDF", save_all=True, append_images=bilder[1:], resolution=200.0)
+    bilder[0].save(tmp, "PDF", save_all=True, append_images=bilder[1:], resolution=200.0, quality=85)
     tmp.replace(ziel)
     for f in seiten:
         f.unlink(missing_ok=True)
