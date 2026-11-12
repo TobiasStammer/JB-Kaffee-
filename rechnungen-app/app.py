@@ -265,7 +265,7 @@ input,select,textarea{padding:8px 9px;font-size:15px;font-family:inherit;width:1
 input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
 input[type=checkbox]{width:auto}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0 16px}
-button,.btn{background:var(--accent);color:#fff;border:0;padding:10px 20px;border-radius:3px;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
+button,.btn{background:var(--accent);color:#fff;border:1px solid var(--accent);padding:10px 20px;border-radius:3px;font-size:14px;line-height:20px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block;box-sizing:border-box;white-space:nowrap;vertical-align:middle}
 button:hover,.btn:hover{background:var(--accentd)}
 button.sek,.btn.sek{background:#fff;color:var(--accent);border:1px solid var(--accent)}
 button.sek:hover,.btn.sek:hover{background:var(--soft)}
@@ -359,11 +359,11 @@ INDEX = """
 {% for r in pruefen %}<tr><td>{{r.datum}}</td><td><small>{{r.belegart}}</small></td><td>{{r.lieferant}}</td><td>{{r.rechnungsnr}}</td>
 <td class=r>{{'%.2f'|format(r.brutto)|replace('.',',')}}</td><td style="color:#b91c1c">{{r.probleme|join('; ')}}</td>
 <td><a href="{{url_for('bearbeiten',rid=r.id)}}"><b>prüfen / bearbeiten</b></a> <small>(mit PDF)</small>
-{% if r.brutto==0 and r.rechnungsnr and r.belegart=='Rechnungseingang Lieferanten' %}<form method=post action="{{url_for('null_ok',rid=r.id)}}" style="margin-top:4px" onsubmit="return confirm('Diese Rechnung wirklich mit 0,00 € verbuchen?')"><button class=sek style="padding:2px 8px;font-size:12px">0,00 € ist richtig &ndash; so verbuchen</button></form>{% endif %}</td></tr>{% endfor %}</table></details>{% endif %}
+{% if r.brutto==0 and r.rechnungsnr and r.belegart=='Rechnungseingang Lieferanten' %}<form method=post action="{{url_for('null_ok',rid=r.id)}}" style="margin-top:4px" onsubmit="return confirm('Diese Rechnung wirklich mit 0,00 € verbuchen?')"><button class=sek>0,00 € ist richtig &ndash; so verbuchen</button></form>{% endif %}</td></tr>{% endfor %}</table></details>{% endif %}
 {% if doppelte %}<div class=card style="border-left-color:#b91c1c"><b style="color:#b91c1c">Doppelte Belege</b>
  &ndash; dieselbe Rechnung ist mehrfach abgelegt ({{doppelte|length}}):
  {% for g in doppelte %}<div style="margin:6px 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center">{% for r in g %}<span><a href="{{url_for('bearbeiten',rid=r.id)}}">#{{r.id}} {{r.rechnungsnr or r.lieferant}} ({{r.datum}}{{', '~r.notiz.split(' | ')[0] if r.notiz}})</a>{% if not loop.first %}
- <form method=post action="{{url_for('loeschen',rid=r.id)}}" style="display:inline" onsubmit="return confirm('Doppeltes Exemplar #{{r.id}} wirklich löschen?')"><button class=sek style="padding:2px 8px;font-size:12px">dieses löschen</button></form>{% else %} <small>(behalten)</small>{% endif %}</span>{% endfor %}</div>{% endfor %}
+ <form method=post action="{{url_for('loeschen',rid=r.id)}}" style="display:inline" onsubmit="return confirm('Doppeltes Exemplar #{{r.id}} wirklich löschen?')"><button class=sek>dieses löschen</button></form>{% else %} <small>(behalten)</small>{% endif %}</span>{% endfor %}</div>{% endfor %}
  <small>Das jeweils erste Exemplar bleibt, das zweite kannst du hier löschen. Erkannt an Belegart, Rechnungsnummer und Betrag bzw. gleicher Datei.</small></div>{% endif %}
 <form method=post action="{{url_for('export')}}">
 <details class=bank><summary>Belege ({{rows|length}}){% if summen|length<2 %} &ndash; {{'%.2f'|format(sb)|replace('.',',')}} &euro;{% endif %}</summary>
@@ -501,6 +501,7 @@ LS_SEITE = """
   {% for h in hersteller_liste %}<option {{'selected' if h==hersteller}}>{{h}}</option>{% endfor %}</select></div>
  <div style="flex:1"><label>Suche (Hersteller oder Lieferschein-Nr.)</label><input name=q value="{{q}}"></div>
  <button>Filtern</button> <a class="btn sek" href="{{url_for('lieferscheine_seite')}}">Zurücksetzen</a>
+ <button type=submit formmethod=post formaction="{{url_for('aktualisieren')}}" name=zurueck value="{{request.full_path.rstrip('?')}}" class="sek noprint">&#8635; Aktualisieren</button>
  <button type=submit formmethod=post formaction="{{url_for('scan_start')}}" title="Öffnet den Scandialog des Brother-Scanners">&#128424; Neues Dokument scannen</button></form>
 {% if scan_wartend %}<div class=card style="border-left-color:#b45309;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
  <b style="color:#b45309">{{scan_wartend}} gescannte Seite{{'n' if scan_wartend>1}} warte{{'n' if scan_wartend>1 else 't'}} noch auf das Ablegen.</b>
@@ -631,6 +632,7 @@ KASSE_SEITE = """
 <form method=get class="card noprint" style="display:flex;gap:12px;align-items:end;flex-wrap:wrap">
  <div><label>Kassentag</label><select name=tag onchange="this.form.submit()">
   {% for t in tage %}<option value="{{t}}" {{'selected' if t==tag}}>{{t[8:]}}.{{t[5:7]}}.{{t[:4]}}{{' (neuestes)' if loop.first}}</option>{% endfor %}</select></div>
+ <button type=submit formmethod=post formaction="{{url_for('aktualisieren')}}" name=zurueck value="{{request.full_path.rstrip('?')}}" class="sek noprint">&#8635; Aktualisieren</button>
  <button type=button class=sek onclick="window.print()">Drucken</button></form>
 {% if not tag %}<div class=card>Noch kein Kassenbuch vorhanden. Lege die Kassenbuch-PDFs in den Eingangsordner.</div>{% else %}
 <div class=card><h2 style="margin-top:0">Kassenbuch {{tag[8:]}}.{{tag[5:7]}}.{{tag[:4]}}</h2>
@@ -680,6 +682,7 @@ OP_SEITE = """
   <option value=261 {{'selected' if kreis=='261'}}>261 Verkauf</option><option value=263 {{'selected' if kreis=='263'}}>263 Service</option></select></div>
  <div style="flex:1"><label>Suche (Kunde oder Rechnungsnummer)</label><input name=q value="{{q}}"></div>
  <button>Filtern</button> <a class="btn sek" href="{{url_for('op_seite')}}">Zurücksetzen</a>
+ <button type=submit formmethod=post formaction="{{url_for('aktualisieren')}}" name=zurueck value="{{request.full_path.rstrip('?')}}" class="sek noprint">&#8635; Aktualisieren</button>
  <button type=button class=sek onclick="window.print()">Drucken</button></form>
 {% if erinnerung %}<details class=bank id=erinnerung open style="border-left-color:#b45309"><summary style="color:#b45309">Erinnerung: länger als {{tage}} Tage offen ({{erinnerung|length}}) &ndash; {{'%.2f'|format(erinnerung|sum(attribute='rest'))|replace('.',',')}} &euro;</summary>
 <table><tr><th>Rechnungsdatum</th><th class=r>Tage offen</th><th>Rg.-Nr.</th><th>Kunde</th><th class=r>Rechnung</th><th class=r>noch offen</th><th class=noprint></th></tr>
@@ -2222,8 +2225,8 @@ ABGLEICH = """
 <td class="z-{{z.zahl_klasse}}">{{z.zahl}}</td>
 <td class=r>{{('%.2f'|format(z.pdf_betrag)|replace('.',',')) if z.pdf_betrag is not none else '–'}}</td>
 <td style="color:{{z.farbe}};font-weight:600">{{z.text}}{% if z.rid %} &middot; <a href="{{url_for('beleg',rid=z.rid)}}" target=_blank>PDF</a>{% endif %}</td>
-<td>{% if z.bestaetigt %}<form method=post action="{{url_for('abgleich_ok')}}"><input type=hidden name=nr value="{{z.nr}}"><input type=hidden name=aufheben value=1><input type=hidden name=zurueck value="{{zurueck}}"><button class=sek style="padding:4px 10px">Bestätigung aufheben</button></form>
-{% elif not z.ok %}<form method=post action="{{url_for('abgleich_ok')}}" style="display:flex;gap:6px;align-items:center"><input type=hidden name=nr value="{{z.nr}}"><input type=hidden name=zurueck value="{{zurueck}}"><input name=bemerkung placeholder="Bemerkung (optional)" style="width:170px;padding:4px"><button style="padding:4px 12px;white-space:nowrap">OK geben</button></form>{% endif %}</td></tr>
+<td>{% if z.bestaetigt %}<form method=post action="{{url_for('abgleich_ok')}}"><input type=hidden name=nr value="{{z.nr}}"><input type=hidden name=aufheben value=1><input type=hidden name=zurueck value="{{zurueck}}"><button class=sek>Bestätigung aufheben</button></form>
+{% elif not z.ok %}<form method=post action="{{url_for('abgleich_ok')}}" style="display:flex;gap:6px;align-items:center"><input type=hidden name=nr value="{{z.nr}}"><input type=hidden name=zurueck value="{{zurueck}}"><input name=bemerkung placeholder="Bemerkung (optional)" style="width:170px;padding:4px"><button>OK geben</button></form>{% endif %}</td></tr>
 {% else %}<tr><td colspan=8>Keine Abweichungen &ndash; alles passt.</td></tr>{% endfor %}</table></div>
 {% if extra %}<div class=card><h2>PDFs ohne Eintrag in der Liste ({{extra|length}})</h2>
 {% if extra_neu %}<p><small>{{extra_neu}} davon sind <b>neuer als die Liste</b> (nach dem {{bis[8:]}}.{{bis[5:7]}}.{{bis[:4]}}). Lade eine neuere Rechnungsausgangsliste hoch, dann werden sie abgeglichen.</small></p>{% endif %}
@@ -2999,16 +3002,16 @@ aus und klicke &bdquo;Zuordnen&ldquo;.</small></p>
 <td><form method=post action="{{url_for('bank_zuordnen')}}" style="display:flex;gap:6px"><input type=hidden name=bank_id value="{{b.id}}"><input type=hidden name=zurueck value="{{zurueck}}">
 <select name=rechnungsnr required style="max-width:300px;padding:4px"><option value="">&ndash; offene Rechnung wählen &ndash;</option>
 {% for k in b.kandidaten %}<option value="{{k.rechnungsnr}}">{{k.lieferant}} &middot; {{k.rechnungsnr}} &middot; {{'%.2f'|format(k.brutto)|replace('.',',')}} &euro;</option>{% endfor %}</select>
-<button class=sek style="padding:4px 10px">Zuordnen</button></form></td>
+<button class=sek>Zuordnen</button></form></td>
 <td><form method=post action="{{url_for('bank_ignorieren')}}" style="display:flex;gap:6px"><input type=hidden name=bank_id value="{{b.id}}"><input type=hidden name=zurueck value="{{zurueck}}">
-<input name=grund placeholder="Grund (optional)" style="width:150px;padding:4px"><button class=sek style="padding:4px 10px;white-space:nowrap">Kein Beleg nötig</button></form></td></tr>
+<input name=grund placeholder="Grund (optional)" style="width:150px;padding:4px"><button class=sek>Kein Beleg nötig</button></form></td></tr>
 {% else %}<tr><td colspan=6 style="color:#047857"><b>&#10003; Alle Bankausgänge sind Rechnungen zugeordnet.</b></td></tr>{% endfor %}</table>
 {% if manuell_liste %}<details style="margin-top:12px"><summary>{{manuell_liste|length}} von Hand zugeordnet</summary>
 <table>{% for m in manuell_liste %}<tr><td>{{m.datum}}</td><td>{{m.name}}</td><td class=r>{{'%.2f'|format(m.betrag)|replace('.',',')}}</td><td>&rarr; Rechnung {{m.rechnungsnr}}</td>
-<td><form method=post action="{{url_for('bank_zuordnung_loesen')}}"><input type=hidden name=bank_id value="{{m.id}}"><input type=hidden name=zurueck value="{{zurueck}}"><button class=sek style="padding:4px 10px">Zuordnung lösen</button></form></td></tr>{% endfor %}</table></details>{% endif %}
+<td><form method=post action="{{url_for('bank_zuordnung_loesen')}}"><input type=hidden name=bank_id value="{{m.id}}"><input type=hidden name=zurueck value="{{zurueck}}"><button class=sek>Zuordnung lösen</button></form></td></tr>{% endfor %}</table></details>{% endif %}
 {% if ignoriert %}<details style="margin-top:12px"><summary>{{ignoriert|length}} als &bdquo;kein Beleg nötig&ldquo; markiert</summary>
 <table>{% for b in ignoriert %}<tr><td>{{b.datum}}</td><td>{{b.name}}</td><td class=r>{{'%.2f'|format(b.betrag)|replace('.',',')}}</td><td><small>{{b.grund}}</small></td>
-<td>{% if not b.auto %}<form method=post action="{{url_for('bank_ignorieren')}}"><input type=hidden name=bank_id value="{{b.id}}"><input type=hidden name=aufheben value=1><input type=hidden name=zurueck value="{{zurueck}}"><button class=sek style="padding:4px 10px">wieder anzeigen</button></form>{% endif %}</td></tr>{% endfor %}</table></details>{% endif %}</details>"""
+<td>{% if not b.auto %}<form method=post action="{{url_for('bank_ignorieren')}}"><input type=hidden name=bank_id value="{{b.id}}"><input type=hidden name=aufheben value=1><input type=hidden name=zurueck value="{{zurueck}}"><button class=sek>wieder anzeigen</button></form>{% endif %}</td></tr>{% endfor %}</table></details>{% endif %}</details>"""
 
 
 @app.route("/bank")
@@ -3101,6 +3104,17 @@ def bank_seite():
                 bezahlte_liste=bezahlte_liste, bezahlte_summe=sum(abs(r["brutto"] or 0) for r in bezahlte_liste), ohne=ohne,
                 ohne_summe=sum(abs(b["betrag"]) for b in ohne), ignoriert=ignoriert,
                 bank_n=db().execute("SELECT COUNT(*) FROM bank").fetchone()[0], zurueck=request.full_path.rstrip("?"))
+
+
+@app.route("/aktualisieren", methods=["POST"])
+def aktualisieren():
+    """Aktualisieren-Knopf fuer jede Seite: Eingang einlesen, unfertige Belege neu pruefen, Zahlungen neu abgleichen, zurueck zur Seite."""
+    n = eingang_einlesen()
+    neu_pruefen()
+    zahlungen_synchronisieren()
+    flash(f"{n} neue Dateien eingelesen, alles aktualisiert." if n else "Keine neuen Dateien - alles aktualisiert.")
+    ziel = request.form.get("zurueck", "")
+    return redirect(ziel if ziel.startswith("/") and not ziel.startswith("//") else url_for("index"))
 
 
 @app.route("/bank/aktualisieren", methods=["POST"])
