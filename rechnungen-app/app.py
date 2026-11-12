@@ -367,7 +367,7 @@ INDEX = """
 <th class=r>Brutto</th><th>Zahlung</th><th>Bezahlt am</th><th>Zahlart</th><th>Beleg</th><th></th></tr>
 {% for r in rows %}<tr>
  <td><input type=checkbox name=ids value="{{r.id}}" style="width:auto" {{'checked' if r.status!='an DATEV gesendet' and r.belegart not in ('Lieferschein','Bestellübersicht')}}></td>
- <td>{{r.datum}}</td><td><small>{{r.belegart}}</small></td><td>{{r.lieferant}}</td><td>{{r.rechnungsnr}}{% if r.belegart in ('Lieferschein','Bestellübersicht') %}{% if r.zu_rechnung=="-" %}<br><small>keine Rechnung nötig</small>{% elif r.zu_rechnung %}<br><small>&rarr; Rechnung {{r.zu_rechnung}}</small>{% else %}<br><small style="color:#b45309">keiner Rechnung zugeordnet</small>{% endif %}{% endif %}</td><td>{% if r.belegart not in ('Lieferschein','Bestellübersicht') %}{{r.kategorie}} <small>({{r.konto}})</small>{% endif %}</td>
+ <td>{{r.datum}}</td><td><small>{{r.belegart}}</small></td><td>{{r.lieferant}}</td><td>{{r.rechnungsnr}}{% if r.belegart in ('Lieferschein','Bestellübersicht') %}{% if r.zu_rechnung and r.zu_rechnung!="-" %}<br><small>&rarr; Rechnung {{r.zu_rechnung}}</small>{% elif r.belegart=='Bestellübersicht' %}<br><small style="color:#b45309">keiner Rechnung zugeordnet</small>{% endif %}{% endif %}</td><td>{% if r.belegart not in ('Lieferschein','Bestellübersicht') %}{{r.kategorie}} <small>({{r.konto}})</small>{% endif %}</td>
  <td class=r>{{'%.2f'|format(r.brutto)|replace('.',',')}}</td>
  {% if r.belegart in RECHNUNGSARTEN %}<td class="z-{{r.zahlung or 'offen'}}">{{r.zahlung or 'offen'}}{% if r.zahlung!='bezahlt' and r.skonto and r.skonto_bis and r.skonto_bis>=heute and not r.lastschrift and r.lieferant not in lastschrift_lief %}<br><small style="color:#b45309">Skonto {{'%g'|format(r.skonto)|replace('.',',')}} % bis {{r.skonto_bis[8:]}}.{{r.skonto_bis[5:7]}}.</small>{% endif %}</td>
  <td>{% if r.zahl_am %}{{r.zahl_am[8:]}}.{{r.zahl_am[5:7]}}.{{r.zahl_am[:4]}}{% endif %}</td>
@@ -493,46 +493,35 @@ def ausgang_ueberfaellig():
 LS_SEITE = """
 <style>details.bank{background:#fff;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:6px;margin-bottom:10px;padding:0 18px}details.bank>summary{cursor:pointer;font:600 14px Tahoma,Arial,sans-serif;color:var(--head);padding:9px 0}details.bank[open]{padding-bottom:14px}details.bank[open]>summary{border-bottom:1px solid var(--line);margin-bottom:10px}</style>
 <form method=get class=card style="display:flex;gap:12px;align-items:end;flex-wrap:wrap">
+ <div><label>Hersteller</label><select name=hersteller onchange="this.form.submit()"><option value="">alle</option>
+  {% for h in hersteller_liste %}<option {{'selected' if h==hersteller}}>{{h}}</option>{% endfor %}</select></div>
  <div style="flex:1"><label>Suche (Hersteller oder Lieferschein-Nr.)</label><input name=q value="{{q}}"></div>
  <button>Filtern</button> <a class="btn sek" href="{{url_for('lieferscheine_seite')}}">Zurücksetzen</a></form>
-<details class=bank open style="border-left-color:{{'#b45309' if offen else '#047857'}}"><summary style="color:{{'#b45309' if offen else '#047857'}}">Keiner Rechnung zugeordnet ({{offen|length}})</summary>
-<p><small>Wähle die passende Eingangsrechnung (gleicher Hersteller steht oben) und klicke &bdquo;Zuordnen&ldquo;. Lieferscheine, die gar nicht zu einer Rechnung gehören (z. B. Muster oder Reparatur), markierst du mit &bdquo;Keine Rechnung nötig&ldquo;.</small></p>
-<table><tr><th>Datum</th><th>Hersteller</th><th>Lieferschein</th><th>Rechnung zuordnen</th><th></th></tr>
-{% for l in offen %}<tr><td>{{l.datum[8:]}}.{{l.datum[5:7]}}.{{l.datum[:4]}}</td>
-<td>{{l.lieferant}}{% if l.lieferant=='Hersteller unbekannt' %}<br><small style="color:#b91c1c">Hersteller nicht erkannt &ndash; <a href="{{url_for('bearbeiten',rid=l.id)}}">Hersteller eintragen</a></small>{% endif %}</td>
-<td><a href="{{url_for('beleg',rid=l.id)}}" target=_blank>{{l.rechnungsnr}}</a></td>
-<td><form method=post action="{{url_for('lieferschein_zuordnen')}}" style="display:flex;gap:6px"><input type=hidden name=rid value="{{l.id}}">
-<select name=zu_rechnung required style="max-width:380px;padding:4px"><option value="">&ndash; Rechnung wählen &ndash;</option>
-{% for k in l.kandidaten %}<option value="{{k.rechnungsnr}}">{{k.lieferant}} &middot; {{k.rechnungsnr}} &middot; {{k.datum}} &middot; {{'%.2f'|format(k.brutto)|replace('.',',')}} &euro;</option>{% endfor %}</select>
-<button class=sek style="padding:4px 10px">Zuordnen</button></form></td>
-<td><form method=post action="{{url_for('lieferschein_zuordnen')}}"><input type=hidden name=rid value="{{l.id}}"><input type=hidden name=zu_rechnung value="-">
-<button class=sek style="padding:4px 10px;white-space:nowrap">Keine Rechnung nötig</button></form></td></tr>
-{% else %}<tr><td colspan=5 style="color:#047857"><b>&#10003; Alle Lieferscheine sind zugeordnet.</b></td></tr>{% endfor %}</table></details>
+{% if unbekannt %}<details class=bank open style="border-left-color:#b45309"><summary style="color:#b45309">Hersteller nicht erkannt ({{unbekannt|length}})</summary>
+<p><small>Bei diesen Lieferscheinen konnte kein Hersteller gelesen werden. Mit &bdquo;bearbeiten&ldquo; den Hersteller eintragen.</small></p>
+<table>{% for l in unbekannt %}<tr><td>{{l.datum[8:]}}.{{l.datum[5:7]}}.{{l.datum[:4]}}</td><td><a href="{{url_for('beleg',rid=l.id)}}" target=_blank>{{l.rechnungsnr}}</a></td>
+<td><a href="{{url_for('bearbeiten',rid=l.id)}}">bearbeiten</a></td></tr>{% endfor %}</table></details>{% endif %}
 {% if warten %}<details class=bank open style="border-left-color:#b45309"><summary style="color:#b45309">Seriennummernlisten ohne Lieferschein ({{warten|length}})</summary>
 <p><small>Diese Listen warten im Ordner <code>Lieferscheine/_Seriennummern offen</code>, bis der zugehörige Lieferschein im Eingang erscheint:</small></p>
 <ul>{% for w in warten %}<li>{{w}}</li>{% endfor %}</ul></details>{% endif %}
-<details class=bank><summary>Zugeordnet ({{fertig|length}})</summary>
-<table><tr><th>Datum</th><th>Hersteller</th><th>Lieferschein</th><th>Gehört zu Rechnung</th><th></th></tr>
-{% for l in fertig %}<tr><td>{{l.datum[8:]}}.{{l.datum[5:7]}}.{{l.datum[:4]}}</td><td>{{l.lieferant}}</td><td><a href="{{url_for('beleg',rid=l.id)}}" target=_blank>{{l.rechnungsnr}}</a></td>
-<td>{% if l.zu_rechnung=='-' %}<small>keine Rechnung nötig</small>{% else %}{{l.zu_rechnung}}{% endif %}</td>
-<td><form method=post action="{{url_for('lieferschein_zuordnen')}}"><input type=hidden name=rid value="{{l.id}}"><input type=hidden name=zu_rechnung value=""><button class=sek style="padding:2px 8px">Zuordnung lösen</button></form></td></tr>{% endfor %}</table></details>"""
+<details class=bank open><summary>Lieferscheine ({{liste|length}})</summary>
+<table><tr><th>Datum</th><th>Hersteller</th><th>Lieferschein</th><th></th></tr>
+{% for l in liste %}<tr><td>{{l.datum[8:]}}.{{l.datum[5:7]}}.{{l.datum[:4]}}</td><td>{{l.lieferant}}</td>
+<td><a href="{{url_for('beleg',rid=l.id)}}" target=_blank>{{l.rechnungsnr}}</a>{% if l.zu_rechnung and l.zu_rechnung!='-' %} <small>&rarr; Rechnung {{l.zu_rechnung}}</small>{% endif %}</td>
+<td><a href="{{url_for('bearbeiten',rid=l.id)}}">bearbeiten</a></td></tr>
+{% else %}<tr><td colspan=4>Keine Lieferscheine gefunden.</td></tr>{% endfor %}</table></details>"""
 
 
 @app.route("/lieferscheine")
 def lieferscheine_seite():
-    zahlungen_synchronisieren()
     q = request.args.get("q", "").strip().lower()
+    hersteller = request.args.get("hersteller", "")
     alle = [dict(r) for r in db().execute("SELECT id, datum, lieferant, rechnungsnr, zu_rechnung FROM rechnungen WHERE belegart='Lieferschein' "
                                           "ORDER BY datum DESC, id DESC")]
-    if q:
-        alle = [l for l in alle if q in f"{l['lieferant']} {l['rechnungsnr']}".lower()]
-    offen = [l for l in alle if not (l["zu_rechnung"] or "").strip()]
-    fertig = [l for l in alle if (l["zu_rechnung"] or "").strip()]
-    rechnungen = db().execute("SELECT rechnungsnr, lieferant, brutto, datum FROM rechnungen WHERE belegart=? AND rechnungsnr<>'' AND datum>=? "
-                              "ORDER BY datum DESC", (EINGANG, (date.today() - timedelta(days=150)).isoformat())).fetchall()
-    for l in offen:  # gleicher Hersteller zuerst
-        kern = (l["lieferant"] or "").split()[0].lower() if l["lieferant"] else ""
-        l["kandidaten"] = sorted(rechnungen, key=lambda x: 0 if kern and (x["lieferant"] or "").lower().startswith(kern) else 1)
+    hersteller_liste = sorted({l["lieferant"] for l in alle if l["lieferant"]})
+    liste = [l for l in alle if (not hersteller or l["lieferant"] == hersteller)
+             and (not q or q in f"{l['lieferant']} {l['rechnungsnr']}".lower())]
+    unbekannt = [l for l in alle if l["lieferant"] == "Hersteller unbekannt"]
     warten = []
     try:
         wo = Path(settings()["eingang_ordner"]) / LS_ORDNER / "_Seriennummern offen"
@@ -540,19 +529,8 @@ def lieferscheine_seite():
             warten = sorted(f.name for f in wo.iterdir() if f.is_file())
     except OSError:
         pass
-    return page(LS_SEITE, q=request.args.get("q", ""), offen=offen, fertig=fertig, warten=warten)
-
-
-@app.route("/lieferscheine/zuordnen", methods=["POST"])
-def lieferschein_zuordnen():
-    """Lieferschein einer Eingangsrechnung zuordnen ('-' = keine Rechnung noetig, leer = Zuordnung loesen)."""
-    rid = request.form.get("rid", type=int)
-    if rid:
-        db().execute("UPDATE rechnungen SET zu_rechnung=? WHERE id=? AND belegart='Lieferschein'",
-                     (request.form.get("zu_rechnung", "").strip(), rid))
-        db().commit()
-        flash("Lieferschein gespeichert.")
-    return redirect(url_for("lieferscheine_seite"))
+    return page(LS_SEITE, q=request.args.get("q", ""), hersteller=hersteller, hersteller_liste=hersteller_liste, liste=liste,
+                unbekannt=unbekannt, warten=warten)
 
 
 KASSE_SEITE = """
