@@ -279,6 +279,11 @@ function kt_ze_api( $in ) {
 		list( $state, $last ) = kt_ze_state( $sid );
 		return array( 'ok' => true, 'done' => $t, 'time' => substr( $now, 11, 5 ), 'name' => $st->name, 'state' => $state, 'today' => kt_ze_today( $sid ) );
 	}
+	if ( $a === 'calendar' ) {
+		$cy = (int) current_time( 'Y' );
+		$y  = max( $cy - 1, min( $cy + 2, (int) ( $in['year'] ?? $cy ) ) );
+		return array( 'ok' => true, 'events' => kt_ze_cal_events( "$y-01-01", "$y-12-31", $sid ), 'holidays' => kt_ze_holidays( $y ), 'school' => kt_ze_school_for( "$y-01-01", "$y-12-31" ) );
+	}
 	if ( $a === 'overview' ) {
 		$cur   = current_time( 'Y-m' );
 		$lower = gmdate( 'Y-m', strtotime( $cur . '-01 12:00:00 UTC -24 months' ) );
@@ -419,7 +424,192 @@ function kt_ze_api_admin( $a, $in ) {
 	return array( 'ok' => false, 'err' => 'action' );
 }
 
+function kt_ze_cal_events( $from, $to, $sid = 0 ) {
+	global $wpdb;
+	$sql = $wpdb->prepare( 'SELECT l.staff_id,l.d_from,l.d_to,l.kind,l.status,s.name FROM ' . kt_ze_t( 'leave' ) . ' l JOIN ' . kt_ze_t( 'staff' ) . " s ON s.id=l.staff_id WHERE l.status IN ('offen','genehmigt') AND l.d_to>=%s AND l.d_from<=%s", $from, $to );
+	if ( $sid ) {
+		$sql .= $wpdb->prepare( ' AND l.staff_id=%d', $sid );
+	}
+	$kinds = array_keys( kt_ze_kinds() );
+	$out   = array();
+	foreach ( (array) $wpdb->get_results( $sql . ' ORDER BY l.d_from, s.name' ) as $r ) {
+		$ki    = (int) array_search( $r->kind, $kinds, true );
+		$out[] = array(
+			'n' => $r->name,
+			'c' => $sid ? 3 * $ki : ( (int) $r->staff_id % 8 ),
+			'f' => $r->d_from,
+			't' => $r->d_to,
+			'k' => kt_ze_kinds()[ $r->kind ] ?? $r->kind,
+			's' => $r->status,
+		);
+	}
+	return $out;
+}
+
+/* Schulferien Hessen (Quellen: Kalenderpedia, schulferien.eu, hessenschau; bitte jaehrlich mit dem Hessischen Kultusministerium abgleichen und ergaenzen) */
+function kt_ze_school_for( $from, $to ) {
+	$all = array(
+		array( '2026-03-30', '2026-04-10', 'Osterferien' ),
+		array( '2026-06-29', '2026-08-07', 'Sommerferien' ),
+		array( '2026-10-05', '2026-10-17', 'Herbstferien' ),
+		array( '2026-12-23', '2027-01-12', 'Weihnachtsferien' ),
+		array( '2027-03-22', '2027-04-02', 'Osterferien' ),
+		array( '2027-06-28', '2027-08-06', 'Sommerferien' ),
+		array( '2027-10-04', '2027-10-16', 'Herbstferien' ),
+		array( '2027-12-23', '2028-01-11', 'Weihnachtsferien' ),
+		array( '2028-04-03', '2028-04-14', 'Osterferien' ),
+		array( '2028-07-03', '2028-08-11', 'Sommerferien' ),
+		array( '2028-10-09', '2028-10-20', 'Herbstferien' ),
+	);
+	$out = array();
+	foreach ( $all as $r ) {
+		if ( $r[1] >= $from && $r[0] <= $to ) {
+			$out[] = array( 'f' => $r[0], 't' => $r[1], 'n' => $r[2] );
+		}
+	}
+	return $out;
+}
+
+function kt_ze_cal_css() {
+	return <<<'KTCSS'
+.ktcal{color:#1c1c1c}
+.ktcal button{font:inherit;cursor:pointer}
+.kc-bar{display:flex;align-items:center;gap:12px;justify-content:space-between;margin:0 0 10px;flex-wrap:wrap}
+.kc-ttl{font-size:26px;font-weight:700;font-family:Tahoma,Arial,sans-serif;flex:1;text-align:center;min-width:180px}
+.kc-seg{display:inline-flex;border:1px solid #c9ced6;border-radius:9px;overflow:hidden}
+.kc-seg button{border:0;background:#fff;padding:8px 16px;font-size:17px;color:#334155}
+.kc-seg button.on{background:#334155;color:#fff}
+.kc-nav button{border:1px solid #c9ced6;background:#fff;border-radius:9px;padding:8px 14px;font-size:20px;margin-left:6px;color:#334155}
+.kc-grid{display:grid;grid-template-columns:repeat(7,1fr)}
+.kc-wd div{text-align:center;font-size:14px;color:#777;padding:4px 0}
+.kc-c{min-height:84px;border-top:1px solid #e3e6ea;border-left:1px solid #eef0f3;padding:3px 4px;text-align:left;overflow:hidden;cursor:pointer;background:#fff;min-width:0}
+.kc-c b{display:inline-flex;min-width:26px;height:26px;align-items:center;justify-content:center;font-size:16px;border-radius:50%}
+.kc-c.kc-today b{background:#e5392d;color:#fff}
+.kc-c.kc-we{background:#fafbfc;color:#888}
+.kc-c.kc-x{background:transparent;cursor:default}
+.kc-c i{display:block;font-style:normal;font-size:11px;color:#c0392b;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kc-ev{display:block;margin-top:2px;padding:1px 6px;border-radius:5px;font-size:12px;line-height:1.35;color:#fff;background:var(--c);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kc-ev.off{background:repeating-linear-gradient(45deg,#fff,#fff 4px,var(--c) 4px,var(--c) 5px);color:#222;border:1px solid var(--c)}
+.kc-more{font-size:11px;color:#666}
+.kc-year{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.kc-mini{padding:2px}
+.kc-mt{font-weight:700;color:#e5392d;font-size:15px;margin-bottom:2px;cursor:pointer}
+.kc-g7{display:grid;grid-template-columns:repeat(7,1fr)}
+.kc-g7 span{text-align:center;font-size:12px;line-height:22px;height:22px;cursor:pointer;border-radius:50%}
+.kc-c.kc-sf{background:#fff8e6}
+.kc-c i.kc-sl{color:#9a6700}
+.kc-md.kc-sf{background:#fff1c9}
+.kc-md.kc-has{background:var(--c);color:#fff}
+.kc-md.kc-has[data-off]{background:#fff;color:#222;box-shadow:inset 0 0 0 2px var(--c)}
+.kc-md.kc-ho{color:#c0392b}
+.kc-md.kc-today{outline:2px solid #e5392d}
+.kc-day{padding:6px 2px}
+.kc-dh{font-size:22px;font-weight:700;margin-bottom:10px}
+.kc-hol{color:#c0392b;margin-bottom:8px}
+.kc-none{color:#777;padding:10px 0}
+.kc-row{padding:8px 0;border-bottom:1px solid #eceef1;font-size:18px;display:flex;gap:10px;align-items:center}
+.kc-dot{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--c);flex:none}
+.kc-leg{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:14px;color:#555}
+.kc-leg span{display:inline-flex;align-items:center;gap:6px}
+@media(max-width:900px){.kc-year{grid-template-columns:repeat(3,1fr)}}
+KTCSS;
+}
+
+function kt_ze_cal_js() {
+	return <<<'KTJS'
+function KTCal(root,opt){
+ opt=opt||{};
+ var MON=['Januar','Februar','M\u00e4rz','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+ var WD=['Mo','Di','Mi','Do','Fr','Sa','So'];
+ var DN=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+ var PAL=['#2f7de1','#e0623b','#2f9e6a','#8a55d6','#d19a1c','#d4508a','#1f9aa8','#6b7280'];
+ var now=new Date(),S={v:'month',y:now.getFullYear(),m:now.getMonth(),d:now.getDate()},cache={};
+ function p2(n){return ('0'+n).slice(-2);}
+ function key(y,m,d){return y+'-'+p2(m+1)+'-'+p2(d);}
+ var T=key(now.getFullYear(),now.getMonth(),now.getDate());
+ function esc(x){return String(x).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+ function fmt(ds){return ds.slice(8,10)+'.'+ds.slice(5,7)+'.';}
+ function load(y,cb){if(cache[y]){cb(cache[y]);return;}opt.load(y,function(r){r=r||{};r.events=r.events||[];r.holidays=r.holidays||{};r.school=r.school||[];cache[y]=r;cb(r);});}
+ function evOn(r,ds){return r.events.filter(function(e){return e.f<=ds&&ds<=e.t;});}
+ function schoolObj(r,ds){for(var i=0;i<r.school.length;i++){if(r.school[i].f<=ds&&ds<=r.school[i].t)return r.school[i];}return null;}
+ function chip(e){return '<span class="kc-ev'+(e.s==='genehmigt'?'':' off')+'" style="--c:'+PAL[e.c%8]+'">'+esc(opt.names?e.n:e.k)+'</span>';}
+ function blanks(n,tag,cls){var h='';for(var i=0;i<n;i++)h+='<'+tag+' class="'+cls+'"></'+tag+'>';return h;}
+ function monthHtml(r){
+  var lead=(new Date(S.y,S.m,1).getDay()+6)%7,n=new Date(S.y,S.m+1,0).getDate(),mx=opt.max||3,h='<div class="kc-grid kc-wd">';
+  WD.forEach(function(w){h+='<div>'+w+'</div>';});
+  h+='</div><div class="kc-grid">'+blanks(lead,'div','kc-c kc-x');
+  for(var d=1;d<=n;d++){
+   var ds=key(S.y,S.m,d),ev=evOn(r,ds),ho=r.holidays[ds],we=((lead+d-1)%7)>=5,sf=schoolObj(r,ds);
+   h+='<div class="kc-c'+(we?' kc-we':'')+(sf?' kc-sf':'')+(ds===T?' kc-today':'')+'" data-d="'+d+'"><b>'+d+'</b>'+(ho?'<i>'+esc(ho)+'</i>':'')+(sf&&(ds===sf.f||d===1||(lead+d-1)%7===0)?'<i class="kc-sl">'+esc(sf.n)+'</i>':'')+ev.slice(0,mx).map(chip).join('')+(ev.length>mx?'<span class="kc-more">+'+(ev.length-mx)+' weitere</span>':'')+'</div>';
+  }
+  return h+'</div>';}
+ function yearHtml(r){
+  var h='<div class="kc-year">';
+  for(var m=0;m<12;m++){
+   var lead=(new Date(S.y,m,1).getDay()+6)%7,n=new Date(S.y,m+1,0).getDate();
+   h+='<div class="kc-mini"><div class="kc-mt" data-m="'+m+'">'+MON[m]+'</div><div class="kc-g7">'+blanks(lead,'span','');
+   for(var d=1;d<=n;d++){
+    var ds=key(S.y,m,d),ev=evOn(r,ds),cls='kc-md'+(ds===T?' kc-today':'')+(ev.length?' kc-has':'')+(r.holidays[ds]?' kc-ho':'')+(schoolObj(r,ds)?' kc-sf':'');
+    h+='<span class="'+cls+'"'+(ev.length?' style="--c:'+PAL[ev[0].c%8]+'"':'')+(ev.length&&ev[0].s!=='genehmigt'?' data-off="1"':'')+' data-m="'+m+'" data-d="'+d+'">'+d+'</span>';
+   }
+   h+='</div></div>';
+  }
+  return h+'</div>';}
+ function dayHtml(r){
+  var ds=key(S.y,S.m,S.d),ev=evOn(r,ds),h='<div class="kc-day"><div class="kc-dh">'+DN[new Date(S.y,S.m,S.d).getDay()]+', '+S.d+'. '+MON[S.m]+' '+S.y+'</div>';
+  if(r.holidays[ds])h+='<div class="kc-hol">'+esc(r.holidays[ds])+' (Feiertag in Hessen)</div>';
+  var so=schoolObj(r,ds);if(so)h+='<div class="kc-hol" style="color:#9a6700">Schulferien Hessen: '+esc(so.n)+' ('+fmt(so.f)+' – '+fmt(so.t)+')</div>';
+  if(!ev.length)h+='<div class="kc-none">'+(opt.names?'Niemand ist abwesend.':'Kein Urlaub an diesem Tag.')+'</div>';
+  ev.forEach(function(e){h+='<div class="kc-row"><i class="kc-dot" style="--c:'+PAL[e.c%8]+'"></i><b>'+esc(opt.names?e.n:e.k)+'</b><span>'+(opt.names?esc(e.k)+' \u00b7 ':'')+fmt(e.f)+' \u2013 '+fmt(e.t)+' \u00b7 '+(e.s==='genehmigt'?'best\u00e4tigt':'angefragt')+'</span></div>';});
+  return h+'</div>';}
+ function legend(r){
+  var h='<div class="kc-leg">';
+  if(opt.names){var seen={};r.events.forEach(function(e){if(!seen[e.n]){seen[e.n]=1;h+='<span><i class="kc-dot" style="--c:'+PAL[e.c%8]+'"></i>'+esc(e.n)+'</span>';}});}
+  else{[['Urlaub',0],['Sonderurlaub',3],['\u00dcberstundenausgleich',6]].forEach(function(k){h+='<span><i class="kc-dot" style="--c:'+PAL[k[1]]+'"></i>'+k[0]+'</span>';});}
+  return h+'<span>voll = best\u00e4tigt \u00b7 gestreift = angefragt</span><span style="color:#c0392b">rot = Feiertag Hessen</span><span><i class="kc-dot" style="--c:#fff1c9;box-shadow:inset 0 0 0 1px #d8b45a"></i>Schulferien Hessen</span></div>';}
+ function render(){load(S.y,function(r){
+  var title=S.v==='year'?String(S.y):(S.v==='month'?MON[S.m]+' '+S.y:S.d+'. '+MON[S.m]+' '+S.y);
+  var h='<div class="kc-bar"><div class="kc-seg">'+[['day','Tag'],['month','Monat'],['year','Jahr']].map(function(v){return '<button data-v="'+v[0]+'"'+(S.v===v[0]?' class="on"':'')+'>'+v[1]+'</button>';}).join('')+'</div><div class="kc-ttl">'+esc(title)+'</div><div class="kc-nav"><button data-n="-1">\u2039</button><button data-n="0">Heute</button><button data-n="1">\u203a</button></div></div>';
+  h+=S.v==='year'?yearHtml(r):(S.v==='month'?monthHtml(r):dayHtml(r));
+  root.innerHTML=h+legend(r);wire();});}
+ function go(){if(opt.tick)opt.tick();render();}
+ function each(sel,fn){Array.prototype.forEach.call(root.querySelectorAll(sel),fn);}
+ function wire(){
+  each('.kc-seg button',function(b){b.onclick=function(){S.v=b.getAttribute('data-v');go();};});
+  each('.kc-nav button',function(b){b.onclick=function(){var n=+b.getAttribute('data-n');
+   if(n===0){var t=new Date();S.y=t.getFullYear();S.m=t.getMonth();S.d=t.getDate();}
+   else if(S.v==='year'){S.y+=n;}
+   else if(S.v==='month'){var t2=new Date(S.y,S.m+n,1);S.y=t2.getFullYear();S.m=t2.getMonth();S.d=Math.min(S.d,new Date(S.y,S.m+1,0).getDate());}
+   else{var t3=new Date(S.y,S.m,S.d+n);S.y=t3.getFullYear();S.m=t3.getMonth();S.d=t3.getDate();}
+   go();};});
+  each('.kc-c[data-d]',function(c){c.onclick=function(){S.d=+c.getAttribute('data-d');S.v='day';go();};});
+  each('.kc-md',function(c){c.onclick=function(){S.m=+c.getAttribute('data-m');S.d=+c.getAttribute('data-d');S.v='day';go();};});
+  each('.kc-mt',function(c){c.onclick=function(){S.m=+c.getAttribute('data-m');S.v='month';go();};});
+ }
+ render();
+ return {reload:function(){cache={};var t=new Date();S.v='month';S.y=t.getFullYear();S.m=t.getMonth();S.d=t.getDate();render();}};
+}
+KTJS;
+}
+
+function kt_ze_tab_cal() {
+	$cy = (int) current_time( 'Y' );
+	$ho = array();
+	for ( $y = $cy - 1; $y <= $cy + 1; $y++ ) {
+		$ho += kt_ze_holidays( $y );
+	}
+	$data = array( 'events' => kt_ze_cal_events( ( $cy - 1 ) . '-01-01', ( $cy + 1 ) . '-12-31' ), 'holidays' => $ho, 'school' => kt_ze_school_for( ( $cy - 1 ) . '-01-01', ( $cy + 1 ) . '-12-31' ) );
+	echo '<style>' . kt_ze_cal_css() . '</style>';
+	echo '<div id="ktcal" class="ktcal" style="max-width:1150px;background:#fff;padding:14px 16px;border:1px solid #dcdcde;margin-top:14px"></div>';
+	echo '<p style="color:#666">Alle Urlaube aller Mitarbeiter. Gestreift = angefragt, noch nicht genehmigt (Genehmigen unter „Urlaub“). Feiertage und Schulferien: Hessen (Schulferien hinterlegt bis 2028).</p>';
+	echo '<script>' . kt_ze_cal_js() . '(function(){var D=' . wp_json_encode( $data ) . ';KTCal(document.getElementById("ktcal"),{names:true,max:4,load:function(y,cb){cb(D);}});})();</script>';
+}
+
 function kt_ze_page() {
+	return str_replace( array( '/*KT_CAL_CSS*/', '/*KT_CAL_JS*/' ), array( kt_ze_cal_css(), kt_ze_cal_js() ), kt_ze_page_raw() );
+}
+
+function kt_ze_page_raw() {
 	return <<<'KTHTML'
 <!doctype html>
 <html lang="de">
@@ -466,6 +656,7 @@ input,select{width:100%;padding:14px;border:1px solid #c4c4c4;border-radius:8px;
 .list div{padding:3px 0;border-bottom:1px solid #eceef1}
 .ovt{width:100%;border-collapse:collapse;font-size:18px;text-align:left}.ovt th,.ovt td{padding:5px 8px;border-bottom:1px solid #eceef1}.ovt th{color:#555;font-size:15px}.ovt td.n,.ovt th.n{text-align:right}
 .btn.sm{min-width:0;padding:8px 22px;font-size:28px}.btn[disabled]{opacity:.35}
+/*KT_CAL_CSS*/
 .msg-ok h1{color:#1d6a3d}.msg-bad h1{color:#a8392f}
 .big{font-size:60px;line-height:1;margin:0 0 8px}
 .side{display:flex;position:fixed;left:calc(20% - 70px);bottom:22px;flex-direction:column;align-items:flex-start;gap:6px;width:140px;color:#334155;font-family:Tahoma,Arial,sans-serif;font-weight:700;font-size:26px;line-height:1.2}
@@ -529,6 +720,11 @@ input,select{width:100%;padding:14px;border:1px solid #c4c4c4;border-radius:8px;
 <p class="sub" id="m-text"></p>
 </section>
 
+<section class="screen" id="s-cal" hidden>
+<h1 id="cal-h">Urlaubskalender</h1>
+<div class="card ktcal" id="cal-root" style="padding:12px"></div>
+<div class="row"><button class="btn sec" id="cal-back">Zur&uuml;ck</button></div>
+</section>
 <section class="screen" id="s-ov" hidden>
 <h1 id="ov-h">&Uuml;bersicht</h1>
 <div class="row" style="margin:4px 0 8px;align-items:center"><button class="btn sec sm" id="ov-prev">&lsaquo;</button><div class="sub" id="ov-month" style="margin:0;min-width:240px"></div><button class="btn sec sm" id="ov-next">&rsaquo;</button></div>
@@ -563,9 +759,9 @@ var KIND={urlaub:'Urlaub',sonder:'Sonderurlaub',ueberstunden:'Überstundenausgle
 var LBL={kommen:'Kommen',pause_start:'Pause',pause_ende:'Pause beenden',gehen:'Gehen'};
 var CLS={kommen:'grn',pause_start:'org',pause_ende:'grn',gehen:'red'};
 var CH={out:'Nicht eingestempelt',working:'Eingestempelt',pause:'In der Pause'};
-function show(id){['home','act','leave','msg','adm','name','list','ov'].forEach(function(s){$('s-'+s).hidden=(s!==id);});}
+function show(id){['home','act','leave','msg','adm','name','list','ov','cal'].forEach(function(s){$('s-'+s).hidden=(s!==id);});}
 function later(ms){clearTimeout(S.timer);S.timer=setTimeout(home,ms);}
-function home(){clearTimeout(S.timer);S.uid='';S.mode='';S.token='';S.pend=null;$('h-title').textContent='Willkommen';$('h-sub').textContent='Bitte Karte ans Tablet halten';$('h-cancel').hidden=true;show('home');}
+function home(){clearTimeout(S.timer);S.uid='';S.mode='';S.token='';S.pend=null;calInst=null;$('cal-root').innerHTML='';$('h-title').textContent='Willkommen';$('h-sub').textContent='Bitte Karte ans Tablet halten';$('h-cancel').hidden=true;show('home');}
 function tick(){var n=new Date();$('clk').textContent=n.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
  $('dat').textContent=n.toLocaleDateString('de-DE',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});}
 setInterval(tick,1000);tick();
@@ -592,6 +788,7 @@ function showAct(d){
  d.allowed.forEach(function(t){var x=document.createElement('button');x.className='btn '+CLS[t];x.textContent=LBL[t];x.onclick=function(){stamp(t);};b.appendChild(x);});
  if(d.master){S.token=d.token;var a2=document.createElement('button');a2.className='btn';a2.textContent='Verwaltung';a2.onclick=function(){showAdm();};b.appendChild(a2);}
  var ov=document.createElement('button');ov.className='btn sec';ov.textContent='Meine Übersicht';ov.onclick=function(){showOv('');};b.appendChild(ov);
+ var kal=document.createElement('button');kal.className='btn sec';kal.textContent='Urlaubskalender';kal.onclick=function(){showCal();};b.appendChild(kal);
  var u=document.createElement('button');u.className='btn sec';u.textContent='Urlaub beantragen';u.onclick=function(){showLeave(S.d);};b.appendChild(u);
  var x=document.createElement('button');x.className='btn sec';x.textContent='Abbrechen';x.onclick=home;b.appendChild(x);
  show('act');later(14000);
@@ -625,6 +822,12 @@ $('l-send').onclick=function(){
   msg('✓','Antrag gesendet',r.days+' Arbeitstag'+(r.days===1?'':'e')+' beantragt. Sie bekommen Bescheid.','ok',5000);
  }).catch(function(){$('l-send').disabled=false;$('l-err').textContent='Keine Verbindung. Bitte erneut versuchen.';$('l-err').hidden=false;});
 };
+/*KT_CAL_JS*/
+var calInst=null;
+function showCal(){later(120000);$('cal-h').textContent='Urlaubskalender \u2013 '+S.d.name;show('cal');
+ if(calInst){calInst.reload();return;}
+ calInst=KTCal($('cal-root'),{names:false,max:2,tick:function(){later(120000);},load:function(y,cb){post({a:'calendar',uid:S.uid,year:y}).then(cb).catch(function(){cb({events:[],holidays:{}});});}});}
+$('cal-back').onclick=function(){showAct(S.d);};
 /* Uebersicht */
 function showOv(ym){later(60000);
  post({a:'overview',uid:S.uid,ym:ym||''}).then(function(r){
@@ -955,7 +1158,7 @@ function kt_ze_admin_page() {
 	}
 	global $wpdb;
 	$tab   = sanitize_key( $_GET['tab'] ?? 'monat' );
-	$tabs  = array( 'monat' => 'Monat &amp; Buchungen', 'mitarbeiter' => 'Mitarbeiter &amp; Karten', 'urlaub' => 'Urlaub' );
+	$tabs  = array( 'monat' => 'Monat &amp; Buchungen', 'kalender' => 'Kalender', 'mitarbeiter' => 'Mitarbeiter &amp; Karten', 'urlaub' => 'Urlaub' );
 	$staff = $wpdb->get_results( 'SELECT * FROM ' . kt_ze_t( 'staff' ) . ' ORDER BY active DESC,name' );
 	$msgs  = array( 'ok' => array( 'updated', 'Gespeichert.' ), 'dupe' => array( 'error', 'Diese Karte ist schon einem anderen aktiven Mitarbeiter zugeordnet.' ), 'noname' => array( 'error', 'Bitte einen Namen eingeben.' ), 'bad' => array( 'error', 'Eingabe unvollständig oder ungültig.' ) );
 	echo '<div class="wrap"><h1>Zeiterfassung</h1>';
@@ -969,6 +1172,8 @@ function kt_ze_admin_page() {
 	echo '</h2>';
 	if ( $tab === 'mitarbeiter' ) {
 		kt_ze_tab_staff( $staff );
+	} elseif ( $tab === 'kalender' ) {
+		kt_ze_tab_cal();
 	} elseif ( $tab === 'urlaub' ) {
 		kt_ze_tab_leave( $staff );
 	} else {
