@@ -1775,7 +1775,7 @@ def lieferschein_ablegen(f, ordner, fertig, cfg, c=None):
         print("Lieferschein-Pruefung:", f.name, e)
         return False
     arten = [_seite_art(t) for t in texte]
-    if not arten or arten[0][0] not in ("ls", "serial") or any(a == "anders" for a, _ in arten):
+    if not arten or arten[0][0] not in ("ls", "serial", "pick") or any(a == "anders" for a, _ in arten):
         return False
     docs, serials, aktuell = [], [], None
     for i, (art, nr) in enumerate(arten):
