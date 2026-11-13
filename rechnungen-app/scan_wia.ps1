@@ -18,7 +18,6 @@ try {
         foreach ($info in $dm.DeviceInfos) { if ($info.Type -eq 1) { $dev = $info.Connect(); break } }
         if ($dev) {
             Setze $dev 3088 1      # Papierquelle = Einzug
-            Setze $dev 3096 0      # alle Seiten
             $item = $dev.Items.Item(1)
             Setze $item 6146 1     # Farbe
             Setze $item 6147 200   # dpi horizontal
@@ -27,6 +26,7 @@ try {
             Setze $item 6151 1654  # A4 bei 200 dpi
             Setze $item 6152 2339
             while ($true) {
+                Setze $dev 3096 1      # eine Seite je Durchgang (0 = "Falscher Parameter")
                 try { $bild = $item.Transfer($jpeg) } catch { $fehler = $_.Exception.Message; break }   # Einzug leer / Ende
                 if ($null -eq $bild) { break }
                 $anzahl++
