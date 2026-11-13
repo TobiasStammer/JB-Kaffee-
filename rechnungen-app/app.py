@@ -1686,7 +1686,7 @@ def bestelluebersicht_erkennen():
 
 
 LS_ORDNER = "Lieferscheine"
-_LS_NR = r"\d{2}[A-Z]{2}\d{5,}"   # z. B. 26LS085281 (JURA)
+_LS_NR = r"\d{2}[A-Z]{2}\d{5,}|[A-Z]{1,3}\d{2}[A-Z]\d{4,}"   # z. B. 26LS085281 (JURA), JG26L17487 (JURA Gastro)
 
 
 def _seiten_texte(pfad):
