@@ -358,6 +358,7 @@ INDEX = """
  {% if skonto_n %} &middot; <a href="{{url_for('bank_seite')}}#skonto"><b style="color:{{'#b91c1c' if skonto_dringend else '#b45309'}}">{{skonto_n}} Skonto-Fristen{% if skonto_dringend %} ({{skonto_dringend}} dringend){% endif %}</b></a>{% endif %}
  {% if unklar %} &middot; <a href="{{url_for('index',belegart=UNKLAR)}}"><b style="color:#b45309">{{unklar}} nicht zugeordnet</b></a>{% endif %}
  {% if ausg_fehlt %} &middot; <a href="{{url_for('abgleich')}}"><b style="color:#b91c1c">{{ausg_fehlt}} Ausgangsrechnungen fehlen</b></a>{% endif %}</span>
+ <button formaction="{{url_for('scan_start')}}" title="Öffnet den Scanner (Papiereinzug); danach &bdquo;Fertig &ndash; ablegen&ldquo;">&#128424; Neue Rechnung scannen</button>
  <button class=sek>Jetzt einlesen</button>
  <button class=sek formaction="{{url_for('neu_pruefen')}}">Neu prüfen</button></form>
 {% if pruefen %}<details class=bank id=pruefen style="border-left-color:#b91c1c"><summary style="color:#b91c1c">Zu prüfen ({{pruefen|length}})</summary>
