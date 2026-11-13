@@ -555,7 +555,7 @@ def lieferscheine_seite():
 SCAN_SEITE = """
 <div class=card><h2 style="margin-top:0">Dokument scannen</h2>
 {% if seiten %}<p><b>{{seiten|length}} Seite{{'n' if seiten|length>1}}</b> gescannt. Weitere Seiten desselben Dokuments mit &bdquo;Weitere Seite scannen&ldquo;, danach &bdquo;Fertig &ndash; ablegen&ldquo;.</p>
-<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">{% for n in seiten %}<a href="{{url_for('scan_bild',name=n)}}" target=_blank><img src="{{url_for('scan_bild',name=n)}}" style="height:170px;border:1px solid var(--line)"></a>{% endfor %}</div>
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">{% for n in seiten %}<a href="{{url_for('scan_bild',name=n)}}" target=_blank><img src="{{url_for('scan_bild',name=n,k=1)}}" style="height:170px;border:1px solid var(--line)"></a>{% endfor %}</div>
 {% else %}<p>Noch keine Seite gescannt.</p>{% endif %}
 <form method=post style="display:flex;gap:10px;flex-wrap:wrap">
  <button formaction="{{url_for('scan_start')}}">&#128424; {{'Weitere Seite scannen' if seiten else 'Seite scannen'}}</button>
@@ -578,6 +578,13 @@ def scan_bild(name):
     pfad = SCAN_ORDNER / secure_filename(name)
     if not pfad.exists():
         abort(404)
+    if request.args.get("k"):  # Vorschau: verkleinert, damit riesige Scans sofort angezeigt werden
+        buf = io.BytesIO()
+        im = Image.open(pfad).convert("RGB")
+        im.thumbnail((500, 700))
+        im.save(buf, "JPEG", quality=80)
+        buf.seek(0)
+        return send_file(buf, mimetype="image/jpeg")
     return send_file(pfad)
 
 
