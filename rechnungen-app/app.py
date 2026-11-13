@@ -644,13 +644,18 @@ KASSE_SEITE = """
  <button type=button class=sek onclick="window.print()">Drucken</button></form>
 {% if aktuell %}<div class=card><div style="font-size:13px;color:var(--muted,#666)">Aktueller Kassenbestand &ndash; Stand {{aktuell.datum[8:]}}.{{aktuell.datum[5:7]}}.{{aktuell.datum[:4]}}</div>
 <div style="font-size:30px;font-weight:700">{{'{:,.2f}'.format(aktuell.bestand).replace(',','X').replace('.',',').replace('X','.')}} &euro;</div></div>{% endif %}
+{% if liste %}<details class="card" open><summary><b>Tagesums&auml;tze Kasse</b> ({{liste|length}} Tage)</summary>
+<table style="max-width:760px"><tr><th>Datum</th><th class=r>Bar</th><th class=r>Karte (EC)</th><th class=r>Gesamt</th><th class=r>Kassenbestand</th></tr>
+{% for t in liste %}<tr><td><a href="{{url_for('kasse_seite',tag=t.datum)}}">{{t.datum[8:]}}.{{t.datum[5:7]}}.{{t.datum[:4]}}</a></td>
+<td class=r>{{'%.2f'|format(t.bar)|replace('.',',')}}</td><td class=r>{{'%.2f'|format(t.karte)|replace('.',',')}}</td>
+<td class=r><b>{{'%.2f'|format(t.gesamt)|replace('.',',')}}</b></td><td class=r>{{'%.2f'|format(t.bestand)|replace('.',',') if t.bestand is not none}}</td></tr>{% endfor %}
+<tr><td><b>Summe</b></td><td class=r><b>{{'%.2f'|format(liste|sum(attribute='bar'))|replace('.',',')}}</b></td><td class=r><b>{{'%.2f'|format(liste|sum(attribute='karte'))|replace('.',',')}}</b></td><td class=r><b>{{'%.2f'|format(liste|sum(attribute='gesamt'))|replace('.',',')}}</b></td><td></td></tr></table></details>{% endif %}
 {% if aktuell %}<details class="card noprint" id=kassensturz open><summary><b>Kassensturz</b> &ndash; Bargeld z&auml;hlen und mit dem Kassenbestand abgleichen</summary>
 <style>.stz{border-collapse:collapse}.stz td{padding:4px 10px;vertical-align:middle}.stz input{width:90px;text-align:right}
-.mz{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font:700 11px Arial;color:#222;border:2px solid rgba(0,0,0,.25);box-shadow:inset 0 0 0 3px rgba(255,255,255,.25)}
-.sc{display:inline-flex;align-items:center;justify-content:center;border-radius:4px;font:700 13px Arial;color:#fff;border:2px solid rgba(0,0,0,.25);width:84px;height:40px;text-shadow:0 0 3px rgba(0,0,0,.4)}</style>
+</style>
 <form method=post action="{{url_for('kassensturz_speichern')}}"><table class=stz id=stz><tr><th></th><th>Wert</th><th class=r>Anzahl</th><th class=r>Betrag</th></tr>
 {% for cent,name,art,farbe in sturz_werte %}<tr>
-<td>{% if art=='s' %}<span class=sc style="background:{{farbe}}">{{name|safe}}</span>{% elif art=='m2' %}<span class=mz style="width:{{34 if cent==100 else 38}}px;height:{{34 if cent==100 else 38}}px;background:radial-gradient(circle,{{farbe}} 55%,#d4af37 56%)">{{name|safe}}</span>{% else %}<span class=mz style="width:{{22+(cent//10 if cent<=50 else 0)//2+(4 if cent in (2,5) else 0)}}px;height:{{22+(cent//10 if cent<=50 else 0)//2+(4 if cent in (2,5) else 0)}}px;background:{{farbe}}"></span>{% endif %}</td>
+<td style="text-align:center;width:100px"><img src="{{url_for('geld_bild',name=bild_namen[cent])}}" alt="{{name|safe}}" style="height:{{'46px' if art=='s' else '34px'}};max-width:90px;{{'width:'~(26+(cent if cent<=50 else 0)*0.4)~'px;height:auto' if art=='m' and cent<=50 else ''}}"></td>
 <td>{{name|safe}}</td><td class=r><input type=number min=0 step=1 name="n{{cent}}" data-c="{{cent}}" value="" inputmode=numeric></td><td class=r><span class=bt>0,00</span> &euro;</td></tr>{% endfor %}
 <tr><td></td><td colspan=2><b>Gez&auml;hlt</b></td><td class=r><b><span id=sm>0,00</span> &euro;</b></td></tr>
 <tr><td></td><td colspan=2>Kassenbestand laut Kasse ({{aktuell.datum[8:]}}.{{aktuell.datum[5:7]}}.)</td><td class=r><span id=soll data-v="{{'%.2f'|format(aktuell.bestand)}}">{{'%.2f'|format(aktuell.bestand)|replace('.',',')}}</span> &euro;</td></tr>
@@ -666,12 +671,6 @@ document.querySelectorAll('#stz input[data-c]').forEach(i=>i.addEventListener('i
 {% for z in stuerze %}<tr><td>{{z.zeit[8:10]}}.{{z.zeit[5:7]}}.{{z.zeit[:4]}} {{z.zeit[11:16]}}</td><td class=r>{{'%.2f'|format(z.summe)|replace('.',',')}}</td><td class=r>{{'%.2f'|format(z.soll)|replace('.',',') if z.soll is not none}}</td>
 <td class=r {{'style="color:#b91c1c;font-weight:700"'|safe if z.soll is not none and (z.summe-z.soll)|abs>0.004}}>{{'%+.2f'|format(z.summe-z.soll)|replace('.',',') if z.soll is not none}}</td><td>{{z.notiz}}</td></tr>{% endfor %}</table>{% endif %}
 </details>{% endif %}
-{% if liste %}<details class="card" open><summary><b>Tagesums&auml;tze Kasse</b> ({{liste|length}} Tage)</summary>
-<table style="max-width:760px"><tr><th>Datum</th><th class=r>Bar</th><th class=r>Karte (EC)</th><th class=r>Gesamt</th><th class=r>Kassenbestand</th></tr>
-{% for t in liste %}<tr><td><a href="{{url_for('kasse_seite',tag=t.datum)}}">{{t.datum[8:]}}.{{t.datum[5:7]}}.{{t.datum[:4]}}</a></td>
-<td class=r>{{'%.2f'|format(t.bar)|replace('.',',')}}</td><td class=r>{{'%.2f'|format(t.karte)|replace('.',',')}}</td>
-<td class=r><b>{{'%.2f'|format(t.gesamt)|replace('.',',')}}</b></td><td class=r>{{'%.2f'|format(t.bestand)|replace('.',',') if t.bestand is not none}}</td></tr>{% endfor %}
-<tr><td><b>Summe</b></td><td class=r><b>{{'%.2f'|format(liste|sum(attribute='bar'))|replace('.',',')}}</b></td><td class=r><b>{{'%.2f'|format(liste|sum(attribute='karte'))|replace('.',',')}}</b></td><td class=r><b>{{'%.2f'|format(liste|sum(attribute='gesamt'))|replace('.',',')}}</b></td><td></td></tr></table></details>{% endif %}
 {% if not tag %}<div class=card>Noch kein Kassenbuch vorhanden. Lege die Kassenbuch-PDFs in den Eingangsordner.</div>{% else %}
 <div class=card><h2 style="margin-top:0">Kassenbuch {{tag[8:]}}.{{tag[5:7]}}.{{tag[:4]}}</h2>
 <table style="max-width:760px"><tr>{% for z in summen %}<th class=r>{{z.art}}</th>{% endfor %}<th class=r>Gesamt</th></tr>
@@ -728,6 +727,19 @@ STURZ_WERTE = [  # (Wert in Cent, Bezeichnung, Art, Farbe)
     (5000, "50 &euro;", "s", "#e8964a"), (10000, "100 &euro;", "s", "#6cb36c"), (20000, "200 &euro;", "s", "#d9b84a")]
 
 
+GELD_ORDNER = BASE / "geld"
+BILD_NAMEN = {1: "c1.gif", 2: "c2.gif", 5: "c5.gif", 10: "c10.gif", 20: "c20.gif", 50: "c50.gif", 100: "c100.gif", 200: "c200.png",
+              500: "n5.png", 1000: "n10.png", 2000: "n20.jpg", 5000: "n50.png", 10000: "n100.jpg", 20000: "n200.jpg"}
+
+
+@app.route("/geld/<name>")
+def geld_bild(name):
+    pfad = GELD_ORDNER / secure_filename(name)
+    if not pfad.exists():
+        abort(404)
+    return send_file(pfad, max_age=86400)
+
+
 @app.route("/kasse/sturz", methods=["POST"])
 def kassensturz_speichern():
     zaehlung = {}
@@ -775,7 +787,7 @@ def kasse_seite():
     stuerze = [dict(r) for r in db().execute("SELECT * FROM kassensturz ORDER BY id DESC LIMIT 8")]
     liste = kasse_tagesliste()
     aktuell = next((t for t in liste if t["bestand"] is not None), None)
-    return page(KASSE_SEITE, stuerze=stuerze, sturz_werte=STURZ_WERTE, liste=liste, aktuell=aktuell, tage=tage, tag=tag, dokumente=dokumente, zeilen=zeilen, summen=summen, tagesjournal=tagesjournal,
+    return page(KASSE_SEITE, bild_namen=BILD_NAMEN, stuerze=stuerze, sturz_werte=STURZ_WERTE, liste=liste, aktuell=aktuell, tage=tage, tag=tag, dokumente=dokumente, zeilen=zeilen, summen=summen, tagesjournal=tagesjournal,
                 gesamt=sum(z["betrag"] for z in zeilen))
 
 
