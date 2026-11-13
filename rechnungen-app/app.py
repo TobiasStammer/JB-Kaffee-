@@ -9,6 +9,7 @@ import os
 import re
 import hashlib
 import itertools
+import json
 import shutil
 import smtplib
 import sqlite3
@@ -153,6 +154,7 @@ def init_db():
         betrag REAL, zeit TEXT, rechnungsnr TEXT, UNIQUE(datum, beleg, rechnungsnr));
     CREATE TABLE IF NOT EXISTS kasse_geprueft(dokument_id INTEGER PRIMARY KEY);
     CREATE TABLE IF NOT EXISTS kassentage(dokument_id INTEGER PRIMARY KEY, datum TEXT, credit REAL, bar REAL, scheck REAL);
+    CREATE TABLE IF NOT EXISTS kassensturz(id INTEGER PRIMARY KEY AUTOINCREMENT, zeit TEXT, zaehlung TEXT, summe REAL, soll REAL, soll_stand TEXT, notiz TEXT);
     CREATE TABLE IF NOT EXISTS bank_ignoriert(bank_id INTEGER PRIMARY KEY, grund TEXT);
     CREATE TABLE IF NOT EXISTS bank_zuordnung(bank_id INTEGER PRIMARY KEY, rechnungsnr TEXT);
     CREATE TABLE IF NOT EXISTS quittiert(rechnungsnr TEXT PRIMARY KEY, bemerkung TEXT, am TEXT);
@@ -185,6 +187,11 @@ def init_db():
     for spalte in ("skonto_bis TEXT", "skonto_zahl REAL", "skonto_v2 INTEGER", "lastschrift INTEGER", "zu_rechnung TEXT", "inhalt_geprueft INTEGER", "pn_geprueft INTEGER"):  # Skonto-Frist und Zahlbetrag laut Rechnung
         try:
             c.execute(f"ALTER TABLE rechnungen ADD COLUMN {spalte}")
+        except sqlite3.OperationalError:
+            pass
+    for spalte in ("bestand REAL", "bestand_gel INTEGER"):  # Kassenbestand laut Kassenbuch-PDF
+        try:
+            c.execute(f"ALTER TABLE kassentage ADD COLUMN {spalte}")
         except sqlite3.OperationalError:
             pass
     try:  # vorgemerkte (noch nicht gebuchte) Umsaetze zaehlen nicht als Zahlung
@@ -635,6 +642,36 @@ KASSE_SEITE = """
   {% for t in tage %}<option value="{{t}}" {{'selected' if t==tag}}>{{t[8:]}}.{{t[5:7]}}.{{t[:4]}}{{' (neuestes)' if loop.first}}</option>{% endfor %}</select></div>
  <button type=submit formmethod=post formaction="{{url_for('aktualisieren')}}" name=zurueck value="{{request.full_path.rstrip('?')}}" class="sek noprint">&#8635; Aktualisieren</button>
  <button type=button class=sek onclick="window.print()">Drucken</button></form>
+{% if aktuell %}<div class=card><div style="font-size:13px;color:var(--muted,#666)">Aktueller Kassenbestand &ndash; Stand {{aktuell.datum[8:]}}.{{aktuell.datum[5:7]}}.{{aktuell.datum[:4]}}</div>
+<div style="font-size:30px;font-weight:700">{{'{:,.2f}'.format(aktuell.bestand).replace(',','X').replace('.',',').replace('X','.')}} &euro;</div></div>{% endif %}
+{% if aktuell %}<details class="card noprint" id=kassensturz open><summary><b>Kassensturz</b> &ndash; Bargeld z&auml;hlen und mit dem Kassenbestand abgleichen</summary>
+<style>.stz{border-collapse:collapse}.stz td{padding:4px 10px;vertical-align:middle}.stz input{width:90px;text-align:right}
+.mz{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font:700 11px Arial;color:#222;border:2px solid rgba(0,0,0,.25);box-shadow:inset 0 0 0 3px rgba(255,255,255,.25)}
+.sc{display:inline-flex;align-items:center;justify-content:center;border-radius:4px;font:700 13px Arial;color:#fff;border:2px solid rgba(0,0,0,.25);width:84px;height:40px;text-shadow:0 0 3px rgba(0,0,0,.4)}</style>
+<form method=post action="{{url_for('kassensturz_speichern')}}"><table class=stz id=stz><tr><th></th><th>Wert</th><th class=r>Anzahl</th><th class=r>Betrag</th></tr>
+{% for cent,name,art,farbe in sturz_werte %}<tr>
+<td>{% if art=='s' %}<span class=sc style="background:{{farbe}}">{{name|safe}}</span>{% elif art=='m2' %}<span class=mz style="width:{{34 if cent==100 else 38}}px;height:{{34 if cent==100 else 38}}px;background:radial-gradient(circle,{{farbe}} 55%,#d4af37 56%)">{{name|safe}}</span>{% else %}<span class=mz style="width:{{22+(cent//10 if cent<=50 else 0)//2+(4 if cent in (2,5) else 0)}}px;height:{{22+(cent//10 if cent<=50 else 0)//2+(4 if cent in (2,5) else 0)}}px;background:{{farbe}}"></span>{% endif %}</td>
+<td>{{name|safe}}</td><td class=r><input type=number min=0 step=1 name="n{{cent}}" data-c="{{cent}}" value="" inputmode=numeric></td><td class=r><span class=bt>0,00</span> &euro;</td></tr>{% endfor %}
+<tr><td></td><td colspan=2><b>Gez&auml;hlt</b></td><td class=r><b><span id=sm>0,00</span> &euro;</b></td></tr>
+<tr><td></td><td colspan=2>Kassenbestand laut Kasse ({{aktuell.datum[8:]}}.{{aktuell.datum[5:7]}}.)</td><td class=r><span id=soll data-v="{{'%.2f'|format(aktuell.bestand)}}">{{'%.2f'|format(aktuell.bestand)|replace('.',',')}}</span> &euro;</td></tr>
+<tr><td></td><td colspan=2><b>Differenz</b></td><td class=r><b><span id=df>0,00</span> &euro;</b></td></tr></table>
+<p style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><input name=notiz placeholder="Notiz (optional)" style="flex:1;min-width:200px"><button type=submit>Kassensturz speichern</button><button type=button class=sek onclick="document.querySelectorAll('#stz input[data-c]').forEach(i=>i.value='');rechne()">Leeren</button></p></form>
+<script>
+function eur(x){return x.toFixed(2).replace('.',',')}
+function rechne(){let s=0;document.querySelectorAll('#stz input[data-c]').forEach(i=>{const v=parseInt(i.value||0)||0;const b=v*parseInt(i.dataset.c)/100;i.closest('tr').querySelector('.bt').textContent=eur(b);s+=b});
+document.getElementById('sm').textContent=eur(s);const d=s-parseFloat(document.getElementById('soll').dataset.v);const e=document.getElementById('df');e.textContent=(d>0.004?'+':'')+eur(Math.abs(d)<0.005?0:d);e.parentNode.style.color=Math.abs(d)<0.005?'#15803d':'#b91c1c'}
+document.querySelectorAll('#stz input[data-c]').forEach(i=>i.addEventListener('input',rechne));rechne();
+</script>
+{% if stuerze %}<h4 style="margin:14px 0 4px">Letzte Kassenst&uuml;rze</h4><table style="max-width:700px"><tr><th>Zeit</th><th class=r>Gez&auml;hlt</th><th class=r>Soll</th><th class=r>Differenz</th><th>Notiz</th></tr>
+{% for z in stuerze %}<tr><td>{{z.zeit[8:10]}}.{{z.zeit[5:7]}}.{{z.zeit[:4]}} {{z.zeit[11:16]}}</td><td class=r>{{'%.2f'|format(z.summe)|replace('.',',')}}</td><td class=r>{{'%.2f'|format(z.soll)|replace('.',',') if z.soll is not none}}</td>
+<td class=r {{'style="color:#b91c1c;font-weight:700"'|safe if z.soll is not none and (z.summe-z.soll)|abs>0.004}}>{{'%+.2f'|format(z.summe-z.soll)|replace('.',',') if z.soll is not none}}</td><td>{{z.notiz}}</td></tr>{% endfor %}</table>{% endif %}
+</details>{% endif %}
+{% if liste %}<details class="card" open><summary><b>Tagesums&auml;tze Kasse</b> ({{liste|length}} Tage)</summary>
+<table style="max-width:760px"><tr><th>Datum</th><th class=r>Bar</th><th class=r>Karte (EC)</th><th class=r>Gesamt</th><th class=r>Kassenbestand</th></tr>
+{% for t in liste %}<tr><td><a href="{{url_for('kasse_seite',tag=t.datum)}}">{{t.datum[8:]}}.{{t.datum[5:7]}}.{{t.datum[:4]}}</a></td>
+<td class=r>{{'%.2f'|format(t.bar)|replace('.',',')}}</td><td class=r>{{'%.2f'|format(t.karte)|replace('.',',')}}</td>
+<td class=r><b>{{'%.2f'|format(t.gesamt)|replace('.',',')}}</b></td><td class=r>{{'%.2f'|format(t.bestand)|replace('.',',') if t.bestand is not none}}</td></tr>{% endfor %}
+<tr><td><b>Summe</b></td><td class=r><b>{{'%.2f'|format(liste|sum(attribute='bar'))|replace('.',',')}}</b></td><td class=r><b>{{'%.2f'|format(liste|sum(attribute='karte'))|replace('.',',')}}</b></td><td class=r><b>{{'%.2f'|format(liste|sum(attribute='gesamt'))|replace('.',',')}}</b></td><td></td></tr></table></details>{% endif %}
 {% if not tag %}<div class=card>Noch kein Kassenbuch vorhanden. Lege die Kassenbuch-PDFs in den Eingangsordner.</div>{% else %}
 <div class=card><h2 style="margin-top:0">Kassenbuch {{tag[8:]}}.{{tag[5:7]}}.{{tag[:4]}}</h2>
 <table style="max-width:760px"><tr>{% for z in summen %}<th class=r>{{z.art}}</th>{% endfor %}<th class=r>Gesamt</th></tr>
@@ -650,9 +687,73 @@ KASSE_SEITE = """
 {% endif %}"""
 
 
+def kassenbestaende_lesen():
+    """Liest 'Kassenbestand:' aus den Kassenbuch-PDFs (einmal je Dokument)."""
+    for r in db().execute("SELECT t.dokument_id, r.datei FROM kassentage t JOIN rechnungen r ON r.id=t.dokument_id "
+                          "WHERE t.bestand_gel IS NULL").fetchall():
+        pfad = BELEGE / r["datei"] if r["datei"] else None
+        wert = None
+        if pfad and pfad.exists() and pfad.suffix.lower() == ".pdf":
+            m = re.search(r"Kassenbestand:\s*(-?[\d.]+) ?€", pdf_text(pfad, max_seiten=None))
+            if m:
+                wert = kasse_zahl(m.group(1))
+        db().execute("UPDATE kassentage SET bestand=?, bestand_gel=1 WHERE dokument_id=?", (wert, r["dokument_id"]))
+    db().commit()
+
+
+def kasse_tagesliste():
+    """Je Kassentag: Bar, Karte (EC/Credit), Scheck und Kassenbestand (neuester zuerst)."""
+    tage = {}
+    for r in db().execute("SELECT datum, COALESCE(zahlart,'Bar') za, SUM(betrag) s FROM kassenzeilen GROUP BY datum, za"):
+        t = tage.setdefault(r["datum"], dict(datum=r["datum"], bar=0.0, karte=0.0, scheck=0.0, bestand=None))
+        k = "karte" if r["za"] == "Karte" else "scheck" if r["za"] == "Scheck" else "bar"
+        t[k] += r["s"] or 0
+    for r in db().execute("SELECT datum, SUM(bar) b, SUM(credit) c, SUM(scheck) sc, MAX(bestand) be FROM kassentage GROUP BY datum"):
+        t = tage.setdefault(r["datum"], dict(datum=r["datum"], bar=0.0, karte=0.0, scheck=0.0, bestand=None))
+        t["bar"] += r["b"] or 0
+        t["karte"] += r["c"] or 0
+        t["scheck"] += r["sc"] or 0
+        t["bestand"] = r["be"]
+    out = sorted(tage.values(), key=lambda t: t["datum"], reverse=True)
+    for t in out:
+        t["gesamt"] = t["bar"] + t["karte"] + t["scheck"]
+    return out
+
+
+STURZ_WERTE = [  # (Wert in Cent, Bezeichnung, Art, Farbe)
+    (1, "1 Cent", "m", "#b87333"), (2, "2 Cent", "m", "#b87333"), (5, "5 Cent", "m", "#b87333"),
+    (10, "10 Cent", "m", "#d4af37"), (20, "20 Cent", "m", "#d4af37"), (50, "50 Cent", "m", "#d4af37"),
+    (100, "1 &euro;", "m2", "#c9c9c9"), (200, "2 &euro;", "m2", "#c9c9c9"),
+    (500, "5 &euro;", "s", "#9ca3a1"), (1000, "10 &euro;", "s", "#e0707a"), (2000, "20 &euro;", "s", "#5f8fd6"),
+    (5000, "50 &euro;", "s", "#e8964a"), (10000, "100 &euro;", "s", "#6cb36c"), (20000, "200 &euro;", "s", "#d9b84a")]
+
+
+@app.route("/kasse/sturz", methods=["POST"])
+def kassensturz_speichern():
+    zaehlung = {}
+    for cent, _, _, _ in STURZ_WERTE:
+        try:
+            n = max(0, int(request.form.get(f"n{cent}") or 0))
+        except ValueError:
+            n = 0
+        if n:
+            zaehlung[str(cent)] = n
+    summe = sum(int(k) * v for k, v in zaehlung.items()) / 100
+    kassenbestaende_lesen()
+    liste = kasse_tagesliste()
+    ak = next((t for t in liste if t["bestand"] is not None), None)
+    db().execute("INSERT INTO kassensturz(zeit,zaehlung,summe,soll,soll_stand,notiz) VALUES(?,?,?,?,?,?)",
+                 (datetime.now().isoformat(timespec="seconds"), json.dumps(zaehlung), summe, ak["bestand"] if ak else None,
+                  ak["datum"] if ak else None, (request.form.get("notiz") or "").strip()))
+    db().commit()
+    flash(f"Kassensturz gespeichert: gezählt {summe:.2f} €".replace(".", ",", 1))
+    return redirect(url_for("kasse_seite") + "#kassensturz")
+
+
 @app.route("/kasse")
 def kasse_seite():
     zahlungen_synchronisieren()
+    kassenbestaende_lesen()
     tage = [r[0] for r in db().execute("SELECT DISTINCT datum FROM rechnungen WHERE belegart='Kassenbuch' AND datei IS NOT NULL ORDER BY datum DESC")]
     tag = request.args.get("tag") if request.args.get("tag") in tage else (tage[0] if tage else "")
     dokumente, zeilen, tagesjournal = [], [], None
@@ -671,7 +772,10 @@ def kasse_seite():
         sel = [z for z in zeilen if (z["zahlart"] or "Bar") == art]
         if sel:
             summen.append(dict(art=art, n=len(sel), summe=sum(z["betrag"] for z in sel)))
-    return page(KASSE_SEITE, tage=tage, tag=tag, dokumente=dokumente, zeilen=zeilen, summen=summen, tagesjournal=tagesjournal,
+    stuerze = [dict(r) for r in db().execute("SELECT * FROM kassensturz ORDER BY id DESC LIMIT 8")]
+    liste = kasse_tagesliste()
+    aktuell = next((t for t in liste if t["bestand"] is not None), None)
+    return page(KASSE_SEITE, stuerze=stuerze, sturz_werte=STURZ_WERTE, liste=liste, aktuell=aktuell, tage=tage, tag=tag, dokumente=dokumente, zeilen=zeilen, summen=summen, tagesjournal=tagesjournal,
                 gesamt=sum(z["betrag"] for z in zeilen))
 
 
