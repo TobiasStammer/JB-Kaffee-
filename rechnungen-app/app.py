@@ -107,7 +107,7 @@ büroshop24 GmbH = Bürobedarf"""
 STANDARD_REGELN = """Bestellübersicht = bestellübersicht, bestelluebersicht
 Primanota = primanota
 WERTGARANTIE Schadenabrechnung = schadenabrechnung, schadenregulierung
-WERTGARANTIE Gutschrift = beratungshonorar, gutschrift wertgarantie
+WERTGARANTIE Gutschrift = beratungshonorar, gutschrift wertgarantie, vermittlungsprovision, provisionsabrechnung
 Rechnungsausgangliste = rechnungsausgangsliste, rechnungsausgangliste, ausgangsliste
 Monatsjournal Kasse = monatsjournal
 Kassenbuch = kassenbuch
