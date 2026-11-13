@@ -593,6 +593,8 @@ def scan_start():
         neu = sorted(SCAN_ORDNER.glob(ziel.stem + "*.jpg"))
         if p.returncode == 0 and neu:
             flash(f"{len(neu)} Seite(n) gescannt." if len(neu) > 1 else "Seite gescannt.")
+        elif p.returncode == 4:
+            flash("Kein Papier im Einzug - Dokument einlegen und erneut scannen.")
         elif p.returncode == 3:
             flash("Scan abgebrochen.")
         else:
