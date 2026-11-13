@@ -651,7 +651,7 @@ KASSE_SEITE = """
 <td class=r><b>{{'%.2f'|format(t.gesamt)|replace('.',',')}}</b></td><td class=r>{{'%.2f'|format(t.bestand)|replace('.',',') if t.bestand is not none}}</td></tr>{% endfor %}
 <tr><td><b>Summe</b></td><td class=r><b>{{'%.2f'|format(liste|sum(attribute='bar'))|replace('.',',')}}</b></td><td class=r><b>{{'%.2f'|format(liste|sum(attribute='karte'))|replace('.',',')}}</b></td><td class=r><b>{{'%.2f'|format(liste|sum(attribute='gesamt'))|replace('.',',')}}</b></td><td></td></tr></table></details>{% endif %}
 {% if aktuell %}<details class="card noprint" id=kassensturz open><summary><b>Kassensturz</b> &ndash; Bargeld z&auml;hlen und mit dem Kassenbestand abgleichen</summary>
-<style>.stz{border-collapse:collapse}.stz td{padding:4px 10px;vertical-align:middle}.stz input{width:90px;text-align:right}
+<style>.stz{border-collapse:collapse;width:auto!important;max-width:460px}.stz td,.stz th{padding:3px 8px;vertical-align:middle}.stz input{width:90px;text-align:right}
 </style>
 <form method=post action="{{url_for('kassensturz_speichern')}}"><table class=stz id=stz><tr><th></th><th>Wert</th><th class=r>Anzahl</th><th class=r>Betrag</th></tr>
 {% for cent,name,art,farbe in sturz_werte %}<tr>
