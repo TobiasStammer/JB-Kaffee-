@@ -14,10 +14,13 @@ try {
     $fehler = ''
     try {
         $dm = New-Object -ComObject WIA.DeviceManager
-        $dev = $null
-        foreach ($info in $dm.DeviceInfos) { if ($info.Type -eq 1) { $dev = $info.Connect(); break } }
-        if ($dev) {
-            Setze $dev 3088 1      # Papierquelle = Einzug
+        # Jede Seite mit frischer Verbindung: nach einer Seite (Pages=1) bleibt das Gerät sonst "ausgelastet"
+        while ($true) {
+            $dev = $null
+            foreach ($info in $dm.DeviceInfos) { if ($info.Type -eq 1) { $dev = $info.Connect(); break } }
+            if (-not $dev) { break }
+            Setze $dev 3088 1      # Papierquelle = Einzug (wird bei jedem Connect zurückgesetzt)
+            Setze $dev 3096 1      # eine Seite je Durchgang (0 = "Falscher Parameter")
             $item = $dev.Items.Item(1)
             Setze $item 6146 1     # Farbe
             Setze $item 6147 200   # dpi horizontal
@@ -25,25 +28,24 @@ try {
             Setze $item 6149 0; Setze $item 6150 0
             Setze $item 6151 1654  # A4 bei 200 dpi
             Setze $item 6152 2339
-            while ($true) {
-                Setze $dev 3096 1      # eine Seite je Durchgang (0 = "Falscher Parameter")
-                $bild = $null; $fehler = ''
-                for ($v = 0; $v -lt 6; $v++) {   # Gerät kurz ausgelastet (nächstes Blatt wird eingezogen): erneut versuchen
-                    try { $bild = $item.Transfer($jpeg); $fehler = ''; break } catch {
-                        $fehler = $_.Exception.Message
-                        if ($fehler -notmatch '0x80210006|ausgelastet|busy') { break }
-                        Start-Sleep -Seconds 2
-                    }
+            $bild = $null; $fehler = ''
+            for ($v = 0; $v -lt 4; $v++) {
+                try { $bild = $item.Transfer($jpeg); $fehler = ''; break } catch {
+                    $fehler = $_.Exception.Message
+                    if ($fehler -notmatch '0x80210006|ausgelastet|busy') { break }
+                    Start-Sleep -Seconds 2
                 }
-                if ($fehler) { try { Add-Content -LiteralPath (Join-Path (Split-Path $PSCommandPath) 'scan_fehler.log') -Value ("{0} Seite {1}: {2}" -f (Get-Date -Format s), ($anzahl + 1), $fehler) } catch { } }
-                if ($fehler) { break }   # Einzug leer / Ende
-                if ($null -eq $bild) { break }
-                $anzahl++
-                $datei = "{0}-{1:D2}.jpg" -f $stamm, $anzahl
-                if (Test-Path -LiteralPath $datei) { Remove-Item -LiteralPath $datei -Force }
-                $bild.SaveFile($datei)
-                if ($anzahl -ge 60) { break }
             }
+            if ($fehler) { try { Add-Content -LiteralPath (Join-Path (Split-Path $PSCommandPath) 'scan_fehler.log') -Value ("{0} Seite {1}: {2}" -f (Get-Date -Format s), ($anzahl + 1), $fehler) } catch { } }
+            if ($fehler -or $null -eq $bild) { break }   # Einzug leer / Ende
+            $anzahl++
+            $datei = "{0}-{1:D2}.jpg" -f $stamm, $anzahl
+            if (Test-Path -LiteralPath $datei) { Remove-Item -LiteralPath $datei -Force }
+            $bild.SaveFile($datei)
+            $bild = $null; $item = $null; $dev = $null
+            [GC]::Collect(); [GC]::WaitForPendingFinalizers()
+            Start-Sleep -Seconds 1
+            if ($anzahl -ge 60) { break }
         }
     } catch { }
     if ($anzahl -gt 0) { exit 0 }
