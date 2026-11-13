@@ -2942,7 +2942,8 @@ def zahlungen_synchronisieren():
             db().execute("INSERT OR IGNORE INTO kasse_geprueft(dokument_id) VALUES(?)", (r["id"],))
     for r in db().execute("SELECT id, datei, datum FROM rechnungen WHERE belegart=? AND (skonto_v2 IS NULL OR lastschrift IS NULL)", (EINGANG,)).fetchall():
         pfad = BELEGE / r["datei"] if r["datei"] else None  # Skonto-Prozent, Frist und Zahlbetrag aus der Rechnung
-        txt = pdf_text(pfad, max_seiten=None) if pfad and pfad.exists() else ""
+        gross = bool(pfad and pfad.exists() and pfad.stat().st_size > 15_000_000)  # riesige Scans: nur die ersten Seiten (sonst OCR minutenlang)
+        txt = pdf_text(pfad, max_seiten=3 if gross else None) if pfad and pfad.exists() else ""
         pct, bis, zahl = skonto_info(txt, r["datum"])
         db().execute("UPDATE rechnungen SET skonto=?, skonto_bis=?, skonto_zahl=?, skonto_v2=1, lastschrift=? WHERE id=?",
                      (pct, bis, zahl, 1 if ist_lastschrift_text(txt) else 0, r["id"]))
