@@ -27,7 +27,16 @@ try {
             Setze $item 6152 2339
             while ($true) {
                 Setze $dev 3096 1      # eine Seite je Durchgang (0 = "Falscher Parameter")
-                try { $bild = $item.Transfer($jpeg) } catch { $fehler = $_.Exception.Message; break }   # Einzug leer / Ende
+                $bild = $null; $fehler = ''
+                for ($v = 0; $v -lt 6; $v++) {   # Gerät kurz ausgelastet (nächstes Blatt wird eingezogen): erneut versuchen
+                    try { $bild = $item.Transfer($jpeg); $fehler = ''; break } catch {
+                        $fehler = $_.Exception.Message
+                        if ($fehler -notmatch '0x80210006|ausgelastet|busy') { break }
+                        Start-Sleep -Seconds 2
+                    }
+                }
+                if ($fehler) { try { Add-Content -LiteralPath (Join-Path (Split-Path $PSCommandPath) 'scan_fehler.log') -Value ("{0} Seite {1}: {2}" -f (Get-Date -Format s), ($anzahl + 1), $fehler) } catch { } }
+                if ($fehler) { break }   # Einzug leer / Ende
                 if ($null -eq $bild) { break }
                 $anzahl++
                 $datei = "{0}-{1:D2}.jpg" -f $stamm, $anzahl
