@@ -1586,6 +1586,10 @@ def bank_buchung_aufnehmen(c, b, dokument):
     dup = c.execute("SELECT id, vorgemerkt FROM bank WHERE betrag=? AND name=? AND zweck=? AND dokument<>? AND datum BETWEEN ? AND ?",
                     (b["betrag"], b["name"], b["zweck"], dokument,
                      (d - timedelta(days=3)).isoformat(), (d + timedelta(days=3)).isoformat())).fetchone()
+    if not dup and not vm:  # vorgemerkt wird oft erst nach ein bis zwei Wochen gebucht (dann mit neuem Datum)
+        dup = c.execute("SELECT id, vorgemerkt FROM bank WHERE vorgemerkt=1 AND betrag=? AND name=? AND zweck=? AND dokument<>? AND datum BETWEEN ? AND ?",
+                        (b["betrag"], b["name"], b["zweck"], dokument,
+                         (d - timedelta(days=21)).isoformat(), d.isoformat())).fetchone()
     if dup:
         if dup[1] and not vm:
             try:
