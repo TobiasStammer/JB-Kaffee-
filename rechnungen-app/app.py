@@ -3086,6 +3086,7 @@ BANK = """
 <form method=post action="{{url_for('bank_kontrolliert_speichern')}}" class=card style="display:flex;gap:12px;align-items:end;flex-wrap:wrap">
  <input type=hidden name=zurueck value="{{zurueck}}">
  <div><label>Letzte Buchung kontrolliert am</label><input type=date name=datum value="{{kontrolliert}}" style="width:auto"></div>
+ <div style="flex:1;min-width:260px"><label>Letzte Buchung war (Text)</label><input type=text name=buchung_text value="{{kontrolliert_text}}" placeholder="z. B. Überweisung JURA 12.11., 1.234,56 €" style="width:100%"></div>
  <button class=sek>Speichern</button>
  <button class=sek name=heute value=1 title="Setzt das Datum der neuesten Buchung im Kontoauszug">Alles bis zur neuesten Buchung kontrolliert</button>
  <small>{% if kontrolliert %}Seit diesem Datum: <b>{{neu_seit_kontrolle}}</b> neue Buchung{{'en' if neu_seit_kontrolle != 1}} im Kontoauszug (neueste vom {{neueste_buchung}}).{% else %}Noch nichts eingetragen. Neueste Buchung im Kontoauszug: {{neueste_buchung}}.{% endif %}</small></form>
@@ -3222,9 +3223,10 @@ def bank_seite():
         "SELECT b.id, b.datum, b.name, b.betrag, z.rechnungsnr FROM bank_zuordnung z JOIN bank b ON b.id=z.bank_id "
         "ORDER BY b.datum DESC, b.id DESC")]
     kontrolliert = settings().get("bank_kontrolliert") or ""
+    kontrolliert_text = settings().get("bank_kontrolliert_text") or ""
     neueste = db().execute("SELECT MAX(datum) FROM bank").fetchone()[0] or ""
     neu_seit = db().execute("SELECT COUNT(*) FROM bank WHERE datum>?", (kontrolliert,)).fetchone()[0] if kontrolliert else 0
-    return page(BANK, kontrolliert=kontrolliert, neueste_buchung=f"{neueste[8:]}.{neueste[5:7]}.{neueste[:4]}" if neueste else "-",
+    return page(BANK, kontrolliert=kontrolliert, kontrolliert_text=kontrolliert_text, neueste_buchung=f"{neueste[8:]}.{neueste[5:7]}.{neueste[:4]}" if neueste else "-",
                 neu_seit_kontrolle=neu_seit, monat=monat, summen=summen, info=info, skonto_liste=skonto_offen(), manuell_liste=manuell_liste,
                 credit_offen=credit_offen, credit_offen_summe=sum(c["betrag"] for c in credit_offen),
                 credit_ok=credit_ok, credit_ok_summe=sum(c["betrag"] for c in credit_ok),
@@ -3264,6 +3266,7 @@ def bank_kontrolliert_speichern():
     else:
         datum = request.form.get("datum", "").strip()
     db().execute("INSERT OR REPLACE INTO settings(k,v) VALUES('bank_kontrolliert',?)", (datum,))
+    db().execute("INSERT OR REPLACE INTO settings(k,v) VALUES('bank_kontrolliert_text',?)", (request.form.get("buchung_text", "").strip()[:300],))
     db().commit()
     flash("Kontrolldatum gespeichert.")
     ziel = request.form.get("zurueck", "")
