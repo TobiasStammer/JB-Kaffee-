@@ -105,7 +105,8 @@ Wentronic
 Wertgarantie
 BüroShop = Bürobedarf
 büroshop24 GmbH = Bürobedarf
-Uwe Rolf = Wareneinkauf"""
+Uwe Rolf = Wareneinkauf
+WIRmachenDRUCK | WIR machen DRUCK | wir-machen-druck = Bürobedarf"""
 STANDARD_REGELN = """Bestellübersicht = bestellübersicht, bestelluebersicht
 Primanota = primanota
 WERTGARANTIE Schadenabrechnung = schadenabrechnung, schadenregulierung
@@ -1746,6 +1747,10 @@ def _seite_art(t):
         m = re.search(r"(?:Beleg-?\s?Nr|Auftragsnr|Lieferschein-?\s?Nr)\.?\s*[:.]?\s*([A-Z0-9][A-Z0-9/\-]{3,})", kopf, re.I)
         if m:
             return "ls", m.group(1).upper()
+    if re.search(r"WIR\s?machen\s?DRUCK", kopf, re.I) and not re.search(r"Rechnung", kopf, re.I):
+        m = re.search(r"(\d{6,}-\d{2})", kopf)
+        if m:
+            return "ls", m.group(1)
     if re.search(r"Seite\s*[2-9]\s*(?:/|von)", kopf + t[-300:], re.I):
         return "fort", ""
     return "anders", ""
@@ -1796,7 +1801,9 @@ def lieferschein_ablegen(f, ordner, fertig, cfg, c=None):
         return False
     docs, serials, aktuell = [], [], None
     for i, (art, nr) in enumerate(arten):
-        if art == "ls":
+        if art == "ls" and aktuell is not None and aktuell["nr"] == nr:  # z. B. REPA: jede Seite nennt die Lieferschein-Nr.
+            aktuell["seiten"].append(i)
+        elif art == "ls":
             aktuell = dict(nr=nr, seiten=[i], serien=[], text=texte[i])
             docs.append(aktuell)
         elif art == "pick":
