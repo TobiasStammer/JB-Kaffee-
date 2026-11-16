@@ -77,6 +77,7 @@ BACKUP_ORDNER = r"Z:\Buchhaltung\Backup-Rechnungen-App"   # App und Daten liegen
 # "nr:261" = Rechnungsnummer beginnt mit 261.
 STANDARD_LIEFERANTEN = """Jura Gastro = Wareneinkauf
 Jura = Wareneinkauf ; lastschrift
+SAD Handels | SpassAmDrucken = Bürobedarf
 Amazon Business | Amazon Payments
 Frank Windhorn | Windhorn
 Nexi Germany | Nexi
@@ -103,7 +104,8 @@ GLS | General Logistics Systems ; abzug
 Wentronic
 Wertgarantie
 BüroShop = Bürobedarf
-büroshop24 GmbH = Bürobedarf"""
+büroshop24 GmbH = Bürobedarf
+Uwe Rolf = Wareneinkauf"""
 STANDARD_REGELN = """Bestellübersicht = bestellübersicht, bestelluebersicht
 Primanota = primanota
 WERTGARANTIE Schadenabrechnung = schadenabrechnung, schadenregulierung
@@ -1740,6 +1742,10 @@ def _seite_art(t):
     m = re.search(r"Lieferschein\s*-?\s*(?:Nr\.?|nummer)?\s*[:.]?\s*(" + _LS_NR + r"|[A-Z]{1,3}\d{2}[A-Z]\d{4,}|\d{5,})\b", kopf, re.I)
     if m:
         return "ls", m.group(1).upper()
+    if re.search(r"Lieferschein", kopf) and not re.search(r"Rechnung", kopf, re.I):  # Lieferschein ohne Nummer hinter dem Titel (SAD, Uwe Rolf)
+        m = re.search(r"(?:Beleg-?\s?Nr|Auftragsnr|Lieferschein-?\s?Nr)\.?\s*[:.]?\s*([A-Z0-9][A-Z0-9/\-]{3,})", kopf, re.I)
+        if m:
+            return "ls", m.group(1).upper()
     if re.search(r"Seite\s*[2-9]\s*(?:/|von)", kopf + t[-300:], re.I):
         return "fort", ""
     return "anders", ""
