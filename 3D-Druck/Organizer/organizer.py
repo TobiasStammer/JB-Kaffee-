@@ -7,7 +7,7 @@ import sys, os, numpy as np, trimesh as tm
 
 T = 2.4          # Wandstaerke
 FLOOR = 2.4      # Bodenstaerke
-D = 285.0        # Tiefe der Box (Fach 290 mm)
+D = 248.0        # Tiefe der Box (max. fuer 256-mm-Druckbett inkl. Schildhalter)
 LW, LH = 60.0, 20.0   # Beschriftungsschild (Papier) in mm
 COVER, SLOT = 0.8, 1.0
 
@@ -59,8 +59,8 @@ if __name__ == "__main__":
     if len(sys.argv) == 3:
         export(float(sys.argv[1]), float(sys.argv[2]), out)
     else:
-        # Breiten teilen 750 mm gleichmaessig: 5x148, 3x247, 2x372 (je ~6-10 mm Luft)
+        # Breiten teilen 750 mm gleichmaessig: 5x148, 3x247 (je ~6-10 mm Luft)
         # Hoehen: 92 / 108 flach (2 bzw. 3 uebereinander), 185 (20er-Fach), 320 (35er-Fach)
-        for W in (148, 247, 372):
+        for W in (148, 247):
             for H in (92, 108, 185, 320):
                 export(W, H, out)
