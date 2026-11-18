@@ -59,7 +59,8 @@ if __name__ == "__main__":
     if len(sys.argv) == 3:
         export(float(sys.argv[1]), float(sys.argv[2]), out)
     else:
-        # Breiten: A4 quer innen 300 -> 306; 3x147; (2xA4 + 136). Hoehen: 92 / 108 flach, 185 (20er), 320 (35er)
-        for W in (306, 147, 136):
+        # Breiten teilen 750 mm gleichmaessig: 5x148, 3x247, 2x372 (je ~6-10 mm Luft)
+        # Hoehen: 92 / 108 flach (2 bzw. 3 uebereinander), 185 (20er-Fach), 320 (35er-Fach)
+        for W in (148, 247, 372):
             for H in (92, 108, 185, 320):
                 export(W, H, out)
