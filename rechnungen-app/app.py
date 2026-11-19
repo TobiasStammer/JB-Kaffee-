@@ -3139,8 +3139,14 @@ BANK = """
 {{ rg_tabelle('Bezahlte Rechnungen', bezahlte_liste, bezahlte_summe, false) }}
 {% if eingaenge %}<details class=bank id=eingaenge open style="border-left-color:#b45309"><summary style="color:#b45309">Bankeingänge ohne Zuordnung ({{eingaenge|length}}) &ndash; {{'%.2f'|format(eingaenge_summe)|replace('.',',')}} &euro;</summary>
 <p><small>Geldeingänge auf dem Konto, die zu keiner Rechnung und keiner Kartenabrechnung gehören (z. B. Stripe/Online-Shop, PayPal, Überweisungen ohne Rechnungsnummer).</small></p>
-<table style="max-width:820px"><tr><th>Datum</th><th>Von</th><th>Verwendungszweck</th><th class=r>Betrag</th></tr>
-{% for e in eingaenge %}<tr><td>{{e.datum[8:10]}}.{{e.datum[5:7]}}.{{e.datum[:4]}}</td><td>{{e.name}}</td><td><small>{{e.zweck[:90]}}</small></td><td class=r>{{'%.2f'|format(e.betrag)|replace('.',',')}}</td></tr>{% endfor %}</table></details>{% endif %}
+<table><tr><th>Datum</th><th>Von</th><th>Verwendungszweck</th><th class=r>Betrag</th><th>Ausgangsrechnung zuordnen</th><th></th></tr>
+{% for e in eingaenge %}<tr><td>{{e.datum[8:10]}}.{{e.datum[5:7]}}.{{e.datum[:4]}}</td><td>{{e.name}}</td><td><small>{{e.zweck[:90]}}</small></td><td class=r>{{'%.2f'|format(e.betrag)|replace('.',',')}}</td>
+<td><form method=post action="{{url_for('bank_zuordnen')}}" style="display:flex;gap:6px"><input type=hidden name=bank_id value="{{e.id}}"><input type=hidden name=zurueck value="{{zurueck}}">
+<select name=rechnungsnr required style="max-width:320px;padding:4px"><option value="">&ndash; offene Rechnung wählen &ndash;</option>
+{% for k in e.kandidaten %}<option value="{{k.rechnungsnr}}">{{k.rechnungsnr}} &middot; {{k.lieferant}} &middot; {{'%.2f'|format(k.brutto)|replace('.',',')}} &euro;</option>{% endfor %}</select>
+<button class=sek>Zuordnen</button></form></td>
+<td><form method=post action="{{url_for('bank_ignorieren')}}" style="display:flex;gap:6px"><input type=hidden name=bank_id value="{{e.id}}"><input type=hidden name=zurueck value="{{zurueck}}">
+<input name=grund placeholder="Grund (optional)" style="width:130px;padding:4px"><button class=sek>Ausblenden</button></form></td></tr>{% endfor %}</table></details>{% endif %}
 {{ credit_tabelle('Credit-Zahlungen: Geldeingang offen', credit_offen, credit_offen_summe, '<p><small>Kartenumsätze aus Kassenbuch und Kassenjournal, zu denen noch keine NEXI-Gutschrift auf dem Konto gefunden wurde &ndash; hier prüfen, ob das Geld ankommt.</small></p>', true) }}
 {{ credit_tabelle('Credit-Zahlungen: Geldeingang bestätigt', credit_ok, credit_ok_summe, '', false) }}
 <details class=bank><summary>Bankausgänge ohne Rechnung ({{ohne|length}}) &ndash; {{'%.2f'|format(ohne_summe)|replace('.',',')}} &euro;</summary>
@@ -3236,6 +3242,11 @@ def bank_seite():
         if nrn and all(n < ab_nr[n[:4]] for n in nrn if n[:4] in ab_nr):  # Rechnung stammt aus der Zeit vor dem Start (Altbestand): ausblenden
             continue
         eingaenge.append(dict(b))
+    offene_ausgang = db().execute("SELECT rechnungsnr, lieferant, brutto, datum FROM rechnungen WHERE belegart IN (?,?,?) AND rechnungsnr<>'' "
+                                  "AND COALESCE(zahlung,'offen')<>'bezahlt' AND brutto IS NOT NULL AND brutto<>0 ORDER BY datum DESC",
+                                  AUSGANG_RECHNUNGEN).fetchall()
+    for e in eingaenge:  # passendste offene Ausgangsrechnung (naechster Betrag) zuerst
+        e["kandidaten"] = sorted(offene_ausgang, key=lambda r: abs(abs(r["brutto"]) - e["betrag"]))
     gedeckt = {}
     for bid, k in karten.items():
         for t in k["tage"]:
