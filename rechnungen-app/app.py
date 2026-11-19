@@ -3222,6 +3222,8 @@ def bank_seite():
         else:
             ohne.append(dict(b))
     karten = kartenabrechnungen()
+    ab_nr = {r[0]: r[1] for r in db().execute("SELECT substr(rechnungsnr,1,4), MIN(substr(rechnungsnr,1,7)) FROM rechnungen "
+                                              "WHERE belegart LIKE 'Rechnungsausgang%' AND rechnungsnr GLOB '26[13][01]*' AND datum>=? GROUP BY 1", (start,))}
     eingaenge = []  # Geldeingaenge ohne Zuordnung (Stripe/Online-Shop, PayPal, Ueberweisungen ohne Rechnungsnummer ...)
     esql, epar = "SELECT * FROM bank WHERE betrag>0 AND COALESCE(vorgemerkt,0)=0 AND datum>=?", [start]
     if monat:
@@ -3229,6 +3231,9 @@ def bank_seite():
         epar.append(monat)
     for b in db().execute(esql + " ORDER BY datum DESC, id DESC", epar):
         if b["id"] in zug or b["id"] in karten or b["id"] in ign:
+            continue
+        nrn = re.findall(r"(?<!\d)(26(?:10|30|31)\d{3})(?!\d)", b["zweck"])
+        if nrn and all(n < ab_nr[n[:4]] for n in nrn if n[:4] in ab_nr):  # Rechnung stammt aus der Zeit vor dem Start (Altbestand): ausblenden
             continue
         eingaenge.append(dict(b))
     gedeckt = {}
