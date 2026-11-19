@@ -3137,6 +3137,10 @@ BANK = """
 <td><a href="{{url_for('bearbeiten',rid=r.id)}}">prüfen</a></td></tr>{% endfor %}</table></details>{% endif %}
 {{ rg_tabelle('Offene Rechnungen', offene_liste, offene_summe, true) }}
 {{ rg_tabelle('Bezahlte Rechnungen', bezahlte_liste, bezahlte_summe, false) }}
+{% if eingaenge %}<details class=bank id=eingaenge open style="border-left-color:#b45309"><summary style="color:#b45309">Bankeingänge ohne Zuordnung ({{eingaenge|length}}) &ndash; {{'%.2f'|format(eingaenge_summe)|replace('.',',')}} &euro;</summary>
+<p><small>Geldeingänge auf dem Konto, die zu keiner Rechnung und keiner Kartenabrechnung gehören (z. B. Stripe/Online-Shop, PayPal, Überweisungen ohne Rechnungsnummer).</small></p>
+<table style="max-width:820px"><tr><th>Datum</th><th>Von</th><th>Verwendungszweck</th><th class=r>Betrag</th></tr>
+{% for e in eingaenge %}<tr><td>{{e.datum[8:10]}}.{{e.datum[5:7]}}.{{e.datum[:4]}}</td><td>{{e.name}}</td><td><small>{{e.zweck[:90]}}</small></td><td class=r>{{'%.2f'|format(e.betrag)|replace('.',',')}}</td></tr>{% endfor %}</table></details>{% endif %}
 {{ credit_tabelle('Credit-Zahlungen: Geldeingang offen', credit_offen, credit_offen_summe, '<p><small>Kartenumsätze aus Kassenbuch und Kassenjournal, zu denen noch keine NEXI-Gutschrift auf dem Konto gefunden wurde &ndash; hier prüfen, ob das Geld ankommt.</small></p>', true) }}
 {{ credit_tabelle('Credit-Zahlungen: Geldeingang bestätigt', credit_ok, credit_ok_summe, '', false) }}
 <details class=bank><summary>Bankausgänge ohne Rechnung ({{ohne|length}}) &ndash; {{'%.2f'|format(ohne_summe)|replace('.',',')}} &euro;</summary>
@@ -3218,6 +3222,15 @@ def bank_seite():
         else:
             ohne.append(dict(b))
     karten = kartenabrechnungen()
+    eingaenge = []  # Geldeingaenge ohne Zuordnung (Stripe/Online-Shop, PayPal, Ueberweisungen ohne Rechnungsnummer ...)
+    esql, epar = "SELECT * FROM bank WHERE betrag>0 AND COALESCE(vorgemerkt,0)=0 AND datum>=?", [start]
+    if monat:
+        esql += " AND substr(datum,1,7)=?"
+        epar.append(monat)
+    for b in db().execute(esql + " ORDER BY datum DESC, id DESC", epar):
+        if b["id"] in zug or b["id"] in karten or b["id"] in ign:
+            continue
+        eingaenge.append(dict(b))
     gedeckt = {}
     for bid, k in karten.items():
         for t in k["tage"]:
@@ -3243,7 +3256,7 @@ def bank_seite():
     kontrolliert_text = settings().get("bank_kontrolliert_text") or ""
     neueste = db().execute("SELECT MAX(datum) FROM bank").fetchone()[0] or ""
     neu_seit = db().execute("SELECT COUNT(*) FROM bank WHERE datum>?", (kontrolliert,)).fetchone()[0] if kontrolliert else 0
-    return page(BANK, kontrolliert=kontrolliert, kontrolliert_text=kontrolliert_text, neueste_buchung=f"{neueste[8:]}.{neueste[5:7]}.{neueste[:4]}" if neueste else "-",
+    return page(BANK, eingaenge=eingaenge, eingaenge_summe=sum(e["betrag"] for e in eingaenge), kontrolliert=kontrolliert, kontrolliert_text=kontrolliert_text, neueste_buchung=f"{neueste[8:]}.{neueste[5:7]}.{neueste[:4]}" if neueste else "-",
                 neu_seit_kontrolle=neu_seit, monat=monat, summen=summen, info=info, skonto_liste=skonto_offen(), manuell_liste=manuell_liste,
                 credit_offen=credit_offen, credit_offen_summe=sum(c["betrag"] for c in credit_offen),
                 credit_ok=credit_ok, credit_ok_summe=sum(c["betrag"] for c in credit_ok),
