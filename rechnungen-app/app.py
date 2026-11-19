@@ -2220,7 +2220,7 @@ def kasse_zahl(t):
 
 
 def finde_endsumme(text):
-    m = re.search(r"Endsumme:?\s*(-?[\d.]+)\s*€", text)
+    m = re.search(r"Endsumme:?\s*(-?[\d.]+)\s*(?:€|\x80|EUR)", text)  # manche PDFs liefern das Eurozeichen als \x80
     if m:
         return kasse_zahl(m.group(1))
     b, _ = finde_betrag(text)
@@ -3015,6 +3015,8 @@ def zahlungen_synchronisieren():
         am, quelle, art = (p["am"], p["quellen"], p["arten"]) if p else (None, None, None)
         if not p and (soll < 0.005 or r["rechnungsnr"] in quitt_bezahlt) and r["rechnungsnr"] in quitt:  # 0,00-Rechnung ohne Zahlung bzw. von Hand als bezahlt bestaetigt
             z, am, quelle, art = "bezahlt", quitt[r["rechnungsnr"]], "Bestätigt", ""
+        elif p and z == "teilweise" and r["rechnungsnr"] in quitt_bezahlt and r["rechnungsnr"] in quitt:  # Restbetrag von Hand als erledigt bestaetigt (z. B. Stripe-Gebuehr)
+            z, am, quelle, art = "bezahlt", p["am"], p["quellen"] + ", Bestätigt", p["arten"]
         if (z, r["zahl_am"], r["zahl_quelle"], r["zahl_art"]) != (r["zahlung"], am, quelle, art) and not (
                 z == r["zahlung"] == "offen" and not r["zahl_am"] and not r["zahl_art"]):
             db().execute("UPDATE rechnungen SET zahlung=?, zahl_am=?, zahl_quelle=?, zahl_art=? WHERE id=?",
