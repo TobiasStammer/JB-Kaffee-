@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8">
+<title>Frostwarnung Flyer</title>
+<style>
+@page{size:148mm 210mm;margin:0}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:148mm;height:210mm}
+body{font-family:'Segoe UI',Arial,sans-serif;color:#0b2a4a;position:relative;overflow:hidden;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.hero{position:absolute;left:0;right:0;top:0;height:78mm;background:linear-gradient(180deg,#0b2a4a 0%,#1d5a8f 62%,#7fb8e0 100%);overflow:hidden}
+.hero svg.bg{position:absolute;inset:0;width:100%;height:100%}
+.badge{position:absolute;left:9mm;top:8mm;background:#e5322d;color:#fff;font-weight:800;letter-spacing:.6mm;font-size:3.6mm;padding:1.4mm 3.4mm;border-radius:10mm;text-transform:uppercase}
+h1{position:absolute;left:9mm;top:17mm;width:82mm;color:#fff;font-family:'Arial Black','Segoe UI',Arial,sans-serif;font-size:12.5mm;line-height:.95;text-transform:uppercase;letter-spacing:-.3mm}
+h1 span{display:block;color:#bfe4ff;font-size:6.1mm;letter-spacing:0;text-transform:none;font-family:'Segoe UI',Arial,sans-serif;font-weight:700;line-height:1.2;margin-top:3mm}
+.machine{position:absolute;right:4mm;bottom:-2mm;width:54mm}
+.fact{position:absolute;left:9mm;right:9mm;top:83mm;font-size:3.55mm;line-height:1.42}
+.fact b{color:#c2271f}
+.tips{position:absolute;left:9mm;right:9mm;top:106mm;display:grid;grid-template-columns:1fr 1fr;gap:3mm}
+.tip{background:#eaf4fc;border-left:1.4mm solid #1d7cc4;border-radius:2mm;padding:2.4mm 3mm 2.6mm;font-size:3.25mm;line-height:1.3}
+.tip b{display:block;font-size:3.6mm;margin-bottom:.6mm}
+.tip.r{background:#fdeceb;border-left-color:#e5322d}
+.foot{position:absolute;left:0;right:0;bottom:0;height:46mm;background:#f3f1ec;border-top:.8mm solid #0b2a4a;padding:4.5mm 9mm 0}
+.foot img.logo{width:58mm;display:block}
+.foot .addr{position:absolute;left:9mm;top:18mm;font-size:3.2mm;line-height:1.38}
+.foot .addr b{font-size:3.5mm}
+.foot .qr{position:absolute;right:9mm;top:4.5mm;width:25mm;text-align:center;font-size:2.5mm;line-height:1.2;color:#0b2a4a}
+.foot .qr img{width:25mm;height:25mm;display:block;background:#fff;padding:1.5mm;border-radius:1.5mm;margin-bottom:1mm}
+.foot .web{position:absolute;right:9mm;bottom:3.5mm;font-size:3mm;font-weight:700}
+</style></head><body>
+
+<div class="hero">
+<svg class="bg" viewBox="0 0 148 78" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <g id="sf" stroke="#fff" stroke-width=".7" stroke-linecap="round" fill="none">
+      <path d="M0-5V5M-4.3-2.5L4.3 2.5M-4.3 2.5L4.3-2.5"/>
+      <path d="M-1.2-4L0-2.6L1.2-4M-1.2 4L0 2.6L1.2 4M-3.9-.7L-2.4-1.3L-2.7-2.9M3.9-.7L2.4-1.3L2.7-2.9M-3.9.7L-2.4 1.3L-2.7 2.9M3.9.7L2.4 1.3L2.7 2.9"/>
+    </g>
+  </defs>
+  <g opacity=".85">
+    <use href="#sf" transform="translate(98 12) scale(2.2)" opacity=".9"/>
+    <use href="#sf" transform="translate(130 30) scale(1.4)" opacity=".7"/>
+    <use href="#sf" transform="translate(84 44) scale(1)" opacity=".55"/>
+    <use href="#sf" transform="translate(142 8) scale(1)" opacity=".6"/>
+    <use href="#sf" transform="translate(70 22) scale(.9)" opacity=".5"/>
+    <use href="#sf" transform="translate(118 58) scale(.8)" opacity=".45"/>
+    <use href="#sf" transform="translate(14 72) scale(1.1)" opacity=".35"/>
+    <use href="#sf" transform="translate(60 76) scale(.8)" opacity=".35"/>
+  </g>
+  <g fill="#fff" opacity=".55">
+    <circle cx="90" cy="30" r=".6"/><circle cx="106" cy="40" r=".5"/><circle cx="124" cy="18" r=".6"/><circle cx="76" cy="10" r=".5"/><circle cx="136" cy="48" r=".5"/><circle cx="48" cy="82" r=".5"/><circle cx="22" cy="86" r=".6"/><circle cx="104" cy="70" r=".5"/>
+  </g>
+</svg>
+
+<div class="badge">Frostwarnung</div>
+<h1>Achtung Frost!<span>Ihre Kaffeemaschine mag keine Kälte.</span></h1>
+
+<svg class="machine" viewBox="0 0 120 150" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="body" x1="0" x2="1"><stop offset="0" stop-color="#e8f4fd"/><stop offset=".55" stop-color="#bcdcf2"/><stop offset="1" stop-color="#8fc0e3"/></linearGradient>
+    <linearGradient id="dark" x1="0" x2="1"><stop offset="0" stop-color="#27445f"/><stop offset="1" stop-color="#16314b"/></linearGradient>
+    <linearGradient id="ice" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#a9d6f5"/></linearGradient>
+  </defs>
+  <!-- Maschine -->
+  <rect x="14" y="14" width="92" height="124" rx="10" fill="url(#body)" stroke="#fff" stroke-width="1.5"/>
+  <rect x="22" y="22" width="76" height="34" rx="5" fill="url(#dark)"/>
+  <rect x="28" y="28" width="46" height="22" rx="3" fill="#0e2438"/>
+  <text x="51" y="43" font-family="Segoe UI,Arial" font-size="12" font-weight="700" fill="#7fd1ff" text-anchor="middle">–5 °C</text>
+  <circle cx="86" cy="33" r="5" fill="#c9e7fb"/><circle cx="86" cy="47" r="3" fill="#5f87a8"/>
+  <rect x="22" y="62" width="76" height="8" rx="3" fill="#7da9c9"/>
+  <rect x="53" y="70" width="14" height="14" rx="2" fill="#27445f"/>
+  <!-- Tasse -->
+  <rect x="38" y="102" width="40" height="30" rx="4" fill="#fff"/>
+  <path d="M78 108h6a6 6 0 0 1 0 14h-6" fill="none" stroke="#fff" stroke-width="3.5"/>
+  <rect x="38" y="102" width="40" height="7" rx="3" fill="#cfe7f8"/>
+  <!-- Abtropf -->
+  <rect x="24" y="132" width="72" height="5" rx="2" fill="#6f9ac0"/>
+  <!-- Eiszapfen -->
+  <path d="M10 18Q14 8 22 14L26 14L30 38L33 14L40 14L43 28L46 14L58 14L61 44L65 14L76 14L79 30L82 14L92 14L95 36L98 14L108 14Q114 8 112 20L108 20L10 20Z" fill="url(#ice)" stroke="#fff" stroke-width=".8" stroke-linejoin="round"/>
+  <!-- Reif -->
+  <path d="M14 138q10-8 20-2t20-2 20 2 20-2 12 4v6H14z" fill="#fff" opacity=".85"/>
+  <!-- Eiskristall -->
+  <g transform="translate(100 112)" stroke="#fff" stroke-width="1.6" stroke-linecap="round" fill="none"><path d="M0-9V9M-7.8-4.5L7.8 4.5M-7.8 4.5L7.8-4.5"/></g>
+</svg>
+</div>
+
+<p class="fact"><b>Gefrierendes Wasser dehnt sich um rund 9&nbsp;% aus.</b> In Pumpe, Schläuchen, Ventilen und Brühgruppe können dadurch Teile reißen. Das Tückische: Den Schaden sieht man oft erst nach dem Auftauen &ndash; dann tropft das Gerät oder zeigt Fehler.</p>
+
+<div class="tips">
+  <div class="tip r"><b>Nicht im Auto lassen</b>Bei Frost nie über Nacht im kalten Fahrzeug &ndash; auch nicht auf dem Weg zu uns.</div>
+  <div class="tip"><b>Kalte Räume</b>Garage, Keller, Ferienwohnung: Wassertank leeren, Gerät nach Anleitung entleeren.</div>
+  <div class="tip"><b>Erst auftauen lassen</b>Nach Frost nicht sofort einschalten &ndash; mehrere Stunden bei Zimmertemperatur warten.</div>
+  <div class="tip r"><b>Tropft oder Fehler?</b>Ausgeschaltet lassen und zu uns bringen &ndash; ohne Termin.</div>
+</div>
+
+<div class="foot">
+  <img class="logo" src="logo.png" alt="JB Kaffeemaschinen Service &amp; Verkauf">
+  <div class="addr"><b>Wallauer Str. 4 &middot; 65719 Hofheim-Langenhain</b><br>Tel. 06192 2004363 &middot; info@kaffeetechniker.de<br>Mo&ndash;Do 8&ndash;16 Uhr &middot; Fr 8&ndash;13 Uhr</div>
+  <div class="qr"><img src="qr.svg" alt="QR-Code">Mehr Infos &amp;<br>aktuelle Warnung</div>
+  <div class="web">kaffeetechniker.de/frostwarnung</div>
+</div>
+</body></html>
