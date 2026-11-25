@@ -53,3 +53,22 @@ if ( ! function_exists( 'kt_ghs_data' ) ) {
 		echo '<div>Darf nicht in die Hände von Kindern gelangen.</div></div>';
 	}, 45 );
 }
+
+// NIVONA-Reiniger/Entkalker: bis zum Vorliegen der Sicherheitsdatenblaetter nur im Laden (seit 25.11.2026).
+// Zum Freigeben die Produkt-ID hier entfernen und oben die Gefahrenhinweise ergaenzen.
+if ( ! function_exists( 'kt_only_store_ids' ) ) {
+
+	function kt_only_store_ids() {
+		return array( 3827, 3822, 3818 );
+	}
+
+	add_filter( 'woocommerce_is_purchasable', function ( $ok, $product ) {
+		return in_array( $product->get_id(), kt_only_store_ids(), true ) ? false : $ok;
+	}, 20, 2 );
+
+	add_action( 'woocommerce_single_product_summary', function () {
+		if ( in_array( get_the_ID(), kt_only_store_ids(), true ) ) {
+			echo '<p style="border:1px solid #d5dae1;border-radius:4px;padding:12px;margin:14px 0"><strong>Nur im Laden erhältlich.</strong><br>Wallauer Straße 4, 65719 Hofheim-Langenhain, Telefon 06192 2004363.</p>';
+		}
+	}, 31 );
+}
