@@ -3116,7 +3116,7 @@
         },
         {
           "t": "p",
-          "x": "Bei Zahlung per Kredit-/Debitkarte, Apple Pay oder Google Pay wird die Zahlung über WooPayments abgewickelt, technisch bereitgestellt von Stripe, Inc. bzw. Stripe Payments Europe, Limited, 1 Grand Canal Street Lower, Dublin, Irland (\"Stripe\"). Dabei werden die zur Zahlungsabwicklung erforderlichen Daten (u. a. Name, Rechnungsadresse, Bestell- und Zahlungsbetrag, Zahlungsmitteldaten) an Stripe übermittelt. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Erfüllung des Kaufvertrags). Es kann hierbei zu einer Übermittlung von Daten in die USA kommen; diese stützt sich auf das EU-US Data Privacy Framework bzw. auf Standardvertragsklauseln der EU-Kommission. Näheres regelt die Datenschutzerklärung von Stripe (stripe.com/de/privacy)."
+          "x": "Bei Zahlung per Kredit-/Debitkarte, Apple Pay oder Google Pay wird die Zahlung über WooPayments abgewickelt, technisch bereitgestellt von Stripe, Inc. bzw. Stripe Payments Europe, Limited, 1 Grand Canal Street Lower, Dublin, Irland (\"Stripe\"). Dabei werden die zur Zahlungsabwicklung erforderlichen Daten (u. a. Name, Rechnungsadresse, Bestell- und Zahlungsbetrag, Zahlungsmitteldaten) an Stripe übermittelt. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Erfüllung des Kaufvertrags). Es kann hierbei zu einer Übermittlung von Daten in die USA kommen; diese stützt sich auf das EU-US Data Privacy Framework bzw. auf Standardvertragsklauseln der EU-Kommission. Näheres regelt die Datenschutzerklärung von Stripe (stripe.com/de/privacy). Zur Betrugsprävention werden auf Warenkorb- und Kassenseiten außerdem Skripte von Stripe und dem von WooPayments dafür eingesetzten Dienst Sift geladen, dabei werden u. a. IP-Adresse und Gerätedaten übertragen (Art. 6 Abs. 1 lit. f DSGVO bzw. § 25 Abs. 2 TDDDG)."
         },
         {
           "t": "h",
@@ -3178,6 +3178,14 @@
           "t": "p",
           "x": "Auf mehreren Seiten (u. a. „Wartung“ und „JURA“) binden wir Videos von YouTube ein. Wir nutzen den erweiterten Datenschutzmodus (Domain youtube-nocookie.com). Beim Aufruf der Seite wird zunächst nur ein Vorschaubild angezeigt, das unser Server bereitstellt (kein Kontakt Ihres Browsers zu Google); erst wenn Sie das Video durch Klick starten, wird eine Verbindung zu Google/YouTube (Google Ireland Limited) hergestellt und es können Daten – einschließlich Ihrer IP-Adresse – an Google übermittelt werden, ggf. auch in die USA. Rechtsgrundlage ist Ihre durch den Klick erteilte Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Näheres regelt die Datenschutzerklärung von Google."
         },
+        {"t": "h", "lvl": 2, "x": "Widerruf über das Online-Formular", "icon": "info"},
+        {"t": "p", "x": "Wenn Sie einen Vertrag über unser Online-Formular widerrufen, verarbeiten wir Name, Angaben zum Vertrag, E-Mail-Adresse, Ihre Anmerkung sowie Datum und Uhrzeit des Eingangs, um den Widerruf zu bearbeiten und den Eingang zu bestätigen (Art. 6 Abs. 1 lit. b und c DSGVO). Zum Schutz vor Missbrauch speichern wir für eine Stunde einen verschlüsselten Kennwert Ihrer IP-Adresse (Art. 6 Abs. 1 lit. f DSGVO). Die Erklärung bewahren wir im Rahmen der gesetzlichen Aufbewahrungsfristen auf."},
+        {"t": "h", "lvl": 2, "x": "Versand der Ware", "icon": "info"},
+        {"t": "p", "x": "Zur Lieferung geben wir Ihren Namen und Ihre Lieferanschrift an den Versanddienstleister (DHL oder GLS) weiter (Art. 6 Abs. 1 lit. b DSGVO). Bei Zahlung über PayPal übermitteln wir PayPal außerdem die Sendungsnummer und den Versanddienstleister, damit die Lieferung der Zahlung zugeordnet werden kann (Art. 6 Abs. 1 lit. f DSGVO)."},
+        {"t": "h", "lvl": 2, "x": "Bewerbungen und Mietgerät-Reservierungen", "icon": "info"},
+        {"t": "p", "x": "Wenn Sie sich bei uns bewerben, verarbeiten wir die übermittelten Unterlagen ausschließlich für das Auswahlverfahren (Art. 6 Abs. 1 lit. b DSGVO) und löschen sie, sobald sie dafür und zur Abwehr möglicher Ansprüche nicht mehr benötigt werden. Wenn Sie ein Mietgerät reservieren, verarbeiten wir Name, E-Mail-Adresse, Telefonnummer, Gerätewunsch, Zeitraum und Nachricht zur Bearbeitung der Reservierung (Art. 6 Abs. 1 lit. b DSGVO)."},
+        {"t": "h", "lvl": 2, "x": "Ihr Widerspruchsrecht", "icon": "info"},
+        {"t": "p", "x": "<strong>Soweit wir Daten auf Grundlage berechtigter Interessen (Art. 6 Abs. 1 lit. f DSGVO) verarbeiten, können Sie aus Gründen, die sich aus Ihrer besonderen Situation ergeben, jederzeit Widerspruch einlegen (Art. 21 DSGVO). Eine Nachricht an info@kaffeetechniker.de genügt.</strong>"},
         {
           "t": "h",
           "lvl": 2,
@@ -3356,7 +3364,7 @@
         },
         {
           "t": "p",
-          "x": "Es gilt das Recht der Bundesrepublik Deutschland unter Ausschluss des UN-Kaufrechts; bei Verbrauchern gilt dies nur insoweit, als hierdurch der gewährte Schutz durch zwingende Bestimmungen des Rechts des Staates, in dem der Verbraucher seinen gewöhnlichen Aufenthalt hat, nicht eingeschränkt wird. Ist der Kunde Kaufmann, juristische Person des öffentlichen Rechts oder öffentlich-rechtliches Sondervermögen, ist Gerichtsstand für alle Streitigkeiten aus diesem Vertragsverhältnis unser Geschäftssitz Hofheim am Taunus. Sollten einzelne Bestimmungen dieser AGB unwirksam sein oder werden, bleibt die Wirksamkeit der übrigen Bestimmungen hiervon unberührt. Hinweise zur Streitbeilegung finden Sie in unserem <a href=\"https://kaffeetechniker.de/impressum/\">Impressum</a>."
+          "x": "Es gilt das Recht der Bundesrepublik Deutschland unter Ausschluss des UN-Kaufrechts; bei Verbrauchern gilt dies nur insoweit, als hierdurch der gewährte Schutz durch zwingende Bestimmungen des Rechts des Staates, in dem der Verbraucher seinen gewöhnlichen Aufenthalt hat, nicht eingeschränkt wird. Ist der Kunde Kaufmann, juristische Person des öffentlichen Rechts oder öffentlich-rechtliches Sondervermögen, ist Gerichtsstand für alle Streitigkeiten aus diesem Vertragsverhältnis unser Geschäftssitz Hofheim am Taunus. Hinweise zur Streitbeilegung finden Sie in unserem <a href=\"https://kaffeetechniker.de/impressum/\">Impressum</a>."
         }
       ]
     },
@@ -3368,7 +3376,7 @@
       "blocks": [
         {
           "t": "p",
-          "x": "Diese Widerrufsbelehrung gilt für Verbraucherinnen und Verbraucher, die Waren über unseren Online-Shop unter kaffeetechniker.de bestellen."
+          "x": "Diese Widerrufsbelehrung gilt für Verbraucherinnen und Verbraucher, die Waren über unseren Online-Shop unter kaffeetechniker.de bestellen oder uns im Fernabsatz mit einer Reparatur oder Wartung beauftragen."
         },
         {
           "t": "h",
@@ -3382,11 +3390,11 @@
         },
         {
           "t": "p",
-          "x": "Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag, an dem Sie oder ein von Ihnen benannter Dritter, der nicht der Beförderer ist, die letzte Ware in Besitz genommen haben bzw. hat (bei einer einheitlich bestellten Ware, die in mehreren Teilsendungen geliefert wird: ab Erhalt der letzten Teilsendung)."
+          "x": "Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag, an dem Sie oder ein von Ihnen benannter Dritter, der nicht der Beförderer ist, die letzte Ware in Besitz genommen haben bzw. hat."
         },
         {
           "t": "p",
-          "x": "Um Ihr Widerrufsrecht auszuüben, müssen Sie uns (Joachim Blöchle Elektro-Service GmbH, Wallauer Straße 4, 65719 Hofheim-Langenhain, Telefon: 06192 2004363, E-Mail: info@kaffeetechniker.de) mittels einer eindeutigen Erklärung (z. B. ein mit der Post versandter Brief, Telefax oder E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren. Sie können dafür das untenstehende Muster-Widerrufsformular verwenden, das ist jedoch nicht vorgeschrieben."
+          "x": "Um Ihr Widerrufsrecht auszuüben, müssen Sie uns (Joachim Blöchle Elektro-Service GmbH, Wallauer Straße 4, 65719 Hofheim-Langenhain, Telefon: 06192 2004363, E-Mail: info@kaffeetechniker.de) mittels einer eindeutigen Erklärung (z. B. ein mit der Post versandter Brief oder eine E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren. Sie können dafür das beigefügte Muster-Widerrufsformular verwenden, das jedoch nicht vorgeschrieben ist. Sie können Ihr Widerrufsrecht auch online unter <a href=\"https://kaffeetechniker.de/vertrag-widerrufen/\">https://kaffeetechniker.de/vertrag-widerrufen/</a> ausüben. Wenn Sie diese Online-Funktion nutzen, übermitteln wir Ihnen auf einem dauerhaften Datenträger (z. B. durch eine E-Mail) unverzüglich eine Eingangsbestätigung mit Informationen zum Inhalt der Widerrufserklärung sowie dem Datum und der Uhrzeit ihres Eingangs."
         },
         {
           "t": "p",
@@ -3408,7 +3416,7 @@
         },
         {
           "t": "p",
-          "x": "Sie müssen für einen etwaigen Wertverlust der Waren nur aufkommen, wenn dieser Wertverlust auf einen zum Prüfen der Beschaffenheit, Eigenschaften und Funktionsweise der Waren nicht notwendigen Umgang mit ihnen zurückzuführen ist."
+          "x": "Sie müssen für einen etwaigen Wertverlust der Waren nur aufkommen, wenn dieser Wertverlust auf einen zur Prüfung der Beschaffenheit, Eigenschaften und Funktionsweise der Waren nicht notwendigen Umgang mit ihnen zurückzuführen ist."
         },
         {
           "t": "h",
@@ -3418,7 +3426,7 @@
         },
         {
           "t": "p",
-          "x": "Beauftragen Sie eine Reparatur oder Wartung ausschließlich per Fernkommunikationsmittel (z. B. über unser Online-Formular oder Telefon), steht Ihnen ebenfalls ein Widerrufsrecht nach den vorstehenden Regelungen zu. Haben Sie ausdrücklich verlangt, dass wir mit der Ausführung der Arbeiten bereits vor Ablauf der Widerrufsfrist beginnen, und widerrufen Sie anschließend den Vertrag, haben Sie uns einen angemessenen Betrag zu zahlen, der dem Anteil der bis zu Ihrer Widerrufserklärung bereits erbrachten Leistungen im Vergleich zum Gesamtumfang des Vertrags entspricht (§ 357 Abs. 8 BGB). Wurde der Reparatur- oder Wartungsauftrag vollständig erfüllt, bevor Sie Ihr Widerrufsrecht ausüben, erlischt das Widerrufsrecht, wenn Sie vor Beginn der Ausführung ausdrücklich zugestimmt haben und gleichzeitig Ihre Kenntnis davon bestätigt haben, dass Sie Ihr Widerrufsrecht bei vollständiger Vertragserfüllung durch uns verlieren (§ 356 Abs. 4 BGB)."
+          "x": "Beauftragen Sie eine Reparatur oder Wartung im Fernabsatz (z. B. per Telefon, E-Mail oder online) oder außerhalb unserer Geschäftsräume, haben Sie ebenfalls ein Widerrufsrecht. Abweichend von den Angaben für Warenkäufe beträgt die Widerrufsfrist vierzehn Tage ab dem Tag des Vertragsabschlusses. Für die Ausübung des Widerrufs und die Rückzahlung gelten die obigen Angaben entsprechend.<br><br>Haben Sie verlangt, dass die Dienstleistungen während der Widerrufsfrist beginnen soll, so haben Sie uns einen angemessenen Betrag zu zahlen, der dem Anteil der bis zu dem Zeitpunkt, zu dem Sie uns von der Ausübung des Widerrufsrechts hinsichtlich dieses Vertrags unterrichten, bereits erbrachten Dienstleistungen im Vergleich zum Gesamtumfang der im Vertrag vorgesehenen Dienstleistungen entspricht.<br><br>Bei einem kostenpflichtigen Auftrag erlischt das Widerrufsrecht mit der vollständigen Erbringung der Dienstleistung, wenn Sie vor Beginn ausdrücklich zugestimmt haben, dass wir vor Ablauf der Widerrufsfrist beginnen, und Ihre Kenntnis davon bestätigt haben, dass Ihr Widerrufsrecht mit vollständiger Vertragserfüllung erlischt (§ 356 Abs. 5 BGB)."
         },
         {
           "t": "h",

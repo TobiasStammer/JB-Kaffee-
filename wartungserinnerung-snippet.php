@@ -185,7 +185,7 @@ if ( ! function_exists( 'kt_we_cfg' ) ) {
 		$report = array();
 		$sent   = 0;
 		$rows   = $wpdb->get_results( $wpdb->prepare(
-			'SELECT id, response FROM ' . kt_we_table( 'fluentform_submissions' ) . " WHERE form_id = %d AND status <> 'trashed' ORDER BY id ASC",
+			'SELECT id, response, created_at FROM ' . kt_we_table( 'fluentform_submissions' ) . " WHERE form_id = %d AND status <> 'trashed' ORDER BY id ASC",
 			$cfg['form_id']
 		) );
 		foreach ( (array) $rows as $row ) {
@@ -203,6 +203,16 @@ if ( ! function_exists( 'kt_we_cfg' ) ) {
 				'erinnern_ab' => $remind_from->format( 'Y-m-d' ),
 				'status'      => 'wartet',
 			);
+			// Double-Opt-in: neue Eintraege erst nach Bestaetigung; unbestaetigte nach 14 Tagen loeschen.
+			if ( $id > kt_we_doi_since() && ! isset( $state[ $id ]['ok'] ) && ! isset( $state[ $id ]['sent'] ) ) {
+				$item['status'] = 'unbestaetigt';
+				if ( ! $dry && $now->getTimestamp() - ( new DateTimeImmutable( $row->created_at, wp_timezone() ) )->getTimestamp() > 14 * DAY_IN_SECONDS ) {
+					kt_we_delete( $id );
+					$item['status'] = 'unbestaetigt geloescht';
+				}
+				$report[] = $item;
+				continue;
+			}
 			if ( isset( $state[ $id ]['sent'] ) ) {
 				$age = ( $now->getTimestamp() - (int) $state[ $id ]['sent'] ) / DAY_IN_SECONDS;
 				if ( $age >= (int) $cfg['keep_days'] ) {
@@ -255,18 +265,60 @@ if ( ! function_exists( 'kt_we_cfg' ) ) {
 		if ( ! $p ) {
 			return;
 		}
-		$now         = new DateTimeImmutable( 'now', wp_timezone() );
-		$remind_from = $p['due']->modify( '-' . (int) $cfg['lead_days'] . ' days' );
-		if ( $now >= $remind_from ) {
-			if ( kt_we_send_reminder( $p ) ) {
-				$state                  = kt_we_state();
-				$state[ $p['id'] ]      = array( 'sent' => $now->getTimestamp() );
-				kt_we_state_save( $state );
-			}
-		} else {
-			kt_we_send_confirmation( $p, $remind_from );
-		}
+		$url = add_query_arg( array( 'kt_we_confirm' => $p['id'], 't' => kt_we_token( $p['id'], $p['email'] ) ), home_url( '/' ) );
+		kt_we_mail( $p['email'], 'Bitte bestätigen Sie Ihre Wartungserinnerung', kt_we_greeting( $p )
+			. '<p>f&uuml;r diese E-Mail-Adresse wurde eine Wartungserinnerung angemeldet. Bitte best&auml;tigen Sie die Anmeldung:</p>'
+			. '<p><a href="' . esc_url( $url ) . '">Wartungserinnerung best&auml;tigen</a></p>'
+			. '<p style="font-size:12px;color:#6b7178">Wenn Sie das nicht waren, ignorieren Sie diese E-Mail. Die Angaben werden dann nach 14 Tagen gel&ouml;scht.</p>' );
 	}
+
+	/** Letzte Eintrags-ID vor Einfuehrung des Double-Opt-in (Altbestand bleibt gueltig). */
+	function kt_we_doi_since() {
+		$v = get_option( 'kt_we_doi_since', null );
+		if ( null === $v ) {
+			global $wpdb;
+			$v = (int) $wpdb->get_var( 'SELECT MAX(id) FROM ' . kt_we_table( 'fluentform_submissions' ) );
+			add_option( 'kt_we_doi_since', $v, '', false );
+		}
+		return (int) $v;
+	}
+	add_action( 'init', 'kt_we_doi_since' );
+
+	// Bestaetigungs-Link
+	add_action( 'init', function () {
+		if ( empty( $_GET['kt_we_confirm'] ) || empty( $_GET['t'] ) ) {
+			return;
+		}
+		global $wpdb;
+		$cfg = kt_we_cfg();
+		$id  = (int) $_GET['kt_we_confirm'];
+		$t   = sanitize_text_field( wp_unslash( $_GET['t'] ) );
+		$row = $wpdb->get_row( $wpdb->prepare(
+			'SELECT id, response FROM ' . kt_we_table( 'fluentform_submissions' ) . ' WHERE id = %d AND form_id = %d',
+			$id,
+			$cfg['form_id']
+		) );
+		$p = $row ? kt_we_parse( $row ) : null;
+		if ( ! $p || ! hash_equals( kt_we_token( $id, $p['email'] ), $t ) ) {
+			wp_die( 'Dieser Link ist ung&uuml;ltig oder abgelaufen.', 'Wartungserinnerung', array( 'response' => 200 ) );
+		}
+		$state = kt_we_state();
+		if ( ! isset( $state[ $id ] ) ) {
+			$state[ $id ] = array( 'ok' => time() );
+			kt_we_state_save( $state );
+			$now         = new DateTimeImmutable( 'now', wp_timezone() );
+			$remind_from = $p['due']->modify( '-' . (int) $cfg['lead_days'] . ' days' );
+			if ( $now >= $remind_from ) {
+				if ( kt_we_send_reminder( $p ) ) {
+					$state[ $id ]['sent'] = $now->getTimestamp();
+					kt_we_state_save( $state );
+				}
+			} else {
+				kt_we_send_confirmation( $p, $remind_from );
+			}
+		}
+		wp_die( 'Vielen Dank, Ihre Wartungserinnerung ist best&auml;tigt.', 'Wartungserinnerung', array( 'response' => 200 ) );
+	} );
 
 	add_action( 'fluentform/submission_inserted', 'kt_we_on_submit', 10, 3 );
 	add_action( 'fluentform_submission_inserted', 'kt_we_on_submit', 10, 3 );

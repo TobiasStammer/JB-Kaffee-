@@ -1277,6 +1277,7 @@ function Reviews-Html {
     "<figure class=`"kt-rev`"><div class=`"kt-rev-st`">$fill</div><blockquote>$($_.text)</blockquote><figcaption>$($_.name)$dt</figcaption></figure>"
   }) -join "`n    "
   $more = if ($r.url) { "<p class=`"kt-rev-more`"><a href=`"$($r.url)`" target=`"_blank`" rel=`"noopener`">Alle Bewertungen auf Google ansehen &rarr;</a></p>" } else { '' }
+  $more = "<p style=`"text-align:center;font-size:12px;color:#6b7178;margin:16px 0 0`">Die Bewertungen stammen von Google; wir pr&uuml;fen nicht, ob die Verfasser Kunden waren.</p>$more"
   $sum = if ($r.rating) { "<div class=`"kt-rev-sum`"><span class=`"kt-rev-st big`">&#9733;&#9733;&#9733;&#9733;&#9733;</span> <b>$($r.rating)</b>$(if ($r.count) { " <span>&middot; $($r.count) Bewertungen auf Google</span>" })</div>" } else { '' }
   @"
 <style>
